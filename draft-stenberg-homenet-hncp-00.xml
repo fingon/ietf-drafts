@@ -43,45 +43,27 @@ Edit time:     477 min
     <keyword>Homenet</keyword>
     <abstract>
 
-      <t>This document describes a minimalist state synchronization
-      protocol for home (or other small site) use that can be used for
-      various purposes, without being tied to particular routing
-      protocol. </t>
+      <t>This document describes HNCP, a minimalist state synchronization
+      protocol for a homenet (or other small site). </t>
 
     </abstract>
   </front>
   <middle>
     <section title="Introduction">
 
-      <t>In a home (or small other site) with multiple routers, there is
-      typically a need to share some state among the routers. There are two
-      logical alternatives how this state can be shared:
-
-      <list style="numbers">
-        <t>
-          Everything within routing protocol (the "huge routing protocol"
-          assumption). Current set of drafts that have been
-          promoted within the homenet working group
-          seem to promote this as the way to go (e.g. <xref
-          target="I-D.arkko-homenet-prefix-assignment"/>, <xref
-          target="I-D.stenberg-homenet-dnssdext-hybrid-proxy-ospf"/>). This
-          design choice makes the assumption that all routers do converge
-          to using some particular routing protocol.
-        </t>
-        <t>
-          Everything where it is needed (small, discrete pieces of
-          functionality such as separate routing, service discovery, and
-          prefix assignment daemons). 
-        </t>
-      </list>
-      </t>
-
-      <t>This draft describes a way to synchronize state across the
-      network, enabling use of arbitrary set of routing protocols in a home
-      as long as they support both importing and exporting of
-      source-specific route entries required to get the functionality
-      described in <xref target="I-D.troan-homenet-sadr"/>.</t>
-
+      <t>This document describes HNCP, a protocol designed to synchronize 
+      state across a homenet (or small site) in order to facilitate automated configuration 
+      within the site, integration with trusted bootstrapping 
+      [draft-behringer-homenet-trust-bootstrap] and default perimeter 
+      detection [draft-kline-default-perimeter], automatic IP prefix distribution [generic-PA ref], 
+      and service discovery across multiple links within the homenet as defined in [generic-SD ref]. </t>
+      
+      <t>HCNP is designed to provide enough bootstrapping information for a routing protocol to operate independently 
+      without homenet-specific extensions. In homenet environments where multiple IPv6 prefixes are present, 
+      routing based on source and destination address is necessary [troan-sadr]. Routing protocol requirements for 
+      source and destination routing is described in section 3 of 
+      [draft-baker-rtgwg-src-dst-routing-use-cases-00]. </t>
+      
     </section>
 
     <section title="Data model">
