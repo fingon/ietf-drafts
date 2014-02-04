@@ -1,8 +1,8 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Mon Nov 18 17:55:22 2013 mstenber
-Last modified: Tue Feb  4 01:20:59 2014 mstenber
-Edit time:     521 min
+Last modified: Fri Jan 31 18:50:36 2014 mstenber
+Edit time:     518 min
 -->
 
 <!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
@@ -120,32 +120,38 @@ Edit time:     521 min
       <t>The protocol is designed to run on UDP port IANA-UDP-PORT, using
       both link-local scoped IPv6 unicast and link-local scoped IPv6
       multicast messages to address IANA-MULTICAST-ADDRESS for
-      transport. The protocol consists of Trickle-driven multicast status
-      messages, and unicast based neighbor state synchronization
-      exchanges. </t>
+      transport. The protocol consists of Trickle <xref target="RFC6206"/> 
+      driven multicast status messages to indicate changes in shared TLV data, 
+      and unicast state synchronization message exchanges when reacting to the
+      indications. </t>
 
-      <section title="Regular Trickle-driven status updates">
+      <section title="Trickle-driven Status Updates">
 
-        <t>Every node is responsible for sending link-local multicast network
-        state messages defined in <xref target="net-message"/> every time
-        Trickle algorithm defined in <xref target="RFC6206"/> indicates
-        they should on every link the protocol is active on. Separate
-        Trickle state MUST be maintained for each link.</t>
+        <t>Each node is responsible for sending link-local multicast network
+        state messages defined in <xref target="net-message"/> each time
+        the Trickle algorithm defined in <xref target="RFC6206"/> indicates
+        they should on each link the protocol is active on. When the locally 
+        stored network state hash changes (either by a local node 
+        event that affects the TLV data, or upon receipt of more recent data from
+        another node), all Trickle instances MUST be reset. Trickle state MUST 
+        be maintained separately for each link.
 
         <t>Trickle algorithm has 3 parameters; Imin, Imax and k. Imin and
-        Imax represent minimum and maximum values for I, time interval
-        during which at least k Trickle update must be seen on a link to
-        prevent local state transmission. This specification does NOT
-        mandate any defaults, but given the timer reset on data updates,
-        k=1 SHOULD be used (as later retransmissions should handle packet
-        loss in any case). Imax MUST be at least a minute. Imin MUST be at
-        least 200 milliseconds (earliest transmissions may occur at Imin/2
-        = 100 milliseconds given minimum values).</t>
-
-        <t>When locally stored network state hash changes (either by local
-        node TLV state change, or by receiving of more recent data from
-        other nodes), all Trickle instances MUST be reset.</t>
-
+        Imax represent minimum and maximum values for I, which is the time interval
+        during which at least k Trickle updates must be seen on a link to
+        prevent local state transmission.  Bounds for recommended Trickle 
+        values are defined in below.</t> 
+        
+        <list>
+        k=1 SHOULD be used, as given the timer reset on data updates, retransmissions 
+        should handle packet loss.
+       
+        Imax MUST be at least one minute. 
+        
+        Imin MUST be at least 200 milliseconds (earliest transmissions may occur at Imin/2
+        = 100 milliseconds given minimum values as per the Trickle algorithm). 
+        </list>
+        
       </section>
 
       <section title="Handling of received packets" anchor="reception">
@@ -271,7 +277,7 @@ Edit time:     521 min
         so that there are no dangling neighbors. As an alternative, if
         there is a layer 2 unreachability notification of some sort
         available for either whole link or for individual neighbor, it
-        MAY be used to immediately trigger removal of corresponding
+        SHOULD be used to immediately trigger removal of corresponding
         neighbor TLV(s).</t>
       </section>
 
@@ -1083,9 +1089,6 @@ Edit time:     521 min
     </references>
     <section title="TODO">
 
-      <t>Should we use MD5 hashes, or EUI-64 node identifier to identify
-      nodes?</t>
-
       <t>Is there a case for non-link-local unicast? Currently explicitly
       stating this is link-local only protocol. </t>
 
@@ -1117,8 +1120,7 @@ Edit time:     521 min
       <t>A: It would require defining application level fragmentation
       scheme. Hopefully the data amounts used will stay small so we just
       trust unicast UDP to handle 'big enough' packets to contain single
-      node's TLV data. On some link layers unicast is also much more
-      reliable than multicast, especially for large packets.</t>
+      node's TLV data.</t>
 
       <t>Q: Why so long IDs? Why real hash?</t>
 
@@ -1169,8 +1171,8 @@ Edit time:     521 min
 
     <section title="Acknowledgements">
 
-      <t>Thanks to Ole Troan, Pierre Pfister, Mark Baugher, Mark Townsley
-      and Juliusz Chroboczek for review comments.</t>
+      <t>Thanks to Ole Troan, Pierre Pfister, Mark Baugher and Mark Townsley
+      for review comments.</t>
 
     </section>
     
