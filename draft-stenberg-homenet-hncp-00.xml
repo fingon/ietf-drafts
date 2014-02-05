@@ -53,7 +53,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
     <abstract>
 
       <t>This document describes the HomeNet Control Protocol (HNCP), a minimalist state synchronization
-      protocol for a homenet (or other small site). </t>
+      protocol for Homenet routers. </t>
 
     </abstract>
   </front>
@@ -61,7 +61,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
     <section title="Introduction">
 
       <t>HNCP is designed to synchronize
-      state across a Home Network (Homenet) in order to facilitate
+      state across a Homenet (or other small site) in order to facilitate
       automated configuration within the site, integration with trusted
       bootstrapping <xref target="I-D.behringer-homenet-trust-bootstrap"
       /> and default perimeter detection <xref
@@ -972,13 +972,15 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
         </figure>
       </section>
     </section>
+    
+    
 
     <section title="Routing support">
       <section title="Protocol Requirements">
-	<t>Each routing protocol needs to meet a certain set of criteria (either natively or through extensions) in order to be usable inside a homenet. These include:
+	<t>In order to be advertised for use within the Homenet, a routing protocol MUST:
 	<list>
-	  <t>The routing protocol complies with the <xref target="I-D.baker-rtgwg-src-dst-routing-use-cases">Requirements and Use Cases for Source/Destination Routing</xref></t>
-	  <t>The routing protocol supports and uses an autoconfiguration mechanism that allows it to operate without the need for prior individual configuration of each router.</t>
+	  <t>Comply with <xref target="I-D.baker-rtgwg-src-dst-routing-use-cases">Requirements and Use Cases for Source/Destination Routing</xref></t>, and
+	  <t>The routing protocol configured with suitable defaults or autoconfiguration mechanism (e.g., <xref target="I-D.draft-acee-ospf-ospfv3-autoconfig">) such that it will run in a Homenet without requiring specific configuration from the Home user. </t>
 	</list>
 	</t>
 	<t>A router MUST NOT announce that it supports a certain routing protocol if its implementation of the routing protocol does not meet these requirements,
@@ -986,7 +988,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       </section>
       
       <section title="Announcement">
-	<t>Each router MUST announce any routing protocol that is supported and intended to be used in the homenet.
+	<t>Each router SHOULD announce all routing protocols that it is capable of supporting in the Homenet. 
 	It SHOULD assign a preference value for each protocol that indicates its desire to use said protocol over other protocols it supports and SHOULD
 	make these values configurable.</t> 
 	
@@ -1022,34 +1024,34 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       </section>
       
       <section title="Protocol Selection">
-	<t>Whenever a router joins a homenet or detects that a new router has been added to or removed from the homenet
-	it MUST run the routing protocol selection algorithm.</t>
+	<t>When HNCP detects that a router has joined or left the Homenet it MUST examine all advertised 
+	routing protocols and preference values from all routers in the Homenet in order to find the one
+	routing protocol which:</t>
 	
-	<t>To select a routing protocol each router examines the announced protocols
-	and respective preference values of each router in the homenet and selects the protocol that:
 	<list style="numbers">
-	  <t>is understood by all routers in the homenet</t>
+	  <t>Is understood by all routers in the homenet</t>
 
-	  <t>has the highest preference value among
+	  <t>Has the highest preference value among
           all routers (calculated as sum of preference
           values)</t>
 
-	  <t>has the highest protocol ID among those with the
-	  highest preference</t>
+	  <t>Has the highest protocol ID among those with the
+	  highest preference </t>
 	</list>
 	</t>
 	
-	<t>After selecting a new routing protocol which differs from the currently running one a router MUST stop the previously running protocol or mechanism
-	and ensure that all old routes have been removed. Thereafter the router MUST start the newly selected protocol or mechanism.
-	If no protocol could be selected, the router MUST stop the previously running routing protocol and instead
-	run the algorithm defined in the following section in order to setup its routing table for the network.</t>
-      </section>
+	<t>If the router protocol selection results in the need to change from one routing protocol
+	to another on the homenet, the router MUST stop the previously running protocol, remove 
+	associated routes, and start the new protocol in a graceful manner. If there is no common routing
+	protocol available among all Homenet routers, routers MUST utilize the 
+	<xref target="fallback">Fallback Mechanism</xref>.</t>
+		
 
-      <section title="Fallback Mechanism">
-	<t>In cases where there is no commonly understood routing protocol a fallback algorithm is run to setup routing and preserve interoperability among the homenet.
-	While not intended to replace a routing protocol this mechanism provides a valid - but not necessarily optimal - routing topology.
-	It solely relies on the uplink and neighbour information exchanged by HNCP itself 
-	and therefore does not require any additional data exchange. The algorithm is defined as follows:
+      <section anchor="fallback" title="Fallback Mechanism">
+	<t>In cases where there is no commonly supported routing protocol available the following fallback algorithm is run to setup routing and preserve interoperability among the homenet.
+	While not intended to replace a routing protocol, this mechanism provides a valid - but not necessarily optimal - routing topology.
+	This algorithm uses the node and neighbor state already synchronized by HNCP, 
+	and therefore does not require any additional protocol message exchange. 
 	
 	<list style="numbers">
 	  <t>Interpret the neighbour information received via HNCP as a graph of connected routers.</t>
@@ -1074,7 +1076,6 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
     <section title="Security Considerations">
       
-
       <t>General security issues for Home Networks are discussed at length
       in <xref target="I-D.ietf-homenet-arch" />. The protocols used to
       setup IP in home networks today have very little security enabled
@@ -1219,6 +1220,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       <?rfc include="reference.I-D.draft-kline-homenet-default-perimeter-00.xml"?>
       <?rfc include="reference.I-D.draft-arkko-homenet-prefix-assignment-04.xml"?>
       <?rfc include="reference.I-D.draft-stenberg-homenet-dnssdext-hybrid-proxy-ospf-00.xml"?>
+      <?rfc include="reference.I-D.draft-acee-ospf-ospfv3-autoconfig-03.xml"?>
     </references>
     <section title="Some Outstanding Issues">
 
