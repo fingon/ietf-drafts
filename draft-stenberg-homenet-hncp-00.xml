@@ -44,7 +44,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
         <email>stbarth@cisco.com</email>
       </address>
     </author>
-    <date month="February" year="2014" />
+    <date month="January" year="2014" />
 
     <!--    <workgroup></workgroup> -->
 
@@ -87,7 +87,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       Comments and/or pull requests are welcome.</t> 
       
       <t> An earlier implementation using many of the same 
-      principles, algorithms and data structures but within OSPFv3 is
+      principles, algorithms and data structures built within OSPFv3 is
       available at <eref target="http://www.homewrt.org/doku.php?id=downloads">
       http://www.homewrt.org/doku.php?id=downloads</eref>.
       </t>
@@ -137,7 +137,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
     <section title="Operation">
 
-      <t>The protocol is designed to run on UDP port IANA-UDP-PORT, using
+      <t>HNCP is designed to run on UDP port IANA-UDP-PORT, using
       both link-local scoped IPv6 unicast and link-local scoped IPv6
       multicast messages to address IANA-MULTICAST-ADDRESS for
       transport. The protocol consists of <xref target="RFC6206">Trickle</xref> 
@@ -246,7 +246,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
         </list>
         </t>
 
-        <t>MAY be present: <xref target="auth-tlvs">authentication TLVs</xref>.</t>
+        <t>If HCNP security is enabled, <xref target="auth-tlvs">authentication TLVs</xref> MUST be present.</t>
 
       </section>
       
@@ -265,10 +265,11 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
           <t>one or more combinations of node state and <xref target="node-data">node data TLVs</xref>.</t>
 
+        <t>If HCNP security is enabled, <xref target="auth-tlvs">authentication TLVs</xref> MUST be present.</t>
+
         </list>
         </t>
 
-     
       </section>
     </section>
 
@@ -321,20 +322,21 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
         TLVs. When there is a change in a node's set of
         data TLVs, the update number MUST be incremented accordingly.</t>
         
-        <t>If a message containing <xref target="node-state">node state
-        TLVs</xref> is received via unicast or multicast with the node's
-        own node identifier and a higher update number than current local
-        value, or the same update number and different hash, there is an
-        error.  A recommended default way to handle this is to attempt to
-        assert local state by increasing the local update number to a value
-        higher than that received and republish node data using the same
-        node identifier. If this happens more than 3 times in 60 seconds
-        and the local node identifier is not globally unique, there may be
-        more than one router with the same node identifier on the
-        network. A new node identifier SHOULD be generated and node data
-        republished accordingly. If HNCP security is enabled, this is event
-        is highly unlikely to occur as collision of identifier hashes for
-        public keys is highly unlikely.</t>
+        <t>If a message containing <xref
+        target="node-state">node state TLVs</xref> is received via unicast or multicast with
+        the node's own node identifier and a higher update number than current local value,
+        or the same update number and different hash, there is an error. 
+        A recommended default
+        way to handle this is to attempt to assert local state by increasing the local 
+        update number to a value higher than that received
+        and republish node data using the same node
+        identifier. If this happens more than ID-CONFLICT-COUNT times in
+        ID-CONFLICT-INTERVAL seconds and the local node identifier
+        is not globally unique, there may be more than one router with the 
+        same node identifier on the network. A new node identifier should be generated and
+        node data republished accordingly. If HNCP security 
+        is enabled, this is event is highly unlikely to occur as 
+        identifier hashes for public keys is highly unlikely.</t>
 
 	<t>In all cases, if node data for any node changes, all Trickle instances MUST be considered inconsistent
         (I=Imin + timer reset).</t>
@@ -347,16 +349,17 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
         link from another node, the node should be added as neighbor TLV
         for current node. If nothing (for example - no router
         advertisements, no HNCP traffic) is received from that neighbor in
-        Imax seconds and the neighbor is not in neighbor discovery cache,
-        at least 3 attempts to ping it with <xref
-        target="req-net-message">request network state message</xref>
-        SHOULD be sent with increasing timeouts (e.g. 1, 2, 4 seconds). If
-        even after suitable period after the last message nothing is
-        received, the neighbor TLV MUST be removed so that there are no
-        dangling neighbors. As an alternative, if there is a layer 2
-        unreachability notification of some sort available for either whole
-        link or for individual neighbor, it MAY be used to immediately
-        trigger removal of corresponding neighbor TLV(s).</t>
+        UNREACHABLE-TIME seconds and the neighbor is not in neighbor
+        discovery cache, at least REACH-ATTEMPTS attempts to ping it with
+        <xref
+        target="req-net-message">request network state message</xref> SHOULD be sent with increasing timeouts
+        (e.g. 1, 2, 4 seconds). If even after suitable period after the
+        last message nothing is received, the neighbor TLV MUST be removed
+        so that there are no dangling neighbors. As an alternative, if
+        there is a layer 2 unreachability notification of some sort
+        available for either whole link or for individual neighbor, it
+        MAY be used to immediately trigger removal of corresponding
+        neighbor TLV(s).</t>
       </section>
       
       <section title="Purging Unreachable Nodes">
@@ -385,14 +388,15 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
       <figure>
         <artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|            Type               |           Length              |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                             Value                             |
-|                     (variable # of bytes)                     |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          0                   1                   2                   3
+          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |            Type               |           Length              |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                             Value                             |
+          |                     (variable # of bytes)                     |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          TLV format
         </artwork>
       </figure>
 
@@ -417,11 +421,11 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
       <figure>
         <artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Type: REQ-NETWORK-STATE (2)  |           Length: 4           |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          0                   1                   2                   3
+          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |  Type: REQ-NETWORK-STATE (2)  |           Length: 4           |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
         </artwork>
       </figure>
 
@@ -431,16 +435,16 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
       <figure>
         <artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: REQ-NODE-DATA (3)    |          Length: 20           |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                                                               |
-|                       H(node identifier)                      |
-|                                                               |
-|                                                               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          0                   1                   2                   3
+          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |    Type: REQ-NODE-DATA (3)    |          Length: 20           |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                                                               |
+          |                       H(node identifier)                      |
+          |                                                               |
+          |                                                               |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
         </artwork>
       </figure>
       
@@ -452,18 +456,18 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
         
        <figure>
         <artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|      Type: NODE-LINK (1)      |          Length: 24           |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                                                               |
-|                       H(node identifier)                      |
-|                                                               |
-|                                                               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                        Link-Identifier                        |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          0                   1                   2                   3
+          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |      Type: NODE-LINK (1)      |          Length: 24           |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                                                               |
+          |                       H(node identifier)                      |
+          |                                                               |
+          |                                                               |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                        Link-Identifier                        |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
         </artwork>
       </figure>
 
@@ -472,16 +476,16 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
        <figure>
         <artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: NETWORK-STATE (4)    |          Length: 20           |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                                                               |
-|          H(H(node data TLV 1) .. H(node data TLV N))          |
-|                                                               |
-|                                                               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          0                   1                   2                   3
+          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |    Type: NETWORK-STATE (4)    |          Length: 20           |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                                                               |
+          |          H(H(node data TLV 1) .. H(node data TLV N))          |
+          |                                                               |
+          |                                                               |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
         </artwork>
       </figure>
           
@@ -493,25 +497,25 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
         
        <figure>
         <artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|      Type: NODE-STATE (5)     |          Length: 44           |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                                                               |
-|                       H(node identifier)                      |
-|                                                               |
-|                                                               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                    Update Sequence Number                     |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                Milliseconds since Origination                 |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                                                               |
-|                        H(node data TLV)                       |
-|                                                               |
-|                                                               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          0                   1                   2                   3
+          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |      Type: NODE-STATE (5)     |          Length: 44           |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                                                               |
+          |                       H(node identifier)                      |
+          |                                                               |
+          |                                                               |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                    Update Sequence Number                     |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                Milliseconds since Origination                 |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                                                               |
+          |                        H(node data TLV)                       |
+          |                                                               |
+          |                                                               |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
         </artwork>
       </figure>
 
@@ -528,19 +532,19 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
        <figure>
         <artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|      Type: NODE-DATA (6)      |        Length: >= 24          |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                                                               |
-|                       H(node identifier)                      |
-|                                                               |
-|                                                               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                    Update Sequence Number                     |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|            Nested TLVs containing node information            |
+          0                   1                   2                   3
+          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |      Type: NODE-DATA (6)      |        Length: >= 24          |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                                                               |
+          |                       H(node identifier)                      |
+          |                                                               |
+          |                                                               |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                    Update Sequence Number                     |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |            Nested TLVs containing node information            |
         </artwork>
       </figure>
 
@@ -556,12 +560,12 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
       <figure>
         <artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: PUBLIC-KEY (7)      |          Length: >= 4         |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|               Public Key (raw node identifier)                |
+          0                   1                   2                   3
+          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |     Type: PUBLIC-KEY (7)      |          Length: >= 4         |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |               Public Key (raw node identifier)                |
         </artwork>
       </figure>                                             
           <t>Public key data for the node. Only relevant if signatures are
@@ -574,20 +578,20 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
         <section anchor="neighbor-tlv" title="Neighbor TLV (within node data TLV)">
 	<figure>
         <artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|       Type: NEIGHBOR (8)      |          Length: 28           |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                                                               |
-|                  H(neighbor node identifier)                  |
-|                                                               |
-|                                                               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                    Neighbor Link Identifier                   |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                      Local Link Identifier                    |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          0                   1                   2                   3
+          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |       Type: NEIGHBOR (8)      |          Length: 28           |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                                                               |
+          |                  H(neighbor node identifier)                  |
+          |                                                               |
+          |                                                               |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                    Neighbor Link Identifier                   |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                      Local Link Identifier                    |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
         </artwork>
       </figure>
 
@@ -607,15 +611,15 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       <section anchor="user-tlv" title="Custom TLV (within/without node data TLV)">
 	<figure>
         <artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: CUSTOM-DATA (9)     |         Length: >= 12         |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                            H-64(URI)                          |
-|                                                               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                          Opaque Data                          |
+          0                   1                   2                   3
+          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |     Type: CUSTOM-DATA (9)     |         Length: >= 12         |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                            H-64(URI)                          |
+          |                                                               |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                          Opaque Data                          |
         </artwork>
       </figure>
       
@@ -659,13 +663,13 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
     <section title="Border Discovery and Prefix Assignment">
 
-      <t>Automatic discovery of perimeter borders is desirable - where
-      possible - to ease the configuration of the homenet.  HNCP utilizes the
+      <t>Using  
       <xref target="I-D.kline-homenet-default-perimeter">Default Border
-      Definition</xref> and extends it with a border discovery algorithm
-      derived from the edge router interactions
+      Definition</xref> as a basis, this section defines border discovery algorithm
+      specifics derived from the edge router interactions
       described in the <xref target="RFC7084">Basic Requirements for IPv6
-      Customer Edge Routers</xref></t>
+      Customer Edge Routers</xref>. The algorithm is designed to work for
+      both IPv4 and IPv6 (single or dual-stack). </t>
       
       <t>In order to avoid conflicts between border discovery and homenet
       routers running DHCP-servers each router MUST implement the following
@@ -709,7 +713,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       necessary.  The router therefore runs an appropriately configured
       DHCP and DHCPv6-client as long as the interface is active including
       states where it considers the interface to be internal. The router
-      SHOULD wait for a reasonable time period (5 seconds as a suggested default) 
+      SHOULD wait for a reasonable time period (5 seconds as a possible default) 
       in which the DHCP-clients can
       acquire a lease before treating a newly activated or previously
       external interface as internal. Once it
@@ -730,12 +734,12 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       
       <figure>
 	<artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Type: EXTERNAL-CONNECTION (41)|          Length: > 4          |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                          Nested TLVs                          |
+          0                   1                   2                   3
+          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          | Type: EXTERNAL-CONNECTION (41)|          Length: > 4          |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                          Nested TLVs                          |
 	</artwork>
       </figure>
       
@@ -750,12 +754,12 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       
       <figure>
 	<artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: DHCPV6-DATA (45)     |          Length: > 4          |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                    DHCPv6 attribute stream                    |
+          0                   1                   2                   3
+          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |    Type: DHCPV6-DATA (45)     |          Length: > 4          |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                    DHCPv6 attribute stream                    |
 	</artwork>
       </figure>
 
@@ -763,12 +767,12 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
       <figure>
 	<artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: DHCP-DATA (44)      |          Length: > 4          |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                      DHCP attribute stream                    |
+          0                   1                   2                   3
+          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |     Type: DHCP-DATA (44)      |          Length: > 4          |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                      DHCP attribute stream                    |
 	</artwork>
       </figure>
       
@@ -781,18 +785,18 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       
       <figure>
 	<artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Type: DELEGATED-PREFIX (42)  |         Length: >= 13         |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                   Valid until (milliseconds)                  |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                 Preferred until (milliseconds)                |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Prefix Length |                                               |
-+-+-+-+-+-+-+-+-+        Prefix Address [+ nested TLVs]         +
-|                                                               |
+          0                   1                   2                   3
+          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |  Type: DELEGATED-PREFIX (42)  |         Length: >= 13         |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                   Valid until (milliseconds)                  |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                 Preferred until (milliseconds)                |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          | Prefix Length |                                               |
+          +-+-+-+-+-+-+-+-+        Prefix Address [+ nested TLVs]         +
+          |                                                               |
 	</artwork>
       </figure>
       
@@ -832,16 +836,16 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
       <figure>
 	<artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Type: ASSIGNED-PREFIX (43)   |          Length: >= 9         |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                        Link Identifier                        |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  R. |A| Pref. | Prefix Length |                               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+         Prefix Address        +
-|                                                               |
+          0                   1                   2                   3
+          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |  Type: ASSIGNED-PREFIX (43)   |          Length: >= 9         |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                        Link Identifier                        |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |  R. |A| Pref. | Prefix Length |                               |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+         Prefix Address        +
+          |                                                               |
 	</artwork>
       </figure>
       <t>
@@ -876,16 +880,17 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
       <figure>
 	<artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|   Type: ROUTER-ADDRESS (46)   |           Length: 20          |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                                                               |
-|                         Router Address                        |
-|                                                               |
-|                                                               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          0                   1                   2                   3
+          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |   Type: ROUTER-ADDRESS (46)   |           Length: 20          |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          |                                                               |
+          |                         Router Address                        |
+          |                                                               |
+          |                                                               |
+          +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
 	</artwork>
       </figure>	
       
@@ -910,19 +915,19 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
         <figure>
           <artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Type: DNS-DELEGATED-ZONE (50) |        Length: >= 21          |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                                                               |
-|                            Address                            |
-|                                                               |
-|                                                               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Reserved  |S|B|                                               |
-+-+-+-+-+-+-+-+-+  Zone (DNS label sequence - variable length)  |
-|                                                               |
+            0                   1                   2                   3
+            0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            | Type: DNS-DELEGATED-ZONE (50) |        Length: >= 21          |
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                                                               |
+            |                            Address                            |
+            |                                                               |
+            |                                                               |
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            | Reserved  |S|B|                                               |
+            +-+-+-+-+-+-+-+-+  Zone (DNS label sequence - variable length)  |
+            |                                                               |
           </artwork>
         </figure>
       </section>
@@ -931,13 +936,13 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
         <figure>
           <artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: DOMAIN-NAME (51)     |         Length: >= 4          |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|        Domain (DNS label sequence - variable length)          |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            0                   1                   2                   3
+            0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |    Type: DOMAIN-NAME (51)     |         Length: >= 4          |
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |        Domain (DNS label sequence - variable length)          |
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           </artwork>
         </figure>
 
@@ -945,13 +950,13 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       <section anchor="router-name-tlv" title="Router Name TLV">
         <figure>
           <artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: ROUTER-NAME (52)     |         Length: >= 4          |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|         Name (not null-terminated - variable length)          |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            0                   1                   2                   3
+            0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |    Type: ROUTER-NAME (52)     |         Length: >= 4          |
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |         Name (not null-terminated - variable length)          |
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           </artwork>
         </figure>
       </section>
@@ -977,13 +982,13 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 	<t>Each router includes one HNCP TLV of type ROUTING-PROTOCOL for every such routing protocol. This TLV is defined as follows:</t>
 	<figure>
 	  <artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Type: ROUTING-PROTOCOL (60)  |           Length: 6           |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Protocol ID  |   Preference  |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            0                   1                   2                   3
+            0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |  Type: ROUTING-PROTOCOL (60)  |           Length: 6           |
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |  Protocol ID  |   Preference  |
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 	  </artwork>
 	</figure>
 	<t>
@@ -1113,6 +1118,23 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
     </section>
 
+    <section anchor="const" title="Protocol constants">
+      <t>Imin (for Trickle) >= 200 milliseconds</t>
+      <t>Imax (for Trickle) >= 60 seconds</t>
+      <t>k (for Trickle) suggested to be 1</t>
+
+      <t>ID-CONFLICT-COUNT and ID-CONFLICT-INTERVAL are left up
+      to the implementation (they are local choices)</t>
+
+      <t>UNREACHABLE-TIME should be proportional with Imax
+      (smaller values not useful; orders of magnitude larger values
+      neither). Again local choice.</t>
+
+      <t>REACH-ATTEMPTS should depend on media used, but at least
+      'few', e.g. 3 times.</t>
+
+    </section>
+    
     <section anchor="iana" title="IANA Considerations">
       
       <t>IANA should set up a registry (policy TBD) for HNCP TLV types, with following
