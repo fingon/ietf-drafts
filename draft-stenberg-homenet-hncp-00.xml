@@ -979,8 +979,8 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       <section title="Protocol Requirements">
 	<t>In order to be advertised for use within the Homenet, a routing protocol MUST:
 	<list>
-	  <t>Comply with <xref target="I-D.baker-rtgwg-src-dst-routing-use-cases">Requirements and Use Cases for Source/Destination Routing</xref></t>, and
-	  <t>The routing protocol configured with suitable defaults or autoconfiguration mechanism (e.g., <xref target="I-D.draft-acee-ospf-ospfv3-autoconfig">) such that it will run in a Homenet without requiring specific configuration from the Home user. </t>
+	  <t>Comply with <xref target="I-D.baker-rtgwg-src-dst-routing-use-cases">Requirements and Use Cases for Source/Destination Routing</xref>.</t>
+	  <t>Be configured with suitable defaults or have an autoconfiguration mechanism (e.g. <xref target="I-D.acee-ospf-ospfv3-autoconfig" />) such that it will run in a Homenet without requiring specific configuration from the Home user. </t>
 	</list>
 	</t>
 	<t>A router MUST NOT announce that it supports a certain routing protocol if its implementation of the routing protocol does not meet these requirements,
@@ -1026,7 +1026,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       <section title="Protocol Selection">
 	<t>When HNCP detects that a router has joined or left the Homenet it MUST examine all advertised 
 	routing protocols and preference values from all routers in the Homenet in order to find the one
-	routing protocol which:</t>
+	routing protocol which:
 	
 	<list style="numbers">
 	  <t>Is understood by all routers in the homenet</t>
@@ -1045,6 +1045,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 	associated routes, and start the new protocol in a graceful manner. If there is no common routing
 	protocol available among all Homenet routers, routers MUST utilize the 
 	<xref target="fallback">Fallback Mechanism</xref>.</t>
+	</section>
 		
 
       <section anchor="fallback" title="Fallback Mechanism">
