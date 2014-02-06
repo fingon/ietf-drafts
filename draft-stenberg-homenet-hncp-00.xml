@@ -69,7 +69,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       distribution <xref target="I-D.pfister-homenet-prefix-assignment"
       />, and service discovery across multiple links within the homenet
       as defined in <xref
-      target="I-D.stenberg-homenet-dnssd-hybrid-proxy-network-zeroconf"
+      target="I-D.stenberg-homenet-dnssd-hybrid-proxy-zeroconf"
       />. </t>
       
       <t>HNCP is designed to provide enough information for
@@ -916,7 +916,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
       <t>Service discovery is generally limited to a local link.
       <xref
-          target="I-D.stenberg-homenet-dnssd-hybrid-proxy-network-zeroconf"
+          target="I-D.stenberg-homenet-dnssd-hybrid-proxy-zeroconf"
           />  defines a mechanism to automatically extended DNS-based service
       discovery across multiple links within the home automatically. 
       Of the three TLVs, the DNS Delegated Zone TLV MUST be
@@ -1188,21 +1188,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
 
 
-      <reference anchor='I-D.stenberg-homenet-dnssd-hybrid-proxy-network-zeroconf'>
-        <front>
-
-          <title>Auto-Configuration of a Network of Hybrid
-          Unicast/Multicast DNS-Based Service Discovery Proxy Nodes
-          </title>
-
-          <author initials="M" surname="Stenberg" fullname="Markus Stenberg">
-            <organization />
-          </author>
-          <date month='January' day='31' year='2014' />
-        </front>
-        <seriesInfo name='Internet-Draft' value='draft-pfister-homenet-prefix-assignment-00' />
-      </reference>
-
+      <?rfc include="reference.I-D.draft-stenberg-homenet-dnssd-hybrid-proxy-zeroconf-00"?>
 
     </references>
     <references title="Informative references">
