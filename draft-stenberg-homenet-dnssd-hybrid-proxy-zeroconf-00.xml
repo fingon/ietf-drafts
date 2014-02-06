@@ -1,8 +1,8 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Mon Jun 17 04:55:57 2013 mstenber
-Last modified: Wed Feb  5 16:41:26 2014 mstenber
-Edit time:     498 min
+Last modified: Wed Feb  5 16:43:06 2014 mstenber
+Edit time:     499 min
 -->
 
 <!--
@@ -32,7 +32,7 @@ Edit time:     498 min
 
 <rfc
     ipr='trust200902'
-    docName='draft-stenberg-homenet-dnssdext-hybrid-proxy-network-zeroconf-00'
+    docName='draft-stenberg-homenet-dnssd-hybrid-proxy-zeroconf-00'
     category='std'
     >
   <front>
