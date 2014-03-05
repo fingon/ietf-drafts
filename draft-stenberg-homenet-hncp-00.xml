@@ -1209,6 +1209,10 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       insecure; however signature stuff (TBD) should rely on it mainly for
       security in any case, and MD5 is used in a non-security role.</t>
 
+      <t>Valid and preferred are now 32 bit millisecond and you cannot even
+      represent a month in them; is this enough? Or should we switch to 32
+      bit seconds (or 64 bit milliseconds)?</t>
+
     </section>
     <section title="Some Obvious Questions and Answers">
       <t>Q: Why not use TCP?</t>
