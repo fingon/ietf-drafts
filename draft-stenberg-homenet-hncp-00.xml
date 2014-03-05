@@ -581,9 +581,9 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
           </figure>                                             
 
           <t>Public key data for the node. Only relevant if signatures are
-          used. Can be used to verify that H(node identifier) equals public
-          key, and that the Signature TLVs are signed by appropriate public
-          keys.</t>
+          used. Can be used to verify that H(node identifier) in the
+          received data for the node equals H(public key), and that the
+          Signature TLVs are signed by appropriate public keys.</t>
 
         </section>
 
@@ -1168,26 +1168,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
     <references title="Normative references">
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6206.xml"?>
-
-      <reference anchor='I-D.pfister-homenet-prefix-assignment'>
-        <front>
-          <title>Prefix and Address Assignment in a Home Network</title>
-          <author initials='P' surname='Pfister' fullname='Pierre Pfister'>
-            <organization />
-          </author>
-          <author initials='J' surname='Arkko' fullname='J. Arkko'>
-            <organization />
-          </author>
-          <author initials='B' surname='Paterson' fullname='B. Paterson'>
-            <organization />
-          </author>
-          <date month='January' day='31' year='2014' />
-        </front>
-        <seriesInfo name='Internet-Draft' value='draft-pfister-homenet-prefix-assignment-00' />
-      </reference>
-
-
-
+      <?rfc include="reference.I-D.draft-pfister-homenet-prefix-assignment-00"?>
       <?rfc include="reference.I-D.draft-stenberg-homenet-dnssd-hybrid-proxy-zeroconf-00"?>
 
     </references>
@@ -1235,14 +1216,6 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       <t>A: It doesn't address the node discovery problem. It also leads to
       N*(N-1)/2 connections when N nodes share a link, which is
       awkward. </t>
-
-      <t>Q: Why effectively build a link state routing protocol without
-      routing?</t>
-
-      <t>A: It felt like a good idea at the time. It does not require
-      periodic flooding except for very minimal Trickle-based per-link
-      state maintenance (potentially also neighbor reachability checks if
-      so desired).</t>
 
       <t>Q: Why not multicast-only?</t>
 
