@@ -15,7 +15,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
 <rfc
     ipr='trust200902'
-    docName='draft-stenberg-homenet-hncp-00'
+    docName='draft-ietf-homenet-hncp-00'
     category='std'
     >
   <front>
@@ -44,9 +44,10 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
         <email>cyrus@openwrt.org</email>
       </address>
     </author>
-    <date month="February" year="2014" />
+    <date month="April" year="2014" />
 
-    <!--    <workgroup></workgroup> -->
+    <area>Internet</area>
+    <workgroup>Homenet Working Group</workgroup>
 
     <keyword>IPv6</keyword>
     <keyword>Homenet</keyword>
@@ -1287,6 +1288,14 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       design which works. </t>
 
     </section>
+    <section title="Changelog">
+
+      <t>draft-ietf-homenet-hncp-00: Added version TLV to allow for TLV content
+      changes pre-RFC without changing IDs. Added link id to assigned
+      address TLV. </t>
+
+    </section>
+    
     <section title="Draft source">
       <t>As usual, this draft is available at <eref
       target="https://github.com/fingon/ietf-drafts/">https://github.com/fingon/ietf-drafts/</eref>
