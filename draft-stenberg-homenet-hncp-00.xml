@@ -649,6 +649,30 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
       </section>
 
+      <section anchor="version-tlv" title="Version TLV (within Node Data TLV)">
+	<figure>
+          <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|     Type: VERSION (10)        |         Length: >= 8          |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                           Version                             |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                          User-agent                           |
+          </artwork>
+        </figure>
+        
+        <t>This TLV indicates which version of HNCP TLV binary structures
+        is in use by this particular node. All TLVs within node data from
+        nodes that do not publish version TLV, or with different Version
+        value than locally supported one MUST be ignored (but forwarded).
+        under control of the author of that specification.  The user-agent
+        is an optional human-readable UTF-8 string that can describe
+        e.g. current hnetd version. This draft describes Version=1 TLVs.</t>
+
+      </section>
+
       <section title="Authentication TLVs" anchor="auth-tlvs">
 
         <section title="Certificate-related TLVs">
@@ -667,6 +691,9 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
           (if signature TLV is within main body of message), or that of the
           originator of the node data TLV (if signature TLV is within Node
           Data TLV)..</t>
+
+          <t>Given the ordering of TLVs, this TLV should be last one
+          processed within current scope.</t>
 
         </section>
       </section>
@@ -895,7 +922,9 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|   Type: ROUTER-ADDRESS (46)   |           Length: 20          |
+|   Type: ROUTER-ADDRESS (46)   |           Length: 24          |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                        Link Identifier                        |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
 |                         Router Address                        |
@@ -907,6 +936,9 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       
       <t>
 	<list>
+	  <t>Link Identifier is the local HNCP identifier of the link the
+          address is assigned to.</t>
+
 	  <t>Router Address is the address assigned to one of the router interfaces.</t>
 	</list>
       </t>
@@ -914,13 +946,11 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
     <section anchor="how" title="DNS-based Service Discovery">
 
-      <t>Service discovery is generally limited to a local link.
-      <xref
-          target="I-D.stenberg-homenet-dnssd-hybrid-proxy-zeroconf"
-          />  defines a mechanism to automatically extended DNS-based service
-      discovery across multiple links within the home automatically. 
-      Of the three TLVs, the DNS Delegated Zone TLV MUST be
-      supported, and the remaining two SHOULD be. </t>
+      <t>Service discovery is generally limited to a local link.  <xref
+      target="I-D.stenberg-homenet-dnssd-hybrid-proxy-zeroconf" /> defines
+      a mechanism to automatically extended DNS-based service discovery
+      across multiple links within the home automatically. Following TLVs
+      MAY be used to provide transport for that specification. </t>
 
       <section anchor="delegated-zone-tlv" title="DNS Delegated Zone TLV">
 
@@ -1146,6 +1176,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       <t>7: Node public key</t>
       <t>8: Neighbor</t>
       <t>9: Custom</t>
+      <t>10: Version</t>
       <t>41: External connection</t>
       <t>42: Delegated prefix</t>
       <t>43: Assigned prefix</t>
