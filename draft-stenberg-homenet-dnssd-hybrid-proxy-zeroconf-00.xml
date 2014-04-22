@@ -1,8 +1,8 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Mon Jun 17 04:55:57 2013 mstenber
-Last modified: Wed Feb  5 16:43:06 2014 mstenber
-Edit time:     499 min
+Last modified: Tue Apr 22 10:19:25 2014 mstenber
+Edit time:     502 min
 -->
 
 <!--
@@ -38,7 +38,7 @@ Edit time:     499 min
   <front>
     <title abbrev="Hybrid Proxy Network Zeroconf">
       Auto-Configuration of a Network of Hybrid Unicast/Multicast DNS-Based
-      Service Discovery Proxy Nodes 
+      Service Discovery Proxy Nodes
     </title>
     <author initials="M" surname="Stenberg" fullname="Markus Stenberg">
       <address>
@@ -385,7 +385,7 @@ Edit time:     499 min
         interpretation of the TLVs in <xref target="example-ospf"/>.</t>
 
       </section>
-      
+
     </section>
 
     <section title="Security Considerations">
@@ -446,12 +446,12 @@ Edit time:     499 min
       </t>
 
       <t>The user-visible set of links are [3] and [4];
-      each consisting of a LAN and WLAN link. 
+      each consisting of a LAN and WLAN link.
 
-      We assume that ISP provides 2001:db8::/48 prefix to be delegated in
+      We assume that ISP provides 2001:db8:1234::/48 prefix to be delegated in
       the home via [0].
       </t>
-      
+
 </section>
 
 
@@ -463,27 +463,27 @@ Edit time:     499 min
       here in order):</t>
       <t>
       <list style="numbers">
-          
+
         <t>Network-level state synchronization protocol runs, nodes get
         effective precedences. For ease of illustration, CER winds up with
         2, IR1 with 3, and IR2 with 1. </t>
-        
-        <t>Prefix delegation takes place. IR1 winds up with
-        2001:db8:1:1::/64 for LAN and 
-        2001:db8:1:2::/64 for WLAN. IR2 winds up with
-        2001:db8:2:1::/64 for LAN and 
-        2001:db8:2:2::/64 for WLAN. </t>
 
-        <t>IR1 is assumed to be reachable at 2001:db8:1:1::1 and IR2 at
-      2001:db8:2:1::1. </t>
-      
+        <t>Prefix delegation takes place. IR1 winds up with
+        2001:db8:1234:11::/64 for LAN and
+        2001:db8:1234:12::/64 for WLAN. IR2 winds up with
+        2001:db8:1234:21::/64 for LAN and
+        2001:db8:1234:22::/64 for WLAN. </t>
+
+        <t>IR1 is assumed to be reachable at 2001:db8:1234:11::1 and IR2 at
+      2001:db8:1234:21::1. </t>
+
 
         <t>Each node wants to be called 'node' due to lack of
         branding in drafts. They announce that using the node name TLV
         defined in <xref target="node-name-tlv" />. They also
         advertise their local zones, but as that information may change,
         it's omitted here.</t>
-        
+
         <t>Conflict resolution ensues. As IR1 has precedence over the rest,
         it becomes "node". CER and IR2 have to rename, and (depending on
         timing) one of them becomes "node-2" and other one "node-3". Let us
@@ -513,27 +513,27 @@ DZ {s=1,zone="isp.example.com"}
 (from IR1)
 NN {name="node"}
 
-DZ {address=2001:db8:1:1::1, b=1, 
+DZ {address=2001:db8:1234:11::1, b=1,
     zone="lan.node.example.com."}
-DZ {address=2001:db8:1:1::1, 
+DZ {address=2001:db8:1234:11::1,
     zone="1.0.0.0.1.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa."}
 
-DZ {address=2001:db8:1:1::1, b=1, 
+DZ {address=2001:db8:1234:11::1, b=1,
     zone="wlan.node.example.com."}
-DZ {address=2001:db8:1:1::1, 
+DZ {address=2001:db8:1234:11::1,
     zone="2.0.0.0.1.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa."}
 
 (from IR2)
 NN {name="node-2"}
 
-DZ {address=2001:db8:2:1::1, b=1, 
+DZ {address=2001:db8:1234:21::1, b=1,
     zone="lan.node-2.example.com."}
-DZ {address=2001:db8:2:1::1, 
+DZ {address=2001:db8:1234:21::1,
     zone="1.0.0.0.2.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa."}
 
-DZ {address=2001:db8:2:1::1, b=1, 
+DZ {address=2001:db8:1234:21::1, b=1,
     zone="wlan.node-2.example.com."}
-DZ {address=2001:db8:2:1::1, 
+DZ {address=2001:db8:1234:21::1,
     zone="2.0.0.0.2.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa."}
 
         </artwork>
@@ -553,8 +553,8 @@ b._dns_sd._udp PTR wlan.node
 b._dns_sd._udp PTR lan.node-2
 b._dns_sd._udp PTR wlan.node-2
 
-node AAAA 2001:db8:1:1::1
-node-2 AAAA 2001:db8:2:1::1
+node AAAA 2001:db8:1234:11::1
+node-2 AAAA 2001:db8:1234:21::1
 
 node NS node
 node-2 NS node-2
@@ -594,9 +594,9 @@ node-2 NS node-2
       target="https://github.com/sbyx/hnetd/">hnetd github
       repository</eref> which contains variety of other homenet WG-related
       things' implementation too.</t>
-      
+
     </section>
-    
+
     <section title="Why not just proxy Multicast DNS?">
 
       <t>Over the time number of people have asked me about how, why, and
@@ -617,12 +617,12 @@ node-2 NS node-2
         across multiple links (due to e.g. link-local addresses having to
         be filtered). Therefore, conflict resolution breaks, or at least
         requires ugly hacks to work around.</t>
-        
+
         <t>A workaround for this is to make sure that in conflict
         resolution, propagated resources always loses. Due to conflict
         handling ordering logic, and the arbitrary order in which the
         original records may be in, this is non-trivial. </t>
-        
+
         <t>Second reason is timing, which is relatively tight in the
         conflict resolution phase, especially given lossy and/or high
         latency networks.</t>
@@ -682,10 +682,10 @@ node-2 NS node-2
       interesting discussion in Orlando, where I was finally convinced that
       stateful Multicast DNS proxying is a bad idea.</t>
 
-      <t>Also thanks to Mark Baugher, Ole Troan and Shwetha Bhandari for
-      review comments.</t>
+      <t>Also thanks to Mark Baugher, Ole Troan, Shwetha Bhandari and Gert
+      Doering for review comments.</t>
 
     </section>
-    
+
   </back>
 </rfc>
