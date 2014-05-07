@@ -1,0 +1,196 @@
+<?xml version='1.0' ?>
+<!--
+Created:       Wed May  7 18:18:20 2014 mstenber
+Last modified: Wed May  7 19:19:28 2014 mstenber
+Edit time:     57 min
+-->
+
+<!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
+
+<?rfc autobreaks="yes"?>
+<?rfc compact="yes"?>
+<?rfc strict='yes'?>
+<?rfc subcompact="no"?>
+<?rfc symrefs="yes"?>
+<?rfc toc="yes"?>
+<?rfc tocindent="yes"?>
+
+<rfc
+    ipr='trust200902'
+    docName='draft-stenberg-homenet-minimalist-pcp-proxy-00'
+    category='std'
+    >
+  <front>
+    <title abbrev="Minimalist PCP Proxy">
+      Minimalist Port Control Protocol Proxy
+    </title>
+    <author initials="M" surname="Stenberg" fullname="Markus Stenberg">
+      <address>
+        <postal>
+          <street/>
+          <city>Helsinki</city>
+          <code>00930</code>
+          <country>Finland</country>
+        </postal>
+        <email>markus.stenberg@iki.fi</email>
+      </address>
+    </author>
+    <date month="May" year="2014" />
+    <keyword>PCP</keyword>
+    <keyword>Proxy</keyword>
+    <keyword>Homenet</keyword>
+    <abstract>
+
+      <t>This document describes a minimalist PCP proxy function needed within the homenet architecture. It is notably a subset of a general PCP proxy. </t>
+
+    </abstract>
+  </front>
+  <middle>
+    <section title="Introduction">
+      <t>This is mostly discussion fodder; I _personally_ find current PCP proxy defined in <xref target="I-D.ietf-pcp-proxy"/> overcomplex for Homenet needs. So I'm defining Minimalist PCP Proxy (MPP) here instead.</t>
+
+      <t>A GPLv2-licensed experimental and probably still incorrect sample implementation of MPP is currently under development at <eref target="https://github.com/fingon/minimalist-pcproxy/">https://github.com/fingon/minimalist-pcproxy/ </eref>.  Comments and/or pull requests are welcome.</t>
+
+
+    </section>
+    <section anchor="kwd" title='Requirements language'>
+
+      <t>In this document, the key words "MAY", "MUST, "MUST NOT",
+      "OPTIONAL", "RECOMMENDED", "SHOULD", and "SHOULD NOT", are to be
+      interpreted as described in <xref target='RFC2119' />.</t>
+
+    </section>
+    
+    <section title="Requirements for the design">
+
+      <t>Homenet architecture defined in <xref target="I-D.ietf-homenet-arch" /> allows for multihoming -> multiple PCP servers MUST be supported. Notably, the PCP server choice MUST depend on the source address used by the client. </t>
+
+      <t>IPv4 is not yet gone -> dual-stack PCP SHOULD be supported. Proposed homenet prefix assignment algorithm defined in <xref target="I-D.pfister-homenet-prefix-assignment"/> assumes only zero or one upstream IPv4 links, NATted to a single IPv4 prefix.</t>
+
+      <t>The amount stored state SHOULD be minimal.</t>
+
+      <t>MPP SHOULD also have as simple as possible implementation for both footprint and correctness validation reasons.</t>
+
+    </section>
+
+    <section title="The use case for MPP">
+      <t>
+        Each first-hop router in a Homenet runs this algorithm. Each router with upstream connectivity additionally runs a real PCP server, but on an IP address that is not provided to any clients (TBD or just some weird port#? We're among consenting routers here after all..). <xref target="I-D.ietf-homenet-hncp"/> is used to maintain the information about upstream connections for the running MPP instances, and therefore normal PCP server selection is not needed.
+      </t>
+      <section title="State required">
+        <t>In addition to the local definition of epoch, for each server, following information is stored and updated as needed:
+        <list style="symbols">
+
+          <t>Source IP prefix and length to match.
+          </t>
+
+          <t>Remote IP address of the server.match.
+          </t>
+
+          <t>Remote epoch tracking (prev_server_time, prev_client_time as per <xref target="RFC6887"/>).
+          </t>
+
+        </list>
+        </t>
+
+      </section>
+      <section title="Difference from 'general' PCP proxy">
+
+        <t>
+          The MPP defined here is only a subset of what <xref target="I-D.ietf-pcp-proxy">official PCP proxy draft</xref> covers. However, it also is MUCH simpler to implement and define. Notable limitations include:
+
+          <list style="symbols">
+
+            <t>This scheme cannot be used on PCP proxy nodes that actually perform NAT. In case of firewalling, or forwarding, it should work. This is because original destination address client used to contact the local proxy is reused, to store it for later forwarding the response back to the client. If NAT occurs, this is not possible.</t>
+
+            <t>MPPs cannot be cascaded.</t>
+
+            <t>MPPs may be hard to adapt to real server selection in non-Homenet environments (TBD).</t>
+
+          </list>
+        </t>
+      </section>
+    </section>
+    <section title="Algorithm">
+
+      <t>Next behavior of MPP is described. MPP MUST have both PCP client and PCP server ports open.</t>
+
+      <section title="Local epoch reset">
+
+        <t>On local epoch reset (when MPP is started, or based on detected epoch reset at one of the servers as defined in <xref target="server-reply"/>), MPP SHOULD send unsolicited multicast ANNOUNCEs as specified in <xref target="RFC6887"/>.</t>
+
+      </section>
+
+      <section title="Client -> Proxy server port (ANNOUNCE)">
+        <t>Just provide a direct response (given internal interface + local IP), as specified in <xref target="RFC6887"/>. Otherwise, ignore. </t>
+      </section>
+
+      <section title="Client -> Proxy server port -> Server (MAP/PEER)">
+
+        <t>On receipt of a PCP request on an internal interface on the PCP server port, MPP behaves as follows:<list style="symbols">
+
+        <t>Check if the source IP address and the PCP client IP Address are
+        the same. If a mismatch is detected, the behavior specified in <xref
+        target="RFC6887"></xref> must be followed.</t>
+
+        <t>Check that for the client's source IP address, there exists a PCP server responsible for it within the local configuration. If not, TBD (error, but which one). </t>
+
+        <t>If THIRD_PARTY is already set, consider the request rejected.</t>
+
+        <t>If the request is rejected, build an error response and send it
+        back to the PCP client. The error status code is set to
+        NOT_AUTHORIZED.</t>
+
+        <t>If the request is accepted, adjust it (e.g., adding a THIRD_PARTY Option, updating the PCP client IP Address to the adddress client used when contacting the proxy) and forward it from local client port with the source address matching the IP address in the adjusted request.</t>
+      </list>
+        </t>
+      </section>
+
+      <section anchor="server-reply" title="Server -> Proxy client port -> Client (MAP/PEER)">
+
+        <t>On receipt of a PCP response on the PCP client port, MPP behaves as follows:
+        <list style="symbols">
+
+          <t>Check that source IP matches one of the PCP servers, and that the source port matches PCP server port. If not, silently drop the packet.</t>
+
+          <t>Check that THIRD_PARTY option is present, and store it for future use. If it is not present, or not in a locally connected prefix, silently drop the packet.</t>
+
+          <t>Ensure that the per-server epoch is valid per <xref target="RFC6887"/>. If not, reset local epoch.</t>
+
+          <t>Adjust the epoch in the response to local epoch.</t>
+
+          <t>Send the request forward to the client, with source address matching the original destination address, the destination address matching the address within the removed THIRD_PARTY option, and from the local server port to the remote client port. </t>
+        </list>
+        </t>
+      </section>
+
+    </section>
+
+  </middle>
+  <back>
+    <references title="Normative references">
+      <?rfc include="reference.RFC.2119.xml"?>
+      <?rfc include="reference.RFC.6887"?>
+    </references>
+    <references title="Informative references">
+      <?rfc include="reference.I-D.draft-ietf-pcp-proxy-05.xml"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-arch-11.xml"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-hncp-00.xml"?>
+      <?rfc include="reference.I-D.draft-pfister-homenet-prefix-assignment-00"?>
+    </references>
+
+    <section title="Draft source">
+      <t>As usual, this draft is available at <eref
+      target="https://github.com/fingon/ietf-drafts/">https://github.com/fingon/ietf-drafts/</eref>
+      in source format (with nice Makefile too). Feel free to send comments
+      and/or pull requests if and when you have changes to it! </t>
+    </section>
+
+    <section title="Acknowledgements">
+
+      <t>The algorithm text is adapted from draft-ietf-pcp-proxy-04 Section 8. It is unfortunately gone from the more recent iterations. </t>
+
+    </section>
+    
+  </back>
+</rfc>
