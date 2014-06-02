@@ -730,7 +730,8 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       </t>
       
       
-      <t>An interface MUST be considered external if at least one of the
+      <t>An interface MUST be considered external if it does not have a fixed
+      category classifying it as internal and if at least one of the
       following conditions is satisfied:
 
       <list style="numbers">
@@ -745,6 +746,24 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 	<t>HNCP security is enabled and there are routers on the interface
 	which could not be authenticated.</t>
 
+      </list>
+      </t>
+
+      <t>A router SHOULD allow setting a category of either auto-detected, internal
+      or external for each interface which is suitable for both
+      internal and external connections. In addition it MAY offer further
+      categories which modify the local router behavior, such as:
+
+      <list>
+        <t>Guest category: This is a specialization of the internal category which declares
+        an interface used for untrusted clients. The router MUST NOT send or accept HNCP
+        messages on these interfaces. Clients connected to these interfaces MUST NOT be
+        able to reach devices inside the home network by default and instead SHOULD only
+        be able to reach the internet.</t>
+
+        <t>Ad-hoc category: This is a specialization of the internal category which declares
+        an interface to be in ad-hoc mode. This indicates to HNCP applications such as prefix
+        assignment that links on this interface are potentially non-transitive.</t>
       </list>
       </t>
       
