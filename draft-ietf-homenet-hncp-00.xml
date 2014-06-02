@@ -767,6 +767,8 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
         assignment that links on this interface are potentially non-transitive.</t>
       </list>
       </t>
+
+      <t>A homenet router SHOULD provide basic connectivity to <xref target="RFC7084">legacy CERs</xref> connected to internal interfaces in order to allow coexistence with existing devices.</t>
       
       <t>Each router MUST continuously scan each active interface that does
       not have a fixed category in order to dynamically reclassify it if
