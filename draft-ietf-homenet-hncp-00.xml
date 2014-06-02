@@ -97,9 +97,10 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
     
     <section anchor="kwd" title='Requirements language'>
 
-      <t>In this document, the key words "MAY", "MUST, "MUST NOT",
-      "OPTIONAL", "RECOMMENDED", "SHOULD", and "SHOULD NOT", are to be
-      interpreted as described in <xref target='RFC2119' />.</t>
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+      NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
+      "OPTIONAL" in this document are to be interpreted as described in
+      <xref target='RFC2119'>RFC 2119</xref>.</t>
 
     </section>
 
@@ -839,7 +840,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       <t>Each delegated prefix is encoded using one TLV inside an
       EXTERNAL-CONNECTION TLV. For external IPv4 connections the prefix is
       encoded in the form of an <xref target="RFC4291">IPv4-mapped address</xref>
-      and is usually from a <xref target="RFC1597">private address range</xref>.
+      and is usually from a <xref target="RFC1918">private address range</xref>.
       The related TLV is defined as follows.</t>
       
       <figure>
@@ -1219,7 +1220,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
     <references title="Normative references">
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6206.xml"?>
-      <?rfc include="reference.I-D.draft-pfister-homenet-prefix-assignment-00"?>
+      <?rfc include="reference.I-D.draft-pfister-homenet-prefix-assignment-01"?>
       <?rfc include="reference.I-D.draft-stenberg-homenet-dnssd-hybrid-proxy-zeroconf-00"?>
 
     </references>
@@ -1230,15 +1231,13 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       <?rfc include="reference.RFC.2131.xml"?>
       <?rfc include="reference.RFC.3315.xml"?>
       <?rfc include="reference.RFC.3633.xml"?>
-      <?rfc include="reference.RFC.1597.xml"?>
+      <?rfc include="reference.RFC.1918.xml"?>
       <?rfc include="reference.RFC.4291.xml"?>
-      <?rfc include="reference.I-D.draft-ietf-homenet-arch-11.xml"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-arch-13.xml"?>
       <?rfc include="reference.I-D.draft-troan-homenet-sadr-01.xml"?>
-      <?rfc include="reference.I-D.draft-behringer-homenet-trust-bootstrap-00.xml"?>
+      <?rfc include="reference.I-D.draft-behringer-homenet-trust-bootstrap-02.xml"?>
       <?rfc include="reference.I-D.draft-baker-rtgwg-src-dst-routing-use-cases-00.xml"?>
       <?rfc include="reference.I-D.draft-kline-homenet-default-perimeter-00.xml"?>
-      <?rfc include="reference.I-D.draft-arkko-homenet-prefix-assignment-04.xml"?>
-      <?rfc include="reference.I-D.draft-stenberg-homenet-dnssdext-hybrid-proxy-ospf-00.xml"?>
       <?rfc include="reference.I-D.draft-acee-ospf-ospfv3-autoconfig-03.xml"?>
     </references>
     <section title="Some Outstanding Issues">
