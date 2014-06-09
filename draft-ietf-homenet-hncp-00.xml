@@ -768,6 +768,17 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
         <t>Ad-hoc category: This is a specialization of the internal category which declares
         an interface to be in ad-hoc mode. This indicates to HNCP applications such as prefix
         assignment that links on this interface are potentially non-transitive.</t>
+
+        <t>Hybrid category: This is a specialization of the external
+        category, in which HNCP, as well as traffic prohibited by <xref
+        target="RFC7084"/> on a WAN link such as routing traffic, is
+        allowed on the interface. The actual HNCP applications such as
+        prefix assignment should not be aware of the link. It is assumed
+        that the link is under control of a legacy, non-HNCP router, but
+        still within the same home network. Detection of this category
+        automatically is out of scope for this document, and therefore it
+        MAY be supported only via manual configuration by the owner on
+        per-router basis.</t>
       </list>
       </t>
 
