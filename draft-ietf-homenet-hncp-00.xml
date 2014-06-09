@@ -730,23 +730,26 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       </list>
       </t>
       
-      
-      <t>An interface MUST be considered external if it does not have a fixed
-      category classifying it as internal and if at least one of the
-      following conditions is satisfied:
+      <t>The border discovery auto-detection algorithm works as follows,
+      with evaluation stopping at first match:
 
       <list style="numbers">
-	<t>The interface has a fixed category classifying it as external.</t>
+        <t>If a fixed category is set for an interface, it MUST be used.</t>
+        <t>Any of the following conditions indicate an interface MUST
+        be considered external:
 
-	<t>A delegated prefix could be acquired by running a DHCPv6-client
-	on the interface.</t>
+        <list style="numbers">
+	  <t>A delegated prefix could be acquired by running a DHCPv6-client
+	  on the interface.</t>
 
-	<t>An IPv4-address could be acquired by running a DHCP-client on
-        the interface.</t>
+	  <t>An IPv4-address could be acquired by running a DHCP-client on
+          the interface.</t>
 
-	<t>HNCP security is enabled and there are routers on the interface
-	which could not be authenticated.</t>
-
+	  <t>HNCP security is enabled and there are routers on the interface
+	  which could not be authenticated.</t>
+        </list>
+        </t>
+        <t>As default fallback, interface MUST be considered internal.</t>
       </list>
       </t>
 
