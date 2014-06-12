@@ -154,10 +154,9 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
         target="RFC6206">Trickle algorithm</xref> indicates they should on
         each link the protocol is active on. When the locally stored
         network state hash changes (either by a local node event that
-        affects the update number or the TLV data, or upon receipt of more
-        recent update number or node data from another node), all Trickle
-        instances MUST be reset. Trickle state MUST be maintained
-        separately for each link.</t>
+        affects the TLV data, or upon receipt of more recent data from
+        another node), all Trickle instances MUST be reset. Trickle state
+        MUST be maintained separately for each link.</t>
 
         <t>Trickle algorithm has 3 parameters; Imin, Imax and k. Imin and
         Imax represent minimum and maximum values for I, which is the time interval
@@ -496,17 +495,15 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 |    Type: NETWORK-STATE (4)    |          Length: 20           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
-|          H(update number 1 .. H(node data TLV 1)              |
-|         .. update number 2 .. H(node data TLV 2)              |
-|         .. update number N .. H(node data TLV N))             |
+|          H(H(node data TLV 1) .. H(node data TLV N))          |
+|                                                               |
 |                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
             </artwork>
           </figure>
           
-          <t>The update numbers and Node Data TLVs are ordered
-          for hashing by octet comparison of the corresponding node
-          identifier hashes in ascending order.</t>
+          <t>The Node Data TLVs are ordered for hashing by octet comparison of
+          the corresponding node identifier hashes in ascending order.</t>
 
         </section>
         <section anchor="node-state" title="Node State TLV">
