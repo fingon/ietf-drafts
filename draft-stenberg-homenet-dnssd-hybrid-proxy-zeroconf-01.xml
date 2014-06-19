@@ -1,7 +1,7 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Mon Jun 17 04:55:57 2013 mstenber
-Last modified: Thu Jun 19 12:10:29 2014 mstenber
+Last modified: Thu Jun 19 12:15:38 2014 mstenber
 Edit time:     556 min
 -->
 
@@ -51,7 +51,7 @@ Edit time:     556 min
         <email>markus.stenberg@iki.fi</email>
       </address>
     </author>
-    <date month="February" year="2014" />
+    <date month="June" year="2014" />
 <!--    <workgroup></workgroup> -->
     <keyword>IPv6</keyword>
     <keyword>Homenet</keyword>
