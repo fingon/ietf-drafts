@@ -4,12 +4,12 @@
 # Author: Markus Stenberg <markus stenberg@iki.fi>
 #
 # Created:       Mon Jun 17 04:40:32 2013 mstenber
-# Last modified: Thu Jun 19 09:35:03 2014 mstenber
-# Edit time:     16 min
+# Last modified: Thu Jun 19 12:10:35 2014 mstenber
+# Edit time:     18 min
 #
 
 DRAFTS=\
-  draft-stenberg-homenet-dnssd-hybrid-proxy-zeroconf-00.txt \
+  draft-stenberg-homenet-dnssd-hybrid-proxy-zeroconf-01.txt \
   draft-ietf-homenet-hncp-00.txt
 
 ifndef XML_LIBRARY
