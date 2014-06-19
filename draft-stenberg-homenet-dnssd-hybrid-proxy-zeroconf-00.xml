@@ -1,8 +1,8 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Mon Jun 17 04:55:57 2013 mstenber
-Last modified: Tue Apr 22 10:19:25 2014 mstenber
-Edit time:     502 min
+Last modified: Thu Jun 19 12:03:23 2014 mstenber
+Edit time:     554 min
 -->
 
 <!--
@@ -70,7 +70,7 @@ Edit time:     502 min
     <section title="Introduction">
 
       <t>Section 3 ("Hybrid Proxy Operation") of <xref
-      target="I-D.cheshire-mdnsext-hybrid"/> describes how to translate
+      target="I-D.cheshire-dnssd-hybrid"/> describes how to translate
       queries from Unicast DNS-Based Service Discovery described in <xref
       target="RFC6763"/> to Multicast DNS described in <xref
       target="RFC6762"/>, and how to filter the responses and translate
@@ -78,17 +78,19 @@ Edit time:     502 min
 
       <t>This document describes what sort of configuration the
       participating hybrid proxy servers require, as well as how it can be
-      provided using any network-level state sharing mechanism (such as
-      routing protocol) and a naming scheme which does not even need to be
-      same across the whole covered network to work (given working conflict
-      resolution does work). The scheme can be used to provision both
-      forward and reverse DNS zones which employ hybrid proxy for heavy
-      lifting.</t>
+      provided using any network-wide state sharing mechanism such as
+      link-state routing protocol or <xref
+      target="I-D.ietf-homenet-hncp">Home Networking Control
+      Protocol</xref>. The document also describes a naming scheme which
+      does not even need to be same across the whole covered network to
+      work as long as the specified conflict resolution works. The scheme
+      can be used to provision both forward and reverse DNS zones which
+      employ hybrid proxy for heavy lifting.</t>
 
       <t>This document does not go into low level encoding details of the
       Type-Length-Value (TLV) data that we want synchronized across a
       network. Instead, we just specify what needs to be available, and
-      assume every node that needs it has that it available.</t>
+      assume every node that needs it has it available.</t>
 
       <t>We go through the mandatory specification of the language used in
       <xref target="kwd"/>, then describe what needs to be configured in
@@ -113,17 +115,18 @@ Edit time:     502 min
 
       <t>Beyond the low-level translation mechanism between unicast and
       multicast service discovery, the hybrid proxy draft <xref
-      target="I-D.cheshire-mdnsext-hybrid"/> describes just that there have
+      target="I-D.cheshire-dnssd-hybrid"/> describes just that there have
       to be NS records pointing to hybrid proxy responsible for each link
       within the covered network.</t>
 
-      <t>The links to be covered is also non-trivial choice; we can use the
-      border discovery functionality (if available) to determine internal
-      and external links. Or we can use some other protocol's presence (or
-      lack of it) on a link to determine internal links within the covered
-      network, and some other signs (depending on the deployment) such as
-      DHCPv6 Prefix Delegation (as described in <xref target="RFC3633"/>) to
-      determine external links that should not be covered.</t>
+      <t>In zero-configuration case, choosing the links to be covered is
+      also non-trivial choice; we can use the border discovery
+      functionality (if available) to determine internal and external
+      links. Or we can use some other protocol's presence (or lack of it)
+      on a link to determine internal links within the covered network, and
+      some other signs (depending on the deployment) such as DHCPv6 Prefix
+      Delegation (as described in <xref target="RFC3633"/>) to determine
+      external links that should not be covered.</t>
 
       <t>For each covered link we want forward DNS zone delegation to an
       appropriate node which is connected to a link, and running hybrid
@@ -225,10 +228,10 @@ Edit time:     502 min
         <section anchor="lname" title="Link name (scheme 2)">
 
           <t>Recommendation for (link) portion of (link).(node).(domain)
-          is to use either physical network layer type as base, possibly
-          even just interface name on the node, if it's descriptive
-          enough, for example, eth0.openwrt.example.com and
-          wlan0.openwrt.example.com may be good enough. </t>
+          is to use physical network layer type as base, or possibly
+          even just interface name on the node if it's descriptive
+          enough. For example, "eth0.openwrt.example.com" and
+          "wlan0.openwrt.example.com" may be good enough. </t>
 
         </section>
       </section>
@@ -407,20 +410,21 @@ Edit time:     502 min
   </middle>
   <back>
     <references title="Normative references">
-      <?rfc include="reference.I-D.draft-cheshire-mdnsext-hybrid-01.xml"?>
+      <?rfc include="reference.I-D.draft-cheshire-dnssd-hybrid-01.xml"?>
       <?rfc include="reference.RFC.1035.xml"?>
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6762.xml"?>
       <?rfc include="reference.RFC.6763.xml"?>
     </references>
     <references title="Informative references">
+      <?rfc include="reference.I-D.draft-ietf-homenet-hncp-00.xml"?>
       <?rfc include="reference.RFC.3633.xml"?>
       <?rfc include="reference.RFC.3646.xml"?>
     </references>
 
     <section title="Example configuration">
 
-<section title="Topology">
+<section title="Used topology">
       <t>Let's assume home network that looks like this:</t>
 
       <figure>
@@ -455,7 +459,7 @@ Edit time:     502 min
 </section>
 
 
-<section title="OSPFv3-DNS interaction">
+<section title="Zero-configuration steps">
 
       <t>Given implementation that chooses to use the second naming scheme
       (link).(node).(domain), and no configuration whatsoever, here's
@@ -516,12 +520,12 @@ NN {name="node"}
 DZ {address=2001:db8:1234:11::1, b=1,
     zone="lan.node.example.com."}
 DZ {address=2001:db8:1234:11::1,
-    zone="1.0.0.0.1.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa."}
+    zone="1.1.0.0.4.3.2.1.8.b.d.0.1.0.0.2.ip6.arpa."}
 
 DZ {address=2001:db8:1234:11::1, b=1,
     zone="wlan.node.example.com."}
 DZ {address=2001:db8:1234:11::1,
-    zone="2.0.0.0.1.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa."}
+    zone="2.1.0.0.4.3.2.1.8.b.d.0.1.0.0.2.ip6.arpa."}
 
 (from IR2)
 NN {name="node-2"}
@@ -529,12 +533,12 @@ NN {name="node-2"}
 DZ {address=2001:db8:1234:21::1, b=1,
     zone="lan.node-2.example.com."}
 DZ {address=2001:db8:1234:21::1,
-    zone="1.0.0.0.2.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa."}
+    zone="1.2.0.0.4.3.2.1.8.b.d.0.1.0.0.2.ip6.arpa."}
 
 DZ {address=2001:db8:1234:21::1, b=1,
     zone="wlan.node-2.example.com."}
 DZ {address=2001:db8:1234:21::1,
-    zone="2.0.0.0.2.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa."}
+    zone="2.2.0.0.4.3.2.1.8.b.d.0.1.0.0.2.ip6.arpa."}
 
         </artwork>
       </figure>
@@ -559,10 +563,10 @@ node-2 AAAA 2001:db8:1234:21::1
 node NS node
 node-2 NS node-2
 
-1.0.0.0.1.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa. NS node.example.com.
-2.0.0.0.1.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa. NS node.example.com.
-1.0.0.0.2.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa. NS node-2.example.com.
-2.0.0.0.2.0.0.0.8.b.d.0.1.0.0.2.ip6.arpa. NS node-2.example.com.
+1.1.0.0.4.3.2.1.8.b.d.0.1.0.0.2.ip6.arpa. NS node.example.com.
+2.1.0.0.4.3.2.1.8.b.d.0.1.0.0.2.ip6.arpa. NS node.example.com.
+1.2.0.0.4.3.2.1.8.b.d.0.1.0.0.2.ip6.arpa. NS node-2.example.com.
+2.2.0.0.4.3.2.1.8.b.d.0.1.0.0.2.ip6.arpa. NS node-2.example.com.
         </artwork>
       </figure>
       <t>Internally, the node may interpret the TLVs as it chooses to, as
@@ -612,16 +616,32 @@ node-2 NS node-2
         <t>There are two main reasons why Multicast DNS is not proxyable in
         the general case.</t>
 
-        <t>First reason is the conflict resolution depends on ordering
-        which depends on the RRsets staying constant. That is not possible
-        across multiple links (due to e.g. link-local addresses having to
-        be filtered). Therefore, conflict resolution breaks, or at least
-        requires ugly hacks to work around.</t>
+        <t>First reason is the conflict resolution depends on the RRsets
+        staying constant. That is not possible across multiple links (due
+        to e.g. link-local addresses having to be filtered). Therefore,
+        conflict resolution breaks, or at least requires ugly hacks to work
+        around.</t>
 
-        <t>A workaround for this is to make sure that in conflict
-        resolution, propagated resources always loses. Due to conflict
-        handling ordering logic, and the arbitrary order in which the
-        original records may be in, this is non-trivial. </t>
+        <t>A simple, but not really working workaround for this is to make
+        sure that in conflict resolution, propagated resources always
+        loses. Given that the proxy function only removes records, the
+        result SHOULD be consistently original set of records winning. Even
+        with that, the conflict resolution will effectively cease working,
+        allowing for two instances of same name to exist (as both think
+        they 'own' the name due to locally seen higher precedence). </t>
+
+        <t>Given some more extra logic, it is possible to make this work by
+        having proxies be aware of both the original record sets, and
+        effectively enforcing the correct conflict resolution results by
+        (for example) passing the unfiltered packets to the losing party
+        just to make sure they renumber, or by altering the RR sets so that
+        they will consistently win (by inserting some lower rrclass/rrtype
+        records). As the conflicts happen only in rrclass=1/rrtype=28, it
+        is easy enough to add e.g. extra TXT record (rrtype 16) to force
+        precedence even when removing the later rrtype 28
+        record. Obviously, this new RRset must never wind up near the
+        host with the higher precedence, or it will cause spurious renaming
+        loops.</t>
 
         <t>Second reason is timing, which is relatively tight in the
         conflict resolution phase, especially given lossy and/or high
