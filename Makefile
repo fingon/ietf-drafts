@@ -4,8 +4,8 @@
 # Author: Markus Stenberg <markus stenberg@iki.fi>
 #
 # Created:       Mon Jun 17 04:40:32 2013 mstenber
-# Last modified: Mon Jun  9 13:19:51 2014 mstenber
-# Edit time:     14 min
+# Last modified: Mon Jun 23 19:39:06 2014 mstenber
+# Edit time:     18 min
 #
 
 DRAFTS=\
@@ -24,6 +24,9 @@ all: $(DRAFTS)
 %.xml.artwork: %.xml
 	python fix-artwork.py < $< > $@
 	mv $@ $<
+
+%.xml.check: %.xml
+	aspell -H -c $<
 
 push: all
 	git push
