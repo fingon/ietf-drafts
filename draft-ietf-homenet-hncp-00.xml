@@ -53,8 +53,9 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
     <keyword>Homenet</keyword>
     <abstract>
 
-      <t>This document describes the HomeNet Control Protocol (HNCP), a minimalist state synchronization
-      protocol for Homenet routers. </t>
+      <t>This document describes the Home Networking Control Protocol
+      (HNCP), a minimalist state synchronization protocol for Homenet
+      routers. </t>
 
     </abstract>
   </front>
@@ -83,23 +84,21 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       target="I-D.baker-rtgwg-src-dst-routing-use-cases" />. </t>
       
       <t>A GPLv2-licensed implementation of the HNCP protocol is
-      currently under development at <eref
-      target="https://github.com/sbyx/hnetd/">https://github.com/sbyx/hnetd/</eref>. 
-      Comments and/or pull requests are welcome.</t> 
-      
-      <t> An earlier implementation using many of the same 
-      principles, algorithms and data structures built within OSPFv3 is
-      available at <eref target="http://www.homewrt.org/doku.php?id=downloads">
-      http://www.homewrt.org/doku.php?id=downloads</eref>.
-      </t>
+      currently under development at <eref target="https://github.com/sbyx/hnetd/">https://github.com/sbyx/hnetd/</eref>
+      and the binaries are available in the routing feed of <eref
+      target="http://www.openwrt.org">OpenWrt</eref> trunk release. 
+      Some information how to get started with it is available at <eref
+      target="http://www.homewrt.org/doku.php?id=run-conf" />.
+      Comments and/or pull requests are welcome.</t>
       
     </section>
     
     <section anchor="kwd" title='Requirements language'>
 
-      <t>In this document, the key words "MAY", "MUST, "MUST NOT",
-      "OPTIONAL", "RECOMMENDED", "SHOULD", and "SHOULD NOT", are to be
-      interpreted as described in <xref target='RFC2119' />.</t>
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+      NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
+      "OPTIONAL" in this document are to be interpreted as described in
+      <xref target='RFC2119'>RFC 2119</xref>.</t>
 
     </section>
 
@@ -111,7 +110,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
         <t>A unique node identifier. It may be a public key, unique
         hardware ID, or some other unique blob of binary data which HNCP
-        can run a hash upon to obtain a node identifer that is very likely
+        can run a hash upon to obtain a node identifier that is very likely
         unique among the set of routers in the Homenet.</t>
 
         <t>A set of Type-Length-Value (TLV) data it wants to share with
@@ -119,11 +118,11 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
         ascending binary content that is used to quickly identify changes
         in the set as they occur. </t>
 
-        <t>Latest update sequence number. A four octet number that is
+        <t>Latest update sequence number. A 32 bit number that is
         incremented anytime TLV data changes are detected.</t>
 
         <t>Relative time, in milliseconds, since last publishing of the
-        current TLV data set. </t>
+        current TLV data set. It is also 32 bit number on the wire.</t>
 
       </list>
       </t>
@@ -209,7 +208,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 	  <t>The NetState Message MAY contain <xref
 	  target="node-state">Node State TLV(s)</xref>.  If so, either all
 	  Node State TLVs are included (referred to as a "long" NetState
-	  Message), or none are included (refered to as a "short" NetState
+	  Message), or none are included (referred to as a "short" NetState
 	  Message). The NetState Message MUST NOT contain only a portion of
 	  Node State TLVs as this could cause problems with the <xref
 	  target="reception"> Protocol Message Processing</xref>
@@ -284,7 +283,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
       <section title="HNCP Protocol Message Processing" anchor="reception">
         
-        <t>The majority of status updates among known nodes are handled via the <xref target="trickle-updates">Trickle-Driven 
+        <t>The majority of status updates among known nodes are handled via the <xref target="trickle-updates">Trickle-driven 
         updates </xref>. This section describes processing 
 	of messages as received, along with associated actions or responses.</t>
         
@@ -308,9 +307,10 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
           Node State TLVs), reply with <xref
           target="req-node-message">NodeState-Req</xref> for any nodes for
           which local information is outdated (local update number is lower
-          than that within the message) or missing. Note that if local
-          information is more recent than that of the neighbor, there is no
-          need to send a message.</t>
+          than that within the message), potentially incorrect (local
+          update number is same and the hash of node data TLV differs) or
+          missing. Note that if local information is more recent than that
+          of the neighbor, there is no need to send a message.</t>
 
           <t><xref target="req-net-message">NetState-Req</xref>: Provide
           requested data in a NetNode-Reply Message containing Network
@@ -322,12 +322,12 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
           <t><xref target="reply-message">State-Reply</xref>: If the
           message contains Node State TLVs that are more recent than local
-          state (higher update number or we lack the node data altogether),
-          if the message also contains corresponding Node Data TLVs, update
-          local state and reset Trickle. If the message is lacking Node
-          Data TLVs for some Node State TLVs which are more recent than
-          local state, reply with a <xref
-          target="req-node-message">NodeState-Req</xref> for the
+          state (higher update number, different node data TLV hash, or we
+          lack the node data altogether), and if the message also contains
+          corresponding Node Data TLVs, update local state and reset
+          Trickle. If the message is lacking Node Data TLVs for some Node
+          State TLVs which are more recent than local state, reply with a
+          <xref target="req-node-message">NodeState-Req</xref> for the
           corresponding nodes. </t>
 	</list>
 	</t>
@@ -364,8 +364,8 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
         target="neighbor-tlv">Neighbor TLV</xref> for current node. If
         nothing (for example - no router advertisements, no HNCP traffic)
         is received from that neighbor in Imax seconds and the neighbor is
-        not in neighbor discovery cache (and L2 indication of presence is
-        available), at least 3 attempts to ping it with <xref
+        not in neighbor discovery cache, and no layer 2 indication of
+        presence is available, at least 3 attempts to ping it with <xref
         target="req-net-message">request network state message</xref>
         SHOULD be sent with increasing timeouts (e.g. 1, 2, 4 seconds). If
         even after suitable period after the last message nothing is
@@ -378,10 +378,16 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       
       <section title="Purging Unreachable Nodes">
 
-        <t>Nodes should be purged when unreachable.  When node data has
-        changed, the neighbor graph SHOULD be traversed for each node
-        following the Neighbor TLVs, purging nodes that were found entirely
-        unreachable (not traversed). </t>
+        <t>When node data has changed, the neighbor graph SHOULD be
+        traversed for each node following the bidirectional neighbor
+        relationships. These are identified by looking for neighbor TLVs on
+        both nodes, that have the remote node's identifier hash as
+        h(neighbor node identifier), and local and neighbor link
+        identifiers swapped. After the traverse, unreachable nodes SHOULD
+        be purged after some grace period. During the grace period, the
+        unreachable nodes MUST NOT be used for calculation of network state
+        hash, or even be provided to any applications that need to use the
+        whole TLV graph. </t>
 
       </section>
       
@@ -390,7 +396,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
     <section anchor="tlvs" title="Type-Length-Value objects">
       <t>
         Every TLV is encoded as 2 octet type, followed by 2 octet length
-        (of the whole TLV, including header; 4 means no value whatsoever),
+        (of the whole TLV, including header; 4 means no value),
         and then the value itself (if any).
 
         The actual length of TLV MUST be always divisible by 4; if the
@@ -668,9 +674,9 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
         is in use by this particular node. All TLVs within node data from
         nodes that do not publish version TLV, or with different Version
         value than locally supported one MUST be ignored (but forwarded).
-        under control of the author of that specification.  The user-agent
-        is an optional human-readable UTF-8 string that can describe
-        e.g. current hnetd version. This draft describes Version=1 TLVs.</t>
+        The user-agent is an optional human-readable UTF-8 string that can
+        describe e.g. current hnetd version. This draft describes Version=1
+        TLVs.</t>
 
       </section>
 
@@ -729,24 +735,54 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       </list>
       </t>
       
-      
-      <t>An interface MUST be considered external if at least one of the
-      following conditions is satisfied:
+      <t>The border discovery auto-detection algorithm works as follows,
+      with evaluation stopping at first match:
 
       <list style="numbers">
-	<t>The interface has a fixed category classifying it as external.</t>
+        <t>If a fixed category is set for an interface, it MUST be used.</t>
+        <t>Any of the following conditions indicate an interface MUST
+        be considered external:
 
-	<t>A delegated prefix could be acquired by running a DHCPv6-client
-	on the interface.</t>
+        <list style="numbers">
+	  <t>A delegated prefix could be acquired by running a DHCPv6-client
+	  on the interface.</t>
 
-	<t>An IPv4-address could be acquired by running a DHCP-client on
-        the interface.</t>
+	  <t>An IPv4-address could be acquired by running a DHCP-client on
+          the interface.</t>
 
-	<t>HNCP security is enabled and there are routers on the interface
-	which could not be authenticated.</t>
-
+	  <t>HNCP security is enabled and there are routers on the interface
+	  which could not be authenticated.</t>
+        </list>
+        </t>
+        <t>As default fallback, interface MUST be considered internal.</t>
       </list>
       </t>
+
+      <t>A router SHOULD allow setting a category of either auto-detected, internal
+      or external for each interface which is suitable for both
+      internal and external connections. In addition it MAY offer further
+      categories which modify the local router behavior, such as:
+
+      <list>
+        <t>Guest category: This is a specialization of the internal category which declares
+        an interface used for untrusted clients. The router MUST NOT send or accept HNCP
+        messages on these interfaces. Clients connected to these interfaces MUST NOT be
+        able to reach devices inside the home network by default and instead SHOULD only
+        be able to reach the internet.</t>
+
+        <t>Ad-hoc category: This is a specialization of the internal category which declares
+        an interface to be in ad-hoc mode. This indicates to HNCP applications such as prefix
+        assignment that links on this interface are potentially non-transitive.</t>
+
+        <t>Hybrid category: This is a specialization of the internal category in which the
+        router still accepts external connections but does not do border discovery.
+        It is assumed that the link is under control of a legacy, trustworthy non-HNCP router,
+        still within the same home network. Detection of this category automatically is out of scope
+        for this document, and therefore it MAY be supported only via manual configuration on a per-router basis.</t>
+      </list>
+      </t>
+
+      <t>A homenet router SHOULD provide basic connectivity to <xref target="RFC7084">legacy CERs</xref> connected to internal interfaces in order to allow coexistence with existing devices.</t>
       
       <t>Each router MUST continuously scan each active interface that does
       not have a fixed category in order to dynamically reclassify it if
@@ -820,7 +856,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       <t>Each delegated prefix is encoded using one TLV inside an
       EXTERNAL-CONNECTION TLV. For external IPv4 connections the prefix is
       encoded in the form of an <xref target="RFC4291">IPv4-mapped address</xref>
-      and is usually from a <xref target="RFC1597">private address range</xref>.
+      and is usually from a <xref target="RFC1918">private address range</xref>.
       The related TLV is defined as follows.</t>
       
       <figure>
@@ -896,7 +932,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 	  <t>R. is reserved for future additions and MUST be set to 0 when
           creating TLVs and ignored when parsing them.</t>
 
-	  <t>A is the authoritative flag which indicates that an assigment
+	  <t>A is the authoritative flag which indicates that an assignment
           is enforced and ignores usual collision detection rules.</t>
 
 	  <t>Pref. describes the preference of the assignment and can be
@@ -1011,7 +1047,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 	<t>In order to be advertised for use within the Homenet, a routing protocol MUST:
 	<list>
 	  <t>Comply with <xref target="I-D.baker-rtgwg-src-dst-routing-use-cases">Requirements and Use Cases for Source/Destination Routing</xref>.</t>
-	  <t>Be configured with suitable defaults or have an autoconfiguration mechanism (e.g. <xref target="I-D.acee-ospf-ospfv3-autoconfig" />) such that it will run in a Homenet without requiring specific configuration from the Home user. </t>
+	  <t>Be configured with suitable defaults or have an auto-configuration mechanism (e.g. <xref target="I-D.acee-ospf-ospfv3-autoconfig" />) such that it will run in a Homenet without requiring specific configuration from the Home user. </t>
 	</list>
 	</t>
 	<t>A router MUST NOT announce that it supports a certain routing protocol if its implementation of the routing protocol does not meet these requirements,
@@ -1086,11 +1122,11 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 	and therefore does not require any additional protocol message exchange. 
 	
 	<list style="numbers">
-	  <t>Interpret the neighbour information received via HNCP as a graph of connected routers.</t>
+	  <t>Interpret the neighbor information received via HNCP as a graph of connected routers.</t>
 	  <t>Use breadth-first traversal to determine the next-hop and hop-count in the path to each router in the homenet:
 	  <list>
-	    <t>Start the traversal with the immediate neighbours of the router running the algorithm.</t>
-	    <t>Always visit the immediate neighbours of a router in ascending order of their router ID.</t>
+	    <t>Start the traversal with the immediate neighbors of the router running the algorithm.</t>
+	    <t>Always visit the immediate neighbors of a router in ascending order of their router ID.</t>
 	    <t>Never visit a router more often than once.</t>
 	  </list>
 	  </t>
@@ -1098,7 +1134,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 	  Each such route MUST be source-restricted to only apply to traffic with a source address within P and its metric MUST reflect the hop-count to R.</t>
 	  <t>For each assigned prefix A of a router R:
 	  Create a route to A via the next-hop for R acquired in #2. Each such route MUST NOT be source-restricted.</t>
-	  <t>For the first router R visited in the traversal annuncing an IPv4-uplink: Create a default IPv4-route via the next-hop for R acquired in #2.</t>
+	  <t>For the first router R visited in the traversal announcing an IPv4-uplink: Create a default IPv4-route via the next-hop for R acquired in #2.</t>
 	  <t>For each assigned IPv4-prefix A of a router R: Create an IPv4-route to A via the next-hop for R acquired in #2.</t>
 	</list>
 	</t>
@@ -1136,12 +1172,11 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       />. When no unique public key is available, a hardware fingerprint or
       equivalent to identify routers must be available for use by HNCP.</t>
       
-      <t>As HNCP messages are sent over UDP/IP, IPsec may be used for 
-      confidentiality or additional message authenitation. However, this
+      <t>As HNCP messages are sent over UDP/IP, IPsec may be used for
+      confidentiality or additional message authentication. However, this
       requires manually keyed IPsec per-port granularity for port
-      IANA-UDP-PORT UDP traffic.  Also, a pre-shared key has to be utilized in
-      this case given IKE cannot be used with multicast
-      traffic.</t>
+      IANA-UDP-PORT UDP traffic.  Also, a pre-shared key has to be utilized
+      in this case given IKE cannot be used with multicast traffic.</t>
       
       <t>If no router can be trusted and additional guarantees about source of
       node status updates is necessary, real public and private keys should
@@ -1200,8 +1235,8 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
     <references title="Normative references">
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6206.xml"?>
-      <?rfc include="reference.I-D.draft-pfister-homenet-prefix-assignment-00"?>
-      <?rfc include="reference.I-D.draft-stenberg-homenet-dnssd-hybrid-proxy-zeroconf-00"?>
+      <?rfc include="reference.I-D.draft-pfister-homenet-prefix-assignment-01"?>
+      <?rfc include="reference.I-D.draft-stenberg-homenet-dnssd-hybrid-proxy-zeroconf-01"?>
 
     </references>
     <references title="Informative references">
@@ -1211,15 +1246,13 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       <?rfc include="reference.RFC.2131.xml"?>
       <?rfc include="reference.RFC.3315.xml"?>
       <?rfc include="reference.RFC.3633.xml"?>
-      <?rfc include="reference.RFC.1597.xml"?>
+      <?rfc include="reference.RFC.1918.xml"?>
       <?rfc include="reference.RFC.4291.xml"?>
-      <?rfc include="reference.I-D.draft-ietf-homenet-arch-11.xml"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-arch-13.xml"?>
       <?rfc include="reference.I-D.draft-troan-homenet-sadr-01.xml"?>
-      <?rfc include="reference.I-D.draft-behringer-homenet-trust-bootstrap-00.xml"?>
+      <?rfc include="reference.I-D.draft-behringer-homenet-trust-bootstrap-02.xml"?>
       <?rfc include="reference.I-D.draft-baker-rtgwg-src-dst-routing-use-cases-00.xml"?>
       <?rfc include="reference.I-D.draft-kline-homenet-default-perimeter-00.xml"?>
-      <?rfc include="reference.I-D.draft-arkko-homenet-prefix-assignment-04.xml"?>
-      <?rfc include="reference.I-D.draft-stenberg-homenet-dnssdext-hybrid-proxy-ospf-00.xml"?>
       <?rfc include="reference.I-D.draft-acee-ospf-ospfv3-autoconfig-03.xml"?>
     </references>
     <section title="Some Outstanding Issues">
@@ -1231,11 +1264,11 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       stating this is link-local only protocol. </t>
 
       <t>Consider if using Trickle with k=1 really pays off, as we need to
-      do reachability checks if L2 doesn't provide them periodically in any
-      case. Using Trickle with k=inf would remove the need for unicast
-      reachability checks, but at cost of extra multicast traffic. On the
-      other hand, N*(N-1)/2 unicast reachability checks when lot of routers
-      share a link is not appealing either.</t>
+      do reachability checks if layer 2 does not provide them periodically
+      in any case. Using Trickle with k=inf would remove the need for
+      unicast reachability checks, but at cost of extra multicast
+      traffic. On the other hand, N*(N-1)/2 unicast reachability checks
+      when lot of routers share a link is not appealing either.</t>
 
       <t>Should we use something else than MD5 as hash? It IS somewhat
       insecure; however signature stuff (TBD) should rely on it mainly for
@@ -1249,7 +1282,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
     <section title="Some Obvious Questions and Answers">
       <t>Q: Why not use TCP?</t>
 
-      <t>A: It doesn't address the node discovery problem. It also leads to
+      <t>A: It does not address the node discovery problem. It also leads to
       N*(N-1)/2 connections when N nodes share a link, which is
       awkward. </t>
 
@@ -1263,7 +1296,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
       <t>Q: Why so long IDs? Why real hash even in insecure mode?</t>
 
-      <t>A: Scalability of protocol isn't really affected by using real
+      <t>A: Scalability of protocol is not really affected by using real
       (=cryptographic) hash function.</t>
 
       <t>Q: Why trust IPv6 fragmentation in unicast case? Why not do L7
