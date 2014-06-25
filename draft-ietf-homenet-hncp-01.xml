@@ -15,7 +15,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
 <rfc
     ipr='trust200902'
-    docName='draft-ietf-homenet-hncp-00'
+    docName='draft-ietf-homenet-hncp-01'
     category='std'
     >
   <front>
@@ -44,7 +44,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
         <email>cyrus@openwrt.org</email>
       </address>
     </author>
-    <date month="April" year="2014" />
+    <date month="June" year="2014" />
 
     <area>Internet</area>
     <workgroup>Homenet Working Group</workgroup>
@@ -1322,6 +1322,14 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
     </section>
     <section title="Changelog">
+
+      <t>draft-ietf-homenet-hncp-01: Added (MAY) guest, ad-hoc, hybrid
+      categories for interfaces. Removed old hnetv2 reference, and now
+      pointing just to OpenWrt + github. Fixed synchronization algorithm to
+      spread also same update number, but different data hash case. Made
+      purge step require bidirectional connectivity between nodes when
+      traversing the graph. Edited few other things to be hopefully
+      slightly clearer without changing their meaning. </t>
 
       <t>draft-ietf-homenet-hncp-00: Added version TLV to allow for TLV content
       changes pre-RFC without changing IDs. Added link id to assigned
