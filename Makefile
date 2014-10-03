@@ -10,7 +10,8 @@
 
 DRAFTS=\
   draft-stenberg-homenet-dnssd-hybrid-proxy-zeroconf-01.txt \
-  draft-ietf-homenet-hncp-01.txt
+  draft-ietf-homenet-hncp-01.txt \
+  draft-barth-homenet-hncp-security-trust-00.txt \
 
 ifndef XML_LIBRARY
 XML_LIBRARY=$(HOME)/share/1/ietf-bib/bibxml:$(HOME)/share/1/ietf-bib/bibxml2:$(HOME)/share/1/ietf-bib/bibxml3:$(HOME)/share/1/ietf-bib/bibxml4:$(HOME)/share/1/ietf-bib/bibxml5
