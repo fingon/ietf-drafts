@@ -687,15 +687,16 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       </list>
       </t>
 
-      <t>A router SHOULD allow setting a category of either auto-detected,
+      <t>A router MUST allow setting a category of either auto-detected,
       internal or external for each interface which is suitable for both
-      internal and external connections. In addition it MAY offer further
-      categories which modify the local router behavior, such as:
+      internal and external connections. In addition the following
+      categories are defined to modify the local router behavior:
 
       <list>
         <t>Guest category: This is a specialization of the internal
         category which declares an interface used for untrusted
-        clients. The router MUST NOT send or accept HNCP messages on these
+        clients. A router SHOULD implement this category.
+        The router MUST NOT send or accept HNCP messages on these
         interfaces. Clients connected to these interfaces MUST NOT be able
         to reach devices inside the home network by default and instead
         SHOULD only be able to reach the internet.</t>
@@ -703,7 +704,8 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
         <t>Ad-hoc category: This is a specialization of the internal
         category which declares an interface to be in ad-hoc mode. This
         indicates to HNCP applications such as prefix assignment that links
-        on this interface are potentially non-transitive.</t>
+        on this interface are potentially non-transitive. This category MAY
+        be implemented.</t>
 
         <t>Hybrid category: This is a specialization of the internal
         category in which the router still accepts external connections but
