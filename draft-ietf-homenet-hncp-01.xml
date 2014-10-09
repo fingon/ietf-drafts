@@ -992,7 +992,9 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       </section>
       
       <section title="Announcement">
-	<t>Each router SHOULD announce all routing protocols that it is capable of supporting in the Homenet. 
+	<t>Each router SHOULD announce all routing protocols that it is capable of supporting in the Homenet.
+	It MUST announce at least one protocol or the fallback mechanism to be considered for protocol selection and MAY omit announcing
+	the fallback mechanism if it announces at least one other routing protocol.
 	It SHOULD assign a preference value for each protocol that indicates its desire to use said protocol over other protocols it supports and SHOULD
 	make these values configurable.</t> 
 	
@@ -1012,7 +1014,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 	  <list>
 	    <t>Protocol ID is one of:
 	    <list>
-	      <t>0 = reserved</t>
+	      <t>0 = Fallback (explicit announcement)</t>
 	      <t>1 = Babel (dual-stack)</t>
 	      <t>2 = OSPFv3 (dual-stack)</t>
 	      <t>3 = IS-IS (dual-stack)</t>
@@ -1028,9 +1030,9 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       </section>
       
       <section title="Protocol Selection">
-	<t>When HNCP detects that a router has joined or left the Homenet it MUST examine all advertised 
-	routing protocols and preference values from all routers in the Homenet in order to find the one
-	routing protocol which:
+	<t>When HNCP detects that a device has joined or left the Homenet it MUST examine all advertised
+	routing protocols and preference values from all devices announcing at least one ROUTING-PROTOCOL-TLV
+	in order to find the one routing protocol which:
 	
 	<list style="numbers">
 	  <t>Is understood by all routers in the homenet</t>
