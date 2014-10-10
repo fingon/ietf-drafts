@@ -12,7 +12,7 @@
 
 <rfc
     ipr='trust200902'
-    docName='draft-barth-homenet-hncp-security-trust-00'
+    docName='draft-barth-homenet-hncp-security-trust-01'
     category='std'
     >
   <front>
@@ -87,7 +87,7 @@
     </section>
     
     <section title="Border Determination">
-    	<t>In general an HNCP-router determines internality or externality on a per-link scale
+    	<t>In general an HNCP-router determines the internal or external state on a per-link scale
     	and creates a firewall-perimeter and allows HNCP- and IGP-traffic based on the individual results.
     	These are provided by either automatic border discovery or a predefined configuration
     	indicated by e.g. the link-type, a physically dedicated (labeled) port or the administrator.</t>
@@ -124,9 +124,8 @@
     	</section>
     	
     	<section title="Authentication and Encryption of HNCP-traffic">
-    		<t>The end-to-end mechanism [TBD: <xref target="RFC6347">DTLS</xref>?
-    		<xref target="RFC6071">IPsec/IKE</xref>?] is used to authenticate and encrypt
-    		all HNCP unicast-traffic in order to protect its potentially sensitive payload.
+    		<t>The end-to-end mechanism <xref target="RFC6347">DTLS</xref>
+    		is used to authenticate and encrypt all HNCP unicast-traffic in order to protect its potentially sensitive payload.
     		Methods for establishing and managing trust for this mechanism are described in the following section.</t> 
     		
     		<t>HNCP also uses multicast signaling to announce changes of HNCP information
@@ -147,7 +146,7 @@
     	</section>
     	
     	<section title="PKI-based trust">
-    		<t>A PKI-based trust-model enables more advanced management capabilites at the cost of increased complexity
+    		<t>A PKI-based trust-model enables more advanced management capabilities at the cost of increased complexity
     		and bootstrapping effort. It however allows trust to be managed in a centralized manner
     		and is therefore useful for larger networks with a need for an authoritative trust management.</t>
     	</section>
@@ -159,14 +158,15 @@
     		signed by it is to be trusted.</t>
     		
     		<section title="Trust Verdicts">
-	    		<t>There are 5 possible verdicts in order of ascending priority:
+	    		<t>Trust Verdicts are statements of HNCP-devices about the trustworthiness of X.509-certificates.
+	    		There are 5 possible verdicts in order of ascending priority:
 	    		
 	    		<list>
 	    			<t>0 Neutral: no verdict exists but the homenet should find one</t>
-	    			<t>1 Passive Trust: the last known effective verdict was Active or Passive Trust</t>
-	    			<t>2 Passive Distrust: the last known effective verdict was Active or Passive Distrust</t>
-	    			<t>3 Active Trust: trustworthy based upon an external ceremony or configuration</t>
-					<t>4 Active Distrust: not trustworthy based upon an external ceremony or configuration</t>    			
+	    			<t>1 Cached Trust: the last known effective verdict was Configured or Cached Trust</t>
+	    			<t>2 Cached Distrust: the last known effective verdict was Configured or Cached Distrust</t>
+	    			<t>3 Configured Trust: trustworthy based upon an external ceremony or configuration</t>
+					<t>4 Configured Distrust: not trustworthy based upon an external ceremony or configuration</t>    			
 	    		</list>
 	    		</t>
 	    		
@@ -174,13 +174,13 @@
 	    		Verdicts are differentiated in 3 groups:
 	    		
 	    		<list>
-	    		<t>Active verdicts are used to announce explicit verdicts a device has based on any external
+	    		<t>Configured verdicts are used to announce explicit verdicts a device has based on any external
 	    		trust bootstrap or predefined relation a device has formed with a given certificate.</t>
 	    		
-	    		<t>Passive verdicts are used to retain the last known trust state in case all devices having
-	    		active verdicts about a given certificate have been disconnected or turned off.</t>
+	    		<t>Cached verdicts are used to retain the last known trust state in case all devices having
+	    		configured verdicts about a given certificate have been disconnected or turned off.</t>
 	    		
-	    		<t>The Neutral verdict is used to announce a new device intenting to join the homenet so a final 
+	    		<t>The Neutral verdict is used to announce a new device intending to join the homenet so a final 
 	    		verdict for it can be found.</t>
 	    		</list>
 	    		</t>
@@ -189,9 +189,13 @@
 	    		The current effective trust verdict for any certificate is defined as the one with the highest
 	    		priority from all verdicts announced for said certificate at the time.
 	    		
-	    		A router MUST be trusted for participating in the homenet if and only if the current effective verdict
-	    		for its certificate or any certificate in its hierarchy is Passive or Active Trust and none of
-	    		the certificates in its hierarchy have an effective verdict of Passive or Active Distrust.  
+	    		A device MUST be trusted for participating in the homenet if and only if the current effective verdict
+	    		for its own certificate or any one in its certificate hierarchy is (Cached or Configured) Trust and none of
+	    		the certificates in its hierarchy have an effective verdict of (Cached or Configured) Distrust.
+	    		
+	    		In case a device has a configured verdict which is different from the current effective verdict for a
+	    		certificate the current effective verdict takes precedence in deciding trustworthiness 
+	    		however the device still retains its configured verdict in its configuration. 
 	    		</t>
     		</section>
     		
@@ -199,25 +203,25 @@
     			<t>Each device maintains a trust cache containing the current effective trust verdicts
     			for all certificates currently announced in the homenet.    		
     			This cache is used as a backup of the last known state in case there is no device
-    			announcing an active verdict for a known certificate.
+    			announcing an configured verdict for a known certificate.
     			It SHOULD be saved to a non-volatile memory at reasonable time intervals
     			to survive a reboot or power outage.</t>
     			
     			<t>Every time a device (re)joins the homenet or detects the change of an effective
-    			trust verdict for any certificate it will synchronise its cache and
+    			trust verdict for any certificate it will synchronize its cache and
     			store the new effective verdict overwriting any previously cached verdicts.
-    			Active verdicts are stored in the cache as their respecitve passive counterparts,
+    			Configured verdicts are stored in the cache as their respective cached counterparts,
     			Neutral verdicts are never stored.</t>
     		</section>
     		
     		<section title="Announcement of Verdicts">
-    			<t>A device always announces any active trust verdicts it has established by itself.
-    			It also announces passive trust verdicts it has stored in its trust cache if
+    			<t>A device always announces any configured trust verdicts it has established by itself.
+    			It also announces cached trust verdicts it has stored in its trust cache if
     			one of the following conditions applies:
     			
     			<list>
-    				<t>The stored verdict is Passive Trust and the current effective verdict is Neutral or does not exist.</t>
-    				<t>The stored verdict is Passive Distrust and the current effective verdict is Passive Trust.</t>
+    				<t>The stored verdict is Cached Trust and the current effective verdict is Neutral or does not exist.</t>
+    				<t>The stored verdict is Cached Distrust and the current effective verdict is Cached Trust.</t>
     			</list>
     			
     			A device rechecks these conditions whenever it detects changes of announced trust verdicts
@@ -236,7 +240,7 @@
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|   Type: Trust-Verdict (20)    |          Length: >40          |
+|   Type: Trust-Verdict (20)    |        Length: 41-104         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |    Verdict    |                 (reserved)                    |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -259,9 +263,9 @@
 					<t>(reserved) is reserved for future additions and MUST be set to 0 when
 				    creating TLVs and ignored when parsing them.</t>
 				
-					<t>SHA-256 Fingerprint contains the fingerprint of the certificate.</t>
+					<t><xref target="RFC4634">SHA-256</xref> Fingerprint contains the fingerprint of the certificate.</t>
 				
-					<t>Common Name contains the variable-length common name of the certificate.</t>
+					<t>Common Name contains the variable-length (1-64 bytes) common name of the certificate.</t>
 				</list>
 				</t>
 	    	</section>
@@ -279,7 +283,7 @@
 				<section title="Trust by Identification">
     				<t>A device implementing certificate-based trust MUST provide an interface to
     				retrieve the current set of effective trust verdicts, fingerprints and names
-    				of all certificates currently known and set active
+    				of all certificates currently known and set configured
     				trust verdicts to be announced. Alternatively it MAY provide a companion
     				HNCP-device or application with these capabilities
     				with which it has a pre-established trust relationship.</t>
@@ -308,16 +312,16 @@
 	    </section>
     </section>
     
-    <section title="IGP Considerations">
-    	<t>An IGP is usually run alongside HNCP in a homenet therefore the individual security aspects of the respective IGPs
+    <section title="Other protocols in the homenet">
+    	<t>An IGP is usually run alongside HNCP in a homenet therefore the individual security aspects of the respective protocols
     	must be considered. It can however be summarized that current candidate protocols
     	(namely Babel, OSPFv3, RIP and IS-IS) provide - to a certain extent - similar security mechanisms.
     	All mentioned protocols do not support encryption and only support authentication based on pre-shared keys natively.
     	This influences the effectiveness of any encryption-based security mechanism deployed by
     	HNCP as homenet routing information is usually not confidential.</t>
     	
-    	<t>As a PSK is required to authenticate IGP-traffic, HNCP is used to create and manage it.
-    	The keylength is defined to be 32 Bytes to be reasonably secure. The following rules determine
+    	<t>As a PSK is required to authenticate IGP-traffic and potential other protocols, HNCP is used to create and manage it.
+    	The key length is defined to be 32 Bytes to be reasonably secure. The following rules determine
     	how a key is managed and used:
     	
     	<list>
@@ -326,8 +330,6 @@
     	<t>The router currently advertising the Managed-PSK-TLV must generate and advertise a new random one
     	whenever the HNCP security mechanism stops trusting one or more trusted devices - i.e. HNCP is secured with a PSK itself and it was changed 
     	or a certificate has changed from trusted to distrusted.</t>
-    	<t>If a Managed-PSK-TLV exists then the contained key MUST be used to secure the chosen IGP
-    	and MAY be used to secure other router-to-router protocols in the homenet [TBD: allow multiple managed PSKs for this?].</t>
     	</list>
     	</t>
     	
@@ -349,6 +351,16 @@
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
         </artwork>
       </figure>
+      
+      	<t>
+      	PSKs for individual protocols are derived from the random PSK through the use of <xref target="RFC4634">HMAC-SHA256</xref>
+      	with a pre-defined per-protocol HMAC-key in ASCII-format. The following HMAC-keys are currently defined to
+      	derive PSKs for the respective protocols:
+      	
+      	<list>
+      	<t>"ROUTING": to be used for IGPs. If a Random PSK exists then a derived PSK (as specified below) MUST be used to secure the chosen IGP.</t>
+      	</list>
+      	</t>
     </section>
     
     <section title="Security Considerations">
@@ -360,7 +372,7 @@
     		<t>The Certificate-based trust consensus mechanism defined in this document allows for a consenting revocation,
     		however in case of a compromised device the trust cache may be poisoned before the actual revocation happens
     		allowing the distrusted device to rejoin the network using a different identity.
-    		Stopping such an attack might require physical intervention and flushing of the devices' trust
+    		Stopping such an attack might require physical intervention and flushing of the trust
     		caches. However such an attack is often times more easily detectable than
     		threats discussed earlier in this document such as a silent manipulation of routing
     		information and related man-in-the-middle attacks.</t>  
@@ -379,13 +391,12 @@
     <references title="Normative references">
     	<?rfc include="reference.I-D.draft-ietf-homenet-hncp-01.xml"?>
     	<?rfc include="reference.RFC.2119.xml"?>
+    	<?rfc include="reference.RFC.4634.xml"?>
+    	<?rfc include="reference.RFC.6347.xml"?>
     </references>
     <references title="Informative references">
       <?rfc include="reference.RFC.3315.xml"?>
       <?rfc include="reference.RFC.4861.xml"?>
-      <?rfc include="reference.RFC.6347.xml"?>
-      <?rfc include="reference.RFC.6071.xml"?>
-      
     </references>
     
     <section title="Draft source">
