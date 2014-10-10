@@ -312,7 +312,7 @@
 	    </section>
     </section>
     
-    <section title="Other protocols in the homenet">
+    <section title="Other homenet protocols">
     	<t>An IGP is usually run alongside HNCP in a homenet therefore the individual security aspects of the respective protocols
     	must be considered. It can however be summarized that current candidate protocols
     	(namely Babel, OSPFv3, RIP and IS-IS) provide - to a certain extent - similar security mechanisms.
@@ -358,7 +358,7 @@
       	derive PSKs for the respective protocols:
       	
       	<list>
-      	<t>"ROUTING": to be used for IGPs. If a Random PSK exists then a derived PSK (as specified below) MUST be used to secure the chosen IGP.</t>
+      	<t>"ROUTING": to be used for IGPs. If a Random PSK exists then the derived PSK MUST be used to secure the chosen IGP.</t>
       	</list>
       	</t>
     </section>
