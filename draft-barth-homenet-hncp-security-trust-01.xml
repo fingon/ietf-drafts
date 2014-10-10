@@ -391,10 +391,10 @@
     <references title="Normative references">
     	<?rfc include="reference.I-D.draft-ietf-homenet-hncp-01.xml"?>
     	<?rfc include="reference.RFC.2119.xml"?>
-    	<?rfc include="reference.RFC.6234.xml"?>
     	<?rfc include="reference.RFC.6347.xml"?>
     </references>
     <references title="Informative references">
+      <?rfc include="reference.RFC.6234.xml"?>
       <?rfc include="reference.RFC.3315.xml"?>
       <?rfc include="reference.RFC.4861.xml"?>
     </references>
