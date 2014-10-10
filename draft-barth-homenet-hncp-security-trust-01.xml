@@ -263,7 +263,7 @@
 					<t>(reserved) is reserved for future additions and MUST be set to 0 when
 				    creating TLVs and ignored when parsing them.</t>
 				
-					<t><xref target="RFC4634">SHA-256</xref> Fingerprint contains the fingerprint of the certificate.</t>
+					<t><xref target="RFC6234">SHA-256</xref> Fingerprint contains the fingerprint of the certificate.</t>
 				
 					<t>Common Name contains the variable-length (1-64 bytes) common name of the certificate.</t>
 				</list>
@@ -353,7 +353,7 @@
       </figure>
       
       	<t>
-      	PSKs for individual protocols are derived from the random PSK through the use of <xref target="RFC4634">HMAC-SHA256</xref>
+      	PSKs for individual protocols are derived from the random PSK through the use of <xref target="RFC6234">HMAC-SHA256</xref>
       	with a pre-defined per-protocol HMAC-key in ASCII-format. The following HMAC-keys are currently defined to
       	derive PSKs for the respective protocols:
       	
@@ -391,7 +391,7 @@
     <references title="Normative references">
     	<?rfc include="reference.I-D.draft-ietf-homenet-hncp-01.xml"?>
     	<?rfc include="reference.RFC.2119.xml"?>
-    	<?rfc include="reference.RFC.4634.xml"?>
+    	<?rfc include="reference.RFC.6234.xml"?>
     	<?rfc include="reference.RFC.6347.xml"?>
     </references>
     <references title="Informative references">
