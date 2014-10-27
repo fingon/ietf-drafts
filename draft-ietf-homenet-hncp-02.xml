@@ -15,7 +15,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
 <rfc
     ipr='trust200902'
-    docName='draft-ietf-homenet-hncp-01'
+    docName='draft-ietf-homenet-hncp-02'
     category='std'
     >
   <front>
@@ -44,7 +44,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
         <email>cyrus@openwrt.org</email>
       </address>
     </author>
-    <date month="June" year="2014" />
+    <date month="October" year="2014" />
 
     <area>Internet</area>
     <workgroup>Homenet Working Group</workgroup>
@@ -65,7 +65,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       <t>HNCP is designed to synchronize state across a Homenet (or other
       small site) in order to facilitate automated configuration within the
       site. The design supports border discovery, IP prefix distribution
-      <xref target="I-D.pfister-homenet-prefix-assignment" />, and service
+      <xref target="I-D.ietf-homenet-prefix-assignment" />, and service
       discovery across multiple links<xref
       target="I-D.stenberg-homenet-dnssd-hybrid-proxy-zeroconf" />.</t>
       
@@ -838,7 +838,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       <t>In order for routers to use the distributed information, prefixes
       and addresses have to be assigned to the interior links of the
       homenet.  A router MUST therefore implement the algorithm defined in
-      <xref target="I-D.pfister-homenet-prefix-assignment">Prefix and
+      <xref target="I-D.ietf-homenet-prefix-assignment">Prefix and
       Address Assignment in a Home Network</xref>.  In order to announce
       the assigned prefixes the following TLVs are defined.</t>
       
@@ -1084,7 +1084,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
     <section title="Security Considerations">
       
       <t>General security issues for Home Networks are discussed at length
-      in <xref target="I-D.ietf-homenet-arch" />. The protocols used to
+      in <xref target="RFC7368" />. The protocols used to
       setup IP in home networks today have very little security enabled
       within the control protocol itself. For example, DHCP has defined
       <xref target="RFC3118" /> to authenticate DHCP messages, but this is
@@ -1102,7 +1102,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       multicast traffic. This seems acceptable, though, as most routing
       protocols also operate based on pre-shared keys, and the homenet
       architecture draft explicitly allows their use for securing them<xref
-      target="I-D.ietf-homenet-arch" />. Other traffic security mechanisms
+      target="RFC7368" />. Other traffic security mechanisms
       are out of scope for this specification.</t>
 
     </section>
@@ -1146,7 +1146,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
     <references title="Normative references">
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6206.xml"?>
-      <?rfc include="reference.I-D.draft-pfister-homenet-prefix-assignment-01"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-01"?>
       <?rfc include="reference.I-D.draft-stenberg-homenet-dnssd-hybrid-proxy-zeroconf-01"?>
 
     </references>
@@ -1159,9 +1159,9 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       <?rfc include="reference.RFC.3633.xml"?>
       <?rfc include="reference.RFC.1918.xml"?>
       <?rfc include="reference.RFC.4291.xml"?>
-      <?rfc include="reference.I-D.draft-ietf-homenet-arch-13.xml"?>
+      <?rfc include="reference.RFC.7368.xml"?>
       <?rfc include="reference.I-D.draft-troan-homenet-sadr-01.xml"?>
-      <?rfc include="reference.I-D.draft-baker-rtgwg-src-dst-routing-use-cases-00.xml"?>
+      <?rfc include="reference.I-D.draft-baker-rtgwg-src-dst-routing-use-cases-01.xml"?>
       <?rfc include="reference.I-D.draft-acee-ospf-ospfv3-autoconfig-03.xml"?>
     </references>
     <section title="Some Outstanding Issues">

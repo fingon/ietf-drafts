@@ -10,7 +10,7 @@
 
 DRAFTS=\
   draft-stenberg-homenet-dnssd-hybrid-proxy-zeroconf-01.txt \
-  draft-ietf-homenet-hncp-01.txt \
+  draft-ietf-homenet-hncp-02.txt \
   draft-barth-homenet-hncp-security-trust-01.txt \
 
 ifndef XML_LIBRARY
