@@ -1,8 +1,8 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Wed May  7 18:18:20 2014 mstenber
-Last modified: Wed May  7 19:19:28 2014 mstenber
-Edit time:     57 min
+Last modified: Mon Oct 27 16:27:18 2014 mstenber
+Edit time:     98 min
 -->
 
 <!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
@@ -35,77 +35,121 @@ Edit time:     57 min
         <email>markus.stenberg@iki.fi</email>
       </address>
     </author>
-    <date month="May" year="2014" />
+    <date month="Oct" year="2014" />
     <keyword>PCP</keyword>
     <keyword>Proxy</keyword>
     <keyword>Homenet</keyword>
     <abstract>
 
-      <t>This document describes a minimalist PCP proxy function needed within the homenet architecture. It is notably a subset of a general PCP proxy. </t>
+      <t>This document describes a minimalist PCP proxy function needed
+      within the homenet architecture. It is notably a subset of a general
+      PCP proxy. </t>
 
     </abstract>
   </front>
   <middle>
     <section title="Introduction">
-      <t>This is mostly discussion fodder; I _personally_ find current PCP proxy defined in <xref target="I-D.ietf-pcp-proxy"/> overcomplex for Homenet needs. So I'm defining Minimalist PCP Proxy (MPP) here instead.</t>
+      <t>The (generic) PCP proxy defined in  <xref
+      target="I-D.ietf-pcp-proxy"/> seems excessively complex in terms of
+      footprint for home routers, as it requires both PCP server and client
+      implementations glued to each other.</t>
 
-      <t>A GPLv2-licensed experimental and probably still incorrect sample implementation of MPP is currently under development at <eref target="https://github.com/fingon/minimalist-pcproxy/">https://github.com/fingon/minimalist-pcproxy/ </eref>.  Comments and/or pull requests are welcome.</t>
+      <t>Instead of implementing a full PCP server and client, we define an
+      alternative which requires just simple message forwarding and some
+      state for each PCP server and (recent, reply pending) PCP
+      request. The state required is much less than in the official PCP
+      proxy draft.</t>
+
+      <t>A GPLv2-licensed experimental, guaranteedly incomplete, and
+      probably still incorrect sample implementation of MPP is currently
+      under development at <eref
+      target="https://github.com/fingon/minimalist-pcproxy/">https://github.com/fingon/minimalist-pcproxy/
+      </eref>.  Comments and/or pull requests are welcome.</t>
 
 
     </section>
     <section anchor="kwd" title='Requirements language'>
 
-      <t>In this document, the key words "MAY", "MUST, "MUST NOT",
-      "OPTIONAL", "RECOMMENDED", "SHOULD", and "SHOULD NOT", are to be
-      interpreted as described in <xref target='RFC2119' />.</t>
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+      NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
+      "OPTIONAL" in this document are to be interpreted as described in
+      <xref target='RFC2119'>RFC 2119</xref>.</t>
 
     </section>
-    
+
     <section title="Requirements for the design">
 
-      <t>Homenet architecture defined in <xref target="I-D.ietf-homenet-arch" /> allows for multihoming -> multiple PCP servers MUST be supported. Notably, the PCP server choice MUST depend on the source address used by the client. </t>
+      <t><xref target="RFC7368">Homenet architecture document</xref> allows
+      for multi-homing. Therefore multiple PCP servers, one for each CER,
+      MUST be supported. The PCP upstream server choice MUST depend on the
+      source address used by the client. </t>
 
-      <t>IPv4 is not yet gone -> dual-stack PCP SHOULD be supported. Proposed homenet prefix assignment algorithm defined in <xref target="I-D.pfister-homenet-prefix-assignment"/> assumes only zero or one upstream IPv4 links, NATted to a single IPv4 prefix.</t>
+      <t>Given over ninety percent of current home traffic is IPv4,
+      dual-stack PCP SHOULD be supported for the foreseeable
+      future. Proposed homenet prefix assignment algorithm defined in <xref
+      target="I-D.ietf-homenet-prefix-assignment"/> assumes only zero or
+      one upstream IPv4 links, NATted to a single IPv4 prefix. Therefore
+      there is no multi-homing concerns there, but the IPv4 requests MUST
+      be made with the CER that the traffic for the IPv4 prefix is routed
+      to. </t>
 
       <t>The amount stored state SHOULD be minimal.</t>
 
-      <t>MPP SHOULD also have as simple as possible implementation for both footprint and correctness validation reasons.</t>
+      <t>MPP SHOULD also have as simple as possible implementation for both
+      footprint and correctness validation purposes.</t>
 
     </section>
 
     <section title="The use case for MPP">
-      <t>
-        Each first-hop router in a Homenet runs this algorithm. Each router with upstream connectivity additionally runs a real PCP server, but on an IP address that is not provided to any clients (TBD or just some weird port#? We're among consenting routers here after all..). <xref target="I-D.ietf-homenet-hncp"/> is used to maintain the information about upstream connections for the running MPP instances, and therefore normal PCP server selection is not needed.
-      </t>
+
+      <t>Each first-hop router in a Homenet runs this algorithm. Each
+      router with upstream connectivity additionally runs a real PCP
+      server, but on either an IP address that is not provided to any
+      clients, or separate port. <xref
+      target="I-D.ietf-homenet-hncp">HNCP</xref> is used to maintain the
+      information about upstream connections for the running MPP instances,
+      and therefore normal PCP server selection is not needed.</t>
+
       <section title="State required">
         <t>In addition to the local definition of epoch, for each server, following information is stored and updated as needed:
         <list style="symbols">
 
-          <t>Source IP prefix and length to match.
-          </t>
+          <t>Source IP prefix and length to match.</t>
 
-          <t>Remote IP address of the server.match.
-          </t>
+          <t>Remote IP address (and possibly port) of the server to use.</t>
 
-          <t>Remote epoch tracking (prev_server_time, prev_client_time as per <xref target="RFC6887"/>).
-          </t>
+          <t>Remote epoch tracking (prev_server_time, prev_client_time as
+          per <xref target="RFC6887">PCP standard</xref>).</t>
 
         </list>
         </t>
 
+        <t>For each PCP client request that has not been responded to yet,
+        (at least) following information SHOULD be stored:
+        <list style="symbols">
+
+          <t>Source IP and port number.</t>
+          <t>Mapping nonce.</t>
+          <t>Flag indicating whether THIRD_PARTY option was added or not by
+          this node.</t>
+          <t>[ Server the request was forwarded to - optional ]</t>
+        </list>
+        </t>
+        <t>The per-client-request structure (and MPP itself) is a potential
+        attack vector, so rate limiting the number of requests, as well as
+        number of total pending client requests, SHOULD be supported.</t>
       </section>
       <section title="Difference from 'general' PCP proxy">
 
-        <t>
-          The MPP defined here is only a subset of what <xref target="I-D.ietf-pcp-proxy">official PCP proxy draft</xref> covers. However, it also is MUCH simpler to implement and define. Notable limitations include:
+        <t>The MPP defined here is only a subset of what <xref
+        target="I-D.ietf-pcp-proxy">official PCP proxy draft</xref>
+        covers. However, it also is MUCH simpler to implement and
+        define. Notable limitations include:
 
           <list style="symbols">
 
-            <t>This scheme cannot be used on PCP proxy nodes that actually perform NAT. In case of firewalling, or forwarding, it should work. This is because original destination address client used to contact the local proxy is reused, to store it for later forwarding the response back to the client. If NAT occurs, this is not possible.</t>
-
-            <t>MPPs cannot be cascaded.</t>
-
-            <t>MPPs may be hard to adapt to real server selection in non-Homenet environments (TBD).</t>
+            <t>MPPs may be hard to adapt to real server selection in
+            non-Homenet environments (TBD).</t>
 
           </list>
         </t>
@@ -113,59 +157,97 @@ Edit time:     57 min
     </section>
     <section title="Algorithm">
 
-      <t>Next behavior of MPP is described. MPP MUST have both PCP client and PCP server ports open.</t>
+      <t>Next behavior of MPP is described. MPP MUST have both PCP client
+      and PCP server ports open.</t>
 
       <section title="Local epoch reset">
 
-        <t>On local epoch reset (when MPP is started, or based on detected epoch reset at one of the servers as defined in <xref target="server-reply"/>), MPP SHOULD send unsolicited multicast ANNOUNCEs as specified in <xref target="RFC6887"/>.</t>
+        <t>On local epoch reset (when MPP is started, or based on detected
+        epoch reset at one of the servers as defined in <xref
+        target="server-reply"/>), MPP SHOULD send unsolicited multicast
+        ANNOUNCEs as specified in <xref target="RFC6887"/>.</t>
 
       </section>
 
       <section title="Client -> Proxy server port (ANNOUNCE)">
-        <t>Just provide a direct response (given internal interface + local IP), as specified in <xref target="RFC6887"/>. Otherwise, ignore. </t>
+
+        <t>When client sends ANNOUNCE to the proxy's server port on a
+        downstream interface, the proxy should provide a direct response, as
+        specified in <xref target="RFC6887"/>. </t>
+
       </section>
 
       <section title="Client -> Proxy server port -> Server (MAP/PEER)">
 
-        <t>On receipt of a PCP request on an internal interface on the PCP server port, MPP behaves as follows:<list style="symbols">
+        <t>On receipt of a PCP request from a client on a downstream
+        interface to the PCP server port, MPP behaves as follows:<list
+        style="symbols">
 
         <t>Check if the source IP address and the PCP client IP Address are
-        the same. If a mismatch is detected, the behavior specified in <xref
-        target="RFC6887"></xref> must be followed.</t>
+        the same. If a mismatch is detected, the behavior specified in
+        <xref target="RFC6887"></xref> must be followed. (TBD - third party?)</t>
 
-        <t>Check that for the client's source IP address, there exists a PCP server responsible for it within the local configuration. If not, TBD (error, but which one). </t>
-
-        <t>If THIRD_PARTY is already set, consider the request rejected.</t>
+        <t>Check that for the client's source IP address, there exists a
+        PCP server responsible for it within the local configuration. If
+        not, TBD (error, but which one). </t>
 
         <t>If the request is rejected, build an error response and send it
         back to the PCP client. The error status code is set to
         NOT_AUTHORIZED.</t>
 
-        <t>If the request is accepted, adjust it (e.g., adding a THIRD_PARTY Option, updating the PCP client IP Address to the adddress client used when contacting the proxy) and forward it from local client port with the source address matching the IP address in the adjusted request.</t>
+        <t>If the request is accepted, adjust it (e.g., adding a
+        THIRD_PARTY Option if it does not already exist, updating the PCP
+        client IP Address to the address client used when contacting the
+        proxy) and forward it from local client port with the source
+        address matching the IP address in the adjusted request.</t>
+
+        <t>Finally, the proxy should keep track of the request (or at least
+        parts of it, such as client's UDP port number), so that the
+        original port of the client is not lost. As section of 8.1<xref
+        target="RFC6887">PCP specification</xref> states, client port
+        SHOULD be random and as THIRD_PARTY option contains only the IP
+        address, forwarding of reply is not possibly without keeping track
+        of the client requests. </t>
       </list>
         </t>
       </section>
 
       <section anchor="server-reply" title="Server -> Proxy client port -> Client (MAP/PEER)">
 
-        <t>On receipt of a PCP response on the PCP client port, MPP behaves as follows:
+        <t>On receipt of a PCP response on the PCP client port, MPP behaves
+        as follows:
         <list style="symbols">
 
-          <t>Check that source IP matches one of the PCP servers, and that the source port matches PCP server port. If not, silently drop the packet.</t>
+          <t>Check that source IP matches one of the PCP servers, and that
+          the source port matches PCP server port. If not, silently drop
+          the packet.</t>
 
-          <t>Check that THIRD_PARTY option is present, and store it for future use. If it is not present, or not in a locally connected prefix, silently drop the packet.</t>
+          <t>Find matching stored request. After receipt, it can be
+          discarded. If no stored request is found, drop the packet.</t>
+          
+          <t>Strip the THIRD_PARTY option, if according to the stored
+          request information one was added.</t>
 
-          <t>Ensure that the per-server epoch is valid per <xref target="RFC6887"/>. If not, reset local epoch.</t>
+          <t>Ensure that the per-server epoch is valid per <xref
+          target="RFC6887"/>. If not, reset local epoch.</t>
 
           <t>Adjust the epoch in the response to local epoch.</t>
 
-          <t>Send the request forward to the client, with source address matching the original destination address, the destination address matching the address within the removed THIRD_PARTY option, and from the local server port to the remote client port. </t>
+          <t>Send the response forward to the client, with source
+          address/port matching the original destination address/port, and
+          the destination address/port matching the stored request's source
+          address/port.</t>
         </list>
         </t>
       </section>
 
     </section>
-
+    <section title="Security Considerations">
+    </section>
+    <section title="IANA Considerations">
+      <t>This document has no actions for IANA.</t>
+    </section>
+    
   </middle>
   <back>
     <references title="Normative references">
@@ -173,11 +255,18 @@ Edit time:     57 min
       <?rfc include="reference.RFC.6887"?>
     </references>
     <references title="Informative references">
+      <?rfc include="reference.RFC.7368.xml"?>
       <?rfc include="reference.I-D.draft-ietf-pcp-proxy-05.xml"?>
-      <?rfc include="reference.I-D.draft-ietf-homenet-arch-11.xml"?>
-      <?rfc include="reference.I-D.draft-ietf-homenet-hncp-00.xml"?>
-      <?rfc include="reference.I-D.draft-pfister-homenet-prefix-assignment-00"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-hncp-01.xml"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-01"?>
     </references>
+    <section title="Changelog">
+      <t>draft-stenberg-homenet-minimalist-pcp-proxy-01: Cleaned the text
+      somewhat, and added the fact that we DO have to keep track of PCP
+      client port anyway as it is random, and this results in (small)
+      per-active-request state that has to be maintained.</t>
+    </section>
+
 
     <section title="Draft source">
       <t>As usual, this draft is available at <eref
@@ -191,6 +280,6 @@ Edit time:     57 min
       <t>The algorithm text is adapted from draft-ietf-pcp-proxy-04 Section 8. It is unfortunately gone from the more recent iterations. </t>
 
     </section>
-    
+
   </back>
 </rfc>
