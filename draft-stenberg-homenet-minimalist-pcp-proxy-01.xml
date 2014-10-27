@@ -1,7 +1,7 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Wed May  7 18:18:20 2014 mstenber
-Last modified: Mon Oct 27 16:27:18 2014 mstenber
+Last modified: Mon Oct 27 16:28:00 2014 mstenber
 Edit time:     98 min
 -->
 
@@ -17,7 +17,7 @@ Edit time:     98 min
 
 <rfc
     ipr='trust200902'
-    docName='draft-stenberg-homenet-minimalist-pcp-proxy-00'
+    docName='draft-stenberg-homenet-minimalist-pcp-proxy-01'
     category='std'
     >
   <front>
