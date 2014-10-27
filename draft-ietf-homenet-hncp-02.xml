@@ -1237,7 +1237,9 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
     <section title="Changelog">
 
       <t>draft-ietf-homenet-hncp-02: Removed any built-in security. Relying
-      on IPsec.</t>
+      on IPsec. Reorganized interface categories, added requirements languages,
+      made manual border configuration a MUST-support. Redesigned routing
+      protocol election to consider non-router devices.</t>
 
       <t>draft-ietf-homenet-hncp-01: Added (MAY) guest, ad-hoc, hybrid
       categories for interfaces. Removed old hnetv2 reference, and now
