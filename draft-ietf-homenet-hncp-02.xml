@@ -690,30 +690,30 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       <t>A router MUST allow setting a category of either auto-detected,
       internal or external for each interface which is suitable for both
       internal and external connections. In addition the following
-      categories are defined to modify the local router behavior:
+      specializations of the internal category are defined to modify the local router behavior:
 
       <list>
-        <t>Guest category: This is a specialization of the internal
-        category which declares an interface used for untrusted
-        clients. A router SHOULD implement this category.
-        The router MUST NOT send or accept HNCP messages on these
-        interfaces. Clients connected to these interfaces MUST NOT be able
+      	<t>Leaf category: This declares an interface used by clients only.
+      	A router SHOULD implement this category and MUST NOT send
+      	nor accept HNCP messages on these interfaces.</t>
+      
+        <t>Guest category: This declares an interface used by untrusted
+        clients only. In addition to the restrictions of the leaf
+        category, clients connected to these interfaces MUST NOT be able
         to reach devices inside the home network by default and instead
         SHOULD only be able to reach the internet.</t>
 
-        <t>Ad-hoc category: This is a specialization of the internal
-        category which declares an interface to be in ad-hoc mode. This
+        <t>Ad-hoc category: This declares an interface to be in ad-hoc mode. This
         indicates to HNCP applications such as prefix assignment that links
         on this interface are potentially non-transitive. This category MAY
         be implemented.</t>
 
-        <t>Hybrid category: This is a specialization of the internal
-        category in which the router still accepts external connections but
+        <t>Hybrid category: This allows the router to still accepts external connections but
         does not do border discovery.  It is assumed that the link is under
         control of a legacy, trustworthy non-HNCP router, still within the
-        same home network. Detection of this category automatically is out
-        of scope for this document, and therefore it MAY be supported only
-        via manual configuration on a per-router basis.</t>
+        same home network. Detection of this category automatically in
+        addition to manual configuration is out
+        of scope for this document. This category MAY be implemented.</t>
       </list>
       </t>
 
