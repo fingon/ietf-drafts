@@ -15,7 +15,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
 <rfc
     ipr='trust200902'
-    docName='draft-ietf-homenet-hncp-02'
+    docName='draft-ietf-homenet-hncp-03'
     category='std'
     >
   <front>
@@ -980,110 +980,6 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       </section>
     </section>
 
-
-
-    <section title="Routing support">
-      <section title="Protocol Requirements">
-	<t>In order to be advertised for use within the homenet, a routing protocol MUST:
-	<list>
-	  <t>Comply with <xref target="I-D.baker-rtgwg-src-dst-routing-use-cases">Requirements and Use Cases for Source/Destination Routing</xref>.</t>
-	  <t>Be configured with suitable defaults or have an auto-configuration mechanism (e.g. <xref target="I-D.acee-ospf-ospfv3-autoconfig" />) such that it will run in a homenet without requiring specific configuration from the home user. </t>
-	</list>
-	</t>
-	<t>A router MUST NOT announce that it supports a certain routing protocol if its implementation of the routing protocol does not meet these requirements,
-	e.g. it does not implement extensions that are necessary for compliance.</t>
-      </section>
-
-      <section title="Announcement">
-	<t>Each router SHOULD announce all routing protocols that it is capable of supporting in the homenet.
-	It MUST announce at least one protocol or the fallback mechanism to be considered for protocol selection and MAY omit announcing
-	the fallback mechanism if it announces at least one other routing protocol.
-	It SHOULD assign a preference value for each protocol that indicates its desire to use said protocol over other protocols it supports and SHOULD
-	make these values configurable.</t>
-
-	<t>Each router includes one HNCP TLV of type ROUTING-PROTOCOL for every such routing protocol. This TLV is defined as follows:</t>
-	<figure>
-	  <artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Type: ROUTING-PROTOCOL (60)  |           Length: 6           |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Protocol ID  |   Preference  |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	  </artwork>
-	</figure>
-	<t>
-	  <list>
-	    <t>Protocol ID is one of:
-	    <list>
-	      <t>0 = Fallback (explicit announcement)</t>
-	      <t>1 = Babel (dual-stack)</t>
-	      <t>2 = OSPFv3 (dual-stack)</t>
-	      <t>3 = IS-IS (dual-stack)</t>
-	      <t>4 = RIP (dual-stack)</t>
-	    </list>
-	    </t>
-	    <t>Preference is a value from 0 to 255. If a router is neutral
-	    about a routing protocol it SHOULD use the value 128,
-	    otherwise a lower value indicating lower preference
-	    or a higher value indicating higher preference respectively.</t>
-	  </list>
-	</t>
-      </section>
-
-      <section title="Protocol Selection">
-	<t>When HNCP detects that a device has joined or left the homenet it MUST examine all advertised
-	routing protocols and preference values from all devices announcing at least one ROUTING-PROTOCOL-TLV
-	in order to find the one routing protocol which:
-
-	<list style="numbers">
-	  <t>Is understood by all routers in the homenet</t>
-
-	  <t>Has the highest preference value among
-          all routers (calculated as sum of preference
-          values)</t>
-
-	  <t>Has the highest protocol ID among those with the
-	  highest preference </t>
-	</list>
-	</t>
-
-	<t>If the router protocol selection results in the need to change from one routing protocol
-	to another on the homenet, the router MUST stop the previously running protocol, remove
-	associated routes, and start the new protocol in a graceful manner. If there is no common routing
-	protocol available among all homenet routers, routers MUST utilize the
-	<xref target="fallback">Fallback Mechanism</xref>.</t>
-	</section>
-
-
-      <section anchor="fallback" title="Fallback Mechanism">
-	<t>In cases where there is no commonly supported routing protocol available the following fallback algorithm is run to setup routing and preserve interoperability among the homenet.
-	While not intended to replace a routing protocol, this mechanism provides a valid - but not necessarily optimal - routing topology.
-	This algorithm uses the node and neighbor state already synchronized by HNCP,
-	and therefore does not require any additional protocol message exchange.
-
-	<list style="numbers">
-	  <t>Interpret the neighbor information received via HNCP as a graph of connected routers.</t>
-	  <t>Use breadth-first traversal to determine the next-hop and hop-count in the path to each router in the homenet:
-	  <list>
-	    <t>Start the traversal with the immediate neighbors of the router running the algorithm.</t>
-	    <t>Always visit the immediate neighbors of a router in ascending order of their router ID.</t>
-	    <t>Never visit a router more often than once.</t>
-	  </list>
-	  </t>
-	  <t>For each delegated prefix P of any router R in the homenet: Create a default route via the next-hop for R acquired in #2.
-	  Each such route MUST be source-restricted to only apply to traffic with a source address within P and its metric MUST reflect the hop-count to R.</t>
-	  <t>For each assigned prefix A of a router R:
-	  Create a route to A via the next-hop for R acquired in #2. Each such route MUST NOT be source-restricted.</t>
-	  <t>For the first router R visited in the traversal announcing an IPv4-uplink: Create a default IPv4-route via the next-hop for R acquired in #2.</t>
-	  <t>For each assigned IPv4-prefix A of a router R: Create an IPv4-route to A via the next-hop for R acquired in #2.</t>
-	</list>
-	</t>
-      </section>
-
-    </section>
-
     <section title="Security Considerations">
 
       <t>General security issues for home networks are discussed at length
@@ -1168,7 +1064,6 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       <?rfc include="reference.RFC.7368.xml"?>
       <?rfc include="reference.I-D.draft-troan-homenet-sadr-01.xml"?>
       <?rfc include="reference.I-D.draft-baker-rtgwg-src-dst-routing-use-cases-01.xml"?>
-      <?rfc include="reference.I-D.draft-acee-ospf-ospfv3-autoconfig-03.xml"?>
       <?rfc include="reference.I-D.draft-barth-homenet-hncp-security-trust-01.xml"?>
       </references>
     <section title="Some Outstanding Issues">
