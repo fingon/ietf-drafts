@@ -1155,7 +1155,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
     			</t>
     			
 				<t>Upon encountering a device with a hierarchy of certificates for which there is no effective
-				verdict a router announces Neutral verdicts for all certificates found in the hierarchy until
+				verdict a router adds a Neutral Trust-Verdict-TLV to its node data for all certificates found in the hierarchy until
 				an effective verdict different from Neutral can be found for any of the certificates or a reasonable
 				amount of time (10 minutes is suggested) with no reaction and no further connection attempts has passed.
 				Such verdicts SHOULD also be limited in rate and number to prevent denial-of-service attacks.</t>
