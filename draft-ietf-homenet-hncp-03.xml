@@ -668,24 +668,15 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
       with evaluation stopping at first match:
 
       <list style="numbers">
-        <t>If a fixed category is set for an interface, it MUST be used.</t>
-        <t>Any of the following conditions indicate an interface MUST
-        be considered external:
+      <t>If a fixed category is set for an interface, it MUST be used.</t>
 
-        <list style="numbers">
-	  <t>A delegated prefix could be acquired by running a DHCPv6-client
-	  on the interface.</t>
+	  <t>If a delegated prefix could be acquired by running a DHCPv6-client
+	  on the interface it MUST be considered external.</t>
 
-	  <t>An IPv4-address could be acquired by running a DHCP-client on
-          the interface.</t>
-
-<!-- perhaps once we define HNCP security
-	  <t>HNCP security is enabled and there are routers on the interface
-	  which could not be authenticated.</t>
-          -->
-        </list>
-        </t>
-        <t>As default fallback, interface MUST be considered internal.</t>
+	  <t>If an IPv4-address could be acquired by running a DHCP-client on
+      the interface it MUST be considered external.</t>
+         
+      <t>Otherwise the interface MUST be considered internal.</t>
       </list>
       </t>
 
@@ -1005,7 +996,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
     		<t>The certificate-based consensus model is designed to be a compromise between trust management effort
     		and flexibility. It is based on X.509-certificates and allows each connected device to give a verdict on any other certificate
     		and a consensus is found to determine whether a device using this certificate or any certificate
-    		signed by it is to be trusted. This model SHOULD be supported by devices implementing security.</t>
+    		signed by it is to be trusted. This model does not require a common PKI and SHOULD be supported by devices implementing security.</t>
     		
     		<section title="Trust Verdicts">
 	    		<t>Trust Verdicts are statements of HNCP-devices about the trustworthiness of X.509-certificates.
@@ -1045,7 +1036,7 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 	    		
 	    		In case a device has a configured verdict which is different from the current effective verdict for a
 	    		certificate the current effective verdict takes precedence in deciding trustworthiness 
-	    		however the device still retains its configured verdict in its configuration. 
+	    		however the device still retains and announces its configured verdict. 
 	    		</t>
     		</section>
     		
@@ -1058,8 +1049,8 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
     			to survive a reboot or power outage.</t>
     			
     			<t>Every time a device (re)joins the homenet or detects the change of an effective
-    			trust verdict for any certificate it will synchronize its cache and
-    			store the new effective verdict overwriting any previously cached verdicts.
+    			trust verdict for any certificate it will synchronize its cache, i.e.
+    			store new effective verdicts overwriting any previously cached verdicts.
     			Configured verdicts are stored in the cache as their respective cached counterparts,
     			Neutral verdicts are never stored.</t>
     		</section>
