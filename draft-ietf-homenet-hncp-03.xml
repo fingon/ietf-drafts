@@ -560,24 +560,15 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
     	is enabled for HNCP-traffic. If left unsecured attackers may cause arbitrary eavesdropping, spoofing
     	or denial of service attacks on HNCP-services such as address assignment or service discovery.</t>
 
-    	<t>[TODO: copy that sentence to DNCP?] Given that links containing HNCP routers can be sufficiently secured or isolated it is possible to
-    	run HNCP in a secure manner without using any form of authentication or encryption.
-
+    	<t>
     	Detailed interface categories like "leaf" or "guest" can be used to integrate not fully trusted
     	devices to various degrees into the homenet by not exposing them to HNCP and IGP traffic
     	or by using firewall rules to prevent them from reaching homenet-internal resources.</t>
 
-    	<t>[TODO: copy to DNCP?] On unsecured links <xref target="RFC6347">DTLS</xref> can be used as noted above to secure traffic.
+    	<t>[TODO: copy to DNCP?.. probably not, -Markus (should instead say
+        somewhere here that in the DNCP profile)] On unsecured links <xref target="RFC6347">DTLS</xref> can be used as noted above to secure traffic.
     	In this case security considerations of said protocol apply.</t>
     </section>
-
-    <section title="Security of multicast traffic">
-   		<t>[TODO: move to DNCP?] HNCP also uses multicast signaling to announce changes of HNCP information
-   		but will not send any actual payload over this channel. An attacker may learn hash-values
-   		of HNCP-information and may be able to trigger unicast synchronization attempts
-   		between routers on the local link this way. An HNCP-router should therefore limit its unicast synchronizations
-   		attempts to avoid a multicast-induced denial-of-service.</t>
-   	</section>
 
     <section title="Other protocols in the home">
     	<t>IGPs and other protocols are usually run alongside HNCP therefore
