@@ -381,7 +381,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       </t>
     </section>
 
-    <section title="Naming and service discovery">
+    <section title="TLV-Definitions for naming and service discovery">
 
       <t>Service discovery is generally limited to a local link. 
       I-D.stenberg-homenet-dnssd-hybrid-proxy-zeroconf defines
@@ -440,8 +440,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       </section>
     </section>
     
-    <section title="Home Router Operation">
-    	<t>Each router supporting HNCP is subject to the following restrictions:
+    <section title="Requirements for HNCP-routers">
+    	<t>Each router implementing HNCP is subject to the following requirements:
     	<list>
     		<t>It MUST implement Border Discovery and Prefix Assignment as defined in this document.</t>
     		<t>It SHOULD implement support for the Service Discovery and Naming TLVs as defined in this document.</t>
