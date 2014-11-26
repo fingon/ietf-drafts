@@ -40,9 +40,9 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <address>
         <postal>
           <street/>
-          <city></city>
-          <code></code>
-          <country></country>
+          <city>Halle</city>
+          <code>06114</code>
+          <country>Germany</country>
         </postal>
         <email>cyrus@openwrt.org</email>
       </address>
@@ -54,41 +54,36 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
     <keyword>IPv6</keyword>
     <keyword>Homenet</keyword>
+    <keyword>DNCP</keyword>
     <abstract>
 
-      <t>TBD - rewrite post-split - This document describes the Home Networking Control Protocol
-      (HNCP), a minimalist state synchronization protocol for homenet
-      routers. </t>
+      <t>This document describes the Home Networking Control Protocol
+      (HNCP), a lightweight configuration protocol for home network
+      devices on top of the Distributed Node Consensus Protocol (DNCP).</t>
 
     </abstract>
   </front>
   <middle>
     <section title="Introduction">
 
-      <t>TBD - rewrite post-split - HNCP is designed to synchronize state across a homenet (or other
+      <t>HNCP is designed to synchronize state across a homenet (or other
       small site) in order to facilitate automated configuration within the
-      site. The design supports border discovery, IP prefix distribution
+      site. The design supports border discovery, address prefix distribution
       <xref target="I-D.ietf-homenet-prefix-assignment" />, and service
-      discovery across multiple links<xref
-      target="I-D.stenberg-homenet-dnssd-hybrid-proxy-zeroconf" />.</t>
+      discovery across multiple links.</t>
 
       <t>HNCP is designed to provide enough information for
       a routing protocol to operate without homenet-specific
       extensions. In homenet environments where multiple IPv6 prefixes are
       present, routing based on source and destination address is
-      necessary <xref target="I-D.troan-homenet-sadr"/>. Routing protocol
-      requirements for source and destination routing are described in
-      section 3 of <xref
-      target="I-D.baker-rtgwg-src-dst-routing-use-cases" />. </t>
+      necessary <xref target="RFC7368" />.</t>
 
-      <t>A GPLv2-licensed implementation of the HNCP protocol is
+      <t>A GPLv2-licensed implementation of HNCP is
       currently under development at <eref target="https://github.com/sbyx/hnetd/">https://github.com/sbyx/hnetd/</eref>
-      and the binaries are available in the routing feed of <eref
-      target="http://www.openwrt.org">OpenWrt</eref> trunk release.
-      Some information how to get started with it is available at <eref
-      target="http://www.homewrt.org/doku.php?id=run-conf" />.
-      Comments and/or pull requests are welcome.</t>
-
+      and binaries are available in the <eref
+      target="http://www.openwrt.org">OpenWrt</eref> package repositories.
+      See <eref target="http://www.homewrt.org/doku.php?id=run-conf" /> for more information.
+      Feedback and contributions are welcome.</t>
     </section>
 
     <section anchor="kwd" title='Requirements language'>
@@ -100,7 +95,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
     </section>
 
-    <!-- TBD - some section linking this to DNCP draft -->
+    
     
     <section title="Border Discovery and Prefix Assignment">
 
@@ -378,10 +373,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       </t>
     </section>
 
-    <section anchor="how" title="DNS-based Service Discovery">
+    <section title="DNS-based Service Discovery">
 
-      <t>Service discovery is generally limited to a local link.  <xref
-      target="I-D.stenberg-homenet-dnssd-hybrid-proxy-zeroconf" /> defines
+      <t>Service discovery is generally limited to a local link. 
+      I-D.stenberg-homenet-dnssd-hybrid-proxy-zeroconf defines
       a mechanism to automatically extended DNS-based service discovery
       across multiple links within the home automatically. Following TLVs
       MAY be used to provide transport for that specification. </t>
@@ -449,17 +444,18 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
           set up addresses and routes in home networks today have rarely security enabled
           within the control protocol itself. However these issues are out of scope
           for the security of HNCP itself.</t>
+          
+          <t>HNCP inherits the security properties of DNCP.</t>
 	  </section>
 	  
 	  <section title="Scope">
-	      <t>HNCP is a generic state synchronization mechanism carrying information
-	      with varying threat potential. This draft will mainly consider the currently specified payloads:
+	      <t>HNCP is a state synchronization mechanism carrying information with varying threat potential.
+	      For this consideration the payloads defined in DNCP and this document are reviewed:
 	
 	      <list>
-	        <t>Network topology information such as homenet routers and their adjacent links</t>
+	        <t>Network topology information such as HNCP nodes and their adjacent links</t>
 	        <t>Address assignment information such as delegated and assigned prefixes for individual links</t>
-	        <t>Naming and service discovery information such as auto-generated or
-	        customized names for individual links and routers</t>
+	        <t>Naming and service discovery information such as auto-generated or customized names for individual links and routers</t>
 	      </list>
 	      </t>
 	  </section>
@@ -491,61 +487,64 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
     <section title="Security of unicast traffic">
     	<t>Once the homenet border has been established there are several ways to secure HNCP against
     	internal threats like manipulation or eavesdropping by compromised devices on a link which
-    	is enabled for HNCP-traffic. If left unsecured attackers may cause arbitrary spoofing
-    	or denial of service attacks on HNCP-services such as address assignment or service discovery.
-    	Furthermore they may manipulate routing or external connection information in order to
-    	perform eavesdropping or man-in-the-middle attacks on outbound traffic.</t> 
+    	is enabled for HNCP-traffic. If left unsecured attackers may cause arbitrary eavesdropping, spoofing
+    	or denial of service attacks on HNCP-services such as address assignment or service discovery.</t> 
     	
-    	<t>Given that links containing HNCP routers can be sufficiently secured or isolated it is possible to
+    	<t>[TODO: copy that sentence to DNCP?] Given that links containing HNCP routers can be sufficiently secured or isolated it is possible to
     	run HNCP in a secure manner without using any form of authentication or encryption.
     		
     	Detailed interface categories like "leaf" or "guest" can be used to integrate not fully trusted
     	devices to various degrees into the homenet by not exposing them to HNCP and IGP traffic
     	or by using firewall rules to prevent them from reaching homenet-internal resources.</t>
     	    	
-    	<t>On unsecured links <xref target="RFC6347">DTLS</xref> can be used as noted above to secure traffic.
+    	<t>[TODO: copy to DNCP?] On unsecured links <xref target="RFC6347">DTLS</xref> can be used as noted above to secure traffic.
     	In this case security considerations of said protocol apply.</t>
     </section>
     
     <section title="Security of multicast traffic">
-   		<t>HNCP also uses multicast signaling to announce changes of HNCP information
+   		<t>[TODO: move to DNCP?] HNCP also uses multicast signaling to announce changes of HNCP information
    		but will not send any actual payload over this channel. An attacker may learn hash-values
    		of HNCP-information and may be able to trigger unicast synchronization attempts
    		between routers on the local link this way. An HNCP-router should therefore limit its unicast synchronizations
    		attempts to avoid a multicast-induced denial-of-service.</t>
    	</section>
     
-        <section title="Other homenet protocols">
-    	<t>An IGP is usually run alongside HNCP in a homenet therefore the individual security aspects of the respective protocols
-    	must be considered. It can however be summarized that many protocols to be run in the home (like IGPs) 
-    	provide - to a certain extent - similar security mechanisms. Most of these protocols do not support encryption
-    	and only support authentication based on pre-shared keys natively.
-    	This influences the effectiveness of any encryption-based security mechanism deployed by
-    	HNCP as homenet routing information is thus usually not encrypted.
-    	In general security considerations of the respective protocols apply.</t>
-    	</section>
+    <section title="Other protocols in the home">
+    	<t>IGPs and other protocols are usually run alongside HNCP therefore
+    	the individual security aspects of the respective protocols must be considered.
+    	It can however be summarized that many protocols to be run in the home (like IGPs) 
+    	provide - to a certain extent - similar security mechanisms.
+    	Most of these protocols do not support encryption and only support authentication
+    	based on pre-shared keys natively.
+    	This influences the effectiveness of any encryption-based security mechanism deployed
+    	by HNCP as homenet routing information is thus usually not encrypted.</t>
+    </section>
 
  
     </section>
 
     <section anchor="iana" title="IANA Considerations">
 
-      <t>TBD - request from DNCP registry - following:</t>
+      <t>IANA is requested to maintain a registry for HNCP TLV-Types.</t>
+      <t>HNCP inherits the TLV-Types defined in DNCP.
+      In addition the following TLV-Types are defined in this document:
 
-      <t>41: External connection</t>
-      <t>42: Delegated prefix</t>
-      <t>43: Assigned prefix</t>
-      <t>44: DHCP-data</t>
-      <t>45: DHCPv6-data</t>
-      <t>46: Router-address</t>
-      <t>50: DNS Delegated Zone</t>
-      <t>51: Domain name</t>
-      <t>52: Node name</t>
-      <t>65535: Signature</t>
+      <list>
+      	<t>41: External connection</t>
+      	<t>42: Delegated prefix</t>
+      	<t>43: Assigned prefix</t>
+      	<t>44: DHCP-data</t>
+      	<t>45: DHCPv6-data</t>
+      	<t>46: Router-address</t>
+      	<t>50: DNS Delegated Zone</t>
+      	<t>51: Domain name</t>
+      	<t>52: Node name</t>
+      </list>
+      </t>
 
-      <t>HNCP will also require allocation of a UDP port number
-      IANA-UDP-PORT, as well as IPv6 link-local multicast address
-      IANA-MULTICAST-ADDRESS.</t>
+      <t>HNCP requires allocation of a UDP port number
+      IANA-UDP-PORT, as well as an IPv6 link-local
+      multicast address IANA-MULTICAST-ADDRESS.</t>
 
     </section>
 
@@ -553,12 +552,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
   <back>
     <references title="Normative references">
       <?rfc include="reference.RFC.2119.xml"?>
-      <?rfc include="reference.RFC.6206.xml"?>
       <?rfc include="reference.RFC.6347.xml"?>
       <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-01"?>
-      <?rfc include="reference.I-D.draft-stenberg-homenet-dnssd-hybrid-proxy-zeroconf-01"?>
-
     </references>
+    
     <references title="Informative references">
       <?rfc include="reference.RFC.7084.xml"?>
       <?rfc include="reference.RFC.3004.xml"?>
@@ -569,24 +566,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <?rfc include="reference.RFC.1918.xml"?>
       <?rfc include="reference.RFC.4291.xml"?>
       <?rfc include="reference.RFC.7368.xml"?>
-      <?rfc include="reference.RFC.6234.xml"?>
-      <?rfc include="reference.I-D.draft-troan-homenet-sadr-01.xml"?>
-      <?rfc include="reference.I-D.draft-baker-rtgwg-src-dst-routing-use-cases-01.xml"?>
-      </references>
-    <section title="Some Outstanding Issues">
-
-      <t>Should we use MD5 hashes, or EUI-64 node identifier to identify
-      nodes?</t>
-
-      <t>Valid and preferred are now 32 bit millisecond and you cannot even
-      represent a month in them; is this enough? Or should we switch to 32
-      bit seconds (or 64 bit milliseconds)?</t>
-      
-      <t>Revoking trust in a protocol intended for bootstrapping is non-trivial, since neither an accurate clock
-      nor network connectivity to retrieve authenticated revocation information can be assumed
-      in all situations.</t>
-    		
-    </section>
+    </references>
     
     <section title="Changelog">
 
@@ -613,10 +593,9 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
     </section>
 
     <section title="Draft source">
-      <t>As usual, this draft is available at <eref
+      <t>This draft is available at <eref
       target="https://github.com/fingon/ietf-drafts/">https://github.com/fingon/ietf-drafts/</eref>
-      in source format (with nice Makefile too). Feel free to send comments
-      and/or pull requests if and when you have changes to it! </t>
+      in source format. Issues and pull Requests are welcome.</t>
     </section>
 
     <section title="Acknowledgements">
