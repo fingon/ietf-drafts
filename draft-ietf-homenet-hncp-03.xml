@@ -95,15 +95,22 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
     </section>
 
+    <section title="DNCP Profile">
+    	<t>HNCP is defined as a profile of DNCP with the following parameters:
+    	<list>
+    		<t>FOO</t>
+    		<t>BAR</t>
+    	</list>
+    	</t>
+    </section>
     
-    
-    <section title="Border Discovery and Prefix Assignment">
+    <section title="Border Discovery">
 
-      <t>This section defines border discovery algorithm derived from the
+      <t>This section defines the border discovery algorithm derived from the
       edge router interactions described in the <xref
       target="RFC7084">Basic Requirements for IPv6 Customer Edge
       Routers</xref>. The algorithm is designed to work for both IPv4 and
-      IPv6 (single or dual-stack). </t>
+      IPv6 (single or dual-stack) and MUST be implemented by any router implementing HNCP.</t>
 
       <t>In order to avoid conflicts between border discovery and homenet
       routers running <xref target="RFC2131">DHCP</xref> or <xref
@@ -172,10 +179,6 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       </list>
       </t>
 
-      <t>A homenet router SHOULD provide basic connectivity to <xref
-      target="RFC7084">legacy CERs</xref> connected to internal interfaces
-      in order to allow coexistence with existing devices.</t>
-
       <t>Each router MUST continuously scan each active interface that does
       not have a fixed category in order to dynamically reclassify it if
       necessary.  The router therefore runs an appropriately configured
@@ -192,6 +195,14 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       SHOULD announce the acquired information for use in the homenet as
       described in later sections of this draft if the interface appears to
       be connected to an external network.</t>
+</section>
+
+<section title="TLV-Definitions for prefix assignment purposes">
+	  <t>The following TLVs are defined to announce prefix and addressing
+	  information using HNCP. Each HNCP-node using these TLVs
+	  MUST implement and follow the relevant sections of
+      <xref target="I-D.ietf-homenet-prefix-assignment">Prefix and
+      Address Assignment in a Home Network</xref>.</t>
 
       <t>To distribute an external connection in the homenet an edge router
       announces one or more delegated prefixes and associated
@@ -204,7 +215,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Type: EXTERNAL-CONNECTION (41)|          Length: > 4          |
+| Type: EXTERNAL-CONNECTION (32)|          Length: > 4          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                          Nested TLVs                          |
 	</artwork>
@@ -224,7 +235,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: DHCPV6-DATA (45)     |          Length: > 4          |
+|    Type: DHCPV6-DATA (36)     |          Length: > 4          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                    DHCPv6 attribute stream                    |
 	</artwork>
@@ -237,7 +248,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: DHCP-DATA (44)      |          Length: > 4          |
+|     Type: DHCP-DATA (37)      |          Length: > 4          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                      DHCP attribute stream                    |
 	</artwork>
@@ -255,11 +266,11 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Type: DELEGATED-PREFIX (42)  |         Length: >= 13         |
+|  Type: DELEGATED-PREFIX (33)  |         Length: >= 13         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                   Valid until (milliseconds)                  |
+|                        Valid Lifetime                         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                 Preferred until (milliseconds)                |
+|                      Preferred Lifetime                       |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 | Prefix Length |                                               |
 +-+-+-+-+-+-+-+-+        Prefix Address [+ nested TLVs]         +
@@ -269,13 +280,15 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
       <t>
 	<list>
-	  <t>Valid until is the time in milliseconds the delegated prefix
-          is valid. The value is relative to the point in time the TLV is
-          first announced.</t>
+	  <t>Valid Lifetime is the time in seconds the delegated prefix
+          is valid. The value is relative to the point in time the node's
+          Node-Data TLV was last published, i.e. it MUST be updated whenever
+          the node republishes its Node-Data TLV.</t>
 
-	  <t>Preferred until is the time in milliseconds the delegated
-          prefix is preferred. The value is relative to the point in time
-          the TLV is first announced.</t>
+	  <t>Preferred Lifetime is the time in seconds the delegated
+          prefix is preferred. The value is relative to the point in time the node's
+          Node-Data TLV was last published, i.e. it MUST be updated whenever
+          the node republishes its Node-Data TLV.</t>
 
 	  <t>Prefix length specifies the number of significant bits in the
           prefix.</t>
@@ -292,13 +305,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
       <t>In order for routers to use the distributed information, prefixes
       and addresses have to be assigned to the interior links of the
-      homenet.  A router MUST therefore implement the algorithm defined in
-      <xref target="I-D.ietf-homenet-prefix-assignment">Prefix and
-      Address Assignment in a Home Network</xref>.  In order to announce
-      the assigned prefixes the following TLVs are defined.</t>
+      home network. The following TLVs are defined for that purpose.</t>
 
       <t>Each assigned prefix is given to an interior link and is encoded
-      using one TLVs.  Assigned IPv4 prefixes are stored as mapped
+      using one TLVs.  Assigned IPv4-prefixes are stored as mapped
       IPv4-addresses. The TLV is defined as follows:</t>
 
       <figure>
@@ -306,25 +316,22 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Type: ASSIGNED-PREFIX (43)   |          Length: >= 9         |
+|  Type: ASSIGNED-PREFIX (34)   |          Length: >= 9         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        Link Identifier                        |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  R. |A| Pref. | Prefix Length |                               |
+|   R.  | Pref. | Prefix Length |                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+         Prefix Address        +
 |                                                               |
 	</artwork>
       </figure>
       <t>
 	<list>
-	  <t>Link Identifier is the local HNCP identifier of the link the
+	  <t>Link Identifier is the DNCP link identifier of the link the
           prefix is assigned to.</t>
 
 	  <t>R. is reserved for future additions and MUST be set to 0 when
           creating TLVs and ignored when parsing them.</t>
-
-	  <t>A is the authoritative flag which indicates that an assignment
-          is enforced and ignores usual collision detection rules.</t>
 
 	  <t>Pref. describes the preference of the assignment and can be
           used to differentiate the importance of a given assignment over
@@ -350,12 +357,12 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|   Type: ROUTER-ADDRESS (46)   |           Length: 24          |
+|    Type: NODE-ADDRESS (35)    |           Length: 24          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        Link Identifier                        |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
-|                         Router Address                        |
+|                           IP-Address                          |
 |                                                               |
 |                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -364,16 +371,17 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
       <t>
 	<list>
-	  <t>Link Identifier is the local HNCP identifier of the link the
+	  <t>Link Identifier is the DNCP link identifier of the link the
           address is assigned to.</t>
 
-	  <t>Router Address is the address assigned to one of the router
-	  interfaces.</t>
+	  <t>IP-Address is the IP-address assigned to one of the node
+	  interfaces. An IPv4-address are represented as <xref target="RFC4291">IPv4-mapped
+      addresses</xref>.</t>
 	</list>
       </t>
     </section>
 
-    <section title="DNS-based Service Discovery">
+    <section title="Naming and service discovery">
 
       <t>Service discovery is generally limited to a local link. 
       I-D.stenberg-homenet-dnssd-hybrid-proxy-zeroconf defines
@@ -388,7 +396,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Type: DNS-DELEGATED-ZONE (50) |        Length: >= 21          |
+| Type: DNS-DELEGATED-ZONE (38) |        Length: >= 21          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
 |                            Address                            |
@@ -409,7 +417,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: DOMAIN-NAME (51)     |         Length: >= 4          |
+|    Type: DOMAIN-NAME (39)     |         Length: >= 4          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |        Domain (DNS label sequence - variable length)          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -423,13 +431,30 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: ROUTER-NAME (52)     |         Length: >= 4          |
+|     Type: NODE-NAME (40)      |         Length: >= 4          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |         Name (not null-terminated - variable length)          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           </artwork>
         </figure>
       </section>
+    </section>
+    
+    <section title="Home Router Operation">
+    	<t>Each router supporting HNCP is subject to the following restrictions:
+    	<list>
+    		<t>It MUST implement Border Discovery and Prefix Assignment as defined in this document.</t>
+    		<t>It SHOULD implement support for the Service Discovery and Naming TLVs as defined in this document.</t>
+    		<t>It MUST implement and run the routing protocol $FOO [RFCXYZ] with support for source-specific routes
+    		on all of the interfaces it sends and receives HNCP-messages on and MUST resort to announcing
+    		source-specific routes for external destinations appropriately.</t>
+    		<t>It MUST use adequate security mechanisms for the routing protocol on any interface
+    		where it also uses the security mechanisms of HNCP.</t>
+    		<t>It MUST comply with the <xref target="RFC7084">Basic Requirements for IPv6 Customer Edge Routers</xref>
+    		unless it would otherwise conflict with any requirements in this document.</t>
+    		<t>It SHOULD be able to provide connectivity to IPv4-devices using DHCP.</t>
+    		<t>It SHOULD be able to delegate prefixes to legacy IPv6-routers using DHCPv6-PD.</t>
+    	</list></t>
     </section>
     
     <section title="Security Considerations">
@@ -530,15 +555,15 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       In addition the following TLV-Types are defined in this document:
 
       <list>
-      	<t>41: External connection</t>
-      	<t>42: Delegated prefix</t>
-      	<t>43: Assigned prefix</t>
-      	<t>44: DHCP-data</t>
-      	<t>45: DHCPv6-data</t>
-      	<t>46: Router-address</t>
-      	<t>50: DNS Delegated Zone</t>
-      	<t>51: Domain name</t>
-      	<t>52: Node name</t>
+      	<t>32: External-Connection</t>
+      	<t>33: Delegated-Prefix</t>
+      	<t>34: Assigned-Prefix</t>
+      	<t>35: Node-Address</t>
+      	<t>36: DHCP-Data</t>
+      	<t>37: DHCPv6-Data</t>
+      	<t>38: DNS-Delegated-Zone</t>
+      	<t>39: Domain-Name</t>
+      	<t>40: Node-Name</t>
       </list>
       </t>
 
@@ -595,7 +620,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
     <section title="Draft source">
       <t>This draft is available at <eref
       target="https://github.com/fingon/ietf-drafts/">https://github.com/fingon/ietf-drafts/</eref>
-      in source format. Issues and pull Requests are welcome.</t>
+      in source format. Issues and pull requests are welcome.</t>
     </section>
 
     <section title="Acknowledgements">
