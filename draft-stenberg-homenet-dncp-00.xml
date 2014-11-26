@@ -1,0 +1,1004 @@
+<?xml version='1.0' ?>
+<!--
+Created:       Mon Nov 18 17:55:22 2013 mstenber
+
+split from draft-ietf-homenet-hncp-03-pre - generic parts
+
+-->
+
+<!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
+
+<?rfc autobreaks="yes"?>
+<?rfc compact="yes"?>
+<?rfc strict='yes'?>
+<?rfc subcompact="no"?>
+<?rfc symrefs="yes"?>
+<?rfc toc="yes"?>
+<?rfc tocindent="yes"?>
+
+<rfc
+    ipr='trust200902'
+    docName='draft-ietf-homenet-hncp-03'
+    category='std'
+    >
+  <front>
+    <title abbrev="Distributed Node Consensus Protocol">
+      Distributed Node Consensus Protocol
+    </title>
+    <author initials="M" surname="Stenberg" fullname="Markus Stenberg">
+      <address>
+        <postal>
+          <street/>
+          <city>Helsinki</city>
+          <code>00930</code>
+          <country>Finland</country>
+        </postal>
+        <email>markus.stenberg@iki.fi</email>
+      </address>
+    </author>
+    <author initials="S" surname="Barth" fullname="Steven Barth">
+      <address>
+        <postal>
+          <street/>
+          <city></city>
+          <code></code>
+          <country></country>
+        </postal>
+        <email>cyrus@openwrt.org</email>
+      </address>
+    </author>
+    <date month="November" year="2014" />
+
+    <area>Internet</area>
+    <workgroup>Homenet Working Group</workgroup>
+
+    <keyword>IPv6</keyword>
+    <keyword>Homenet</keyword>
+    <abstract>
+
+      <t>This document describes the Home Networking Control Protocol
+      (HNCP), a minimalist state synchronization protocol for homenet
+      routers. </t>
+
+    </abstract>
+  </front>
+  <middle>
+    <section title="Introduction">
+
+      <t>HNCP is designed to synchronize state across a homenet (or other
+      small site) in order to facilitate automated configuration within the
+      site. The design supports border discovery, IP prefix distribution
+      <xref target="I-D.ietf-homenet-prefix-assignment" />, and service
+      discovery across multiple links<xref
+      target="I-D.stenberg-homenet-dnssd-hybrid-proxy-zeroconf" />.</t>
+
+      <t>HNCP is designed to provide enough information for
+      a routing protocol to operate without homenet-specific
+      extensions. In homenet environments where multiple IPv6 prefixes are
+      present, routing based on source and destination address is
+      necessary <xref target="I-D.troan-homenet-sadr"/>. Routing protocol
+      requirements for source and destination routing are described in
+      section 3 of <xref
+      target="I-D.baker-rtgwg-src-dst-routing-use-cases" />. </t>
+
+      <t>A GPLv2-licensed implementation of the HNCP protocol is
+      currently under development at <eref target="https://github.com/sbyx/hnetd/">https://github.com/sbyx/hnetd/</eref>
+      and the binaries are available in the routing feed of <eref
+      target="http://www.openwrt.org">OpenWrt</eref> trunk release.
+      Some information how to get started with it is available at <eref
+      target="http://www.homewrt.org/doku.php?id=run-conf" />.
+      Comments and/or pull requests are welcome.</t>
+
+    </section>
+
+    <section anchor="kwd" title='Requirements language'>
+
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+      NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
+      "OPTIONAL" in this document are to be interpreted as described in
+      <xref target='RFC2119'>RFC 2119</xref>.</t>
+
+    </section>
+
+    <section title="Data model">
+
+      <t>The data model of the HNCP protocol is simple: Every participating
+      node has (and also knows for every other participating node):
+      <list>
+
+        <t>A unique node identifier. It may be a public key, unique
+        hardware ID, or some other unique blob of binary data which HNCP
+        can run a hash upon to obtain a node identifier that is very likely
+        unique among the set of routers in the homenet.</t>
+
+        <t>A set of Type-Length-Value (TLV) data it wants to share with
+        other routers. The set of TLVs have a well-defined order based on
+        ascending binary content that is used to quickly identify changes
+        in the set as they occur. </t>
+
+        <t>Latest update sequence number. A 32 bit number that is
+        incremented anytime TLV data changes are detected.</t>
+
+        <t>Relative time, in milliseconds, since last publishing of the
+        current TLV data set. It is also 32 bit number on the wire.</t>
+
+      </list>
+      </t>
+
+    </section>
+
+    <section title="Operation">
+
+      <t>HNCP is designed to run on UDP port IANA-UDP-PORT, using
+      both link-local scoped IPv6 unicast and link-local scoped IPv6
+      multicast messages to address IANA-MULTICAST-ADDRESS for
+      transport. The protocol consists of <xref target="RFC6206">Trickle</xref>
+      driven multicast status messages to indicate changes in shared TLV
+      data, and unicast state synchronization message exchanges when the
+      Trickle state is found to be inconsistent.</t>
+
+      <section title="Trickle-Driven Status Updates" anchor="trickle-updates">
+
+        <t>Each node MUST send link-local multicast <xref
+        target="net-message">NetState Messages</xref> each time the <xref
+        target="RFC6206">Trickle algorithm</xref> indicates they should on
+        each link the protocol is active on. When the locally stored
+        network state hash changes (either by a local node event that
+        affects the TLV data, or upon receipt of more recent data from
+        another node), all Trickle instances MUST be reset. Trickle state
+        MUST be maintained separately for each link.</t>
+
+        <t>Trickle algorithm has 3 parameters; Imin, Imax and k. Imin and
+        Imax represent minimum and maximum values for I, which is the time
+        interval during which at least k Trickle updates must be seen on a
+        link to prevent local state transmission.  Bounds for recommended
+        Trickle values are described below.
+
+        <list>
+          <t>k=1 SHOULD be used, as given the timer reset on data updates,
+          retransmissions should handle packet loss.</t>
+
+          <t>Imax MUST be at least one minute.</t>
+
+          <t>Imin MUST be at least 200 milliseconds (earliest transmissions
+          may occur at Imin/2 = 100 milliseconds given minimum values as
+          per the Trickle algorithm).</t>
+        </list>
+        </t>
+      </section>
+
+
+      <section title="Protocol Messages">
+
+        <t>Protocol messages are encoded as purely as a sequence of <xref
+        target="tlvs">TLV objects</xref>. This section describes which set
+        of TLVs MUST or MAY be present in a given message. </t>
+
+        <t>In order to facilitate fast comparing of local
+        state with that in a received message update, all TLVs in every
+        encoding scope (either root level, within the message
+        itself, or within a container TLV) MUST be placed
+        in ascending order based on the binary comparison of both
+        TLV header and value. By design, the
+        TLVs which MUST be present have the lowest available type values,
+        ensuring they will naturally occur at the start of the
+        Protocol Message, resembling a fixed format preamble.
+        </t>
+
+
+        <section title="Network State Update (NetState)"
+                 anchor="net-message">
+
+          <t>This Message SHOULD be sent as a multicast message.</t>
+
+          <t>The following TLVs MUST be present at the start of the message:
+          <list>
+            <t><xref target="node-id">Node Link TLV</xref>.</t>
+            <t><xref target="net-hash">Network State TLV</xref>.</t>
+          </list>
+          </t>
+
+	  <t>The NetState Message MAY contain <xref
+	  target="node-state">Node State TLV(s)</xref>.  If so, either all
+	  Node State TLVs are included (referred to as a "long" NetState
+	  Message), or none are included (referred to as a "short" NetState
+	  Message). The NetState Message MUST NOT contain only a portion of
+	  Node State TLVs as this could cause problems with the <xref
+	  target="reception"> Protocol Message Processing</xref>
+	  algorithm. Finally, if the long version of the NetState message
+	  would exceed the minimum IPv6 MTU when sent, the short version of
+	  the NetState message MUST be used instead.</t>
+
+        </section>
+
+        <section title="Network State Request, (NetState-Req)"
+                 anchor="req-net-message">
+
+	  <t>This Message MUST be sent as a unicast message.</t>
+
+          <t>The following TLVs MUST be present at the start of the message:
+          <list>
+            <t><xref target="node-id">Node Link TLV</xref>.</t>
+            <t><xref target="req-net-hash">Request Network State TLV</xref>.</t>
+          </list>
+          </t>
+
+        </section>
+
+ 	<section title="Node Data Request (Node-Req)"
+                 anchor="req-node-message">
+
+          <t>This Message MUST be sent as a unicast message.</t>
+
+          <t>MUST be present:
+          <list>
+            <t><xref target="node-id">Node Link TLV</xref>.</t>
+            <t>one or more <xref
+            target="req-node-data">Request Node Data TLVs</xref>.</t>
+          </list>
+          </t>
+
+        </section>
+
+        <section title="Network and Node State Reply (NetNode-Reply)"
+                 anchor="reply-message">
+
+	  <t>This Message MUST be sent as a unicast message.</t>
+
+          <t>MUST be present:
+          <list>
+            <t><xref target="node-id">Node Link TLV</xref>.</t>
+
+            <t><xref target="net-hash">Network State TLV</xref>
+            and <xref target="node-state">Node State TLV</xref> for
+            every known node by the sender, or</t>
+
+            <t>one or more combinations of Node State and <xref
+            target="node-data">Node Data TLVs</xref>.</t>
+
+          </list>
+          </t>
+
+        </section>
+      </section>
+
+
+      <section title="HNCP Protocol Message Processing" anchor="reception">
+
+        <t>The majority of status updates among known nodes are handled via
+        the <xref target="trickle-updates">Trickle-driven updates
+        </xref>. This section describes processing of messages as received,
+        along with associated actions or responses.</t>
+
+        <t>HNCP is designed to operate between directly connected neighbors on
+        a shared link using link-local IPv6 addresses. If the source address
+        of a received HNCP packet is not an IPv6 link-local unicast address, the
+        packet SHOULD be dropped. Similarly, if the destination address is not
+        IPv6 link-local unicast or IPv6 link-local multicast address,
+        packet SHOULD be dropped.</t>
+
+        <t>Upon receipt of:
+	<list>
+          <t><xref target="net-message">NetState Message</xref>: If the
+          network state hash within the message matches the hash of the
+          locally stored network state, consider Trickle state as
+          consistent with no further processing required.  If the hashes do
+          not match, consider Trickle state as inconsistent. In this case,
+          if the message is "short" (contains zero Node State TLVs), reply
+          with a <xref target="req-net-message">NetState-Req
+          Message</xref>. If the message was in long format (contained all
+          Node State TLVs), reply with <xref
+          target="req-node-message">NodeState-Req</xref> for any nodes for
+          which local information is outdated (local update number is lower
+          than that within the message), potentially incorrect (local
+          update number is same and the hash of node data TLV differs) or
+          missing. Note that if local information is more recent than that
+          of the neighbor, there is no need to send a message.</t>
+
+          <t><xref target="req-net-message">NetState-Req</xref>: Provide
+          requested data in a NetNode-Reply Message containing Network
+          State TLV and all Node State TLVs.</t>
+
+          <t><xref target="req-node-message">NodeState-Req</xref>: Provide
+          requested data in a NetNode-Reply containing Node State and Node
+          Data TLVs. </t>
+
+          <t><xref target="reply-message">State-Reply</xref>: If the
+          message contains Node State TLVs that are more recent than local
+          state (higher update number, different node data TLV hash, or we
+          lack the node data altogether), and if the message also contains
+          corresponding Node Data TLVs, update local state and reset
+          Trickle. If the message is lacking Node Data TLVs for some Node
+          State TLVs which are more recent than local state, reply with a
+          <xref target="req-node-message">NodeState-Req</xref> for the
+          corresponding nodes. </t>
+	</list>
+	</t>
+
+        <t>Each node is responsible for publishing a valid set of data
+        TLVs. When there is a change in a node's set of
+        data TLVs, the update number MUST be incremented accordingly.</t>
+
+        <t>If a message containing <xref target="node-state">Node State
+        TLVs</xref> is received via unicast or multicast with the node's
+        own node identifier and a higher update number than current local
+        value, or the same update number and different hash, there is an
+        error somewhere.  A recommended default way to handle this is to
+        attempt to assert local state by increasing the local update number
+        to a value higher than that received and republish node data using
+        the same node identifier. If this happens more than 3 times in 60
+        seconds and the local node identifier is not globally unique, there
+        may be more than one router with the same node identifier on the
+        network. If there is no global guarantee of unique node identifier,
+        a new node identifier SHOULD be generated and node data republished
+        accordingly. </t>
+
+	<t>In all cases, if node data for any node changes, all Trickle
+	instances MUST be considered inconsistent (I=Imin + timer
+	reset).</t>
+
+      </section>
+
+      <section title="Adding and Removing Neighbors" anchor="neighbor">
+
+        <t>Whenever multicast message or unicast reply is received on a
+        link from another node, the node should be added as <xref
+        target="neighbor-tlv">Neighbor TLV</xref> for current node. If
+        nothing (for example - no router advertisements, no HNCP traffic)
+        is received from that neighbor in Imax seconds and the neighbor is
+        not in neighbor discovery cache, and no layer 2 indication of
+        presence is available, at least 3 attempts to ping it with <xref
+        target="req-net-message">request network state message</xref>
+        SHOULD be sent with increasing timeouts (e.g. 1, 2, 4 seconds). If
+        even after suitable period after the last message nothing is
+        received, the Neighbor TLV MUST be removed so that there are no
+        dangling neighbors. As an alternative, if there is a layer 2
+        unreachability notification of some sort available for either whole
+        link or for individual neighbor, it MAY be used to immediately
+        trigger removal of corresponding Neighbor TLV(s).</t>
+      </section>
+
+      <section title="Purging Unreachable Nodes">
+
+        <t>When node data has changed, the neighbor graph SHOULD be
+        traversed for each node following the bidirectional neighbor
+        relationships. These are identified by looking for neighbor TLVs on
+        both nodes, that have the remote node's identifier hash as
+        h(neighbor node identifier), and local and neighbor link
+        identifiers swapped. After the traverse, unreachable nodes SHOULD
+        be purged after some grace period. During the grace period, the
+        unreachable nodes MUST NOT be used for calculation of network state
+        hash, or even be provided to any applications that need to use the
+        whole TLV graph. </t>
+
+      </section>
+
+    </section>
+
+    <section anchor="tlvs" title="Type-Length-Value objects">
+      <t>
+        Every TLV is encoded as 2 octet type, followed by 2 octet length
+        (of the whole TLV, including header; 4 means no value),
+        and then the value itself (if any).
+
+        The actual length of TLV MUST be always divisible by 4; if the
+        length of the value is not, zeroed padding bytes MUST be inserted
+        at the end of TLV. The padding bytes MUST NOT be included in the
+        length field.
+      </t>
+
+      <figure>
+        <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|            Type               |           Length              |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                             Value                             |
+|                     (variable # of bytes)                     |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        </artwork>
+      </figure>
+
+      <t>
+        Encoding of type=123 (0x7b) TLV with value 'x' (120 = 0x78):
+
+        007B 0005 7800 0000
+      </t>
+
+      <t>Notation:
+      <list>
+        <t>.. = octet string concatenation operation</t>
+        <t>H(x) = MD5 hash of x</t>
+        <t>H-64(x) = H(x) truncated by taking just first 64 bits of the result.</t>
+      </list>
+      </t>
+
+
+      <section title="Request TLVs (for use within unicast requests)">
+
+        <section anchor="req-net-hash" title="Request Network State TLV">
+
+          <figure>
+            <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  Type: REQ-NETWORK-STATE (2)  |           Length: 4           |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            </artwork>
+          </figure>
+
+        </section>
+        <section anchor="req-node-data" title="Request Node Data TLV">
+
+
+          <figure>
+            <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|    Type: REQ-NODE-DATA (3)    |          Length: 20           |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|                       H(node identifier)                      |
+|                                                               |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            </artwork>
+          </figure>
+
+        </section>
+
+      </section>
+      <section title="Data TLVs (for use in both multi- and unicast data)">
+        <section anchor="node-id" title="Node Link TLV">
+
+          <figure>
+            <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|      Type: NODE-LINK (1)      |          Length: 24           |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|                       H(node identifier)                      |
+|                                                               |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                        Link-Identifier                        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            </artwork>
+          </figure>
+
+        </section>
+        <section anchor="net-hash" title="Network State TLV">
+
+          <figure>
+            <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|    Type: NETWORK-STATE (4)    |          Length: 20           |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|          H(H(node data TLV 1) .. H(node data TLV N))          |
+|                                                               |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            </artwork>
+          </figure>
+
+          <t>The Node Data TLVs are ordered for hashing by octet comparison of
+          the corresponding node identifier hashes in ascending order.</t>
+
+        </section>
+        <section anchor="node-state" title="Node State TLV">
+
+          <figure>
+            <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|      Type: NODE-STATE (5)     |          Length: 44           |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|                       H(node identifier)                      |
+|                                                               |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                    Update Sequence Number                     |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                Milliseconds since Origination                 |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|                        H(node data TLV)                       |
+|                                                               |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            </artwork>
+          </figure>
+
+          <t>The whole network should have roughly the same idea about the
+          time since origination, i.e. even the originating router should
+          increment the time whenever it needs to send a new Node State TLV
+          regarding itself without changing the corresponding Node Data
+          TLV. This age value is not included within the Node Data TLV,
+          however, as that is immutable and potentially signed by the
+          originating node at the time of origination.</t>
+
+        </section>
+        <section anchor="node-data" title="Node Data TLV">
+
+          <figure>
+            <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|      Type: NODE-DATA (6)      |        Length: >= 24          |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|                       H(node identifier)                      |
+|                                                               |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                    Update Sequence Number                     |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|            Nested TLVs containing node information            |
+            </artwork>
+          </figure>
+
+        </section>
+
+        <section anchor="neighbor-tlv" title="Neighbor TLV (within Node Data TLV)">
+	  <figure>
+            <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|       Type: NEIGHBOR (8)      |          Length: 28           |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|                  H(neighbor node identifier)                  |
+|                                                               |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                    Neighbor Link Identifier                   |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                      Local Link Identifier                    |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            </artwork>
+          </figure>
+
+          <t>This TLV indicates that the node in question vouches that the
+          specified neighbor is reachable by it on the local link id
+          given. This reachability may be unidirectional (if no unicast
+          exchanges have been performed with the neighbor).
+          The presence of this TLV at least
+          guarantees that the node publishing it has received traffic
+          from the neighbor recently. For guaranteed bidirectional
+          reachability, existence of both nodes' matching Neighbor TLVs
+          should be checked. </t>
+        </section>
+
+      </section>
+
+      <section anchor="user-tlv" title="Custom TLV (within/without Node Data TLV)">
+	<figure>
+          <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|     Type: CUSTOM-DATA (9)     |         Length: >= 12         |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                            H-64(URI)                          |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                          Opaque Data                          |
+          </artwork>
+        </figure>
+
+        <t>This TLV can be used to contain anything; the URI used should be
+        under control of the author of that specification.
+        For example:</t>
+
+        <t>V=H-64('http://example.com/author/json-for-hncp') .. '{"cool": "json
+        extension!"}'</t>
+
+        <t>or</t>
+
+        <t>V=H-64('mailto:author@example.com') .. '{"cool": "json
+        extension!"}'</t>
+
+      </section>
+
+      <section anchor="version-tlv" title="Version TLV (within Node Data TLV)">
+	<figure>
+          <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|     Type: VERSION (10)        |         Length: >= 8          |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                           Version                             |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                          User-agent                           |
+          </artwork>
+        </figure>
+
+        <t>This TLV indicates which version of HNCP TLV binary structures
+        is in use by this particular node. All TLVs within node data from
+        nodes that do not publish version TLV, or with different Version
+        value than locally supported one MUST be ignored (but forwarded).
+        The user-agent is an optional human-readable UTF-8 string that can
+        describe e.g. current HNCP implementation version. This draft
+        describes Version=1 TLVs.</t>
+
+      </section>
+
+    </section>
+
+
+    <section title="Security and Trust Management">
+		<t>The end-to-end mechanism <xref target="RFC6347">DTLS</xref>
+    	SHOULD be used to authenticate and encrypt all HNCP unicast-traffic on unsecured links.
+    	The following methods for establishing trust are defined:</t>
+    	 
+       
+    	<section title="Pre-shared secret based trust">
+    		<t>A PSK-based trust model is a simple security management mechanism that allows
+    		an administrator to deploy devices to an existing network by configuring them with a pre-defined key,
+    		similar to the configuration of an administrator password or WPA-key.
+    		Although limited in nature it is useful to provide a user-friendly security mechanism for smaller homenets.
+    		This model MUST be supported by devices implementing security.</t>
+    	</section>
+    	
+    	<section title="PKI-based trust">
+    		<t>A PKI-based trust-model enables more advanced management capabilities at the cost of increased complexity
+    		and bootstrapping effort. It however allows trust to be managed in a centralized manner
+    		and is therefore useful for larger networks with a need for an authoritative trust management.
+    		This model MUST be supported by devices implementing security.</t>
+    	</section>
+    	
+    	<section title="Certificate-based trust consensus">
+    		<t>The certificate-based consensus model is designed to be a compromise between trust management effort
+    		and flexibility. It is based on X.509-certificates and allows each connected device to give a verdict on any other certificate
+    		and a consensus is found to determine whether a device using this certificate or any certificate
+    		signed by it is to be trusted. This model does not require a common PKI and SHOULD be supported by devices implementing security.</t>
+    		
+    		<section title="Trust Verdicts">
+	    		<t>Trust Verdicts are statements of HNCP-devices about the trustworthiness of X.509-certificates.
+	    		There are 5 possible verdicts in order of ascending priority:
+	    		
+	    		<list>
+	    			<t>0 Neutral: no verdict exists but the homenet should find one</t>
+	    			<t>1 Cached Trust: the last known effective verdict was Configured or Cached Trust</t>
+	    			<t>2 Cached Distrust: the last known effective verdict was Configured or Cached Distrust</t>
+	    			<t>3 Configured Trust: trustworthy based upon an external ceremony or configuration</t>
+					<t>4 Configured Distrust: not trustworthy based upon an external ceremony or configuration</t>    			
+	    		</list>
+	    		</t>
+	    		
+	    		<t>
+	    		Verdicts are differentiated in 3 groups:
+	    		
+	    		<list>
+	    		<t>Configured verdicts are used to announce explicit verdicts a device has based on any external
+	    		trust bootstrap or predefined relation a device has formed with a given certificate.</t>
+	    		
+	    		<t>Cached verdicts are used to retain the last known trust state in case all devices having
+	    		configured verdicts about a given certificate have been disconnected or turned off.</t>
+	    		
+	    		<t>The Neutral verdict is used to announce a new device intending to join the homenet so a final 
+	    		verdict for it can be found.</t>
+	    		</list>
+	    		</t>
+	    		
+	    		<t>
+	    		The current effective trust verdict for any certificate is defined as the one with the highest
+	    		priority from all verdicts announced for said certificate at the time.
+	    		
+	    		A device MUST be trusted for participating in the homenet if and only if the current effective verdict
+	    		for its own certificate or any one in its certificate hierarchy is (Cached or Configured) Trust and none of
+	    		the certificates in its hierarchy have an effective verdict of (Cached or Configured) Distrust.
+	    		
+	    		In case a device has a configured verdict which is different from the current effective verdict for a
+	    		certificate the current effective verdict takes precedence in deciding trustworthiness 
+	    		however the device still retains and announces its configured verdict. 
+	    		</t>
+    		</section>
+    		
+    		<section title="Trust Cache">
+    			<t>Each device maintains a trust cache containing the current effective trust verdicts
+    			for all certificates currently announced in the homenet.    		
+    			This cache is used as a backup of the last known state in case there is no device
+    			announcing an configured verdict for a known certificate.
+    			It SHOULD be saved to a non-volatile memory at reasonable time intervals
+    			to survive a reboot or power outage.</t>
+    			
+    			<t>Every time a device (re)joins the homenet or detects the change of an effective
+    			trust verdict for any certificate it will synchronize its cache, i.e.
+    			store new effective verdicts overwriting any previously cached verdicts.
+    			Configured verdicts are stored in the cache as their respective cached counterparts,
+    			Neutral verdicts are never stored.</t>
+    		</section>
+    		
+    		<section title="Announcement of Verdicts">
+    			<t>A device always announces any configured trust verdicts it has established by itself.
+    			It also announces cached trust verdicts it has stored in its trust cache if
+    			one of the following conditions applies:
+    			
+    			<list>
+    				<t>The stored verdict is Cached Trust and the current effective verdict is Neutral or does not exist.</t>
+    				<t>The stored verdict is Cached Distrust and the current effective verdict is Cached Trust.</t>
+    			</list>
+    			
+    			A device rechecks these conditions whenever it detects changes of announced trust verdicts
+    			anywhere in the network.
+    			</t>
+    			
+				<t>Upon encountering a device with a hierarchy of certificates for which there is no effective
+				verdict a router adds a Neutral Trust-Verdict-TLV to its node data for all certificates found in the hierarchy until
+				an effective verdict different from Neutral can be found for any of the certificates or a reasonable
+				amount of time (10 minutes is suggested) with no reaction and no further connection attempts has passed.
+				Such verdicts SHOULD also be limited in rate and number to prevent denial-of-service attacks.</t>
+    		
+    			<t>Trust verdicts are announced using Trust-Verdict TLVs:
+				<figure>
+					<artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|   Type: Trust-Verdict (20)    |        Length: 41-104         |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|    Verdict    |                 (reserved)                    |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|                                                               |
+|                                                               |
+|                      SHA-256 Fingerprint                      |
+|                                                               |
+|                                                               |
+|                                                               |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                          Common Name                          |
+					</artwork>
+				</figure>
+      
+				<list>
+					<t>Verdict represents the numerical index of the verdict.</t>
+				
+					<t>(reserved) is reserved for future additions and MUST be set to 0 when
+				    creating TLVs and ignored when parsing them.</t>
+				
+					<t>SHA-256 Fingerprint contains the <xref target="RFC6234">SHA-256</xref> hash-value of the certificate in DER-format.</t>
+				
+					<t>Common Name contains the variable-length (1-64 bytes) common name of the certificate including a trailing 0-Byte.</t>
+				</list>
+				</t>
+	    	</section>
+	    	
+	    	<section title="Bootstrap Ceremonies">
+    			<t>The following non-exhaustive list of methods describes possible ways to establish
+    			trust relationships between HNCP-routers and router certificates. Trust establishment
+    			is a two-way process in which the existing homenet must trust the newly added device
+    			and the newly added device must trust at least one of its neighboring routers.
+    			
+    			It is therefore necessary that both the newly added device and an already trusted device
+    			perform such a ceremony to successfully introduce a device into a homenet.
+    			In all cases an administrator MUST be provided with external means to identify the device
+    			belonging to a certificate based on its fingerprint and a meaningful common name.</t>
+    			
+				<section title="Trust by Identification">
+    				<t>A device implementing certificate-based trust MUST provide an interface to
+    				retrieve the current set of effective trust verdicts, fingerprints and names
+    				of all certificates currently known and set configured
+    				trust verdicts to be announced. Alternatively it MAY provide a companion
+    				HNCP-device or application with these capabilities
+    				with which it has a pre-established trust relationship.</t>
+    			</section>
+    			
+    			<section title="Preconfigured Trust">
+    				<t>A device MAY be preconfigured to trust a certain set of device or CA certificates.
+    				However such trust relationships MUST NOT result in unwanted or unrelated trust
+    				for devices not intended to be run inside the same network (e.g. all other devices of that manufacturer).</t>
+    			</section>
+    			
+    			<section title="Trust on Button Press">
+    				<t>A device MAY provide a physical or virtual interface to put one or more
+    				of its internal network interfaces temporarily into a mode in which it trusts
+    				the certificate of the first HNCP-device it can successfully establish a
+    				connection with.</t>
+    			</section>
+    			
+    			<section title="Trust on First Use">
+    				<t>A device which is not associated with any other homenet-router MAY trust
+    				the certificate of the first HNCP-device it can successfully establish a
+    				connection with. This method MUST NOT be used when the device
+    				has already associated with any other HNCP-router.</t>
+    			</section>
+    		</section>
+	    </section>
+    
+    <section title="Securing third-party protocols">
+    	<t>Pre-shared keys are often required to secure IGPs and other protocols run in home networks which lack support for asymmetric security.
+    	The following mechanism defines a way to manage such keys by HNCP to be used for bootstrapping third-party prtocols and SHOULD therefore be used if such a need arises.
+    	The following rules determine how such a PSK is managed and used:
+    	
+    	<list>
+    	<t>If no Managed-PSK-TLV is currently being announced, an HNCP-router creates one with a 32-Byte long random key and adds it to its node-data.</t>
+    	<t>In case multiple routers announce such a TLV at the same time, all but the one with the highest router-ID stop advertising it and adopt the remaining one.</t>
+    	<t>The router currently advertising the Managed-PSK-TLV must generate and advertise a new random one
+    	whenever the HNCP security mechanism stops trusting one or more trusted devices - i.e. HNCP is secured with a PSK itself and it was changed 
+    	or a certificate has changed from trusted to distrusted.</t>
+    	</list>
+    	</t>
+    	
+		<figure>
+        <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|    Type: Managed-PSK (21)     |          Length: 36           |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|                                                               |
+|                                                               |
+|                           Random PSK                          |
+|                                                               |
+|                                                               |
+|                                                               |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        </artwork>
+      </figure>
+      
+      	<t>
+      	PSKs for individual protocols are derived from the random PSK through the use of <xref target="RFC6234">HMAC-SHA256</xref>
+      	with a pre-defined per-protocol HMAC-key in ASCII-format. The following HMAC-keys are currently defined to
+      	derive PSKs for the respective protocols:
+      	
+      	<list>
+      	<t>"ROUTING": to be used for IGPs</t>
+      	</list>
+      	</t>
+    </section>
+    </section>
+
+    <section title="Security Considerations">
+    
+      <t>TBD</t>
+
+    </section>
+
+    <section anchor="iana" title="IANA Considerations">
+
+      <t>IANA should set up a registry (policy TBD) for DNCP TLV types,
+      with following initial contents:</t>
+
+      <t>0: Reserved (should not happen on wire)</t>
+      <t>1: Node link</t>
+      <t>2: Request network state</t>
+      <t>3: Request node data</t>
+      <t>4: Network state</t>
+      <t>5: Node state</t>
+      <t>6: Node data</t>
+      <t>7: (unused - was node public key, but never implemented)</t>
+      <t>8: Neighbor</t>
+      <t>9: Custom</t>
+      <t>10: Version</t>
+      <t>20: Trust-Verdict</t>
+      <t>21: Managed-PSK</t>
+
+      <t>HNCP will also require allocation of a UDP port number
+      IANA-UDP-PORT, as well as IPv6 link-local multicast address
+      IANA-MULTICAST-ADDRESS.</t>
+
+    </section>
+
+  </middle>
+  <back>
+    <references title="Normative references">
+      <?rfc include="reference.RFC.2119.xml"?>
+      <?rfc include="reference.RFC.6206.xml"?>
+      <?rfc include="reference.RFC.6347.xml"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-01"?>
+      <?rfc include="reference.I-D.draft-stenberg-homenet-dnssd-hybrid-proxy-zeroconf-01"?>
+
+    </references>
+    <references title="Informative references">
+      <?rfc include="reference.RFC.7084.xml"?>
+      <?rfc include="reference.RFC.3004.xml"?>
+      <?rfc include="reference.RFC.3118.xml"?>
+      <?rfc include="reference.RFC.2131.xml"?>
+      <?rfc include="reference.RFC.3315.xml"?>
+      <?rfc include="reference.RFC.3633.xml"?>
+      <?rfc include="reference.RFC.1918.xml"?>
+      <?rfc include="reference.RFC.4291.xml"?>
+      <?rfc include="reference.RFC.7368.xml"?>
+      <?rfc include="reference.RFC.6234.xml"?>
+      <?rfc include="reference.I-D.draft-troan-homenet-sadr-01.xml"?>
+      <?rfc include="reference.I-D.draft-baker-rtgwg-src-dst-routing-use-cases-01.xml"?>
+      </references>
+    <section title="Some Outstanding Issues">
+
+      <t>The Certificate-based trust consensus mechanism defined in this
+      document allows for a consenting revocation, however in case of a
+      compromised device the trust cache may be poisoned before the actual
+      revocation happens allowing the distrusted device to rejoin the
+      network using a different identity.  Stopping such an attack might
+      require physical intervention and flushing of the trust
+      caches. However such an attack is often times more easily detectable
+      than threats discussed earlier in this document such as a silent
+      manipulation of routing information and related man-in-the-middle
+      attacks.</t>
+
+    </section>
+    
+    <section title="Some Obvious Questions and Answers">
+      <t>Q: Why not use TCP?</t>
+
+      <t>A: It does not address the node discovery problem. It also leads to
+      N*(N-1)/2 connections when N nodes share a link, which is
+      awkward. </t>
+
+      <t>Q: Why not multicast-only?</t>
+
+      <t>A: It would require defining application level fragmentation
+      scheme. Hopefully the data amounts used will stay small so we just
+      trust unicast UDP to handle 'big enough' packets to contain single
+      node's TLV data. On some link layers unicast is also much more
+      reliable than multicast, especially for large packets. Also on
+      wireless, multicast is much more power expensive than unicast.</t>
+
+      <t>Q: Why so long IDs?</t>
+
+      <t>A: Scalability of protocol is not really affected by using real
+      (=cryptographic) hash function.</t>
+
+      <t>Q: Why trust IPv6 fragmentation in unicast case? Why not do L7
+      fragmentation?</t>
+
+      <t>A: Because it will be there for a while at least. And while PMTU
+      et al may be problems on open internet, in a home network
+      environment UDP fragmentation should NOT be broken in the foreseeable
+      future. </t>
+
+      <t>Q: Should there be nested container syntax that is actually
+      self-describing? (i.e. type flag that indicates container, no body
+      except sub-TLVs?)</t>
+
+      <t>A: Not for now, but perhaps valid design.. TBD.</t>
+
+      <t>Q: Why not doing (performance thing X, Y or Z)?</t>
+
+      <t>A: This is designed mostly to be minimal (only timers Trickle
+      ones; everything triggered by Trickle-driven messages or local state
+      changes). However, feel free to suggest better (even more minimal)
+      design which works. </t>
+
+    </section>
+    <section title="Changelog">
+
+      <t>draft-stenberg-homenet-dncp-00: Split from pre-version of
+      draft-ietf-homenet-hncp-03 generic parts. </t>
+
+    </section>
+
+    <section title="Draft source">
+      <t>As usual, this draft is available at <eref
+      target="https://github.com/fingon/ietf-drafts/">https://github.com/fingon/ietf-drafts/</eref>
+      in source format (with nice Makefile too). Feel free to send comments
+      and/or pull requests if and when you have changes to it! </t>
+    </section>
+
+    <section title="Acknowledgements">
+
+      <t>Thanks to Ole Troan, Pierre Pfister, Mark Baugher, Mark Townsley
+      and Juliusz Chroboczek for their contributions to the draft.</t>
+
+    </section>
+
+  </back>
+</rfc>
