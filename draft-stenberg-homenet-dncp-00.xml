@@ -6,15 +6,24 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
 TBD:
 - interface <> link terminology
+
 - include e.g. message, or TLV suffix within xref, or not?
  .. for the time being, it is included
-- sequence number overflow..
 
-- should we actually have 4 byte length in messages on stream transport?
+ - sequence number overflow..
+ - looping space probably best choice
+
+ - should we actually have 4 byte length in messages on stream transport?
 should be able to just detect the link id TLV :-p
 
 - explain hash of hashes idea somewhere ~early
  - define also network state hash?
+
+- proactive 'push' MAY/SHOULD?
+
+- consider if node state + data should be merged like Pierre suggested
+
+- think about short node state, ~medium long state, full long state
 
 -->
 
@@ -105,7 +114,7 @@ should be able to just detect the link id TLV :-p
     <section title="Terminology">
       <t>
         <list style="hanging">
-          
+
           <t hangText="DNCP profile"> is a protocol which uses DNCP, and
           specifies transport details and other parts of DNCP that are noted in
           <xref target="profile-bits"/>. For readability, any DNCP profile
@@ -135,9 +144,13 @@ should be able to just detect the link id TLV :-p
           identifies uniquely particular link for that particular DNCP
           node.</t>
 
+	  <t hangText="Effective verdict"> for any certificate is defined
+	  as the one with the highest priority from all verdicts announced
+	  for said certificate at the time in the DNCP network.</t>
+
         </list>
       </t>
-      
+
     </section>
 
     <section title="Data Model">
@@ -159,7 +172,7 @@ should be able to just detect the link id TLV :-p
         <t>Relative time, in milliseconds, since last publishing of the
         current TLV data set with the current update sequence number. It is
         also 32 bit number on the wire.  If this number is close to
-        overflow (>= 2^32-2^16), a node should re-publish it's TLVs even if
+        overflow (>= 2^32-2^16), a node MUST re-publish it's TLVs even if
         there is no change to avoid overflow of the value.</t>
 
       </list>
@@ -190,7 +203,7 @@ should be able to just detect the link id TLV :-p
 
         <t>Most recent address used by the DNCP peer (in an authenticated
         message, if security is enabled).</t>
-        
+
       </list>
       </t>
 
@@ -260,7 +273,9 @@ should be able to just detect the link id TLV :-p
         message</xref> or <xref target="short-net-message">Short Network
         State Update message</xref> MUST be sent to that destination. The
         type of message should be chosen based on considerations in <xref
-        target="trickle-updates" />.</t>
+        target="trickle-updates" />. When such a message is sent, a new
+        Trickle transmission time 't' MUST be randomly chosen in [I/2,
+        I]. </t>
 
       </section>
 
@@ -317,7 +332,9 @@ should be able to just detect the link id TLV :-p
           target="reply-node-message">Node Data Reply
           message</xref>. Optionally, if specified by the DNCP profile,
           multiple replies may be sent if it helps to (for example) keep
-          each datagram's size within PMTU to the destination. </t>
+          each datagram's size within PMTU to the destination. These
+          packets must be valid stand-alone Node Data Reply messages, with
+          full state for particular nodes.</t>
 
           <t><xref target="reply-node-message">Node Data Reply</xref>: If the
           message contains Node State TLVs that are more recent than local
@@ -338,8 +355,8 @@ should be able to just detect the link id TLV :-p
 
       <section title="Adding and Removing Peers" anchor="neighbor">
 
-        <t>If <xref target="req-net-message">Network State Request</xref>
-        or <xref target="req-node-message">Node Data Request</xref> is
+        <t>If a <xref target="req-net-message">Network State Request</xref>
+        or a <xref target="req-node-message">Node Data Request</xref> is
         received on a link from another node, the node should be added as a
         DNCP peer on the link, and <xref target="neighbor-tlv">Neighbor
         TLV</xref> should be created for it. </t>
@@ -351,18 +368,20 @@ should be able to just detect the link id TLV :-p
 
       <section title="Purging Unreachable Nodes">
 
-        <t>When locally calculated network hash has changed, the neighbor
+        <t>When a Neighbor TLV or whole node is added or removed, neighbor
         graph SHOULD be traversed for each node following the bidirectional
         neighbor relationships. These are identified by looking for
         Neighbor TLVs on both nodes, that have the other node's identifier
         in the neighbor node identifier, and local and neighbor link
-        identifiers swapped.</t>
+        identifiers swapped. Each node reached should be marked
+        currently reachable.</t>
 
-        <t>Unreachable nodes SHOULD be purged eventually if they have not
-        been reachable within DNCP_GRACE_INTERVAL. During the grace period,
-        the unreachable nodes MUST NOT be used for calculation of network
-        state hash, or even be provided to any applications that need to
-        use the whole TLV graph. </t>
+        <t>DNCP nodes SHOULD be purged eventually if they have not been
+        reachable within DNCP_GRACE_INTERVAL. During the grace period, the
+        nodes that were not marked reachable in the most recent graph
+        traversal MUST NOT be used for calculation of network state hash,
+        or even be provided to any applications that need to use the whole
+        TLV graph. </t>
 
       </section>
 
@@ -373,9 +392,9 @@ should be able to just detect the link id TLV :-p
       <t>For point-to-point exchanges, DNCP can run across unreliable
       datagram and reliable ordered stream transport. If using stream
       transport, a fixed, network-order 32 bit value indicating the
-      number of bytes in that particular message should be sent before
+      number of bytes in that particular message MUST be sent before
       the actual message itself so that the receiving party can decode
-      the individual messages as needed. The length value should include
+      the individual messages as needed. The length value MUST include
       also the length of itself, so it essentially has minimum of 4.</t>
 
       <t>DNCP messages are encoded as a concatenated sequence of <xref
@@ -390,8 +409,15 @@ should be able to just detect the link id TLV :-p
       preamble.
       </t>
 
+      <t>Any other TLVs than the ones specified in this section for a
+      particular message MUST NOT cause an error, and SHOULD be silently
+      ignored on receipt. DNCP profiles MAY therefore add extra TLVs (or
+      even messages) as needed. </t>
+
       <section title="Short Network State Update Message"
                anchor="short-net-message">
+
+        <t>TBD - describe</t>
 
         <t>The following TLVs MUST be present:
         <list style="symbols">
@@ -409,6 +435,8 @@ should be able to just detect the link id TLV :-p
       <section title="Long Network State Update Message"
                anchor="long-net-message">
 
+        <t>TBD - describe</t>
+
         <t>The following TLVs MUST be present:
         <list style="symbols">
 
@@ -420,13 +448,17 @@ should be able to just detect the link id TLV :-p
         </t>
 
 	<t>The Long Network State Update message MUST include all <xref
-	target="node-state">Node State TLVs</xref> for the DNCP
-	network.</t>
+	target="node-state">Node State TLVs</xref> included in the network
+	state hash calculated most recently by the local node.</t>
 
       </section>
 
       <section title="Network State Request Message"
                anchor="req-net-message">
+
+        <t>Network State Request requests receiver(s) to provide the local
+        DNCP node with <xref target="long-net-message">Long Network State
+        Update message</xref>.</t>
 
         <t>The following TLVs MUST be present:
         <list style="symbols">
@@ -439,16 +471,17 @@ should be able to just detect the link id TLV :-p
         </list>
         </t>
 
-        <t>Network State Request requests receiver(s) to provide the local
-        DNCP node with <xref target="long-net-message">Long Network State
-        Update message</xref>.</t>
-
       </section>
 
       <section title="Node Data Request Message"
                anchor="req-node-message">
 
-        <t>MUST be present:
+        <t>Node Data Request requests receiver(s) to send a <xref
+        target="reply-node-message">Node Data Reply message</xref> to the
+        local DNCP node, which contains data of nodes with node identifier
+        specified in the Request Node Data TLVs.</t>
+
+        <t>The following TLVs MUST be present:
         <list style="symbols">
 
           <t><xref target="node-id">Node Link TLV</xref>.</t>
@@ -459,17 +492,12 @@ should be able to just detect the link id TLV :-p
         </list>
         </t>
 
-        <t>Node Data Request requests receiver(s) to provide the local DNCP
-        node with <xref target="reply-node-message">Node Data Reply
-        message</xref> with data of nodes with node identifier specified in
-        the Request Node Data TLVs.</t>
-
       </section>
 
       <section title="Node Data Reply Message"
                anchor="reply-node-message">
 
-        <t>MUST be present:
+        <t>The following TLVs MUST be present:
         <list style="symbols">
           <t><xref target="node-id">Node Link TLV</xref>.</t>
 
@@ -489,13 +517,10 @@ should be able to just detect the link id TLV :-p
     <section anchor="tlvs" title="Type-Length-Value Objects">
       <t>
         Every TLV is encoded as 2 octet type, followed by 2 octet length
-        (of the whole TLV, including header; 4 means no value),
-        and then the value itself (if any).
-
-        The actual length of TLV MUST be always divisible by 4; if the
-        length of the value is not, zeroed padding bytes MUST be inserted
-        at the end of TLV. The padding bytes MUST NOT be included in the
-        length field.
+        (of the whole TLV, including header; 4 means no value), and then
+        the value itself (if any). If the length is not divisible by 4,
+        zeroed padding bytes MUST be inserted at the end of TLV. The length
+        of padding bytes MUST NOT be included in the length field.
       </t>
 
       <figure>
@@ -521,7 +546,7 @@ should be able to just detect the link id TLV :-p
       <t>Notation:
       <list>
         <t>.. = octet string concatenation operation</t>
-        <t>H(x) = MD5 hash of x</t>
+        <t>H(x) = hash function specified by DNCP profile</t>
         <t>H-64(x) = H(x) truncated by taking just first 64 bits of the result.</t>
       </list>
       </t>
@@ -605,10 +630,9 @@ should be able to just detect the link id TLV :-p
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |    Type: NETWORK-STATE (4)    |          Length: 20           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                                                               |
 |          H(H(node data TLV 1) .. H(node data TLV N))          |
-|                                                               |
-|                                                               |
+|                  (length fixed in DNCP profile)               |
+                            ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
             </artwork>
           </figure>
@@ -635,10 +659,9 @@ should be able to just detect the link id TLV :-p
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                Milliseconds since Origination                 |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                                                               |
 |                        H(node data TLV)                       |
-|                                                               |
-|                                                               |
+|                  (length fixed in DNCP profile)               |
+                            ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
             </artwork>
           </figure>
@@ -774,6 +797,10 @@ should be able to just detect the link id TLV :-p
     	determine whether a node using this certificate or any
     	certificate signed by it is to be trusted. </t>
 
+	<t>The current effective trust verdict for any certificate is
+	defined as the one with the highest priority from all verdicts
+	announced for said certificate at the time.</t>
+
     	<section title="Trust Verdicts">
 
 	  <t>Trust Verdicts are statements of DNCP nodes about the
@@ -782,20 +809,20 @@ should be able to just detect the link id TLV :-p
 
 	  <list style="hanging">
 
-	    <t hangText="0 Neutral">: no verdict exists but the homenet
-	    should find one</t>
+	    <t hangText="0 Neutral">: no verdict exists but the DNCP
+	    network should determine one.</t>
 
 	    <t hangText="1 Cached Trust">: the last known effective verdict
-	    was Configured or Cached Trust</t>
+	    was Configured or Cached Trust.</t>
 
 	    <t hangText="2 Cached Distrust">: the last known effective
-	    verdict was Configured or Cached Distrust</t>
+	    verdict was Configured or Cached Distrust.</t>
 
-	    <t hangText="3 Configured Trust"> trustworthy based upon an
-	    external ceremony or configuration</t>
+	    <t hangText="3 Configured Trust">: trustworthy based upon an
+	    external ceremony or configuration.</t>
 
-	    <t hangText="4 Configured Distrust"> not trustworthy based upon
-	    an external ceremony or configuration</t>
+	    <t hangText="4 Configured Distrust">: not trustworthy based upon
+	    an external ceremony or configuration.</t>
 
 	  </list>
 	  </t>
@@ -848,16 +875,17 @@ should be able to just detect the link id TLV :-p
     	  non-volatile memory at reasonable time intervals to survive a
     	  reboot or power outage.</t>
 
-    	  <t>Every time a node (re)joins the homenet or detects the
-    	  change of an effective trust verdict for any certificate it will
+    	  <t>Every time a node (re)joins the homenet or detects the change
+    	  of an effective trust verdict for any certificate it will
     	  synchronize its cache, i.e.  store new effective verdicts
     	  overwriting any previously cached verdicts.  Configured verdicts
     	  are stored in the cache as their respective cached counterparts,
-    	  Neutral verdicts are never stored.</t>
+    	  Neutral verdicts are never stored. Neutral verdicts do not
+    	  override existing cached verdicts.</t>
     	</section>
 
     	<section title="Announcement of Verdicts">
-    	  <t>A node always announces any configured trust verdicts it has
+    	  <t>A node SHOULD always announce any configured trust verdicts it has
     	  established by itself.  It also announces cached trust verdicts
     	  it has stored in its trust cache if one of the following
     	  conditions applies:
@@ -873,15 +901,15 @@ should be able to just detect the link id TLV :-p
     	  announced trust verdicts anywhere in the network.
     	  </t>
 
-	  <t>Upon encountering a node with a hierarchy of certificates
-	  for which there is no effective verdict a node adds a Neutral
+	  <t>Upon encountering a node with a hierarchy of certificates for
+	  which there is no effective verdict a node adds a Neutral
 	  Trust-Verdict-TLV to its node data for all certificates found in
 	  the hierarchy until an effective verdict different from Neutral
 	  can be found for any of the certificates or a reasonable amount
 	  of time (10 minutes is suggested) with no reaction and no further
-	  connection attempts has passed.  Such verdicts SHOULD also be
-	  limited in rate and number to prevent denial-of-service
-	  attacks.</t>
+	  DTLS or TLS authentication attempts has passed.  Such verdicts
+	  SHOULD also be limited in rate and number to prevent
+	  denial-of-service attacks.</t>
 
     	  <t>Trust verdicts are announced using Trust-Verdict TLVs:
 	  <figure>
@@ -975,14 +1003,16 @@ should be able to just detect the link id TLV :-p
     </section>
 
     <section anchor="profile-bits" title="DNCP Profile-Specific Definitions">
+      <!-- TBD - Pierre has a point - should define guidance on these,
+           perhaps -->
       <t>Each DNCP profile MUST define following:
       <list style="symbols">
 
         <t>How it is secured:
         <list>
           <t>Not at all,</t>
-          <t>optionally or always with
-          TLS scheme defined here, or</t>
+          <t>optionally or always with TLS scheme defined here using one or
+          more of the methods, or</t>
           <t>with something else.</t>
         </list>
 
@@ -1061,6 +1091,12 @@ should be able to just detect the link id TLV :-p
         <t>Whether to send keepalives, and if so, on link (=multicast) or
         to peers (=unicast).</t>
 
+        <t>Hash function H(x) to be used, and how many bits of the input
+        are actually used. The chosen hash function is used to handle both
+        hashing of node specific data, and network state hash, which is a
+        hash of node specific data hashes. SHA-256 defined in <xref
+        target="SHS" /> is the recommended default choice.</t>
+
         <t>DNCP_KEEPALIVE_INTERVAL: How often keep-alive messages are to be
         sent (if enabled).</t>
 
@@ -1084,10 +1120,21 @@ should be able to just detect the link id TLV :-p
       DNCP state or for keep-alive purposes, but they will not send any
       actual TLVs over that channel. An attacker may learn hash-values of
       the state within DNCP and may be able to trigger unicast
-      synchronization attempts between nodes on a local link this way. An
+      synchronization attempts between nodes on a local link this way. A
       DNCP node should therefore rate-limit its reactions to multicast
       packets.</t>
 
+
+      <t>The Certificate-based trust consensus mechanism defined in this
+      document allows for a consenting revocation, however in case of a
+      compromised device the trust cache may be poisoned before the actual
+      revocation happens allowing the distrusted device to rejoin the
+      network using a different identity.  Stopping such an attack might
+      require physical intervention and flushing of the trust
+      caches. However such an attack is often times more easily detectable
+      than threats discussed earlier in this document such as silent
+      manipulation of routing information and related man-in-the-middle
+      attacks.</t>
     </section>
 
     <section anchor="iana" title="IANA Considerations">
@@ -1120,20 +1167,24 @@ should be able to just detect the link id TLV :-p
     </references>
     <references title="Informative references">
       <?rfc include="reference.RFC.6234.xml"?>
+      <reference anchor="SHS">
+        <front>
+          <title>Secure Hash Standard (SHS)</title>
+
+          <author>
+            <organization>National Institute of Standards and
+            Technology</organization>
+          </author>
+
+          <date month="March" year="2012" />
+        </front>
+        <seriesInfo name="FIPS" value="PUB 180-4" />
+        <format target="http://csrc.nist.gov/publications/fips/fips180-4/fips-18
+0-4.pdf" type="PDF" />
+      </reference>
     </references>
     <section title="Some Outstanding Issues">
-
-      <t>The Certificate-based trust consensus mechanism defined in this
-      document allows for a consenting revocation, however in case of a
-      compromised device the trust cache may be poisoned before the actual
-      revocation happens allowing the distrusted device to rejoin the
-      network using a different identity.  Stopping such an attack might
-      require physical intervention and flushing of the trust
-      caches. However such an attack is often times more easily detectable
-      than threats discussed earlier in this document such as silent
-      manipulation of routing information and related man-in-the-middle
-      attacks.</t>
-
+      <t>None?</t>
     </section>
 
     <section title="Some Obvious Questions and Answers">
@@ -1143,6 +1194,11 @@ should be able to just detect the link id TLV :-p
 
       <t>A: Not for now, but perhaps valid design.. TBD.</t>
 
+      <t>Q: Add third case for multicast - 'medium' network state, which is
+      'long' one, but partial?</t>
+      <t>A: Drops typical convergence on large networks 5->3 packets, at
+      expense of some specification/implementation complexity.</t>
+
       <t>Q: 32-bit link id?</t>
 
       <t>A: Here, it would save 32 bits per neighbor if it was 16 bits (and
@@ -1150,7 +1206,7 @@ should be able to just detect the link id TLV :-p
       seem to even gain that much on average.  32 bits is also used for
       ifindex in various operating systems, making for simpler
       implementation.</t>
-      
+
       <t>Q: Why not doing (performance thing X, Y or Z)?</t>
 
       <t>A: This is designed mostly to be minimal (only timers Trickle
