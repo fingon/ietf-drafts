@@ -16,9 +16,6 @@ TBD:
  - should we actually have 4 byte length in messages on stream transport?
 should be able to just detect the link id TLV :-p
 
-- explain hash of hashes idea somewhere ~early
- - define also network state hash?
-
 - proactive 'push' MAY/SHOULD?
 
 - consider if node state + data should be merged like Pierre suggested
@@ -61,9 +58,9 @@ should be able to just detect the link id TLV :-p
       <address>
         <postal>
           <street/>
-          <city></city>
-          <code></code>
-          <country></country>
+          <city>Halle</city>
+          <code>06114</code>
+          <country>Germany</country>
         </postal>
         <email>cyrus@openwrt.org</email>
       </address>
@@ -77,7 +74,7 @@ should be able to just detect the link id TLV :-p
 
       <t>This document describes the Distributed Node Consensus Protocol
       (DNCP), a generic, Trickle-using state synchronization protocol. DNCP
-      is transport agnostic, but some of the details are left to DNCP
+      is transport agnostic, but some of the details are left to
       profiles, which define actual implementable versions of DNCP by
       filling in the blanks left by the this document. </t>
 
@@ -86,19 +83,17 @@ should be able to just detect the link id TLV :-p
   <middle>
     <section title="Introduction">
 
-      <t>DNCP is designed to provide a way for nodes to publish their local
-      state, as an ordered set of TLV (Type-Length-Value) tuples, and to
-      also receive state published by all other DNCP nodes that are
-      reachable.</t>
+      <t>DNCP is designed to provide a way for nodes to publish data
+      - an ordered set of TLV (Type-Length-Value) tuples - and to
+      receive the data published by all other reachable DNCP nodes.</t>
 
       <t>DNCP has relatively few requirements for the underlying transport;
       it requires some way of transmitting either datagram or stream data
       to a DNCP peer, and if used in multicast mode, a way of sending
       multicast messages. If security is desired and one of the built-in
-      security methods is to be used, definition of appropriate <xref
-      target="RFC2246">TLS</xref> or <xref target="RFC6347">DTLS</xref>
-      transport for the underlying transport protocol is also
-      required. </t>
+      security methods is to be used, support for either <xref
+      target="RFC5246">TLS</xref> or <xref target="RFC6347">DTLS</xref>
+      over the chosen transport is also required. </t>
 
     </section>
 
@@ -115,14 +110,14 @@ should be able to just detect the link id TLV :-p
       <t>
         <list style="hanging">
 
-          <t hangText="DNCP profile"> is a protocol which uses DNCP, and
-          specifies transport details and other parts of DNCP that are noted in
+          <t hangText="DNCP profile"> is a set of rules and values specifying
+          transport details and other parts of DNCP that are listed in
           <xref target="profile-bits"/>. For readability, any DNCP profile
           specific parameters with profile-specific fixed value are prefixed
           with DNCP_.</t>
 
-          <t hangText="DNCP node"> is a single node which runs a DNCP profile
-          implementing protocol.</t>
+          <t hangText="DNCP node"> is a single node which runs a protocol
+          based on a DNCP profile.</t>
 
           <t hangText="DNCP network"> is a set of DNCP nodes running the same
           DNCP profile that can reach each other, either via learned shared
@@ -143,8 +138,20 @@ should be able to just detect the link id TLV :-p
           <t hangText="Link identifier"> is a 32-bit opaque value, which
           identifies uniquely particular link for that particular DNCP
           node.</t>
+          
+          <t hangText="Node data"> is a set of TLVs published by a node in the
+          DNCP network.</t>
+          
+          <t hangText="Node state"> is a set of metadata attributes for node data.
+          It includes a sequence number for versioning, a hash-value for comparing
+          and a timestamp indicating the time passed since its last publication.</t>
+          
+          <t hangText="Network state (hash)"> is a hash-value representing the current
+          state of the network. Whenever any node is added, removed or changes
+          its published node data this hash-value changes as well. It is calculated over the 
+          hash-values of each reachable nodes' node data in ascending order of the respective node identifier.</t>
 
-	  <t hangText="Effective verdict"> for any certificate is defined
+	  <t hangText="Effective (trust) verdict"> for any certificate is defined
 	  as the one with the highest priority from all verdicts announced
 	  for said certificate at the time in the DNCP network.</t>
 
@@ -156,20 +163,20 @@ should be able to just detect the link id TLV :-p
     <section title="Data Model">
 
       <t>Every DNCP node in the DNCP network has, and also knows for every
-      other DNCP node:
+      other node:
       <list style="symbols">
 
-        <t>Node identifier.</t>
+        <t>a Node identifier.</t>
 
-        <t>An ordered set of TLV tuples it wants to share with other nodes
-        possibly far off. The set of TLVs have a well-defined order based
-        on ascending binary content (including TLV type and length). This
-        facilitates linear time state delta processing. </t>
+        <t>the Node data: an ordered set of TLV tuples it wants to share with other nodes
+        possibly far off. This set of TLVs has a well-defined order based on ascending
+        binary content (including TLV type and length). This facilitates linear time
+        state delta processing. </t>
 
-        <t>Latest update sequence number, a 32 bit number that is
+        <t>the Latest update sequence number, a 32 bit number that is
         incremented any time the TLV set is published.</t>
 
-        <t>Relative time, in milliseconds, since last publishing of the
+        <t>the Relative time (in milliseconds) since last publishing of the
         current TLV data set with the current update sequence number. It is
         also 32 bit number on the wire.  If this number is close to
         overflow (>= 2^32-2^16), a node MUST re-publish it's TLVs even if
@@ -181,27 +188,28 @@ should be able to just detect the link id TLV :-p
       <t>Additionally, every DNCP node has a set of links for which
       DNCP is configured to be used. For each such link, a node should
       have:
+<!--  TODO: is "should have" really correct here? -->
 
       <list style="symbols">
-        <t>Link identifier.</t>
+        <t>a Link identifier.</t>
 
-        <t>Local interface, or an address of a DNCP peer it is connected
+        <t>a Local interface, or an address of a DNCP peer it is connected
         to.</t>
 
-        <t><xref target="RFC6206">Trickle</xref> instance with parameters
+        <t>a <xref target="RFC6206">Trickle</xref> instance with parameters
         I, T, and c.</t>
       </list>
       </t>
 
-      <t>For each DNCP peer detected on a link, a node has:
+      <t>For each DNCP peer detected on a link, a node stores:
       <list style="symbols">
 
-        <t>Link identifier of the DNCP peer.</t>
+        <t>the Link identifier of the DNCP peer.</t>
 
-        <t>Timestamp which indicates the last time something was received
+        <t>a Timestamp which indicates the last time something was received
         from the DNCP peer.</t>
 
-        <t>Most recent address used by the DNCP peer (in an authenticated
+        <t>the Most recent address used by the DNCP peer (in an authenticated
         message, if security is enabled).</t>
 
       </list>
@@ -211,51 +219,51 @@ should be able to just detect the link id TLV :-p
 
     <section title="Operation">
 
-      <t>DNCP protocol consists of <xref target="RFC6206">Trickle</xref>
-      driven unicast or multicast status messages which indicate current
+      <t>The DNCP protocol consists of <xref target="RFC6206">Trickle</xref>
+      driven unicast or multicast status messages which indicate the current
       status of shared TLV data, and additional unicast message exchanges
       which ensure DNCP peer reachability and synchronize the data when
       necessary. </t>
 
-      <t>If DNCP is to be used on an actual interface, as opposed to only
-      point-to-point using known remote address(es), datagram-based
-      transport which supports multicast SHOULD be defined in DNCP profile
+      <t>If DNCP is to be used on a multicast-capable interface,
+      as opposed to only point-to-point using known remote address(es),
+      a datagram-based transport which supports multicast SHOULD be defined in the DNCP profile
       to be used for the messages to be sent to the whole link. As this is
-      used only to note potential new DNCP nodes, and to notify that a
+      used only to notice potential new DNCP nodes, and to notify that a
       unicast exchange should be triggered, the multicast transport does
       not have to be particularly secure.</t>
 
       <section title="Trickle-Driven Status Update Messages"
                anchor="trickle-updates">
 
-        <t>Each node MUST send either <xref target="long-net-message">Long
-        Network State Update message</xref> or <xref
+        <t>Each node MUST send either a <xref target="long-net-message">Long
+        Network State Update message</xref> or a <xref
         target="short-net-message">Short Network State Update
         message</xref> every time the link-specific <xref
-        target="RFC6206">Trickle algorithm</xref> instance indicates they
-        should to a link. The destination address of the message should be
-        multicast in case of a link which is an actual interface, or unicast
-        address of the remote party in case of link which is point-to-point.
+        target="RFC6206">Trickle algorithm</xref> instance indicates that.
+        The destination address of the message should be
+        multicast in case of an interface which is multicast-capable, or the unicast
+        address of the remote parties in case of a point-to-point link.
 
-        By default, Long Network State Update message SHOULD be used,
-        but if the it is defined as undesirable for some case by the DNCP
+        By default, Long Network State Update messages SHOULD be used,
+        but if it is defined as undesirable for some case by the DNCP
         profile, Short Network State Update message MUST be sent
-        instead. This may occur due to e.g. exceeding MTU for UDP multicast
-        and not preferring to send fragmented packets.</t>
+        instead. This may be useful to avoid fragmenting packets to multicast
+        destinations.</t>
 
-        <t>Trickle state MUST be maintained separately for each
-        link. Trickle state for all links is considered inconsistent and
+        <t>A Trickle state MUST be maintained separately for each
+        link. The Trickle state for all links is considered inconsistent and
         reset if and only if the locally calculated network state hash
-        changes. This occurs due to either change in the local node's own
-        TLV data, or due to receipt of more recent data from another
+        changes. This occurs due to a change in the local node's own
+        node data, or due to receipt of more recent data from another
         node.</t>
 
-        <t>Trickle algorithm has 3 parameters; Imin, Imax and k. Imin and
-        Imax represent minimum and maximum values for I, which is the time
+        <t>The Trickle algorithm has 3 parameters; Imin, Imax and k. Imin and
+        Imax represent the minimum and maximum values for I, which is the time
         interval during which at least k Trickle updates must be seen on a
-        link to prevent local state transmission.  Actual suggested Trickle
+        link to prevent local state transmission.  The actual suggested Trickle
         algorithm parameters are DNCP profile specific, as described in
-        <xref target="profile-bits"/>. </t>
+        <xref target="profile-bits"/>.</t>
 
       </section>
 
@@ -279,16 +287,16 @@ should be able to just detect the link id TLV :-p
 
       </section>
 
-      <section title="Received Message Processing" anchor="reception">
+      <section title="Processing received message" anchor="reception">
 
         <t><!--The majority of status updates among known nodes are
         initially triggered by reception of the <xref
         target="trickle-updates">Trickle-driven updates </xref>. -->This
-        section describes processing of received messages, and how to react
-        to them. The DNCP profile may specify criteria based on which
-        received messages are ignored. The 'reply' mentioned in the steps
-        means sending the specified unicast message to the originator of
-        the message being processed. </t>
+        section describes how received messages are processed.
+        The DNCP profile may specify criteria based on which
+        received messages are ignored. Any 'reply' mentioned in the steps
+        below denotes sending of the specified message via unicast to the originator of
+        the message being processed.</t>
 
         <t>Upon receipt of:
 	<list>
@@ -297,7 +305,7 @@ should be able to just detect the link id TLV :-p
           Update</xref>:
 
           If the network state hash within the message differs from the
-          locally calculated network state hash, receiver MUST reply with a
+          locally calculated network state hash, the receiver MUST reply with a
           <xref target="req-net-message">Network State Request
           message</xref>.
           </t>
@@ -309,14 +317,14 @@ should be able to just detect the link id TLV :-p
             <t>If the network state hash within the message matches the
             locally calculated network state hash, stop processing.</t>
 
-            <t>If not, receiver MUST identify nodes for which local
+            <t>Otherwise the receiver MUST identify nodes for which local
             information is outdated (local update sequence number is lower
             than that within the message), potentially incorrect (local
-            update sequence number is same and the hash of node data TLV
+            update sequence number matches but the hash of the node data TLV
             differs) or missing.</t>
 
-            <t>If any such nodes are identified, receiver MUST reply with a
-            <xref target="req-node-message">Node Data Reply message</xref>
+            <t>If any such nodes are identified, the receiver MUST reply with a
+            <xref target="req-node-message">Node Data Request message</xref>
             containing <xref target="req-node-data">Request Node Data
             TLV(s)</xref> for the corresponding nodes.</t>
 
@@ -324,32 +332,34 @@ should be able to just detect the link id TLV :-p
           </t>
 
           <t><xref target="req-net-message">Network State Request</xref>:
-          receiver MUST reply with a <xref target="long-net-message">Long
+          the receiver MUST reply with a <xref target="long-net-message">Long
           Network State Update</xref>.</t>
 
           <t><xref target="req-node-message">Node Data Request</xref>:
-          receiver MUST reply with the requested data in a <xref
+          the receiver MUST reply with the requested data in a <xref
           target="reply-node-message">Node Data Reply
-          message</xref>. Optionally, if specified by the DNCP profile,
-          multiple replies may be sent if it helps to (for example) keep
-          each datagram's size within PMTU to the destination. These
-          packets must be valid stand-alone Node Data Reply messages, with
-          full state for particular nodes.</t>
+          message</xref>. Optionally - if specified by the DNCP profile -
+          multiple replies MAY be sent in order to e.g. keep
+          each datagram's size within the PMTU to the destination. However these
+          replies must be valid stand-alone Node Data Reply messages, with
+          the full state for the particular nodes.</t>
 
           <t><xref target="reply-node-message">Node Data Reply</xref>: If the
-          message contains Node State TLVs that are more recent than local
+          message contains Node State TLVs that are more recent than the local
           state (higher update sequence number, different node data TLV hash, or
           missing altogether), and if the message also contains
-          corresponding Node Data TLVs, update locally stored state. </t>
+          corresponding Node Data TLVs, the receiver MUST update its locally stored state.</t>
 	</list>
 	</t>
 
         <t>If a message containing <xref target="node-state">Node State
         TLVs</xref> is received with the node's own node identifier and a
-        higher update sequence number than current local value, or the same
-        update sequence number and different hash, there is an error
-        somewhere. DNCP profile should provide guidance on how to handle
-        this.</t>
+        higher update sequence number than its current local value, or the same
+        update sequence number and a different hash, there is an error
+        somewhere. The DNCP profile should provide guidance on how to handle
+        these situations.</t>
+        <!-- TODO: This could also be not an error if the local node doesn't
+        keep its own sequence number in a non-volatile memory (e.g. rests it to 0 at reboot). Handle this? -->
 
       </section>
 
@@ -358,7 +368,7 @@ should be able to just detect the link id TLV :-p
         <t>If a <xref target="req-net-message">Network State Request</xref>
         or a <xref target="req-node-message">Node Data Request</xref> is
         received on a link from another node, the node should be added as a
-        DNCP peer on the link, and <xref target="neighbor-tlv">Neighbor
+        DNCP peer on the link, and a <xref target="neighbor-tlv">Neighbor
         TLV</xref> should be created for it. </t>
 
         <t>For every peer on every link, if no traffic is received from it
@@ -368,7 +378,7 @@ should be able to just detect the link id TLV :-p
 
       <section title="Purging Unreachable Nodes">
 
-        <t>When a Neighbor TLV or whole node is added or removed, neighbor
+        <t>When a Neighbor TLV or a whole node is added or removed, the neighbor
         graph SHOULD be traversed for each node following the bidirectional
         neighbor relationships. These are identified by looking for
         Neighbor TLVs on both nodes, that have the other node's identifier
@@ -389,13 +399,14 @@ should be able to just detect the link id TLV :-p
 
     <section title="Protocol Messages">
 
-      <t>For point-to-point exchanges, DNCP can run across unreliable
-      datagram and reliable ordered stream transport. If using stream
-      transport, a fixed, network-order 32 bit value indicating the
-      number of bytes in that particular message MUST be sent before
-      the actual message itself so that the receiving party can decode
-      the individual messages as needed. The length value MUST include
-      also the length of itself, so it essentially has minimum of 4.</t>
+      <t>For point-to-point exchanges, DNCP can run across
+      datagram-based or reliable ordered stream-based transports.
+      If a stream-based transport is used, a 32-bit length-value
+      in network-byte-order is sent before each message to indicate the
+      number of bytes the following message consists of.</t>
+      
+      <!-- This said the length should be +4 (containing length itself) but this seems counter-intuitive
+      plus protocols like DNS which do the same do not include the length bytes itself in the length. -->
 
       <t>DNCP messages are encoded as a concatenated sequence of <xref
       target="tlvs">Type-Length-Value objects</xref>. In order to
@@ -409,64 +420,68 @@ should be able to just detect the link id TLV :-p
       preamble.
       </t>
 
-      <t>Any other TLVs than the ones specified in this section for a
-      particular message MUST NOT cause an error, and SHOULD be silently
-      ignored on receipt. DNCP profiles MAY therefore add extra TLVs (or
-      even messages) as needed. </t>
+      <t>DNCP profiles MAY add additional TLVs to the message specified here or
+      even additional messages as needed.</t>
+      
+<!-- TODO: this said "Any other TLVs than the ones specified in this section for a
+      particular message MUST NOT cause an error and SHOULD be silently ignored"
+      but "SHOULD be silently ignored" makes no sense if we want profiles to add more TLVs.
+The sentence as a whole was pretty redundant in itself since there is no "generic DNCP node" not implementing
+a  specific profile thus a profile can always define more TLVs with suitable requirement levels. -->
 
       <section title="Short Network State Update Message"
                anchor="short-net-message">
 
-        <t>TBD - describe</t>
+		<t>The Short Network State Update Message is used to announce the sender's view of the network state using multicast.</t>
 
         <t>The following TLVs MUST be present:
         <list style="symbols">
 
-          <t><xref target="node-id">Node Link TLV</xref>.</t>
+          <t>One <xref target="node-id">Node Link TLV</xref> identifying the originating node and link.</t>
 
-          <t><xref target="net-hash">Network State TLV</xref>.</t>
+          <t>One <xref target="net-hash">Network State TLV</xref> containing the network state hash as calculated by the sender.</t>
 
         </list>
         </t>
-        <t>Short Network Status update MUST NOT contain any <xref
+        <t>The Short Network Status update message MUST NOT contain any <xref
         target="node-state">Node State TLV(s)</xref>.</t>
       </section>
 
       <section title="Long Network State Update Message"
                anchor="long-net-message">
 
-        <t>TBD - describe</t>
+        <t>The Long Network State Update Message is used to announce the sender's view of the network state and all node states using multicast or unicast.</t>
 
         <t>The following TLVs MUST be present:
         <list style="symbols">
 
-          <t><xref target="node-id">Node Link TLV</xref>.</t>
+          <t>One <xref target="node-id">Node Link TLV</xref> identifying the originating node and link.</t>
 
-          <t><xref target="net-hash">Network State TLV</xref>.</t>
+          <t>One <xref target="net-hash">Network State TLV</xref> containing the network state hash as calculated by the sender.</t>
+          
+          <t>One or more <xref target="node-state">Node State TLVs</xref> containing the node state of DNCP nodes as currently known to the sender.</t>
 
         </list>
         </t>
 
-	<t>The Long Network State Update message MUST include all <xref
-	target="node-state">Node State TLVs</xref> included in the network
-	state hash calculated most recently by the local node.</t>
+	<t>The Long Network State Update message MUST include the corresponding <xref
+	target="node-state">Node State TLV</xref> for each Node Data TLV used to calculated
+	the network state hash.</t>
 
       </section>
 
       <section title="Network State Request Message"
                anchor="req-net-message">
 
-        <t>Network State Request requests receiver(s) to provide the local
-        DNCP node with <xref target="long-net-message">Long Network State
-        Update message</xref>.</t>
+        <t>The Network State Request message is used to request the recipients's 
+        view of the network state and all node states currently known to it.</t>
 
         <t>The following TLVs MUST be present:
         <list style="symbols">
 
-          <t><xref target="node-id">Node Link TLV</xref>.</t>
+          <t>One <xref target="node-id">Node Link TLV</xref> identifying the originating node and link.</t>
 
-          <t><xref target="req-net-hash">Request Network State
-          TLV</xref>.</t>
+          <t>One <xref target="req-net-hash">Request Network State TLV</xref> indicating the type of request.</t>
 
         </list>
         </t>
@@ -476,18 +491,15 @@ should be able to just detect the link id TLV :-p
       <section title="Node Data Request Message"
                anchor="req-node-message">
 
-        <t>Node Data Request requests receiver(s) to send a <xref
-        target="reply-node-message">Node Data Reply message</xref> to the
-        local DNCP node, which contains data of nodes with node identifier
-        specified in the Request Node Data TLVs.</t>
+        <t>The Node Data Request message is used to request 
+        the node state and data of one or more DNCP nodes in the network.</t>
 
         <t>The following TLVs MUST be present:
         <list style="symbols">
 
-          <t><xref target="node-id">Node Link TLV</xref>.</t>
+          <t>One <xref target="node-id">Node Link TLV</xref> identifying the originating node and link.</t>
 
-          <t>one or more <xref
-          target="req-node-data">Request Node Data TLVs</xref>.</t>
+          <t>One or more <xref target="req-node-data">Request Node Data TLVs</xref> indicating the nodes for which state and data is requested.</t>
 
         </list>
         </t>
@@ -496,31 +508,33 @@ should be able to just detect the link id TLV :-p
 
       <section title="Node Data Reply Message"
                anchor="reply-node-message">
+               
+        <t>The Node Data Request message is used to provide 
+        the node data of one or more DNCP nodes in the network.</t>
 
         <t>The following TLVs MUST be present:
         <list style="symbols">
-          <t><xref target="node-id">Node Link TLV</xref>.</t>
+          <t>One <xref target="node-id">Node Link TLV</xref> identifying the originating node and link.</t>
 
-          <t>one or more <xref target="node-state">Node State TLV</xref>
+          <t>One or more <xref target="node-state">Node State TLV</xref>
           and <xref target="node-data">Node Data TLV</xref> pairs with
-          have matching node identifier.</t>
+          matching node identifiers for each node previously requested in a <xref
+        target="req-node-message">Node Data Request message</xref>.</t>
 
         </list>
         </t>
-
-        <t>Node Data Reply responds to <xref
-        target="req-node-message">Node Data Request message</xref>.</t>
 
       </section>
     </section>
 
     <section anchor="tlvs" title="Type-Length-Value Objects">
       <t>
-        Every TLV is encoded as 2 octet type, followed by 2 octet length
-        (of the whole TLV, including header; 4 means no value), and then
-        the value itself (if any). If the length is not divisible by 4,
-        zeroed padding bytes MUST be inserted at the end of TLV. The length
-        of padding bytes MUST NOT be included in the length field.
+        Each TLV is encoded as a 2 byte type-field, followed by a 2-byte length-field
+        (of the whole TLV, including header; 4 means no value) followed by
+        the value itself (if any). Both type and length are represented
+        in network-byte-order. Zero padding bytes MUST be added up to
+        the next 4-byte boundary if the length is not divisible by 4.
+        These padding bytes MUST NOT be included in the length field.
       </t>
 
       <figure>
@@ -547,7 +561,7 @@ should be able to just detect the link id TLV :-p
       <list>
         <t>.. = octet string concatenation operation</t>
         <t>H(x) = hash function specified by DNCP profile</t>
-        <t>H-64(x) = H(x) truncated by taking just first 64 bits of the result.</t>
+        <t>H-64(x) = H(x) truncated by taking the first 64 bits of the result.</t>
       </list>
       </t>
 
@@ -566,7 +580,7 @@ should be able to just detect the link id TLV :-p
             </artwork>
           </figure>
 
-          <t>This TLV is used to identify <xref
+          <t>This TLV is used to identify a <xref
           target="req-net-message">Network State Request
           message</xref>.</t>
 
@@ -579,7 +593,7 @@ should be able to just detect the link id TLV :-p
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: REQ-NODE-DATA (3)    |          Length: 20           |
+|    Type: REQ-NODE-DATA (3)    |          Length: >4           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        node identifier                        |
 |                  (length fixed in DNCP profile)               |
@@ -589,10 +603,10 @@ should be able to just detect the link id TLV :-p
             </artwork>
           </figure>
 
-          <t>This TLV is used within <xref
+          <t>This TLV is used within a <xref
           target="req-node-message">Node Data Request message</xref> to
-          request node ientifier-specific data, if any, to be included in
-          the <xref target="reply-node-message">Node Data Reply
+          request node state and node data, if any, to be included in
+          a subsequent <xref target="reply-node-message">Node Data Reply
           message</xref>.</t>
 
         </section>
@@ -606,7 +620,7 @@ should be able to just detect the link id TLV :-p
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|      Type: NODE-LINK (1)      |          Length: 24           |
+|      Type: NODE-LINK (1)      |          Length: > 8          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        node identifier                        |
 |                  (length fixed in DNCP profile)               |
@@ -628,7 +642,7 @@ should be able to just detect the link id TLV :-p
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: NETWORK-STATE (4)    |          Length: 20           |
+|    Type: NETWORK-STATE (4)    |          Length: > 4          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |          H(H(node data TLV 1) .. H(node data TLV N))          |
 |                  (length fixed in DNCP profile)               |
@@ -637,9 +651,10 @@ should be able to just detect the link id TLV :-p
             </artwork>
           </figure>
 
-          <t>The Node Data TLVs are ordered for hashing by octet comparison
-          of the corresponding node identifier hashes in ascending
-          order.</t>
+          <t>The network state hash is derived by calculating the hash-value
+          for each currently reachable node's Node Data TLV, concatenating
+          said hash-values based on the ascending order of their corresponding
+          node identifiers and hashing the resulting concatenated hash-values.</t>
 
         </section>
         <section anchor="node-state" title="Node State TLV">
@@ -649,7 +664,7 @@ should be able to just detect the link id TLV :-p
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|      Type: NODE-STATE (5)     |          Length: 44           |
+|      Type: NODE-STATE (5)     |          Length: > 12         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        node identifier                        |
 |                  (length fixed in DNCP profile)               |
@@ -682,7 +697,7 @@ should be able to just detect the link id TLV :-p
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|      Type: NODE-DATA (6)      |        Length: >= 24          |
+|      Type: NODE-DATA (6)      |         Length: > 8          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        node identifier                        |
 |                  (length fixed in DNCP profile)               |
@@ -702,7 +717,7 @@ should be able to just detect the link id TLV :-p
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|       Type: NEIGHBOR (7)      |          Length: 28           |
+|       Type: NEIGHBOR (7)      |          Length: > 12         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                    neighbor node identifier                   |
 |                  (length fixed in DNCP profile)               |
@@ -745,7 +760,7 @@ should be able to just detect the link id TLV :-p
         under control of the author of that specification.
         For example:</t>
 
-        <t>V=H-64('http://example.com/author/json-for-hncp') .. '{"cool": "json
+        <t>V=H-64('http://example.com/author/json-for-dncp') .. '{"cool": "json
         extension!"}'</t>
 
         <t>or</t>
@@ -761,10 +776,10 @@ should be able to just detect the link id TLV :-p
     <section title="Security and Trust Management">
 
       <t>If specified in the DNCP profile, either <xref
-      target="RFC6347">DTLS</xref> or <xref target="RFC2246">TLS</xref>
+      target="RFC6347">DTLS</xref> or <xref target="RFC5246">TLS</xref>
       MUST be used to authenticate and encrypt either some (if specified
       optional in the profile), or all unicast traffic. The following
-      methods for establishing trust are defined, but it is up to DNCP
+      methods for establishing trust are defined, but it is up to the DNCP
       profile to specify which ones should be supported.</t>
 
 
@@ -886,15 +901,18 @@ should be able to just detect the link id TLV :-p
 
     	<section title="Announcement of Verdicts">
     	  <t>A node SHOULD always announce any configured trust verdicts it has
-    	  established by itself.  It also announces cached trust verdicts
+    	  established by itself, it MUST do so if announcing the configured
+    	  trust verdict leads to a change in the current effective verdict
+    	  for the respective certificate.
+    	  In abscence of configured verdicts it MUST announce cached trust verdicts
     	  it has stored in its trust cache if one of the following
     	  conditions applies:
 
     	  <list style="symbols">
     	    <t>The stored verdict is Cached Trust and the current effective
-    	    verdict is Neutral or does not exist.</t>
+    	    verdict for the certificate is Neutral or does not exist.</t>
     	    <t>The stored verdict is Cached Distrust and the current
-    	    effective verdict is Cached Trust.</t>
+    	    effective verdict for the certificate is Cached Trust.</t>
     	  </list>
 
     	  A node rechecks these conditions whenever it detects changes of
@@ -1095,7 +1113,7 @@ should be able to just detect the link id TLV :-p
         are actually used. The chosen hash function is used to handle both
         hashing of node specific data, and network state hash, which is a
         hash of node specific data hashes. SHA-256 defined in <xref
-        target="SHS" /> is the recommended default choice.</t>
+        target="RFC6234" /> is the recommended default choice.</t>
 
         <t>DNCP_KEEPALIVE_INTERVAL: How often keep-alive messages are to be
         sent (if enabled).</t>
@@ -1167,25 +1185,10 @@ should be able to just detect the link id TLV :-p
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6206.xml"?>
       <?rfc include="reference.RFC.6347.xml"?>
-      <?rfc include="reference.RFC.2246.xml"?>
+      <?rfc include="reference.RFC.5246.xml"?>
     </references>
     <references title="Informative references">
       <?rfc include="reference.RFC.6234.xml"?>
-      <reference anchor="SHS">
-        <front>
-          <title>Secure Hash Standard (SHS)</title>
-
-          <author>
-            <organization>National Institute of Standards and
-            Technology</organization>
-          </author>
-
-          <date month="March" year="2012" />
-        </front>
-        <seriesInfo name="FIPS" value="PUB 180-4" />
-        <format target="http://csrc.nist.gov/publications/fips/fips180-4/fips-18
-0-4.pdf" type="PDF" />
-      </reference>
     </references>
     <section title="Some Outstanding Issues">
       <t>None?</t>
