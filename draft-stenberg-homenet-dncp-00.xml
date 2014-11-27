@@ -702,7 +702,7 @@ should be able to just detect the link id TLV :-p
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|       Type: NEIGHBOR (8)      |          Length: 28           |
+|       Type: NEIGHBOR (7)      |          Length: 28           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                    neighbor node identifier                   |
 |                  (length fixed in DNCP profile)               |
@@ -732,7 +732,7 @@ should be able to just detect the link id TLV :-p
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: CUSTOM-DATA (9)     |         Length: >= 12         |
+|     Type: CUSTOM-DATA (8)     |         Length: >= 12         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                            H-64(URI)                          |
 |                                                               |
@@ -917,7 +917,7 @@ should be able to just detect the link id TLV :-p
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|   Type: Trust-Verdict (10)    |        Length: 41-104         |
+|   Type: Trust-Verdict (9)     |        Length: 41-104         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |    Verdict    |                 (reserved)                    |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1149,12 +1149,16 @@ should be able to just detect the link id TLV :-p
       <t>4: Network state</t>
       <t>5: Node state</t>
       <t>6: Node data</t>
-      <t>7: (unused - was node public key, but never implemented)</t>
-      <t>8: Neighbor</t>
-      <t>9: Custom</t>
-      <t>10: Trust-Verdict</t>
-      <t>11-31: reserved for future DNCP versions.</t>
+      <t>7: Neighbor</t>
+      <t>8: Custom</t>
+      <t>9: Trust-Verdict</t>
+      <t>10-31: Reserved for future DNCP versions.</t>
 
+      <t>192-255: Reserved for per-implementation experimentation. The
+      nodes using TLV types in this range SHOULD use e.g. Custom TLV to
+      identify each other and therefore eliminate potential conflict caused
+      by potential different use of same TLV numbers. </t>
+      
     </section>
 
   </middle>
