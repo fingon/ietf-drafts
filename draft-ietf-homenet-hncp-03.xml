@@ -215,7 +215,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Type: EXTERNAL-CONNECTION (32)|          Length: > 4          |
+| Type: EXTERNAL-CONNECTION (33)|          Length: > 4          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                          Nested TLVs                          |
 	</artwork>
@@ -235,7 +235,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: DHCPV6-DATA (36)     |          Length: > 4          |
+|    Type: DHCPV6-DATA (37)     |          Length: > 4          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                    DHCPv6 attribute stream                    |
 	</artwork>
@@ -248,7 +248,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: DHCP-DATA (37)      |          Length: > 4          |
+|     Type: DHCP-DATA (38)      |          Length: > 4          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                      DHCP attribute stream                    |
 	</artwork>
@@ -266,7 +266,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Type: DELEGATED-PREFIX (33)  |         Length: >= 13         |
+|  Type: DELEGATED-PREFIX (34)  |         Length: >= 13         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        Valid Lifetime                         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -316,7 +316,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Type: ASSIGNED-PREFIX (34)   |          Length: >= 9         |
+|  Type: ASSIGNED-PREFIX (35)   |          Length: >= 9         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        Link Identifier                        |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -357,7 +357,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: NODE-ADDRESS (35)    |           Length: 24          |
+|    Type: NODE-ADDRESS (36)    |           Length: 24          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        Link Identifier                        |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -396,7 +396,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Type: DNS-DELEGATED-ZONE (38) |        Length: >= 21          |
+| Type: DNS-DELEGATED-ZONE (39) |        Length: >= 21          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
 |                            Address                            |
@@ -417,7 +417,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: DOMAIN-NAME (39)     |         Length: >= 4          |
+|    Type: DOMAIN-NAME (40)     |         Length: >= 4          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |        Domain (DNS label sequence - variable length)          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -431,7 +431,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: NODE-NAME (40)      |         Length: >= 4          |
+|     Type: NODE-NAME (41)      |         Length: >= 4          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |         Name (not null-terminated - variable length)          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -440,7 +440,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       </section>
     </section>
 
-<!-- TBD - move this section in right place -->
+
     <section title="Securing third-party protocols">
       <t>Pre-shared keys are often required to secure IGPs and other protocols run in home networks which lack support for asymmetric security.
     	The following mechanism defines a way to manage such keys by HNCP to be used for bootstrapping third-party prtocols and SHOULD therefore be used if such a need arises.
@@ -460,7 +460,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: Managed-PSK (41)     |          Length: 36           |
+|    Type: Managed-PSK (42)     |          Length: 36           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
 |                                                               |
@@ -484,17 +484,52 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       	</list>
       	</t>
     </section>
+    
+      <section anchor="version-tlv" title="HNCP-Versioning">
+      <t>Multiple versions of HNCP based on compatible DNCP profiles
+      may be present in the same network when transitioning.
+      The following mechanism describes a way to announce the currently
+      active version and User-agent of a node. Each node MUST
+      include a HNCP-Version-TLV in its Node Data and MUST ignore any
+      TLVs with a type greater than 32 for nodes not publishing an
+      HNCP-Version TLV or publishing such a TLV with a different Version
+      number.</t>
+      
+	<figure>
+          <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|    Type: HNCP-VERSION (32)    |         Length: >= 9          |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|    Version    |                   Reserved                    |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                          User-agent                           |
+          </artwork>
+        </figure>
+
+        <t>Version indicates which version of HNCP
+        is currently in use by this particular node. It MUST be set to 0.</t>
+        
+        <t>Reserved bits must be set to 0 when creating and ignored when parsing this TLV.</t>
+        
+        <t>The user-agent is a null-terminated human-readable UTF-8 string that
+        describes the name and version of the current HNCP implementation.</t>
+
+      </section>
 
     <section title="Requirements for HNCP-routers">
     	<t>Each router implementing HNCP is subject to the following requirements:
     	<list>
-    		<t>It MUST implement Border Discovery and Prefix Assignment as defined in this document.</t>
+    		<t>It MUST implement HNCP-Versioning, Border Discovery and Prefix Assignment as defined in this document.</t>
+    		<t>It MUST implement and run the method for securing third-party protocols whenever it uses the security mechanism of HNCP.</t>
     		<t>It SHOULD implement support for the Service Discovery and Naming TLVs as defined in this document.</t>
     		<t>It MUST implement and run the routing protocol $FOO [RFCXYZ] with support for source-specific routes
     		on all of the interfaces it sends and receives HNCP-messages on and MUST resort to announcing
     		source-specific routes for external destinations appropriately.</t>
     		<t>It MUST use adequate security mechanisms for the routing protocol on any interface
-    		where it also uses the security mechanisms of HNCP.</t>
+    		where it also uses the security mechanisms of HNCP. If the security mechanism is based on a PSK
+    		it MUST use a PSK derived from the Managed-PSK to secure the IGP.</t>
     		<t>It MUST comply with the <xref target="RFC7084">Basic Requirements for IPv6 Customer Edge Routers</xref>
     		unless it would otherwise conflict with any requirements in this document.</t>
     		<t>It SHOULD be able to provide connectivity to IPv4-devices using DHCP.</t>
@@ -590,16 +625,17 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       In addition the following TLV-Types are defined in this document:
 
       <list>
-      	<t>32: External-Connection</t>
-      	<t>33: Delegated-Prefix</t>
-      	<t>34: Assigned-Prefix</t>
-      	<t>35: Node-Address</t>
-      	<t>36: DHCP-Data</t>
-      	<t>37: DHCPv6-Data</t>
-      	<t>38: DNS-Delegated-Zone</t>
-      	<t>39: Domain-Name</t>
-      	<t>40: Node-Name</t>
-        <t>41: Managed-PSK</t>
+        <t>32: HNCP-Version</t>
+      	<t>33: External-Connection</t>
+      	<t>34: Delegated-Prefix</t>
+      	<t>35: Assigned-Prefix</t>
+      	<t>36: Node-Address</t>
+      	<t>37: DHCP-Data</t>
+      	<t>38: DHCPv6-Data</t>
+      	<t>39: DNS-Delegated-Zone</t>
+      	<t>40: Domain-Name</t>
+      	<t>41: Node-Name</t>
+        <t>42: Managed-PSK</t>
       </list>
       </t>
 
