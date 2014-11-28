@@ -97,9 +97,47 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
     <section title="DNCP Profile">
     	<t>HNCP is defined as a profile of DNCP with the following parameters:
-    	<list>
-    		<t>FOO</t>
-    		<t>BAR</t>
+    	
+    	<list style="symbols">
+    		<t>HNCP uses UDP-datagrams on port HNCP-UDP-PORT as a transport over
+    	 	link-local scoped IPv6,	using unicast and multicast (group All-Homenet-Routers).
+    	 	Messages with an IPv6 source or destination address which is not link-local scoped
+    	 	MUST be ignored.</t>
+    	 	
+    		<t>HNCP unicast message exchanges SHOULD be secured using <xref target="RFC6347">DTLS</xref> as described
+    		in DNCP if done over unsecured links. UDP on port HNCP-DTLS-PORT is used for this purpose.
+    		A node implementing the security mechanism MUST support the DNCP Pre-Shared Key and PKI-based trust methods 
+    		and SHOULD support DNCP Certificate Based Trust Consensus in addition.</t>
+    		
+    		<t>HNCP uses opaque 32-bit node identifiers (DNCP_NODE_IDENTIFIER_LENGTH = 32).
+    		A node attempting to run HNCP MUST generate and use a random node identifier.
+    		If a collision occurs (the DNCP network already has a node state
+    		with the same node identifier and a higher latest update sequence number)
+    		the node detecting it MUST immediately generate and use a new random node identifier.</t>
+    		
+    		<t>HNCP nodes MUST NOT use the Long Network State Update message over the multicast channel,
+    		i.e. all Network State Update messages send over multicast have the short form.</t>
+    		
+    		<t>HNCP nodes use the following Trickle parameters:
+    		
+    		<list>
+     		<t>k SHOULD be 1, given the timer reset on data updates and
+     		retransmissions should handle packet loss.</t>
+
+     		<t>Imax SHOULD be 40 seconds but MUST NOT be lower.</t>
+
+     		<t>Imin SHOULD be 200 milliseconds but MUST NOT be lower.
+     		Note: Earliest transmissions may occur at Imin/2.</t>
+     
+     		</list>
+    		</t>
+    		
+    		<t>HNCP nodes MUST use the leading 64 bits of <xref target="RFC6234">SHA-256</xref> as DNCP hash function H(x).</t>
+    		
+    		<t>HNCP nodes MUST use the periodic keep-alive mechanism over unicast to all peers.
+    		The keep-alive interval (DNCP_KEEPALIVE_INTERVAL) MUST be 24 seconds, the timeout interval (DNCP_TIMEOUT_INTERVAL)
+    		MUST be 2.5 times the keep-alive interval (60 seconds), the grace-interval (DNCP_GRACE_INTERVAL) SHOULD be equal
+    		to the keep-alive interval.</t>
     	</list>
     	</t>
     </section>
@@ -502,7 +540,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |    Type: HNCP-VERSION (32)    |         Length: >= 9          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Version    |                   Reserved                    |
+|    Version    |                  (reserved)                   |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                          User-agent                           |
           </artwork>
@@ -511,7 +549,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         <t>Version indicates which version of HNCP
         is currently in use by this particular node. It MUST be set to 0.</t>
         
-        <t>Reserved bits must be set to 0 when creating and ignored when parsing this TLV.</t>
+        <t>(reserved) bits must be set to 0 when creating and ignored when parsing this TLV.</t>
         
         <t>The user-agent is a null-terminated human-readable UTF-8 string that
         describes the name and version of the current HNCP implementation.</t>
@@ -600,8 +638,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
     	devices to various degrees into the homenet by not exposing them to HNCP and IGP traffic
     	or by using firewall rules to prevent them from reaching homenet-internal resources.</t>
 
-    	<t>[TODO: copy to DNCP?.. probably not, -Markus (should instead say
-        somewhere here that in the DNCP profile)] On unsecured links <xref target="RFC6347">DTLS</xref> can be used as noted above to secure traffic.
+    	<t>On unsecured links <xref target="RFC6347">DTLS</xref> can be used as noted above to secure traffic.
     	In this case security considerations of said protocol apply.</t>
     </section>
 
@@ -639,9 +676,9 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       </list>
       </t>
 
-      <t>HNCP requires allocation of a UDP port number
-      IANA-UDP-PORT, as well as an IPv6 link-local
-      multicast address IANA-MULTICAST-ADDRESS.</t>
+      <t>HNCP requires allocation of UDP port numbers
+      HNCP-UDP-PORT and HNCP-DTLS-PORT, as well as an IPv6 link-local
+      multicast address All-Homenet-Routers.</t>
 
     </section>
 
