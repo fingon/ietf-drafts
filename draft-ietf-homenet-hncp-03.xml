@@ -413,22 +413,44 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
           address is assigned to.</t>
 
 	  <t>IP-Address is the IP-address assigned to one of the node
-	  interfaces. An IPv4-address are represented as <xref target="RFC4291">IPv4-mapped
+	  interfaces. IPv4-addresses are represented as <xref target="RFC4291">IPv4-mapped
       addresses</xref>.</t>
 	</list>
       </t>
     </section>
 
-    <section title="TLV-Definitions for naming and service discovery">
+    <section title="Naming and service discovery">
+    
+      <t>Network-wide naming and service discovery is an important part of a
+      user-friendly IPv6 home network. The following mechanism provides
+      means to setup and delegate naming and service discovery across
+      multiple HNCP routers.</t>
+    
+      <t>Each HNCP-router SHOULD provide
+      an auto-generated or user-configured name for each
+      internal link for which it is the designated DHCP or stateful DHCPv6-server
+      and provide DNS-services on behalf of devices on said link.
+      This can be done e.g. by providing a DNS-to-MDNS proxy
+      and / or by resolving device hostnames acquired using DHCP, DHCPv6 or other means via DNS
+      and announcing a DNS-Delegated-Zone TLV for said link.
+      In addition reverse lookup services and delegations MAY be provided with the same means.</t>
 
-      <t>Service discovery is generally limited to a local link.
-      I-D.stenberg-homenet-dnssd-hybrid-proxy-zeroconf defines
-      a mechanism to automatically extended DNS-based service discovery
-      across multiple links within the home automatically. Following TLVs
-      MAY be used to provide transport for that specification. </t>
+      <t>The following TLVs are defined for naming and service-discovery
+      which all nods implementing HNCPs naming and service discovery
+      MUST implement.</t>
 
       <section anchor="delegated-zone-tlv" title="DNS Delegated Zone TLV">
-
+      
+      <t>This TLV is used to announce a forward or reverse DNS zone delegation
+      in the home network. Its meaning is roughly equivalent to specifying
+      an NS and A/AAAA record for said zone. There MUST NOT be more than one
+      delegation for the same zone, in case of a conflict the announcement of the node
+      with the higher node identifier takes precendence.</t>
+      
+<!-- TODO: should this have an (optional) Link Identifier as well so
+we can ensure uniqueness and get rid of that awkward IP-address from assigned prefix restriction?
+Or should this be tied to a "designated router" or "designated DHCP server" of some sort? -->
+<!--  NOTE: changed B and S so L is near B  -->
         <figure>
           <artwork>
 0                   1                   2                   3
@@ -437,18 +459,57 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 | Type: DNS-DELEGATED-ZONE (39) |        Length: >= 21          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
-|                            Address                            |
+|                           IP-Address                          |
 |                                                               |
 |                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Reserved  |S|B|                                               |
+|reserved |L|B|S|                                               |
 +-+-+-+-+-+-+-+-+  Zone (DNS label sequence - variable length)  |
 |                                                               |
           </artwork>
         </figure>
+        
+    <t>
+	<list>
+	  <t>IP Address is the IPv6-address of the authoritative DNS-server for the zone;
+	  IPv4-addresses are represented as <xref target="RFC4291">IPv4-mapped addresses</xref>.
+	  The special value of :: (all-zero) means the delegation is available in the regular
+	  global DNS-hierarchy.</t>
+
+	  <t>reserved bits MUST be zero when creating and ignored when parsing this TLV.</t>
+	  
+	  <t>L-Bit (DNS-SD Legacy-Browse) indicates that this delegated zone should be included in
+      the network's DNS-SD legacy browse list of domains at lb._dns-
+      sd._udp.(DOMAIN-NAME).  Local forward zones SHOULD have this set.
+      Reverse zones SHOULD NOT have this set.</t>
+      
+      <t>B-Bit (DNS-SD Browse) indicates that this delegated zone should be included in
+      the network's DNS-SD legacy browse list of domains at b._dns-
+      sd._udp.(DOMAIN-NAME).  Local forward zones SHOULD have this set.
+      Reverse zones SHOULD NOT have this set.</t>
+      
+      <t>S-Bit (fully-qualified DNS-SD-domain) indicates that this delegated zone consists of a
+      fully-qualified DNS-SD domain, which should be used as base for DNS-SD domain enumeration,
+      i.e. _dns-sd._udp.(Zone) exists.  Forward zones MAY have this set.
+      Reverse zones MUST NOT have this set. This can be used to provision DNS search path
+      to hosts for non-local services (such as those provided by an ISP,
+      or other manually configured service providers).</t>
+<!-- TODO: should this be indicated by trailing 0-Label instead? (i.e. zone="foo.bar" vs zone="foo.bar.com.")  -->
+      
+      <t>Zone is the label sequence of the zone, encoded according to <xref target="RFC1035"/>.
+      Compression MUST NOT be used. The zone MUST end with an empty label.</t>
+	</list>
+	</t>
       </section>
+      
 
       <section anchor="domain-name-tlv" title="Domain Name TLV">
+
+		<t>This TLV is used to indicate the base domain name for the network.
+		It is the zone used as a base for all non fully-qualified delegated zones and node names.
+		In case of conflicts the announced domain of the node with the highest
+		node identifier takes precedence. By default, if no node advertises such a TLV,
+		".home" is used as a default.</t>
 
         <figure>
           <artwork>
@@ -461,9 +522,23 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           </artwork>
         </figure>
+        
+        <t>
+	<list>
+      <t>Domain is the label sequence encoded according to <xref target="RFC1035"/>.
+      Compression MUST NOT be used. The zone MUST end with an empty label.</t>
+	</list>
+	</t>
 
       </section>
-      <section anchor="router-name-tlv" title="Router Name TLV">
+      <section anchor="router-name-tlv" title="Node Name TLV">
+      
+      <t>This TLV is used to announce the name of a node in the network.
+		In case of conflicts the announcement of the node with the highest
+		node identifier takes precedence. A node announcing such a TLV
+		MUST also announce at least one Node-Address TLV which is used
+		as destination address.</t>
+      
         <figure>
           <artwork>
 0                   1                   2                   3
@@ -700,6 +775,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <?rfc include="reference.RFC.1918.xml"?>
       <?rfc include="reference.RFC.4291.xml"?>
       <?rfc include="reference.RFC.7368.xml"?>
+      <?rfc include="reference.RFC.1035.xml"?>
       <?rfc include="reference.RFC.6234.xml"?>
     </references>
 
