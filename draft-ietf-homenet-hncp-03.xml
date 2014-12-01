@@ -47,7 +47,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         <email>cyrus@openwrt.org</email>
       </address>
     </author>
-    <date month="October" year="2014" />
+    <date month="December" year="2014" />
 
     <area>Internet</area>
     <workgroup>Homenet Working Group</workgroup>
@@ -96,53 +96,66 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
     </section>
 
     <section title="DNCP Profile">
-        <t>HNCP is defined as a profile of DNCP with the following parameters:
+      <t>HNCP is defined as a profile of DNCP with the following parameters:
 
-        <list style="symbols">
-                <t>HNCP uses UDP-datagrams on port HNCP-UDP-PORT as a transport over
-                link-local scoped IPv6, using unicast and multicast (group All-Homenet-Routers).
-                Messages with an IPv6 source or destination address which is not link-local scoped
-                MUST be ignored.</t>
+      <list style="symbols">
 
-                <t>HNCP unicast message exchanges SHOULD be secured using <xref target="RFC6347">DTLS</xref> as described
-                in DNCP if done over unsecured links. UDP on port HNCP-DTLS-PORT is used for this purpose.
-                A node implementing the security mechanism MUST support the DNCP Pre-Shared Key and PKI-based trust methods
-                and SHOULD support DNCP Certificate Based Trust Consensus in addition.</t>
+        <t>HNCP uses UDP datagrams on port HNCP-UDP-PORT as a transport
+        over link-local scoped IPv6, using unicast and multicast (group
+        All-Homenet-Routers).  Received datagrams with an IPv6 source or
+        destination address which is not link-local scoped MUST be
+        ignored.</t>
 
-                <t>HNCP uses opaque 32-bit node identifiers (DNCP_NODE_IDENTIFIER_LENGTH = 32).
-                A node attempting to run HNCP MUST generate and use a random node identifier.
-                If a collision occurs (the DNCP network already has a node state
-                with the same node identifier and a higher latest update sequence number)
-                the node detecting it MUST immediately generate and use a new random node identifier.</t>
+        <t>HNCP unicast message exchanges SHOULD be secured using <xref
+        target="RFC6347">DTLS</xref> as described in DNCP if done over
+        unsecured links. UDP on port HNCP-DTLS-PORT is used for this
+        purpose.  A node implementing the security mechanism MUST support
+        the DNCP Pre-Shared Key and PKI-based trust methods and SHOULD
+        support DNCP Certificate Based Trust Consensus.</t>
 
-                <t>HNCP nodes MUST NOT use the Long Network State Update message over the multicast channel,
-                i.e. all Network State Update messages send over multicast have the short form.</t>
+        <t>HNCP uses opaque 32-bit node identifiers
+        (DNCP_NODE_IDENTIFIER_LENGTH = 32). A node implementing HNCP SHOULD
+        generate and use a random node identifier. If the DNCP network
+        already has a node state with the same node identifier and a higher
+        update sequence number, the node detecting it MUST
+        immediately generate and use a new random node identifier.</t>
 
-                <t>HNCP nodes use the following Trickle parameters:
+        <t>HNCP nodes MUST NOT use the Long Network State Update message
+        over the multicast channel, i.e. all Network State Update messages
+        send over multicast have the short form.</t>
+        <!-- TODO - only in secure mode, though; do we want efficiency in
+             non-secure mode or same code path? -->
+        
+        <t>HNCP nodes use the following Trickle parameters:
 
-                <list>
-                <t>k SHOULD be 1, given the timer reset on data updates and
-                retransmissions should handle packet loss.</t>
+        <list>
+          <t>k SHOULD be 1, given the timer reset on data updates and
+          retransmissions should handle packet loss.</t>
 
-                <t>Imax SHOULD be 40 seconds but MUST NOT be lower.</t>
+          <t>Imax SHOULD be 40 seconds but MUST NOT be lower.</t>
 
-                <t>Imin SHOULD be 200 milliseconds but MUST NOT be lower.
-                Note: Earliest transmissions may occur at Imin/2.</t>
+          <t>Imin SHOULD be 200 milliseconds but MUST NOT be lower.  Note:
+          Earliest transmissions may occur at Imin/2.</t>
 
-                </list>
-                </t>
-
-                <t>HNCP nodes MUST use the leading 64 bits of <xref target="RFC1321">MD5</xref> as DNCP non-cryptographic hash function H(x).</t>
-
-                <t>HNCP nodes MUST use the periodic keep-alive mechanism over unicast to all peers.
-                The keep-alive interval (DNCP_KEEPALIVE_INTERVAL) MUST be 24 seconds, the timeout interval (DNCP_TIMEOUT_INTERVAL)
-                MUST be 2.5 times the keep-alive interval (60 seconds), the grace-interval (DNCP_GRACE_INTERVAL) SHOULD be equal
-                to the keep-alive interval.</t>
         </list>
         </t>
+
+        <t>HNCP nodes MUST use the leading 64 bits of <xref
+        target="RFC1321">MD5</xref> as DNCP non-cryptographic hash function
+        H(x).</t>
+
+        <t>HNCP nodes MUST use the periodic keep-alive mechanism over
+        unicast to all peers. The keep-alive interval
+        (DNCP_KEEPALIVE_INTERVAL) MUST be 24 seconds, the timeout interval
+        (DNCP_TIMEOUT_INTERVAL) MUST be 2.5 times the keep-alive interval
+        (60 seconds), the grace-interval (DNCP_GRACE_INTERVAL) SHOULD be
+        equal to the keep-alive interval.</t>
+
+      </list>
+      </t>
     </section>
 
-    <section title="Border Discovery">
+    <section title="Border Discovery" anchor="bd">
 
       <t>This section defines the border discovery algorithm derived from the
       edge router interactions described in the <xref
@@ -159,11 +172,11 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
       <list>
 
-        <t>A homenet router running a DHCP-client on a homenet-interface
+        <t>A homenet router running a DHCP client on a homenet interface
         MUST include a DHCP User-Class consisting of the ASCII-String
         "HOMENET".</t>
 
-        <t>A homenet router running a DHCP-server on a homenet-interface
+        <t>A homenet router running a DHCP-server on a homenet interface
         MUST ignore or reject DHCP-Requests containing a DHCP User-Class
         consisting of the ASCII-String "HOMENET".</t>
 
@@ -176,11 +189,11 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <list style="numbers">
       <t>If a fixed category is set for an interface, it MUST be used.</t>
 
-          <t>If a delegated prefix could be acquired by running a DHCPv6-client
-          on the interface it MUST be considered external.</t>
+          <t>If a delegated prefix could be acquired by running a DHCPv6
+          client on the interface it MUST be considered external.</t>
 
-          <t>If an IPv4-address could be acquired by running a DHCP-client on
-      the interface it MUST be considered external.</t>
+          <t>If an IPv4-address could be acquired by running a DHCP client
+          on the interface it MUST be considered external.</t>
 
       <t>Otherwise the interface MUST be considered internal.</t>
       </list>
@@ -194,7 +207,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <list>
         <t>Leaf category: This declares an interface used by clients only.
         A router SHOULD implement this category and MUST NOT send
-        nor accept HNCP messages on these interfaces.</t>
+        nor receive HNCP messages on these interfaces.</t>
 
         <t>Guest category: This declares an interface used by untrusted
         clients only. In addition to the restrictions of the leaf
@@ -208,22 +221,25 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         on this interface are potentially non-transitive. This category MAY
         be implemented.</t>
 
-        <t>Hybrid category: This allows the router to still accepts external connections but
-        does not do border discovery.  It is assumed that the link is under
-        control of a legacy, trustworthy non-HNCP router, still within the
-        same home network. Detection of this category automatically in
-        addition to manual configuration is out
-        of scope for this document. This category MAY be implemented.</t>
+        <t>Hybrid category: This allows the router to still accepts
+        external connections but does not do border discovery.  It is
+        assumed that the link is under control of a legacy, trustworthy
+        non-HNCP router, still within the same home network. Detection of
+        this category automatically in addition to manual configuration is
+        out of scope for this document. This category MAY be
+        implemented.</t>
+        <!-- TODO: Relatively broken text and I am not sure how this should
+             be specified here. 'still accepts'.. -->
       </list>
       </t>
 
       <t>Each router MUST continuously scan each active interface that does
       not have a fixed category in order to dynamically reclassify it if
       necessary.  The router therefore runs an appropriately configured
-      DHCP and DHCPv6-client as long as the interface is active including
+      DHCP and DHCPv6 client as long as the interface is active including
       states where it considers the interface to be internal. The router
       SHOULD wait for a reasonable time period (5 seconds as a possible
-      default) in which the DHCP-clients can acquire a lease before
+      default), during which the DHCP clients can acquire a lease, before
       treating a newly activated or previously external interface as
       internal. Once it treats a certain interface as internal it MUST
       start forwarding traffic with appropriate source addresses between
@@ -235,13 +251,16 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       be connected to an external network.</t>
 </section>
 
-<section title="TLV-Definitions for prefix assignment purposes">
+<section title="TLV-Definitions for Prefix Assignment">
           <t>The following TLVs are defined to announce prefix and addressing
           information using HNCP. Each HNCP-node using these TLVs
           MUST implement and follow the relevant sections of
       <xref target="I-D.ietf-homenet-prefix-assignment">Prefix and
       Address Assignment in a Home Network</xref>.</t>
 
+      <!-- TODO - this whole section is awkward to read. It needs
+           subsection headers or something. -->
+      
       <t>To distribute an external connection in the homenet an edge router
       announces one or more delegated prefixes and associated
       DHCP(v6)-encoded auxiliary information like recursive
@@ -261,10 +280,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
 
       <t>Auxiliary connectivity information is encoded as a stream of
-      DHCPv6-attributes or DHCP-attributes placed inside a TLV of type
+      DHCPv6 or DHCP options placed inside a TLV of type
       EXTERNAL-CONNECTION or DELEGATED-PREFIX (for IPv6 prefix-specific
       information).  There MUST NOT be more than one instance of this TLV
-      inside a container and the order of the DHCP(v6)-attributes contained
+      inside a container and the order of the DHCP(v6) options contained
       within it MUST be preserved as long as the information contained does
       not change. The TLVs are encoded as follows:</t>
 
@@ -275,7 +294,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |    Type: DHCPV6-DATA (37)     |          Length: > 4          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                    DHCPv6 attribute stream                    |
+|                      DHCPv6 option stream                     |
         </artwork>
       </figure>
 
@@ -288,7 +307,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |     Type: DHCP-DATA (38)      |          Length: > 4          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                      DHCP attribute stream                    |
+|                        DHCP option stream                     |
         </artwork>
       </figure>
 
@@ -419,14 +438,14 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       </t>
     </section>
 
-    <section title="Naming and service discovery">
+    <section title="Naming and Service Discovery">
 
       <t>Network-wide naming and service discovery is an important part of a
       user-friendly IPv6 home network. The following mechanism provides
       means to setup and delegate naming and service discovery across
       multiple HNCP routers.</t>
 
-      <t>Each HNCP-router SHOULD provide
+      <t>Each HNCP router SHOULD provide
       an auto-generated or user-configured name for each
       internal link for which it is the designated DHCP or stateful DHCPv6-server
       and provide DNS-services on behalf of devices on said link.
@@ -436,7 +455,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       In addition reverse lookup services and delegations MAY be provided with the same means.</t>
 
       <t>The following TLVs are defined for naming and service-discovery
-      which all nods implementing HNCPs naming and service discovery
+      which all nodes implementing HNCP naming and service discovery
       MUST implement.</t>
 
       <section anchor="delegated-zone-tlv" title="DNS Delegated Zone TLV">
@@ -445,7 +464,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       in the home network. Its meaning is roughly equivalent to specifying
       an NS and A/AAAA record for said zone. There MUST NOT be more than one
       delegation for the same zone, in case of a conflict the announcement of the node
-      with the higher node identifier takes precendence.</t>
+      with the higher node identifier takes precedence.</t>
 
 <!-- TODO: should this have an (optional) Link Identifier as well so
 we can ensure uniqueness and get rid of that awkward IP-address from assigned prefix restriction?
@@ -478,17 +497,17 @@ Or should this be tied to a "designated router" or "designated DHCP server" of s
 
           <t>reserved bits MUST be zero when creating and ignored when parsing this TLV.</t>
 
-          <t>L-Bit (DNS-SD Legacy-Browse) indicates that this delegated zone should be included in
+          <t>L-bit (DNS-SD Legacy-Browse) indicates that this delegated zone should be included in
       the network's DNS-SD legacy browse list of domains at lb._dns-
       sd._udp.(DOMAIN-NAME).  Local forward zones SHOULD have this set.
       Reverse zones SHOULD NOT have this set.</t>
 
-      <t>B-Bit (DNS-SD Browse) indicates that this delegated zone should be included in
+      <t>B-bit (DNS-SD Browse) indicates that this delegated zone should be included in
       the network's DNS-SD legacy browse list of domains at b._dns-
       sd._udp.(DOMAIN-NAME).  Local forward zones SHOULD have this set.
       Reverse zones SHOULD NOT have this set.</t>
 
-      <t>S-Bit (fully-qualified DNS-SD-domain) indicates that this delegated zone consists of a
+      <t>S-bit (fully-qualified DNS-SD-domain) indicates that this delegated zone consists of a
       fully-qualified DNS-SD domain, which should be used as base for DNS-SD domain enumeration,
       i.e. _dns-sd._udp.(Zone) exists.  Forward zones MAY have this set.
       Reverse zones MUST NOT have this set. This can be used to provision DNS search path
@@ -554,13 +573,13 @@ Or should this be tied to a "designated router" or "designated DHCP server" of s
     </section>
 
 
-    <section title="Securing third-party protocols">
-      <t>Pre-shared keys are often required to secure IGPs and other protocols run in home networks which lack support for asymmetric security.
-        The following mechanism defines a way to manage such keys by HNCP to be used for bootstrapping third-party prtocols and SHOULD therefore be used if such a need arises.
+    <section title="Securing Third-Party Protocols">
+      <t>Pre-shared keys are often required to secure IGPs and other protocols which lack support for asymmetric security.
+        The following mechanism defines a way to manage such keys by HNCP to be used for bootstrapping third-party protocols and SHOULD therefore be used if such a need arises.
         The following rules determine how such a PSK is managed and used:
 
         <list>
-        <t>If no Managed-PSK-TLV is currently being announced, an HNCP-router creates one with a 32-Byte long random key and adds it to its node-data.</t>
+        <t>If no Managed-PSK-TLV is currently being announced, a HNCP router creates one with a 32-Byte long random key and adds it to its node-data.</t>
         <t>In case multiple routers announce such a TLV at the same time, all but the one with the highest router-ID stop advertising it and adopt the remaining one.</t>
         <t>The router currently advertising the Managed-PSK-TLV must generate and advertise a new random one
         whenever the HNCP security mechanism stops trusting one or more trusted devices - i.e. HNCP is secured with a PSK itself and it was changed
@@ -631,7 +650,7 @@ Or should this be tied to a "designated router" or "designated DHCP server" of s
 
       </section>
 
-    <section title="Requirements for HNCP-routers">
+    <section title="Requirements for HNCP Routers">
         <t>Each router implementing HNCP is subject to the following requirements:
         <list>
                 <t>It MUST implement HNCP-Versioning, Border Discovery and Prefix Assignment as defined in this document.</t>
@@ -653,80 +672,104 @@ Or should this be tied to a "designated router" or "designated DHCP server" of s
 
     <section title="Security Considerations">
 
-      <section title="Abstract">
-              <t>HNCP is designed to make home networks self-configuring, requiring as little user
-              intervention as possible. However this zero-configuration goal usually conflicts with
-              security goals and introduces a number of threats.</t>
+      <t>HNCP is designed to make home networks self-configuring, requiring
+      as little user intervention as possible. However this
+      zero-configuration goal usually conflicts with security goals and
+      introduces a number of threats.</t>
 
-              <t>General security issues for existing home networks are discussed at length
-          in <xref target="RFC7368" />. The protocols used to
-          set up addresses and routes in home networks today have rarely security enabled
-          within the control protocol itself. However these issues are out of scope
-          for the security of HNCP itself.</t>
+      <t>General security issues for existing home networks are discussed
+      at length in <xref target="RFC7368" />. The protocols used to set up
+      addresses and routes in home networks today have rarely security
+      enabled within the configuration protocol itself. However these
+      issues are out of scope for the security of HNCP itself.</t>
 
-          <t>HNCP inherits the security properties of DNCP.</t>
-          </section>
+      <t>HNCP inherits the security properties of DNCP.</t>
+<!-- TODO: Is this relevant? Seems rather .. drifting.., not connected to
+     preceding or next paragraph really. -->
+      
+      <t>HNCP is a state synchronization mechanism carrying information
+      with varying threat potential.  For this consideration the payloads
+      defined in DNCP and this document are reviewed:
 
-          <section title="Scope">
-              <t>HNCP is a state synchronization mechanism carrying information with varying threat potential.
-              For this consideration the payloads defined in DNCP and this document are reviewed:
+      <list>
+        <t>Network topology information such as HNCP nodes and their
+        adjacent links</t>
 
-              <list>
-                <t>Network topology information such as HNCP nodes and their adjacent links</t>
-                <t>Address assignment information such as delegated and assigned prefixes for individual links</t>
-                <t>Naming and service discovery information such as auto-generated or customized names for individual links and routers</t>
-              </list>
-              </t>
-          </section>
+        <t>Address assignment information such as delegated and assigned
+        prefixes for individual links</t>
+
+        <t>Naming and service discovery information such as auto-generated
+        or customized names for individual links and routers</t>
+
+      </list>
+      </t>
 
       <section title="Border Determination">
-        <t>In general an HNCP-router determines the internal or external state on a per-link scale
-        and creates a firewall-perimeter and allows HNCP- and IGP-traffic based on the individual results.
-        These are provided by either automatic border discovery or a predefined configuration
-        indicated by e.g. the link-type, a physically dedicated (labeled) port or the administrator.</t>
 
-        <t>Threats concerning automatic border discovery cannot be mitigated by encrypting or authenticating
-        HNCP-traffic itself since external routers do not participate in the protocol
-        and often cannot be authenticated by other means. These threats include propagation
-        of forged uplinks in the homenet in order to e.g. redirect traffic destined to external locations and
-        forged internality by external routers to e.g. circumvent the perimeter firewall.</t>
+        <t>As described in <xref target="bd" />, a HNCP router determines
+        the internal or external state on a per-link basis. A firewall
+        perimeter is set up for the external links, and for internal links,
+        HNCP and IGP traffic is allowed.</t>
 
-        <t>It is therefore imperative to either secure individual links on the physical or link-layer or preconfigure
-        the adjacent interfaces of HNCP-routers to an adequate fixed-category in order to secure the homenet border.
-        Depending on the security of the external link eavesdropping, man-in-the-middle and similar attacks
-        on external traffic can still happen between a homenet border-router and the ISP,
-        however these cannot be mitigated from inside the homenet. For example, DHCP has defined
-        <xref target="RFC3118" /> to authenticate DHCP messages, but this is
-        very rarely implemented in large or small networks.  Further, while
-        PPP can provide secure authentication of both sides of a point to
-        point link, it is most often deployed with one-way authentication of
-        the subscriber to the ISP, not the ISP to the subscriber.</t>
+        <t>Threats concerning automatic border discovery cannot be
+        mitigated by encrypting or authenticating HNCP traffic itself since
+        external routers do not participate in the protocol and often
+        cannot be authenticated by other means. These threats include
+        propagation of forged uplinks in the homenet in order to
+        e.g. redirect traffic destined to external locations and forged
+        internal status by external routers to e.g. circumvent the
+        perimeter firewall.</t>
+
+        <t>It is therefore imperative to either secure individual links on
+        the physical or link-layer or preconfigure the adjacent interfaces
+        of HNCP routers to an adequate fixed-category in order to secure
+        the homenet border.  Depending on the security of the external link
+        eavesdropping, man-in-the-middle and similar attacks on external
+        traffic can still happen between a homenet border-router and the
+        ISP, however these cannot be mitigated from inside the homenet. For
+        example, DHCP has defined <xref target="RFC3118" /> to authenticate
+        DHCP messages, but this is very rarely implemented in large or
+        small networks.  Further, while PPP can provide secure
+        authentication of both sides of a point to point link, it is most
+        often deployed with one-way authentication of the subscriber to the
+        ISP, not the ISP to the subscriber.</t>
+
     </section>
 
-    <section title="Security of unicast traffic">
-        <t>Once the homenet border has been established there are several ways to secure HNCP against
-        internal threats like manipulation or eavesdropping by compromised devices on a link which
-        is enabled for HNCP-traffic. If left unsecured attackers may cause arbitrary eavesdropping, spoofing
-        or denial of service attacks on HNCP-services such as address assignment or service discovery.</t>
+    <section title="Security of Unicast Traffic">
 
-        <t>
-        Detailed interface categories like "leaf" or "guest" can be used to integrate not fully trusted
-        devices to various degrees into the homenet by not exposing them to HNCP and IGP traffic
-        or by using firewall rules to prevent them from reaching homenet-internal resources.</t>
+      <t>Once the homenet border has been established there are several
+      ways to secure HNCP against internal threats like manipulation or
+      eavesdropping by compromised devices on a link which is enabled for
+      HNCP traffic. If left unsecured attackers may perform arbitrary
+      eavesdropping, spoofing or denial of service attacks on HNCP services
+      such as address assignment or service discovery.</t>
+      
 
-        <t>On unsecured links <xref target="RFC6347">DTLS</xref> can be used as noted above to secure traffic.
-        In this case security considerations of said protocol apply.</t>
+      <t>Detailed interface categories like "leaf" or "guest" can be used
+      to integrate not fully trusted devices to various degrees into the
+      homenet by not exposing them to HNCP and IGP traffic or by using
+      firewall rules to prevent them from reaching homenet-internal
+      resources. </t>
+
+      <t>On links where this is not practical and lower layers do not
+      provide adequate protection from attackers, DNCP secure mode MUST be
+      used to secure traffic.</t>
+
     </section>
 
-    <section title="Other protocols in the home">
-        <t>IGPs and other protocols are usually run alongside HNCP therefore
-        the individual security aspects of the respective protocols must be considered.
-        It can however be summarized that many protocols to be run in the home (like IGPs)
-        provide - to a certain extent - similar security mechanisms.
-        Most of these protocols do not support encryption and only support authentication
-        based on pre-shared keys natively.
-        This influences the effectiveness of any encryption-based security mechanism deployed
-        by HNCP as homenet routing information is thus usually not encrypted.</t>
+    <section title="Other Protocols in the Home">
+
+      <t>IGPs and other protocols are usually run alongside HNCP therefore
+      the individual security aspects of the respective protocols must be
+      considered.  It can however be summarized that many protocols to be
+      run in the home (like IGPs) provide - to a certain extent - similar
+      security mechanisms.  Most of these protocols do not support
+      encryption and only support authentication based on pre-shared keys
+      natively.  This influences the effectiveness of any encryption-based
+      security mechanism deployed by HNCP as homenet routing information is
+      thus usually not encrypted.</t>
+
     </section>
 
     </section>

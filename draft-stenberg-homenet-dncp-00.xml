@@ -337,7 +337,7 @@ should be able to just detect the link id TLV :-p
           target="reply-node-message">Node Data Reply
           message</xref>. Optionally - if specified by the DNCP profile -
           multiple replies MAY be sent in order to e.g. keep
-          each datagram's size within the PMTU to the destination. However these
+          size of each datagram within the PMTU to the destination. However these
           replies must be valid stand-alone Node Data Reply messages, with
           the full state for the particular nodes.</t>
 
@@ -464,8 +464,9 @@ should be able to just detect the link id TLV :-p
       <section title="Network State Request Message"
                anchor="req-net-message">
 
-        <t>The Network State Request message is used to request the recipients's
-        view of the network state and all node states currently known to it.</t>
+        <t>The Network State Request message is used to request the
+        recipient's view of the network state and all node states currently
+        known to it.</t>
 
         <t>The following TLVs MUST be present:
         <list style="symbols">
@@ -895,7 +896,7 @@ should be able to just detect the link id TLV :-p
           established by itself, it MUST do so if announcing the configured
           trust verdict leads to a change in the current effective verdict
           for the respective certificate.
-          In abscence of configured verdicts it MUST announce cached trust verdicts
+          In absence of configured verdicts it MUST announce cached trust verdicts
           it has stored in its trust cache if one of the following
           conditions applies:
 
@@ -1038,7 +1039,7 @@ should be able to just detect the link id TLV :-p
 
         <t>Transport protocols' parameters such as port numbers to be used,
         or multicast address to be used. Unicast, multicast, and secure
-        unicast may each require different paremeters, if applicable. </t>
+        unicast may each require different parameters, if applicable. </t>
 
         <t>When receiving messages, what sort of messages are dropped, as
         specified in <xref target="reception" />.</t>
@@ -1097,7 +1098,7 @@ should be able to just detect the link id TLV :-p
      per the Trickle algorithm).</t>
      </list>
 -->
-        <t>Whether to send keepalives, and if so, on link (=multicast) or
+        <t>Whether to send keep-alives, and if so, on link (=multicast) or
         to peers (=unicast).</t>
 
         <t>Hash function H(x) to be used, and how many bits of the input
