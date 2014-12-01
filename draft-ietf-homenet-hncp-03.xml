@@ -121,14 +121,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         update sequence number, the node detecting it MUST
         immediately generate and use a new random node identifier.</t>
 
-        <t>HNCP nodes MUST NOT use the Long Network State Update message
-        over the multicast channel, i.e. all Network State Update messages
-        send over multicast have the short form.</t>
-        <!-- TODO - only in secure mode, though; do we want efficiency in
-             non-secure mode or same code path? -MSt
-
-             was thinking of simplicity here (same code path)
-             but no strong opinion really -SB -->
+        <t>HNCP nodes MUST treat all Long Network State Update messages
+        received via multicast on a link which has security enabled as if they
+        were Short Network State Update message, i.e. it MUST ignore all
+        contained Node State TLVs.</t>
         
         <t>HNCP nodes use the following Trickle parameters:
 
