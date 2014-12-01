@@ -8,12 +8,12 @@ TBD:
 - interface <> link terminology
 
 - include e.g. message, or TLV suffix within xref, or not?
- .. for the time being, it is included
+.. for the time being, it is included
 
- - sequence number overflow..
- - looping space probably best choice
+- sequence number overflow..
+- looping space probably best choice
 
- - should we actually have 4 byte length in messages on stream transport?
+- should we actually have 4 byte length in messages on stream transport?
 should be able to just detect the link id TLV :-p
 
 - proactive 'push' MAY/SHOULD?
@@ -423,7 +423,7 @@ should be able to just detect the link id TLV :-p
       <section title="Short Network State Update Message"
                anchor="short-net-message">
 
-                <t>The Short Network State Update Message is used to announce the sender's view of the network state using multicast.</t>
+        <t>The Short Network State Update Message is used to announce the sender's view of the network state using multicast.</t>
 
         <t>The following TLVs MUST be present:
         <list style="symbols">
@@ -511,7 +511,7 @@ should be able to just detect the link id TLV :-p
           <t>One or more <xref target="node-state">Node State TLV</xref>
           and <xref target="node-data">Node Data TLV</xref> pairs with
           matching node identifiers for each node previously requested in a <xref
-        target="req-node-message">Node Data Request message</xref>.</t>
+          target="req-node-message">Node Data Request message</xref>.</t>
 
         </list>
         </t>
@@ -589,7 +589,7 @@ should be able to just detect the link id TLV :-p
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        node identifier                        |
 |                  (length fixed in DNCP profile)               |
-                               ...
+...
 |                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
             </artwork>
@@ -616,7 +616,7 @@ should be able to just detect the link id TLV :-p
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        node identifier                        |
 |                  (length fixed in DNCP profile)               |
-                            ...
+...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        Link Identifier                        |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -638,7 +638,7 @@ should be able to just detect the link id TLV :-p
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |          H(H(node data TLV 1) .. H(node data TLV N))          |
 |                  (length fixed in DNCP profile)               |
-                            ...
+...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
             </artwork>
           </figure>
@@ -660,7 +660,7 @@ should be able to just detect the link id TLV :-p
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        node identifier                        |
 |                  (length fixed in DNCP profile)               |
-                            ...
+...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                    Update Sequence Number                     |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -668,7 +668,7 @@ should be able to just detect the link id TLV :-p
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        H(node data TLV)                       |
 |                  (length fixed in DNCP profile)               |
-                            ...
+...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
             </artwork>
           </figure>
@@ -693,7 +693,7 @@ should be able to just detect the link id TLV :-p
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        node identifier                        |
 |                  (length fixed in DNCP profile)               |
-                            ...
+...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                    Update Sequence Number                     |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -713,7 +713,7 @@ should be able to just detect the link id TLV :-p
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                    neighbor node identifier                   |
 |                  (length fixed in DNCP profile)               |
-                            ...
+...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                    Neighbor Link Identifier                   |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1044,15 +1044,15 @@ should be able to just detect the link id TLV :-p
         <t>When receiving messages, what sort of messages are dropped, as
         specified in <xref target="reception" />.</t>
 
-<!--
-     TBD HNCP-03
-     HNCP is designed to operate between directly connected neighbors on a
-     shared link using link-local IPv6 addresses. If the source address of
-     a received HNCP packet is not an IPv6 link-local unicast address, the
-     packet SHOULD be dropped. Similarly, if the destination address is not
-     IPv6 link-local unicast or IPv6 link-local multicast address, packet
-     SHOULD be dropped.
--->
+        <!--
+            TBD HNCP-03
+            HNCP is designed to operate between directly connected neighbors on a
+            shared link using link-local IPv6 addresses. If the source address of
+            a received HNCP packet is not an IPv6 link-local unicast address, the
+            packet SHOULD be dropped. Similarly, if the destination address is not
+            IPv6 link-local unicast or IPv6 link-local multicast address, packet
+            SHOULD be dropped.
+        -->
 
         <t>What is the criteria for sending Trickle-based <xref
         target="long-net-message">Long Network State Update message</xref>
@@ -1065,19 +1065,19 @@ should be able to just detect the link id TLV :-p
         nodes to assign new node identifiers to themselves, or to notify
         someone about a fatal error condition in the DNCP network.</t>
 
-<!-- HNCP-03 TBD
+        <!-- HNCP-03 TBD
 
-        <t>A recommended default way to handle this is to attempt to assert
-        local state by increasing the local update sequence number to a
-        value higher than that received and republish node data using the
-        same node identifier. If this happens more than 3 times in 60
-        seconds and the local node identifier is not globally unique, there
-        may be more than one router with the same node identifier on the
-        network. If there is no global guarantee of unique node identifier,
-        a new node identifier SHOULD be generated and node data republished
-        accordingly. </t>
+<t>A recommended default way to handle this is to attempt to assert
+local state by increasing the local update sequence number to a
+value higher than that received and republish node data using the
+same node identifier. If this happens more than 3 times in 60
+seconds and the local node identifier is not globally unique, there
+may be more than one router with the same node identifier on the
+network. If there is no global guarantee of unique node identifier,
+a new node identifier SHOULD be generated and node data republished
+accordingly. </t>
 
--->
+        -->
 
         <t>Imin, Imax and k ranges to be suggested for implementations to
         be used in the Trickle algorithm. Trickle algorithm does not
@@ -1086,18 +1086,18 @@ should be able to just detect the link id TLV :-p
         profile to behave more consistently and to facilitate estimation of
         lower and upper bounds for behavior of the network.</t>
 
-<!-- TBD - for HNCP
-     <list>
-     <t>k=1 SHOULD be used, as given the timer reset on data updates,
-     retransmissions should handle packet loss.</t>
+        <!-- TBD - for HNCP
+             <list>
+             <t>k=1 SHOULD be used, as given the timer reset on data updates,
+             retransmissions should handle packet loss.</t>
 
-     <t>Imax MUST be at least one minute.</t>
+<t>Imax MUST be at least one minute.</t>
 
-     <t>Imin MUST be at least 200 milliseconds (earliest transmissions
-     may occur at Imin/2 = 100 milliseconds given minimum values as
-     per the Trickle algorithm).</t>
-     </list>
--->
+<t>Imin MUST be at least 200 milliseconds (earliest transmissions
+may occur at Imin/2 = 100 milliseconds given minimum values as
+per the Trickle algorithm).</t>
+</list>
+        -->
         <t>Whether to send keep-alives, and if so, on link (=multicast) or
         to peers (=unicast).</t>
 
@@ -1121,120 +1121,120 @@ should be able to just detect the link id TLV :-p
         <!-- TBD for HNCP: 32 + no semantics -->
 
       </list>
-      </t>
-    </section>
+    </t>
+  </section>
 
-    <section title="Security Considerations">
+  <section title="Security Considerations">
 
-      <t>DNCP profiles may use multicast to indicate per-link changes of
-      DNCP state or for keep-alive purposes, but they will not send any
-      actual TLVs over that channel. An attacker may learn hash-values of
-      the state within DNCP and may be able to trigger unicast
-      synchronization attempts between nodes on a local link this way. A
-      DNCP node should therefore rate-limit its reactions to multicast
-      packets.</t>
+    <t>DNCP profiles may use multicast to indicate per-link changes of
+    DNCP state or for keep-alive purposes, but they will not send any
+    actual TLVs over that channel. An attacker may learn hash-values of
+    the state within DNCP and may be able to trigger unicast
+    synchronization attempts between nodes on a local link this way. A
+    DNCP node should therefore rate-limit its reactions to multicast
+    packets.</t>
 
 
-      <t>The Certificate-based trust consensus mechanism defined in this
-      document allows for a consenting revocation, however in case of a
-      compromised device the trust cache may be poisoned before the actual
-      revocation happens allowing the distrusted device to rejoin the
-      network using a different identity.  Stopping such an attack might
-      require physical intervention and flushing of the trust
-      caches. However such an attack is often times more easily detectable
-      than threats discussed earlier in this document such as silent
-      manipulation of routing information and related man-in-the-middle
-      attacks.</t>
-    </section>
+    <t>The Certificate-based trust consensus mechanism defined in this
+    document allows for a consenting revocation, however in case of a
+    compromised device the trust cache may be poisoned before the actual
+    revocation happens allowing the distrusted device to rejoin the
+    network using a different identity.  Stopping such an attack might
+    require physical intervention and flushing of the trust
+    caches. However such an attack is often times more easily detectable
+    than threats discussed earlier in this document such as silent
+    manipulation of routing information and related man-in-the-middle
+    attacks.</t>
+  </section>
 
-    <section anchor="iana" title="IANA Considerations">
+  <section anchor="iana" title="IANA Considerations">
 
-      <t>IANA should set up a registry (policy TBD) for DNCP TLV types,
-      with following initial contents:</t>
+    <t>IANA should set up a registry (policy TBD) for DNCP TLV types,
+    with following initial contents:</t>
 
-      <t>0: Reserved (should not happen on wire)</t>
-      <t>1: Node link</t>
-      <t>2: Request network state</t>
-      <t>3: Request node data</t>
-      <t>4: Network state</t>
-      <t>5: Node state</t>
-      <t>6: Node data</t>
-      <t>7: Neighbor</t>
-      <t>8: Custom</t>
-      <t>9: Trust-Verdict</t>
-      <t>10-31: Reserved for future DNCP versions.</t>
+    <t>0: Reserved (should not happen on wire)</t>
+    <t>1: Node link</t>
+    <t>2: Request network state</t>
+    <t>3: Request node data</t>
+    <t>4: Network state</t>
+    <t>5: Node state</t>
+    <t>6: Node data</t>
+    <t>7: Neighbor</t>
+    <t>8: Custom</t>
+    <t>9: Trust-Verdict</t>
+    <t>10-31: Reserved for future DNCP versions.</t>
 
-      <t>192-255: Reserved for per-implementation experimentation. The
-      nodes using TLV types in this range SHOULD use e.g. Custom TLV to
-      identify each other and therefore eliminate potential conflict caused
-      by potential different use of same TLV numbers. </t>
+    <t>192-255: Reserved for per-implementation experimentation. The
+    nodes using TLV types in this range SHOULD use e.g. Custom TLV to
+    identify each other and therefore eliminate potential conflict caused
+    by potential different use of same TLV numbers. </t>
 
-    </section>
+  </section>
 
-  </middle>
-  <back>
-    <references title="Normative references">
-      <?rfc include="reference.RFC.2119.xml"?>
-      <?rfc include="reference.RFC.6206.xml"?>
-      <?rfc include="reference.RFC.6347.xml"?>
-      <?rfc include="reference.RFC.5246.xml"?>
-    </references>
-    <references title="Informative references">
-      <?rfc include="reference.RFC.6234.xml"?>
-    </references>
-    <section title="Some Outstanding Issues">
-      <t>None?</t>
-    </section>
+</middle>
+<back>
+  <references title="Normative references">
+    <?rfc include="reference.RFC.2119.xml"?>
+    <?rfc include="reference.RFC.6206.xml"?>
+    <?rfc include="reference.RFC.6347.xml"?>
+    <?rfc include="reference.RFC.5246.xml"?>
+  </references>
+  <references title="Informative references">
+    <?rfc include="reference.RFC.6234.xml"?>
+  </references>
+  <section title="Some Outstanding Issues">
+    <t>None?</t>
+  </section>
 
-    <section title="Some Obvious Questions and Answers">
-      <t>Q: Should there be nested container syntax that is actually
-      self-describing? (i.e. type flag that indicates container, no body
-      except sub-TLVs?)</t>
+  <section title="Some Obvious Questions and Answers">
+    <t>Q: Should there be nested container syntax that is actually
+    self-describing? (i.e. type flag that indicates container, no body
+    except sub-TLVs?)</t>
 
-      <t>A: Not for now, but perhaps valid design.. TBD.</t>
+    <t>A: Not for now, but perhaps valid design.. TBD.</t>
 
-      <t>Q: Add third case for multicast - 'medium' network state, which is
-      'long' one, but partial?</t>
-      <t>A: Drops typical convergence on large networks 5->3 packets, at
-      expense of some specification/implementation complexity.</t>
+    <t>Q: Add third case for multicast - 'medium' network state, which is
+    'long' one, but partial?</t>
+    <t>A: Drops typical convergence on large networks 5->3 packets, at
+    expense of some specification/implementation complexity.</t>
 
-      <t>Q: 32-bit link id?</t>
+    <t>Q: 32-bit link id?</t>
 
-      <t>A: Here, it would save 32 bits per neighbor if it was 16 bits (and
-      less is not realistic). However, TLVs defined elsewhere would not
-      seem to even gain that much on average.  32 bits is also used for
-      ifindex in various operating systems, making for simpler
-      implementation.</t>
+    <t>A: Here, it would save 32 bits per neighbor if it was 16 bits (and
+    less is not realistic). However, TLVs defined elsewhere would not
+    seem to even gain that much on average.  32 bits is also used for
+    ifindex in various operating systems, making for simpler
+    implementation.</t>
 
-      <t>Q: Why not doing (performance thing X, Y or Z)?</t>
+    <t>Q: Why not doing (performance thing X, Y or Z)?</t>
 
-      <t>A: This is designed mostly to be minimal (only timers Trickle
-      ones; everything triggered by Trickle-driven messages or local state
-      changes). However, feel free to suggest better (even more minimal)
-      design which works. </t>
+    <t>A: This is designed mostly to be minimal (only timers Trickle
+    ones; everything triggered by Trickle-driven messages or local state
+    changes). However, feel free to suggest better (even more minimal)
+    design which works. </t>
 
-    </section>
-    <section title="Changelog">
+  </section>
+  <section title="Changelog">
 
-      <t>draft-stenberg-homenet-dncp-00: Split from pre-version of
-      draft-ietf-homenet-hncp-03 generic parts. </t>
+    <t>draft-stenberg-homenet-dncp-00: Split from pre-version of
+    draft-ietf-homenet-hncp-03 generic parts. </t>
 
-    </section>
+  </section>
 
-    <section title="Draft Source">
-      <t>As usual, this draft is available at <eref
-      target="https://github.com/fingon/ietf-drafts/">https://github.com/fingon/ietf-drafts/</eref>
-      in source format (with nice Makefile too). Feel free to send comments
-      and/or pull requests if and when you have changes to it! </t>
-    </section>
+  <section title="Draft Source">
+    <t>As usual, this draft is available at <eref
+    target="https://github.com/fingon/ietf-drafts/">https://github.com/fingon/ietf-drafts/</eref>
+    in source format (with nice Makefile too). Feel free to send comments
+    and/or pull requests if and when you have changes to it! </t>
+  </section>
 
-    <section title="Acknowledgements">
+  <section title="Acknowledgements">
 
-      <t>Thanks to Ole Troan, Pierre Pfister, Mark Baugher, Mark Townsley,
-      Juliusz Chroboczek and Jiazi Yi for their contributions to the
-      draft.</t>
+    <t>Thanks to Ole Troan, Pierre Pfister, Mark Baugher, Mark Townsley,
+    Juliusz Chroboczek and Jiazi Yi for their contributions to the
+    draft.</t>
 
-    </section>
+  </section>
 
-  </back>
+</back>
 </rfc>
