@@ -166,17 +166,18 @@ should be able to just detect the link id TLV :-p
       other node:
       <list style="symbols">
 
-        <t>a Node identifier.</t>
+        <t>A node identifier.</t>
 
-        <t>the Node data: an ordered set of TLV tuples it wants to share with other nodes
-        possibly far off. This set of TLVs has a well-defined order based on ascending
-        binary content (including TLV type and length). This facilitates linear time
-        state delta processing. </t>
+        <t>The node data: an ordered set of TLV tuples it wants to share
+        with other nodes possibly far off. This set of TLVs has a
+        well-defined order based on ascending binary content (including TLV
+        type and length). This facilitates linear time state delta
+        processing. </t>
 
-        <t>the Latest update sequence number, a 32 bit number that is
+        <t>The latest update sequence number, a 32 bit number that is
         incremented any time the TLV set is published.</t>
 
-        <t>the Relative time (in milliseconds) since last publishing of the
+        <t>The relative time (in milliseconds) since last publishing of the
         current TLV data set with the current update sequence number. It is
         also 32 bit number on the wire.  If this number is close to
         overflow (>= 2^32-2^16), a node MUST re-publish it's TLVs even if
@@ -185,32 +186,31 @@ should be able to just detect the link id TLV :-p
       </list>
       </t>
 
-      <t>Additionally, every DNCP node has a set of links for which
-      DNCP is configured to be used. For each such link, a node should
-      have:
-<!--  TODO: is "should have" really correct here? -->
+      <t>Additionally, every DNCP node has a set of links for which DNCP is
+      configured to be used. For each such link, a node has:
 
       <list style="symbols">
-        <t>a Link identifier.</t>
+        <t>A link identifier.</t>
 
-        <t>a Local interface, or an address of a DNCP peer it is connected
+        <t>A local interface, or an address of a DNCP peer it is connected
         to.</t>
 
-        <t>a <xref target="RFC6206">Trickle</xref> instance with parameters
+        <t>A <xref target="RFC6206">Trickle</xref> instance with parameters
         I, T, and c.</t>
       </list>
       </t>
 
-      <t>For each DNCP peer detected on a link, a node stores:
+      <t>For each DNCP peer detected on a link, a node has:
+
       <list style="symbols">
 
-        <t>the Link identifier of the DNCP peer.</t>
+        <t>The link identifier of the DNCP peer.</t>
 
-        <t>a Timestamp which indicates the last time something was received
+        <t>A timestamp which indicates the last time something was received
         from the DNCP peer.</t>
 
-        <t>the Most recent address used by the DNCP peer (in an authenticated
-        message, if security is enabled).</t>
+        <t>The most recent address used by the DNCP peer (in an
+        authenticated message, if security is enabled).</t>
 
       </list>
       </t>
@@ -225,25 +225,25 @@ should be able to just detect the link id TLV :-p
       which ensure DNCP peer reachability and synchronize the data when
       necessary. </t>
 
-      <t>If DNCP is to be used on a multicast-capable interface,
-      as opposed to only point-to-point using known remote address(es),
-      a datagram-based transport which supports multicast SHOULD be defined in the DNCP profile
-      to be used for the messages to be sent to the whole link. As this is
-      used only to notice potential new DNCP nodes, and to notify that a
-      unicast exchange should be triggered, the multicast transport does
-      not have to be particularly secure.</t>
+      <t>If DNCP is to be used on a multicast-capable interface, as opposed
+      to only point-to-point using known remote address(es), a
+      datagram-based transport which supports multicast SHOULD be defined
+      in the DNCP profile to be used for the messages to be sent to the
+      whole link. As this is used only to identify potential new DNCP
+      nodes, and to notify that an unicast exchange should be triggered,
+      the multicast transport does not have to be particularly secure.</t>
 
       <section title="Trickle-Driven Status Update Messages"
                anchor="trickle-updates">
 
-        <t>Each node MUST send either a <xref target="long-net-message">Long
-        Network State Update message</xref> or a <xref
-        target="short-net-message">Short Network State Update
+        <t>Each node MUST send either a <xref
+        target="long-net-message">Long Network State Update message</xref>
+        or a <xref target="short-net-message">Short Network State Update
         message</xref> every time the link-specific <xref
         target="RFC6206">Trickle algorithm</xref> instance indicates that.
-        The destination address of the message should be
-        multicast in case of an interface which is multicast-capable, or the unicast
-        address of the remote parties in case of a point-to-point link.
+        The destination address of the message should be multicast in case
+        of an interface which is multicast-capable, or the unicast address
+        of the remote party in case of a point-to-point link.
 
         By default, Long Network State Update messages SHOULD be used,
         but if it is defined as undesirable for some case by the DNCP
@@ -287,15 +287,12 @@ should be able to just detect the link id TLV :-p
 
       </section>
 
-      <section title="Processing received message" anchor="reception">
+      <section title="Processing of Received Messages" anchor="reception">
 
-        <t><!--The majority of status updates among known nodes are
-        initially triggered by reception of the <xref
-        target="trickle-updates">Trickle-driven updates </xref>. -->This
-        section describes how received messages are processed.
-        The DNCP profile may specify criteria based on which
-        received messages are ignored. Any 'reply' mentioned in the steps
-        below denotes sending of the specified message via unicast to the originator of
+        <t>This section describes how received messages are processed.  The
+        DNCP profile may specify criteria based on which received messages
+        are ignored. Any 'reply' mentioned in the steps below denotes
+        sending of the specified message via unicast to the originator of
         the message being processed.</t>
 
         <t>Upon receipt of:
@@ -354,12 +351,15 @@ should be able to just detect the link id TLV :-p
 
         <t>If a message containing <xref target="node-state">Node State
         TLVs</xref> is received with the node's own node identifier and a
-        higher update sequence number than its current local value, or the same
-        update sequence number and a different hash, there is an error
-        somewhere. The DNCP profile should provide guidance on how to handle
-        these situations.</t>
-        <!-- TODO: This could also be not an error if the local node doesn't
-        keep its own sequence number in a non-volatile memory (e.g. rests it to 0 at reboot). Handle this? -->
+        higher update sequence number than its current local value, or the
+        same update sequence number and a different hash, the node SHOULD
+        re-publish its own node data with a update sequence number 1000
+        higher than the received one. This may occur normally once due to
+        local node restarting, and not storing the most recently used
+        update sequence number. If this occurs more than once, the DNCP
+        profile should provide guidance on how to handle these situations
+        as it indicates existence of a second active node on the network
+        with the same node identifier.</t>
 
       </section>
 
@@ -402,12 +402,9 @@ should be able to just detect the link id TLV :-p
       <t>For point-to-point exchanges, DNCP can run across
       datagram-based or reliable ordered stream-based transports.
       If a stream-based transport is used, a 32-bit length-value
-      in network-byte-order is sent before each message to indicate the
+      in network byte order is sent before each message to indicate the
       number of bytes the following message consists of.</t>
       
-      <!-- This said the length should be +4 (containing length itself) but this seems counter-intuitive
-      plus protocols like DNS which do the same do not include the length bytes itself in the length. -->
-
       <t>DNCP messages are encoded as a concatenated sequence of <xref
       target="tlvs">Type-Length-Value objects</xref>. In order to
       facilitate fast comparing of local state with that in a received
@@ -420,15 +417,9 @@ should be able to just detect the link id TLV :-p
       preamble.
       </t>
 
-      <t>DNCP profiles MAY add additional TLVs to the message specified here or
-      even additional messages as needed.</t>
+      <t>DNCP profiles MAY add additional TLVs to the message specified
+      here or even additional messages as needed.</t>
       
-<!-- TODO: this said "Any other TLVs than the ones specified in this section for a
-      particular message MUST NOT cause an error and SHOULD be silently ignored"
-      but "SHOULD be silently ignored" makes no sense if we want profiles to add more TLVs.
-The sentence as a whole was pretty redundant in itself since there is no "generic DNCP node" not implementing
-a  specific profile thus a profile can always define more TLVs with suitable requirement levels. -->
-
       <section title="Short Network State Update Message"
                anchor="short-net-message">
 
@@ -532,7 +523,7 @@ a  specific profile thus a profile can always define more TLVs with suitable req
         Each TLV is encoded as a 2 byte type-field, followed by a 2-byte length-field
         (of the whole TLV, including header; 4 means no value) followed by
         the value itself (if any). Both type and length are represented
-        in network-byte-order. Zero padding bytes MUST be added up to
+        in network byte order. Zero padding bytes MUST be added up to
         the next 4-byte boundary if the length is not divisible by 4.
         These padding bytes MUST NOT be included in the length field.
       </t>
