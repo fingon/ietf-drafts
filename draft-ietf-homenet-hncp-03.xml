@@ -111,8 +111,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         target="RFC6347">DTLS</xref> as described in DNCP if done over
         unsecured links. UDP on port HNCP-DTLS-PORT is used for this
         purpose.  A node implementing the security mechanism MUST support
-        the DNCP Pre-Shared Key and PKI-based trust methods and SHOULD
-        support DNCP Certificate Based Trust Consensus.</t>
+        the DNCP Pre-Shared Key method, SHOULD support the DNCP Certificate
+        Based Trust Consensus and MAY support the PKI-based trust method.</t>
 
         <t>HNCP uses opaque 32-bit node identifiers
         (DNCP_NODE_IDENTIFIER_LENGTH = 32). A node implementing HNCP SHOULD
