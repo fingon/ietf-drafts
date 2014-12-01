@@ -125,7 +125,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         over the multicast channel, i.e. all Network State Update messages
         send over multicast have the short form.</t>
         <!-- TODO - only in secure mode, though; do we want efficiency in
-             non-secure mode or same code path? -MSt -->
+             non-secure mode or same code path? -MSt
+
+             was thinking of simplicity here (same code path)
+             but no strong opinion really -SB -->
         
         <t>HNCP nodes use the following Trickle parameters:
 
@@ -224,15 +227,13 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         assignment that links on this interface are potentially
         non-transitive. This category MAY be implemented.</t>
 
-        <t hangText="Hybrid category"> This allows the router to still
-        accepts external connections but does not do border discovery.  It
+        <t hangText="Hybrid category"> This declares an interface to
+        be internal while still using external connections on it. It
         is assumed that the link is under control of a legacy, trustworthy
         non-HNCP router, still within the same home network. Detection of
         this category automatically in addition to manual configuration is
         out of scope for this document. This category MAY be
         implemented.</t>
-        <!-- TODO: Relatively broken text and I am not sure how this should
-             be specified here. 'allows .. still accepts'.. -MSt -->
       </list>
       </t>
 
@@ -470,15 +471,6 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         network. In case of a conflict the announcement of the node with
         the higher node identifier takes precedence.</t>
 
-        <!-- TODO: should this have an (optional) Link Identifier as well
-             so we can ensure uniqueness and get rid of that awkward
-             IP-address from assigned prefix restriction?  Or should this
-             be tied to a "designated router" or "designated DHCP server"
-             of some sort? -->
-        <!-- hmm. I am not sure uniqueness would really help (as only zone
-             name => ip address mapping is inserted to e.g. dnsmasq and we
-             do not want duplicates there). -MSt -->
-        <!--  NOTE: changed B and S so L is near B  -->
         <figure>
           <artwork>
 0                   1                   2                   3
@@ -508,33 +500,28 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
             <t>reserved bits MUST be zero when creating and ignored when
             parsing this TLV.</t>
 
-            <t>L-bit (DNS-SD Legacy-Browse) indicates that this delegated
-            zone should be included in the network's DNS-SD legacy browse
-            list of domains at lb._dns- sd._udp.(DOMAIN-NAME).  Local
-            forward zones SHOULD have this set.  Reverse zones SHOULD NOT
-            have this set.</t>
+            <t>L-bit (<xref target="RFC6763">DNS-SD</xref> Legacy-Browse)
+            indicates that this delegated zone should be included in the
+            network's DNS-SD legacy browse list of domains at lb._dns-
+            sd._udp.(DOMAIN-NAME).  Local forward zones SHOULD have this
+            set. Reverse zones SHOULD NOT have this set.</t>
 
-            <t>B-bit (DNS-SD Browse) indicates that this delegated zone
-            should be included in the network's DNS-SD legacy browse list
-            of domains at b._dns- sd._udp.(DOMAIN-NAME).  Local forward
-            zones SHOULD have this set.  Reverse zones SHOULD NOT have this
-            set.</t>
+            <t>B-bit (<xref target="RFC6763">DNS-SD</xref> Browse)
+            indicates that this delegated zone should be included in the
+            network's DNS-SD browse list of domains at b._dns-sd._udp.
+            (DOMAIN-NAME).  Local forward zones SHOULD have this set.
+            Reverse zones SHOULD NOT have this set.</t>
 
-            <t>S-bit (fully-qualified DNS-SD-domain) indicates that this
-            delegated zone consists of a fully-qualified DNS-SD domain,
-            which should be used as base for DNS-SD domain enumeration,
-            i.e. _dns-sd._udp.(Zone) exists.  Forward zones MAY have this
-            set.  Reverse zones MUST NOT have this set. This can be used to
-            provision DNS search path to hosts for non-local services (such
-            as those provided by an ISP, or other manually configured
-            service providers).</t>
+            <t>S-bit (fully-qualified <xref target="RFC6763">DNS-SD</xref>
+            -domain) indicates that this delegated zone consists of a
+            fully-qualified DNS-SD domain, which should be used as base for
+            DNS-SD domain enumeration, i.e. _dns-sd._udp.(Zone) exists.
+            Forward zones MAY have this set.  Reverse zones MUST NOT have this
+            set. This can be used to provision DNS search path to hosts for
+            non-local services (such as those provided by an ISP, or other
+            manually configured service providers). Zones with this flag
+            SHOULD be added to the search domains advertised to clients.</t>
 
-            <!-- TODO: should this be indicated by trailing 0-Label
-                 instead? (i.e. zone="foo.bar" vs zone="foo.bar.com.")  -->
-            <!-- The S-bit is actually semantically 'please stick this in
-                 DHCP{,v6} search path', and fully qualified part is just
-                 side effect of it. I guess this could be explained
-                 better.. -MSt -->
             <t>Zone is the label sequence of the zone, encoded according to
             <xref target="RFC1035"/>.  Compression MUST NOT be used. The
             zone MUST end with an empty label.</t>
@@ -728,14 +715,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       addresses and routes in home networks today have rarely security
       enabled within the configuration protocol itself. However these
       issues are out of scope for the security of HNCP itself.</t>
-
-      <t>HNCP inherits the security properties of DNCP.</t>
-      <!-- TODO: Is this relevant? Seems rather .. drifting.., not
-           connected to preceding or next paragraph really. -MSt -->
       
-      <t>HNCP is a state synchronization mechanism carrying information
-      with varying threat potential.  For this consideration the payloads
-      defined in DNCP and this document are reviewed:
+      <t>HNCP is a DNCP-based state synchronization mechanism carrying
+      information with varying threat potential. For this consideration the
+      payloads defined in DNCP and this document are reviewed:
 
       <list style="symbols">
         <t>Network topology information such as HNCP nodes and their
@@ -868,6 +851,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <?rfc include="reference.RFC.1035.xml"?>
       <?rfc include="reference.RFC.6234.xml"?>
       <?rfc include="reference.RFC.1321.xml"?>
+      <?rfc include="reference.RFC.6763.xml"?>
     </references>
 
     <section title="Changelog">
