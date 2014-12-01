@@ -458,9 +458,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       DNS-Delegated-Zone TLV for said link.  In addition reverse lookup
       services and delegations MAY be provided with the same means.</t>
 
-      <t>The following TLVs are defined for naming and service-discovery
-      which all nodes implementing HNCP naming and service discovery MUST
-      implement.</t>
+      <t>The following TLVs are defined and MUST be supported by all nodes
+      implementing naming and service discovery:</t>
 
       <section anchor="delegated-zone-tlv" title="DNS Delegated Zone TLV">
 
@@ -538,7 +537,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         delegated zones and node names.  In case of conflicts the announced
         domain of the node with the highest node identifier takes
         precedence. By default, if no node advertises such a TLV, ".home"
-        is used as a default.</t>
+        is used.</t>
 
         <figure>
           <artwork>
