@@ -132,7 +132,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
      		</list>
     		</t>
     		
-    		<t>HNCP nodes MUST use the leading 64 bits of <xref target="RFC6234">SHA-256</xref> as DNCP hash function H(x).</t>
+    		<t>HNCP nodes MUST use the leading 64 bits of <xref target="RFC1321">MD5</xref> as DNCP non-cryptographic hash function H(x).</t>
     		
     		<t>HNCP nodes MUST use the periodic keep-alive mechanism over unicast to all peers.
     		The keep-alive interval (DNCP_KEEPALIVE_INTERVAL) MUST be 24 seconds, the timeout interval (DNCP_TIMEOUT_INTERVAL)
@@ -644,7 +644,8 @@ Or should this be tied to a "designated router" or "designated DHCP server" of s
     		where it also uses the security mechanisms of HNCP. If the security mechanism is based on a PSK
     		it MUST use a PSK derived from the Managed-PSK to secure the IGP.</t>
     		<t>It MUST comply with the <xref target="RFC7084">Basic Requirements for IPv6 Customer Edge Routers</xref>
-    		unless it would otherwise conflict with any requirements in this document.</t>
+    		unless it would otherwise conflict with any requirements in this document. "WAN interface requirements" shall
+    		apply to external interfaces and "LAN interface requirements" to internal interfaces respectively.</t>
     		<t>It SHOULD be able to provide connectivity to IPv4-devices using DHCP.</t>
     		<t>It SHOULD be able to delegate prefixes to legacy IPv6-routers using DHCPv6-PD.</t>
     	</list></t>
@@ -777,6 +778,7 @@ Or should this be tied to a "designated router" or "designated DHCP server" of s
       <?rfc include="reference.RFC.7368.xml"?>
       <?rfc include="reference.RFC.1035.xml"?>
       <?rfc include="reference.RFC.6234.xml"?>
+      <?rfc include="reference.RFC.1321.xml"?>
     </references>
 
     <section title="Changelog">
