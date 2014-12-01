@@ -10,9 +10,6 @@ TBD:
 - include e.g. message, or TLV suffix within xref, or not?
 .. for the time being, it is included
 
-- sequence number overflow..
-- looping space probably best choice
-
 - should we actually have 4 byte length in messages on stream transport?
 should be able to just detect the link id TLV :-p
 
@@ -179,13 +176,16 @@ should be able to just detect the link id TLV :-p
         processing. </t>
 
         <t>The latest update sequence number, a 32 bit number that is
-        incremented any time the TLV set is published.</t>
+        incremented any time the TLV set is published. For comparison
+        purposes, values near overflow (greater than 2^32-2^16) are
+        considered less than values after the overflow (less than
+        2^16).</t>
 
         <t>The relative time (in milliseconds) since last publishing of the
         current TLV data set with the current update sequence number. It is
         also 32 bit number on the wire.  If this number is close to
-        overflow (>= 2^32-2^16), a node MUST re-publish it's TLVs even if
-        there is no change to avoid overflow of the value.</t>
+        overflow (greater than 2^32-2^16), a node MUST re-publish it's TLVs
+        even if there is no change to avoid overflow of the value.</t>
 
       </list>
       </t>
