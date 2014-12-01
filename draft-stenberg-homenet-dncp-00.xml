@@ -138,22 +138,22 @@ should be able to just detect the link id TLV :-p
           <t hangText="Link identifier"> is a 32-bit opaque value, which
           identifies uniquely particular link for that particular DNCP
           node.</t>
-          
+
           <t hangText="Node data"> is a set of TLVs published by a node in the
           DNCP network.</t>
-          
+
           <t hangText="Node state"> is a set of metadata attributes for node data.
           It includes a sequence number for versioning, a hash-value for comparing
           and a timestamp indicating the time passed since its last publication.</t>
-          
+
           <t hangText="Network state (hash)"> is a hash-value representing the current
           state of the network. Whenever any node is added, removed or changes
-          its published node data this hash-value changes as well. It is calculated over the 
+          its published node data this hash-value changes as well. It is calculated over the
           hash-values of each reachable nodes' node data in ascending order of the respective node identifier.</t>
 
-	  <t hangText="Effective (trust) verdict"> for any certificate is defined
-	  as the one with the highest priority from all verdicts announced
-	  for said certificate at the time in the DNCP network.</t>
+          <t hangText="Effective (trust) verdict"> for any certificate is defined
+          as the one with the highest priority from all verdicts announced
+          for said certificate at the time in the DNCP network.</t>
 
         </list>
       </t>
@@ -296,7 +296,7 @@ should be able to just detect the link id TLV :-p
         the message being processed.</t>
 
         <t>Upon receipt of:
-	<list>
+        <list>
 
           <t><xref target="short-net-message">Short Network State
           Update</xref>:
@@ -346,8 +346,8 @@ should be able to just detect the link id TLV :-p
           state (higher update sequence number, different node data TLV hash, or
           missing altogether), and if the message also contains
           corresponding Node Data TLVs, the receiver MUST update its locally stored state.</t>
-	</list>
-	</t>
+        </list>
+        </t>
 
         <t>If a message containing <xref target="node-state">Node State
         TLVs</xref> is received with the node's own node identifier and a
@@ -404,7 +404,7 @@ should be able to just detect the link id TLV :-p
       If a stream-based transport is used, a 32-bit length-value
       in network byte order is sent before each message to indicate the
       number of bytes the following message consists of.</t>
-      
+
       <t>DNCP messages are encoded as a concatenated sequence of <xref
       target="tlvs">Type-Length-Value objects</xref>. In order to
       facilitate fast comparing of local state with that in a received
@@ -419,11 +419,11 @@ should be able to just detect the link id TLV :-p
 
       <t>DNCP profiles MAY add additional TLVs to the message specified
       here or even additional messages as needed.</t>
-      
+
       <section title="Short Network State Update Message"
                anchor="short-net-message">
 
-		<t>The Short Network State Update Message is used to announce the sender's view of the network state using multicast.</t>
+                <t>The Short Network State Update Message is used to announce the sender's view of the network state using multicast.</t>
 
         <t>The following TLVs MUST be present:
         <list style="symbols">
@@ -449,22 +449,22 @@ should be able to just detect the link id TLV :-p
           <t>One <xref target="node-id">Node Link TLV</xref> identifying the originating node and link.</t>
 
           <t>One <xref target="net-hash">Network State TLV</xref> containing the network state hash as calculated by the sender.</t>
-          
+
           <t>One or more <xref target="node-state">Node State TLVs</xref> containing the node state of DNCP nodes as currently known to the sender.</t>
 
         </list>
         </t>
 
-	<t>The Long Network State Update message MUST include the corresponding <xref
-	target="node-state">Node State TLV</xref> for each Node Data TLV used to calculated
-	the network state hash.</t>
+        <t>The Long Network State Update message MUST include the corresponding <xref
+        target="node-state">Node State TLV</xref> for each Node Data TLV used to calculated
+        the network state hash.</t>
 
       </section>
 
       <section title="Network State Request Message"
                anchor="req-net-message">
 
-        <t>The Network State Request message is used to request the recipients's 
+        <t>The Network State Request message is used to request the recipients's
         view of the network state and all node states currently known to it.</t>
 
         <t>The following TLVs MUST be present:
@@ -482,7 +482,7 @@ should be able to just detect the link id TLV :-p
       <section title="Node Data Request Message"
                anchor="req-node-message">
 
-        <t>The Node Data Request message is used to request 
+        <t>The Node Data Request message is used to request
         the node state and data of one or more DNCP nodes in the network.</t>
 
         <t>The following TLVs MUST be present:
@@ -499,8 +499,8 @@ should be able to just detect the link id TLV :-p
 
       <section title="Node Data Reply Message"
                anchor="reply-node-message">
-               
-        <t>The Node Data Request message is used to provide 
+
+        <t>The Node Data Request message is used to provide
         the node data of one or more DNCP nodes in the network.</t>
 
         <t>The following TLVs MUST be present:
@@ -703,7 +703,7 @@ should be able to just detect the link id TLV :-p
         </section>
 
         <section anchor="neighbor-tlv" title="Neighbor TLV (within Node Data TLV)">
-	  <figure>
+          <figure>
             <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -733,7 +733,7 @@ should be able to just detect the link id TLV :-p
       </section>
 
       <section anchor="user-tlv" title="Custom TLV (within/without Node Data TLV)">
-	<figure>
+        <figure>
           <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -776,153 +776,153 @@ should be able to just detect the link id TLV :-p
 
       <section title="Pre-Shared Key Based Trust Method">
 
-    	<t>A PSK-based trust model is a simple security management
-    	mechanism that allows an administrator to deploy devices to an
-    	existing network by configuring them with a pre-defined key,
-    	similar to the configuration of an administrator password or
-    	WPA-key.  Although limited in nature it is useful to provide a
-    	user-friendly security mechanism for smaller networks. </t>
+        <t>A PSK-based trust model is a simple security management
+        mechanism that allows an administrator to deploy devices to an
+        existing network by configuring them with a pre-defined key,
+        similar to the configuration of an administrator password or
+        WPA-key.  Although limited in nature it is useful to provide a
+        user-friendly security mechanism for smaller networks. </t>
 
       </section>
 
       <section title="PKI Based Trust Method">
 
-    	<t>A PKI-based trust-model enables more advanced management
-    	capabilities at the cost of increased complexity and
-    	bootstrapping effort. It however allows trust to be managed in a
-    	centralized manner and is therefore useful for larger networks
-    	with a need for an authoritative trust management.</t>
+        <t>A PKI-based trust-model enables more advanced management
+        capabilities at the cost of increased complexity and
+        bootstrapping effort. It however allows trust to be managed in a
+        centralized manner and is therefore useful for larger networks
+        with a need for an authoritative trust management.</t>
       </section>
 
       <section title="Certificate Based Trust Consensus Method">
 
-    	<t>The certificate-based consensus model is designed to be a
-    	compromise between trust management effort and flexibility. It is
-    	based on X.509-certificates and allows each DNCP node to provide a
-    	verdict on any other certificate and a consensus is found to
-    	determine whether a node using this certificate or any
-    	certificate signed by it is to be trusted. </t>
+        <t>The certificate-based consensus model is designed to be a
+        compromise between trust management effort and flexibility. It is
+        based on X.509-certificates and allows each DNCP node to provide a
+        verdict on any other certificate and a consensus is found to
+        determine whether a node using this certificate or any
+        certificate signed by it is to be trusted. </t>
 
-	<t>The current effective trust verdict for any certificate is
-	defined as the one with the highest priority from all verdicts
-	announced for said certificate at the time.</t>
+        <t>The current effective trust verdict for any certificate is
+        defined as the one with the highest priority from all verdicts
+        announced for said certificate at the time.</t>
 
-    	<section title="Trust Verdicts">
+        <section title="Trust Verdicts">
 
-	  <t>Trust Verdicts are statements of DNCP nodes about the
-	  trustworthiness of X.509-certificates.  There are 5 possible
-	  verdicts in order of ascending priority:
+          <t>Trust Verdicts are statements of DNCP nodes about the
+          trustworthiness of X.509-certificates.  There are 5 possible
+          verdicts in order of ascending priority:
 
-	  <list style="hanging">
+          <list style="hanging">
 
-	    <t hangText="0 Neutral">: no verdict exists but the DNCP
-	    network should determine one.</t>
+            <t hangText="0 Neutral">: no verdict exists but the DNCP
+            network should determine one.</t>
 
-	    <t hangText="1 Cached Trust">: the last known effective verdict
-	    was Configured or Cached Trust.</t>
+            <t hangText="1 Cached Trust">: the last known effective verdict
+            was Configured or Cached Trust.</t>
 
-	    <t hangText="2 Cached Distrust">: the last known effective
-	    verdict was Configured or Cached Distrust.</t>
+            <t hangText="2 Cached Distrust">: the last known effective
+            verdict was Configured or Cached Distrust.</t>
 
-	    <t hangText="3 Configured Trust">: trustworthy based upon an
-	    external ceremony or configuration.</t>
+            <t hangText="3 Configured Trust">: trustworthy based upon an
+            external ceremony or configuration.</t>
 
-	    <t hangText="4 Configured Distrust">: not trustworthy based upon
-	    an external ceremony or configuration.</t>
+            <t hangText="4 Configured Distrust">: not trustworthy based upon
+            an external ceremony or configuration.</t>
 
-	  </list>
-	  </t>
+          </list>
+          </t>
 
-	  <t>
-	    Verdicts are differentiated in 3 groups:
+          <t>
+            Verdicts are differentiated in 3 groups:
 
-	    <list style="symbols">
-	      <t>Configured verdicts are used to announce explicit verdicts
-	      a node has based on any external trust bootstrap or
-	      predefined relation a node has formed with a given
-	      certificate.</t>
+            <list style="symbols">
+              <t>Configured verdicts are used to announce explicit verdicts
+              a node has based on any external trust bootstrap or
+              predefined relation a node has formed with a given
+              certificate.</t>
 
-	      <t>Cached verdicts are used to retain the last known trust
-	      state in case all nodes with configured verdicts about a
-	      given certificate have been disconnected or turned off.</t>
+              <t>Cached verdicts are used to retain the last known trust
+              state in case all nodes with configured verdicts about a
+              given certificate have been disconnected or turned off.</t>
 
-	      <t>The Neutral verdict is used to announce a new node
-	      intending to join the homenet so a final verdict for it can
-	      be found.</t>
-	    </list>
-	  </t>
+              <t>The Neutral verdict is used to announce a new node
+              intending to join the homenet so a final verdict for it can
+              be found.</t>
+            </list>
+          </t>
 
-	  <t>
-	    The current effective trust verdict for any certificate is
-	    defined as the one with the highest priority from all verdicts
-	    announced for said certificate at the time.
+          <t>
+            The current effective trust verdict for any certificate is
+            defined as the one with the highest priority from all verdicts
+            announced for said certificate at the time.
 
-	    A node MUST be trusted for participating in the DNCP network if
-	    and only if the current effective verdict for its own
-	    certificate or any one in its certificate hierarchy is (Cached
-	    or Configured) Trust and none of the certificates in its
-	    hierarchy have an effective verdict of (Cached or Configured)
-	    Distrust.
+            A node MUST be trusted for participating in the DNCP network if
+            and only if the current effective verdict for its own
+            certificate or any one in its certificate hierarchy is (Cached
+            or Configured) Trust and none of the certificates in its
+            hierarchy have an effective verdict of (Cached or Configured)
+            Distrust.
 
-	    In case a node has a configured verdict which is different
-	    from the current effective verdict for a certificate the
-	    current effective verdict takes precedence in deciding
-	    trustworthiness however the node still retains and announces
-	    its configured verdict.
-	  </t>
-    	</section>
+            In case a node has a configured verdict which is different
+            from the current effective verdict for a certificate the
+            current effective verdict takes precedence in deciding
+            trustworthiness however the node still retains and announces
+            its configured verdict.
+          </t>
+        </section>
 
-    	<section title="Trust Cache">
-    	  <t>Each node SHOULD maintain a trust cache containing the current
-    	  effective trust verdicts for all certificates currently announced
-    	  in the DNCP network. This cache is used as a backup of the last
-    	  known state in case there is no node announcing an configured
-    	  verdict for a known certificate.  It SHOULD be saved to a
-    	  non-volatile memory at reasonable time intervals to survive a
-    	  reboot or power outage.</t>
+        <section title="Trust Cache">
+          <t>Each node SHOULD maintain a trust cache containing the current
+          effective trust verdicts for all certificates currently announced
+          in the DNCP network. This cache is used as a backup of the last
+          known state in case there is no node announcing an configured
+          verdict for a known certificate.  It SHOULD be saved to a
+          non-volatile memory at reasonable time intervals to survive a
+          reboot or power outage.</t>
 
-    	  <t>Every time a node (re)joins the homenet or detects the change
-    	  of an effective trust verdict for any certificate it will
-    	  synchronize its cache, i.e.  store new effective verdicts
-    	  overwriting any previously cached verdicts.  Configured verdicts
-    	  are stored in the cache as their respective cached counterparts,
-    	  Neutral verdicts are never stored. Neutral verdicts do not
-    	  override existing cached verdicts.</t>
-    	</section>
+          <t>Every time a node (re)joins the homenet or detects the change
+          of an effective trust verdict for any certificate it will
+          synchronize its cache, i.e.  store new effective verdicts
+          overwriting any previously cached verdicts.  Configured verdicts
+          are stored in the cache as their respective cached counterparts,
+          Neutral verdicts are never stored. Neutral verdicts do not
+          override existing cached verdicts.</t>
+        </section>
 
-    	<section title="Announcement of Verdicts">
-    	  <t>A node SHOULD always announce any configured trust verdicts it has
-    	  established by itself, it MUST do so if announcing the configured
-    	  trust verdict leads to a change in the current effective verdict
-    	  for the respective certificate.
-    	  In abscence of configured verdicts it MUST announce cached trust verdicts
-    	  it has stored in its trust cache if one of the following
-    	  conditions applies:
+        <section title="Announcement of Verdicts">
+          <t>A node SHOULD always announce any configured trust verdicts it has
+          established by itself, it MUST do so if announcing the configured
+          trust verdict leads to a change in the current effective verdict
+          for the respective certificate.
+          In abscence of configured verdicts it MUST announce cached trust verdicts
+          it has stored in its trust cache if one of the following
+          conditions applies:
 
-    	  <list style="symbols">
-    	    <t>The stored verdict is Cached Trust and the current effective
-    	    verdict for the certificate is Neutral or does not exist.</t>
-    	    <t>The stored verdict is Cached Distrust and the current
-    	    effective verdict for the certificate is Cached Trust.</t>
-    	  </list>
+          <list style="symbols">
+            <t>The stored verdict is Cached Trust and the current effective
+            verdict for the certificate is Neutral or does not exist.</t>
+            <t>The stored verdict is Cached Distrust and the current
+            effective verdict for the certificate is Cached Trust.</t>
+          </list>
 
-    	  A node rechecks these conditions whenever it detects changes of
-    	  announced trust verdicts anywhere in the network.
-    	  </t>
+          A node rechecks these conditions whenever it detects changes of
+          announced trust verdicts anywhere in the network.
+          </t>
 
-	  <t>Upon encountering a node with a hierarchy of certificates for
-	  which there is no effective verdict a node adds a Neutral
-	  Trust-Verdict-TLV to its node data for all certificates found in
-	  the hierarchy until an effective verdict different from Neutral
-	  can be found for any of the certificates or a reasonable amount
-	  of time (10 minutes is suggested) with no reaction and no further
-	  DTLS or TLS authentication attempts has passed.  Such verdicts
-	  SHOULD also be limited in rate and number to prevent
-	  denial-of-service attacks.</t>
+          <t>Upon encountering a node with a hierarchy of certificates for
+          which there is no effective verdict a node adds a Neutral
+          Trust-Verdict-TLV to its node data for all certificates found in
+          the hierarchy until an effective verdict different from Neutral
+          can be found for any of the certificates or a reasonable amount
+          of time (10 minutes is suggested) with no reaction and no further
+          DTLS or TLS authentication attempts has passed.  Such verdicts
+          SHOULD also be limited in rate and number to prevent
+          denial-of-service attacks.</t>
 
-    	  <t>Trust verdicts are announced using Trust-Verdict TLVs:
-	  <figure>
-	    <artwork>
+          <t>Trust verdicts are announced using Trust-Verdict TLVs:
+          <figure>
+            <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -940,74 +940,74 @@ should be able to just detect the link id TLV :-p
 |                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                          Common Name                          |
-	    </artwork>
-	  </figure>
+            </artwork>
+          </figure>
 
-	  <list>
-	    <t>Verdict represents the numerical index of the verdict.</t>
+          <list>
+            <t>Verdict represents the numerical index of the verdict.</t>
 
-	    <t>(reserved) is reserved for future additions and MUST be set
-	    to 0 when creating TLVs and ignored when parsing them.</t>
+            <t>(reserved) is reserved for future additions and MUST be set
+            to 0 when creating TLVs and ignored when parsing them.</t>
 
-	    <t>SHA-256 Fingerprint contains the <xref
-	    target="RFC6234">SHA-256</xref> hash-value of the certificate
-	    in DER-format.</t>
+            <t>SHA-256 Fingerprint contains the <xref
+            target="RFC6234">SHA-256</xref> hash-value of the certificate
+            in DER-format.</t>
 
-	    <t>Common Name contains the variable-length (1-64 bytes) common
-	    name of the certificate including a trailing 0-Byte.</t>
-	  </list>
-	  </t>
-	</section>
+            <t>Common Name contains the variable-length (1-64 bytes) common
+            name of the certificate including a trailing 0-Byte.</t>
+          </list>
+          </t>
+        </section>
 
-	<section title="Bootstrap Ceremonies">
-    	  <t>The following non-exhaustive list of methods describes
-    	  possible ways to establish trust relationships between
-    	  DNCP nodes and node certificates. Trust establishment is a
-    	  two-way process in which the existing homenet must trust the
-    	  newly added node and the newly added node must trust at least
-    	  one of its neighboring nodes.
+        <section title="Bootstrap Ceremonies">
+          <t>The following non-exhaustive list of methods describes
+          possible ways to establish trust relationships between
+          DNCP nodes and node certificates. Trust establishment is a
+          two-way process in which the existing homenet must trust the
+          newly added node and the newly added node must trust at least
+          one of its neighboring nodes.
 
-    	  It is therefore necessary that both the newly added node and an
-    	  already trusted node perform such a ceremony to successfully
-    	  introduce a node into the DNCP network.  In all cases an
-    	  administrator MUST be provided with external means to identify
-    	  the node belonging to a certificate based on its fingerprint
-    	  and a meaningful common name.</t>
+          It is therefore necessary that both the newly added node and an
+          already trusted node perform such a ceremony to successfully
+          introduce a node into the DNCP network.  In all cases an
+          administrator MUST be provided with external means to identify
+          the node belonging to a certificate based on its fingerprint
+          and a meaningful common name.</t>
 
-	  <section title="Trust by Identification">
-    	    <t>A node implementing certificate-based trust MUST provide
-    	    an interface to retrieve the current set of effective trust
-    	    verdicts, fingerprints and names of all certificates currently
-    	    known and set configured trust verdicts to be
-    	    announced. Alternatively it MAY provide a companion DNCP node
-    	    or application with these capabilities with which it has a
-    	    pre-established trust relationship.</t>
-    	  </section>
+          <section title="Trust by Identification">
+            <t>A node implementing certificate-based trust MUST provide
+            an interface to retrieve the current set of effective trust
+            verdicts, fingerprints and names of all certificates currently
+            known and set configured trust verdicts to be
+            announced. Alternatively it MAY provide a companion DNCP node
+            or application with these capabilities with which it has a
+            pre-established trust relationship.</t>
+          </section>
 
-    	  <section title="Preconfigured Trust">
-    	    <t>A node MAY be preconfigured to trust a certain set of
-    	    node or CA certificates.  However such trust relationships
-    	    MUST NOT result in unwanted or unrelated trust for nodes not
-    	    intended to be run inside the same network (e.g. all other
-    	    devices by the same manufacturer).</t>
-    	  </section>
+          <section title="Preconfigured Trust">
+            <t>A node MAY be preconfigured to trust a certain set of
+            node or CA certificates.  However such trust relationships
+            MUST NOT result in unwanted or unrelated trust for nodes not
+            intended to be run inside the same network (e.g. all other
+            devices by the same manufacturer).</t>
+          </section>
 
-    	  <section title="Trust on Button Press">
-    	    <t>A node MAY provide a physical or virtual interface to put
-    	    one or more of its internal network interfaces temporarily into
-    	    a mode in which it trusts the certificate of the first
-    	    DNCP node it can successfully establish a connection
-    	    with.</t>
-    	  </section>
+          <section title="Trust on Button Press">
+            <t>A node MAY provide a physical or virtual interface to put
+            one or more of its internal network interfaces temporarily into
+            a mode in which it trusts the certificate of the first
+            DNCP node it can successfully establish a connection
+            with.</t>
+          </section>
 
-    	  <section title="Trust on First Use">
-    	    <t>A node which is not associated with any other DNCP node MAY
-    	    trust the certificate of the first DNCP node it can
-    	    successfully establish a connection with. This method MUST NOT
-    	    be used when the node has already associated with any other
-    	    DNCP node.</t>
-    	  </section>
-    	</section>
+          <section title="Trust on First Use">
+            <t>A node which is not associated with any other DNCP node MAY
+            trust the certificate of the first DNCP node it can
+            successfully establish a connection with. This method MUST NOT
+            be used when the node has already associated with any other
+            DNCP node.</t>
+          </section>
+        </section>
       </section>
     </section>
 
@@ -1167,7 +1167,7 @@ should be able to just detect the link id TLV :-p
       nodes using TLV types in this range SHOULD use e.g. Custom TLV to
       identify each other and therefore eliminate potential conflict caused
       by potential different use of same TLV numbers. </t>
-      
+
     </section>
 
   </middle>
