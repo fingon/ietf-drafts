@@ -78,12 +78,13 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       present, routing based on source and destination address is
       necessary <xref target="RFC7368" />.</t>
 
-      <t>A GPLv2-licensed implementation of HNCP is
-      currently under development at <eref target="https://github.com/sbyx/hnetd/">https://github.com/sbyx/hnetd/</eref>
-      and binaries are available in the <eref
-      target="http://www.openwrt.org">OpenWrt</eref> package repositories.
-      See <eref target="http://www.homewrt.org/doku.php?id=run-conf" /> for more information.
-      Feedback and contributions are welcome.</t>
+      <t>A GPLv2-licensed implementation of HNCP is currently under
+      development at <eref target="https://github.com/sbyx/hnetd/">
+      https://github.com/sbyx/hnetd/</eref> and binaries are available in
+      the <eref target="http://www.openwrt.org">OpenWrt</eref> package
+      repositories.  See <eref
+      target="http://www.homewrt.org/doku.php?id=run-conf" /> for more
+      information.  Feedback and contributions are welcome.</t>
     </section>
 
     <section anchor="kwd" title='Requirements language'>
@@ -124,11 +125,11 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         over the multicast channel, i.e. all Network State Update messages
         send over multicast have the short form.</t>
         <!-- TODO - only in secure mode, though; do we want efficiency in
-             non-secure mode or same code path? -->
+             non-secure mode or same code path? -MSt -->
         
         <t>HNCP nodes use the following Trickle parameters:
 
-        <list>
+        <list style="symbols">
           <t>k SHOULD be 1, given the timer reset on data updates and
           retransmissions should handle packet loss.</t>
 
@@ -157,11 +158,12 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
     <section title="Border Discovery" anchor="bd">
 
-      <t>This section defines the border discovery algorithm derived from the
-      edge router interactions described in the <xref
+      <t>This section defines the border discovery algorithm derived from
+      the edge router interactions described in the <xref
       target="RFC7084">Basic Requirements for IPv6 Customer Edge
       Routers</xref>. The algorithm is designed to work for both IPv4 and
-      IPv6 (single or dual-stack) and MUST be implemented by any router implementing HNCP.</t>
+      IPv6 (single or dual-stack) and MUST be implemented by any router
+      implementing HNCP.</t>
 
       <t>In order to avoid conflicts between border discovery and homenet
       routers running <xref target="RFC2131">DHCP</xref> or <xref
@@ -170,7 +172,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       Class Option for DHCP</xref> or its <xref target="RFC3315">DHCPv6
       counterpart</xref> respectively into its DHCP and DHCPv6-logic:
 
-      <list>
+      <list style="symbols">
 
         <t>A homenet router running a DHCP client on a homenet interface
         MUST include a DHCP User-Class consisting of the ASCII-String
@@ -187,49 +189,50 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       with evaluation stopping at first match:
 
       <list style="numbers">
-      <t>If a fixed category is set for an interface, it MUST be used.</t>
+        <t>If a fixed category is set for an interface, it MUST be used.</t>
 
-          <t>If a delegated prefix could be acquired by running a DHCPv6
-          client on the interface it MUST be considered external.</t>
+        <t>If a delegated prefix could be acquired by running a DHCPv6
+        client on the interface it MUST be considered external.</t>
 
-          <t>If an IPv4-address could be acquired by running a DHCP client
-          on the interface it MUST be considered external.</t>
+        <t>If an IPv4-address could be acquired by running a DHCP client
+        on the interface it MUST be considered external.</t>
 
-      <t>Otherwise the interface MUST be considered internal.</t>
+        <t>Otherwise the interface MUST be considered internal.</t>
       </list>
       </t>
 
       <t>A router MUST allow setting a category of either auto-detected,
       internal or external for each interface which is suitable for both
       internal and external connections. In addition the following
-      specializations of the internal category are defined to modify the local router behavior:
+      specializations of the internal category are defined to modify the
+      local router behavior:
 
-      <list>
-        <t>Leaf category: This declares an interface used by clients only.
-        A router SHOULD implement this category and MUST NOT send
-        nor receive HNCP messages on these interfaces.</t>
+      <list style="hanging">
+        <t hangText="Leaf category"> This declares an interface used by
+        clients only.  A router SHOULD implement this category and MUST NOT
+        send nor receive HNCP messages on these interfaces.</t>
 
-        <t>Guest category: This declares an interface used by untrusted
-        clients only. In addition to the restrictions of the leaf
-        category, clients connected to these interfaces MUST NOT be able
-        to reach devices inside the home network by default and instead
-        SHOULD only be able to reach the internet. This category SHOULD be
-        also supported.</t>
+        <t hangText="Guest category"> This declares an interface used by
+        untrusted clients only. In addition to the restrictions of the leaf
+        category, clients connected to these interfaces MUST NOT be able to
+        reach devices inside the home network by default and instead SHOULD
+        only be able to reach the internet. This category SHOULD be also
+        supported.</t>
 
-        <t>Ad-hoc category: This declares an interface to be in ad-hoc mode. This
-        indicates to HNCP applications such as prefix assignment that links
-        on this interface are potentially non-transitive. This category MAY
-        be implemented.</t>
+        <t hangText="Ad-hoc category"> This declares an interface to be in
+        ad-hoc mode. This indicates to HNCP applications such as prefix
+        assignment that links on this interface are potentially
+        non-transitive. This category MAY be implemented.</t>
 
-        <t>Hybrid category: This allows the router to still accepts
-        external connections but does not do border discovery.  It is
-        assumed that the link is under control of a legacy, trustworthy
+        <t hangText="Hybrid category"> This allows the router to still
+        accepts external connections but does not do border discovery.  It
+        is assumed that the link is under control of a legacy, trustworthy
         non-HNCP router, still within the same home network. Detection of
         this category automatically in addition to manual configuration is
         out of scope for this document. This category MAY be
         implemented.</t>
         <!-- TODO: Relatively broken text and I am not sure how this should
-             be specified here. 'still accepts'.. -->
+             be specified here. 'allows .. still accepts'.. -MSt -->
       </list>
       </t>
 
@@ -249,17 +252,17 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       SHOULD announce the acquired information for use in the homenet as
       described in later sections of this draft if the interface appears to
       be connected to an external network.</t>
-</section>
+    </section>
 
-<section title="TLV-Definitions for Prefix Assignment">
-          <t>The following TLVs are defined to announce prefix and addressing
-          information using HNCP. Each HNCP-node using these TLVs
-          MUST implement and follow the relevant sections of
+    <section title="TLV-Definitions for Prefix Assignment">
+      <t>The following TLVs are defined to announce prefix and addressing
+      information using HNCP. Each HNCP-node using these TLVs
+      MUST implement and follow the relevant sections of
       <xref target="I-D.ietf-homenet-prefix-assignment">Prefix and
       Address Assignment in a Home Network</xref>.</t>
 
       <!-- TODO - this whole section is awkward to read. It needs
-           subsection headers or something. -->
+           subsection headers or something. -MSt -->
       
       <t>To distribute an external connection in the homenet an edge router
       announces one or more delegated prefixes and associated
@@ -342,10 +345,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
           Node-Data TLV was last published, i.e. it MUST be updated whenever
           the node republishes its Node-Data TLV.</t>
 
-          <t>Preferred Lifetime is the time in seconds the delegated
-          prefix is preferred. The value is relative to the point in time the node's
-          Node-Data TLV was last published, i.e. it MUST be updated whenever
-          the node republishes its Node-Data TLV.</t>
+          <t>Preferred Lifetime is the time in seconds the delegated prefix
+          is preferred. The value is relative to the point in time the
+          node's Node-Data TLV was last published, i.e. it MUST be updated
+          whenever the node republishes its Node-Data TLV.</t>
 
           <t>Prefix length specifies the number of significant bits in the
           prefix.</t>
@@ -432,8 +435,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
           address is assigned to.</t>
 
           <t>IP-Address is the IP-address assigned to one of the node
-          interfaces. IPv4-addresses are represented as <xref target="RFC4291">IPv4-mapped
-      addresses</xref>.</t>
+          interfaces. IPv4-addresses are represented as <xref
+          target="RFC4291">IPv4-mapped addresses</xref>.</t>
         </list>
       </t>
     </section>
@@ -445,31 +448,37 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       means to setup and delegate naming and service discovery across
       multiple HNCP routers.</t>
 
-      <t>Each HNCP router SHOULD provide
-      an auto-generated or user-configured name for each
-      internal link for which it is the designated DHCP or stateful DHCPv6-server
-      and provide DNS-services on behalf of devices on said link.
-      This can be done e.g. by providing a DNS-to-MDNS proxy
-      and / or by resolving device hostnames acquired using DHCP, DHCPv6 or other means via DNS
-      and announcing a DNS-Delegated-Zone TLV for said link.
-      In addition reverse lookup services and delegations MAY be provided with the same means.</t>
+      <t>Each HNCP router SHOULD provide an auto-generated or
+      user-configured name for each internal link for which it is the
+      designated DHCP or stateful DHCPv6-server and provide DNS-services on
+      behalf of devices on said link.  This can be done e.g. by providing a
+      DNS-to-MDNS proxy and / or by resolving device hostnames acquired
+      using DHCP, DHCPv6 or other means via DNS and announcing a
+      DNS-Delegated-Zone TLV for said link.  In addition reverse lookup
+      services and delegations MAY be provided with the same means.</t>
 
       <t>The following TLVs are defined for naming and service-discovery
-      which all nodes implementing HNCP naming and service discovery
-      MUST implement.</t>
+      which all nodes implementing HNCP naming and service discovery MUST
+      implement.</t>
 
       <section anchor="delegated-zone-tlv" title="DNS Delegated Zone TLV">
 
-      <t>This TLV is used to announce a forward or reverse DNS zone delegation
-      in the home network. Its meaning is roughly equivalent to specifying
-      an NS and A/AAAA record for said zone. There MUST NOT be more than one
-      delegation for the same zone, in case of a conflict the announcement of the node
-      with the higher node identifier takes precedence.</t>
+        <t>This TLV is used to announce a forward or reverse DNS zone
+        delegation in the home network. Its meaning is roughly equivalent
+        to specifying an NS and A/AAAA record for said zone. There MUST NOT
+        be more than one delegation for the same zone in the whole DNCP
+        network. In case of a conflict the announcement of the node with
+        the higher node identifier takes precedence.</t>
 
-<!-- TODO: should this have an (optional) Link Identifier as well so
-we can ensure uniqueness and get rid of that awkward IP-address from assigned prefix restriction?
-Or should this be tied to a "designated router" or "designated DHCP server" of some sort? -->
-<!--  NOTE: changed B and S so L is near B  -->
+        <!-- TODO: should this have an (optional) Link Identifier as well
+             so we can ensure uniqueness and get rid of that awkward
+             IP-address from assigned prefix restriction?  Or should this
+             be tied to a "designated router" or "designated DHCP server"
+             of some sort? -->
+        <!-- hmm. I am not sure uniqueness would really help (as only zone
+             name => ip address mapping is inserted to e.g. dnsmasq and we
+             do not want duplicates there). -MSt -->
+        <!--  NOTE: changed B and S so L is near B  -->
         <figure>
           <artwork>
 0                   1                   2                   3
@@ -488,47 +497,61 @@ Or should this be tied to a "designated router" or "designated DHCP server" of s
           </artwork>
         </figure>
 
-    <t>
-        <list>
-          <t>IP Address is the IPv6-address of the authoritative DNS-server for the zone;
-          IPv4-addresses are represented as <xref target="RFC4291">IPv4-mapped addresses</xref>.
-          The special value of :: (all-zero) means the delegation is available in the regular
-          global DNS-hierarchy.</t>
+        <t>
+          <list>
+            <t>IP Address is the IPv6-address of the authoritative
+            DNS-server for the zone; IPv4-addresses are represented as
+            <xref target="RFC4291">IPv4-mapped addresses</xref>.  The
+            special value of :: (all-zero) means the delegation is
+            available in the regular global DNS-hierarchy.</t>
 
-          <t>reserved bits MUST be zero when creating and ignored when parsing this TLV.</t>
+            <t>reserved bits MUST be zero when creating and ignored when
+            parsing this TLV.</t>
 
-          <t>L-bit (DNS-SD Legacy-Browse) indicates that this delegated zone should be included in
-      the network's DNS-SD legacy browse list of domains at lb._dns-
-      sd._udp.(DOMAIN-NAME).  Local forward zones SHOULD have this set.
-      Reverse zones SHOULD NOT have this set.</t>
+            <t>L-bit (DNS-SD Legacy-Browse) indicates that this delegated
+            zone should be included in the network's DNS-SD legacy browse
+            list of domains at lb._dns- sd._udp.(DOMAIN-NAME).  Local
+            forward zones SHOULD have this set.  Reverse zones SHOULD NOT
+            have this set.</t>
 
-      <t>B-bit (DNS-SD Browse) indicates that this delegated zone should be included in
-      the network's DNS-SD legacy browse list of domains at b._dns-
-      sd._udp.(DOMAIN-NAME).  Local forward zones SHOULD have this set.
-      Reverse zones SHOULD NOT have this set.</t>
+            <t>B-bit (DNS-SD Browse) indicates that this delegated zone
+            should be included in the network's DNS-SD legacy browse list
+            of domains at b._dns- sd._udp.(DOMAIN-NAME).  Local forward
+            zones SHOULD have this set.  Reverse zones SHOULD NOT have this
+            set.</t>
 
-      <t>S-bit (fully-qualified DNS-SD-domain) indicates that this delegated zone consists of a
-      fully-qualified DNS-SD domain, which should be used as base for DNS-SD domain enumeration,
-      i.e. _dns-sd._udp.(Zone) exists.  Forward zones MAY have this set.
-      Reverse zones MUST NOT have this set. This can be used to provision DNS search path
-      to hosts for non-local services (such as those provided by an ISP,
-      or other manually configured service providers).</t>
-<!-- TODO: should this be indicated by trailing 0-Label instead? (i.e. zone="foo.bar" vs zone="foo.bar.com.")  -->
+            <t>S-bit (fully-qualified DNS-SD-domain) indicates that this
+            delegated zone consists of a fully-qualified DNS-SD domain,
+            which should be used as base for DNS-SD domain enumeration,
+            i.e. _dns-sd._udp.(Zone) exists.  Forward zones MAY have this
+            set.  Reverse zones MUST NOT have this set. This can be used to
+            provision DNS search path to hosts for non-local services (such
+            as those provided by an ISP, or other manually configured
+            service providers).</t>
 
-      <t>Zone is the label sequence of the zone, encoded according to <xref target="RFC1035"/>.
-      Compression MUST NOT be used. The zone MUST end with an empty label.</t>
-        </list>
+            <!-- TODO: should this be indicated by trailing 0-Label
+                 instead? (i.e. zone="foo.bar" vs zone="foo.bar.com.")  -->
+            <!-- The S-bit is actually semantically 'please stick this in
+                 DHCP{,v6} search path', and fully qualified part is just
+                 side effect of it. I guess this could be explained
+                 better.. -MSt -->
+            <t>Zone is the label sequence of the zone, encoded according to
+            <xref target="RFC1035"/>.  Compression MUST NOT be used. The
+            zone MUST end with an empty label.</t>
+
+          </list>
         </t>
       </section>
 
 
       <section anchor="domain-name-tlv" title="Domain Name TLV">
 
-                <t>This TLV is used to indicate the base domain name for the network.
-                It is the zone used as a base for all non fully-qualified delegated zones and node names.
-                In case of conflicts the announced domain of the node with the highest
-                node identifier takes precedence. By default, if no node advertises such a TLV,
-                ".home" is used as a default.</t>
+        <t>This TLV is used to indicate the base domain name for the
+        network.  It is the zone used as a base for all non fully-qualified
+        delegated zones and node names.  In case of conflicts the announced
+        domain of the node with the highest node identifier takes
+        precedence. By default, if no node advertises such a TLV, ".home"
+        is used as a default.</t>
 
         <figure>
           <artwork>
@@ -543,20 +566,21 @@ Or should this be tied to a "designated router" or "designated DHCP server" of s
         </figure>
 
         <t>
-        <list>
-      <t>Domain is the label sequence encoded according to <xref target="RFC1035"/>.
-      Compression MUST NOT be used. The zone MUST end with an empty label.</t>
-        </list>
+          <list>
+            <t>Domain is the label sequence encoded according to <xref
+            target="RFC1035"/>.  Compression MUST NOT be used. The zone
+            MUST end with an empty label.</t>
+          </list>
         </t>
 
       </section>
       <section anchor="router-name-tlv" title="Node Name TLV">
 
-      <t>This TLV is used to announce the name of a node in the network.
-                In case of conflicts the announcement of the node with the highest
-                node identifier takes precedence. A node announcing such a TLV
-                MUST also announce at least one Node-Address TLV which is used
-                as destination address.</t>
+        <t>This TLV is used to announce the name of a node in the network.
+        In case of conflicts the announcement of the node with the highest
+        node identifier takes precedence. A node announcing such a TLV
+        MUST also announce at least one Node-Address TLV which is used
+        as destination address.</t>
 
         <figure>
           <artwork>
@@ -574,20 +598,29 @@ Or should this be tied to a "designated router" or "designated DHCP server" of s
 
 
     <section title="Securing Third-Party Protocols">
-      <t>Pre-shared keys are often required to secure IGPs and other protocols which lack support for asymmetric security.
-        The following mechanism defines a way to manage such keys by HNCP to be used for bootstrapping third-party protocols and SHOULD therefore be used if such a need arises.
-        The following rules determine how such a PSK is managed and used:
+      <t>Pre-shared keys are often required to secure IGPs and other
+      protocols which lack support for asymmetric security.  The following
+      mechanism defines a way to manage such keys by HNCP to be used for
+      bootstrapping third-party protocols and SHOULD therefore be used if
+      such a need arises.  The following rules determine how such a PSK is
+      managed and used:
 
-        <list>
-        <t>If no Managed-PSK-TLV is currently being announced, a HNCP router creates one with a 32-Byte long random key and adds it to its node-data.</t>
-        <t>In case multiple routers announce such a TLV at the same time, all but the one with the highest router-ID stop advertising it and adopt the remaining one.</t>
-        <t>The router currently advertising the Managed-PSK-TLV must generate and advertise a new random one
-        whenever the HNCP security mechanism stops trusting one or more trusted devices - i.e. HNCP is secured with a PSK itself and it was changed
-        or a certificate has changed from trusted to distrusted.</t>
-        </list>
-        </t>
+      <list style="symbols">
+        <t>If no Managed-PSK-TLV is currently being announced, a HNCP
+        router creates one with a 32-Byte long random key and adds it to
+        its node-data.</t>
+        <t>In case multiple routers announce such a TLV at the same time,
+        all but the one with the highest router-ID stop advertising it and
+        adopt the remaining one.</t>
+        <t>The router currently advertising the Managed-PSK-TLV must
+        generate and advertise a new random one whenever the HNCP security
+        mechanism stops trusting one or more trusted devices - i.e. HNCP is
+        secured with a PSK itself and it was changed or a certificate has
+        changed from trusted to distrusted.</t>
+      </list>
+      </t>
 
-                <figure>
+      <figure>
         <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -606,29 +639,30 @@ Or should this be tied to a "designated router" or "designated DHCP server" of s
         </artwork>
       </figure>
 
-        <t>
-        PSKs for individual protocols are derived from the random PSK through the use of <xref target="RFC6234">HMAC-SHA256</xref>
-        with a pre-defined per-protocol HMAC-key in ASCII-format. The following HMAC-keys are currently defined to
-        derive PSKs for the respective protocols:
+      <t>PSKs for individual protocols are derived from the random PSK
+      through the use of <xref target="RFC6234">HMAC-SHA256</xref> with a
+      pre-defined per-protocol HMAC-key in ASCII-format. The following
+      HMAC-keys are currently defined to derive PSKs for the respective
+      protocols:
 
-        <list>
+      <list>
         <t>"ROUTING": to be used for IGPs</t>
-        </list>
-        </t>
+      </list>
+      </t>
     </section>
 
-      <section anchor="version-tlv" title="HNCP-Versioning">
-      <t>Multiple versions of HNCP based on compatible DNCP profiles
-      may be present in the same network when transitioning.
-      The following mechanism describes a way to announce the currently
-      active version and User-agent of a node. Each node MUST
-      include a HNCP-Version-TLV in its Node Data and MUST ignore any
-      TLVs with a type greater than 32 for nodes not publishing an
-      HNCP-Version TLV or publishing such a TLV with a different Version
-      number.</t>
+    <section anchor="version-tlv" title="HNCP-Versioning">
 
-        <figure>
-          <artwork>
+      <t>Multiple versions of HNCP based on compatible DNCP profiles may be
+      present in the same network when transitioning.  The following
+      mechanism describes a way to announce the currently active version
+      and User-agent of a node. Each node MUST include a HNCP-Version-TLV
+      in its Node Data and MUST ignore any TLVs with a type greater than 32
+      for nodes not publishing an HNCP-Version TLV or publishing such a TLV
+      with a different Version number.</t>
+
+      <figure>
+        <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -637,37 +671,49 @@ Or should this be tied to a "designated router" or "designated DHCP server" of s
 |    Version    |                  (reserved)                   |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                          User-agent                           |
-          </artwork>
-        </figure>
+        </artwork>
+      </figure>
 
-        <t>Version indicates which version of HNCP
-        is currently in use by this particular node. It MUST be set to 0.</t>
+      <t>Version indicates which version of HNCP is currently in use by
+      this particular node. It MUST be set to 0.</t>
 
-        <t>(reserved) bits must be set to 0 when creating and ignored when parsing this TLV.</t>
+      <t>(reserved) bits must be set to 0 when creating and ignored when
+      parsing this TLV.</t>
 
-        <t>The user-agent is a null-terminated human-readable UTF-8 string that
-        describes the name and version of the current HNCP implementation.</t>
+      <t>The user-agent is a null-terminated human-readable UTF-8 string
+      that describes the name and version of the current HNCP
+      implementation.</t>
 
-      </section>
+    </section>
 
     <section title="Requirements for HNCP Routers">
-        <t>Each router implementing HNCP is subject to the following requirements:
-        <list>
-                <t>It MUST implement HNCP-Versioning, Border Discovery and Prefix Assignment as defined in this document.</t>
-                <t>It MUST implement and run the method for securing third-party protocols whenever it uses the security mechanism of HNCP.</t>
-                <t>It SHOULD implement support for the Service Discovery and Naming TLVs as defined in this document.</t>
-                <t>It MUST implement and run the routing protocol $FOO [RFCXYZ] with support for source-specific routes
-                on all of the interfaces it sends and receives HNCP-messages on and MUST resort to announcing
-                source-specific routes for external destinations appropriately.</t>
-                <t>It MUST use adequate security mechanisms for the routing protocol on any interface
-                where it also uses the security mechanisms of HNCP. If the security mechanism is based on a PSK
-                it MUST use a PSK derived from the Managed-PSK to secure the IGP.</t>
-                <t>It MUST comply with the <xref target="RFC7084">Basic Requirements for IPv6 Customer Edge Routers</xref>
-                unless it would otherwise conflict with any requirements in this document. "WAN interface requirements" shall
-                apply to external interfaces and "LAN interface requirements" to internal interfaces respectively.</t>
-                <t>It SHOULD be able to provide connectivity to IPv4-devices using DHCP.</t>
-                <t>It SHOULD be able to delegate prefixes to legacy IPv6-routers using DHCPv6-PD.</t>
-        </list></t>
+      <t>Each router implementing HNCP is subject to the following
+      requirements:
+      <list style="symbols">
+        <t>It MUST implement HNCP-Versioning, Border Discovery and Prefix
+        Assignment as defined in this document.</t>
+        <t>It MUST implement and run the method for securing third-party
+        protocols whenever it uses the security mechanism of HNCP.</t>
+        <t>It SHOULD implement support for the Service Discovery and Naming
+        TLVs as defined in this document.</t>
+        <t>It MUST implement and run the routing protocol $FOO [RFCXYZ]
+        with support for source-specific routes on all of the interfaces it
+        sends and receives HNCP-messages on and MUST resort to announcing
+        source-specific routes for external destinations appropriately.</t>
+        <t>It MUST use adequate security mechanisms for the routing
+        protocol on any interface where it also uses the security
+        mechanisms of HNCP. If the security mechanism is based on a PSK it
+        MUST use a PSK derived from the Managed-PSK to secure the IGP.</t>
+        <t>It MUST comply with the <xref target="RFC7084">Basic
+        Requirements for IPv6 Customer Edge Routers</xref> unless it would
+        otherwise conflict with any requirements in this document. "WAN
+        interface requirements" shall apply to external interfaces and "LAN
+        interface requirements" to internal interfaces respectively.</t>
+        <t>It SHOULD be able to provide connectivity to IPv4-devices using
+        DHCP.</t>
+        <t>It SHOULD be able to delegate prefixes to legacy IPv6-routers
+        using DHCPv6-PD.</t>
+      </list></t>
     </section>
 
     <section title="Security Considerations">
@@ -684,14 +730,14 @@ Or should this be tied to a "designated router" or "designated DHCP server" of s
       issues are out of scope for the security of HNCP itself.</t>
 
       <t>HNCP inherits the security properties of DNCP.</t>
-<!-- TODO: Is this relevant? Seems rather .. drifting.., not connected to
-     preceding or next paragraph really. -->
+      <!-- TODO: Is this relevant? Seems rather .. drifting.., not
+           connected to preceding or next paragraph really. -MSt -->
       
       <t>HNCP is a state synchronization mechanism carrying information
       with varying threat potential.  For this consideration the payloads
       defined in DNCP and this document are reviewed:
 
-      <list>
+      <list style="symbols">
         <t>Network topology information such as HNCP nodes and their
         adjacent links</t>
 
@@ -734,43 +780,43 @@ Or should this be tied to a "designated router" or "designated DHCP server" of s
         often deployed with one-way authentication of the subscriber to the
         ISP, not the ISP to the subscriber.</t>
 
-    </section>
+      </section>
 
-    <section title="Security of Unicast Traffic">
+      <section title="Security of Unicast Traffic">
 
-      <t>Once the homenet border has been established there are several
-      ways to secure HNCP against internal threats like manipulation or
-      eavesdropping by compromised devices on a link which is enabled for
-      HNCP traffic. If left unsecured attackers may perform arbitrary
-      eavesdropping, spoofing or denial of service attacks on HNCP services
-      such as address assignment or service discovery.</t>
-      
+        <t>Once the homenet border has been established there are several
+        ways to secure HNCP against internal threats like manipulation or
+        eavesdropping by compromised devices on a link which is enabled for
+        HNCP traffic. If left unsecured attackers may perform arbitrary
+        eavesdropping, spoofing or denial of service attacks on HNCP services
+        such as address assignment or service discovery.</t>
+        
 
-      <t>Detailed interface categories like "leaf" or "guest" can be used
-      to integrate not fully trusted devices to various degrees into the
-      homenet by not exposing them to HNCP and IGP traffic or by using
-      firewall rules to prevent them from reaching homenet-internal
-      resources. </t>
+        <t>Detailed interface categories like "leaf" or "guest" can be used
+        to integrate not fully trusted devices to various degrees into the
+        homenet by not exposing them to HNCP and IGP traffic or by using
+        firewall rules to prevent them from reaching homenet-internal
+        resources. </t>
 
-      <t>On links where this is not practical and lower layers do not
-      provide adequate protection from attackers, DNCP secure mode MUST be
-      used to secure traffic.</t>
+        <t>On links where this is not practical and lower layers do not
+        provide adequate protection from attackers, DNCP secure mode MUST be
+        used to secure traffic.</t>
 
-    </section>
+      </section>
 
-    <section title="Other Protocols in the Home">
+      <section title="Other Protocols in the Home">
 
-      <t>IGPs and other protocols are usually run alongside HNCP therefore
-      the individual security aspects of the respective protocols must be
-      considered.  It can however be summarized that many protocols to be
-      run in the home (like IGPs) provide - to a certain extent - similar
-      security mechanisms.  Most of these protocols do not support
-      encryption and only support authentication based on pre-shared keys
-      natively.  This influences the effectiveness of any encryption-based
-      security mechanism deployed by HNCP as homenet routing information is
-      thus usually not encrypted.</t>
+        <t>IGPs and other protocols are usually run alongside HNCP therefore
+        the individual security aspects of the respective protocols must be
+        considered.  It can however be summarized that many protocols to be
+        run in the home (like IGPs) provide - to a certain extent - similar
+        security mechanisms.  Most of these protocols do not support
+        encryption and only support authentication based on pre-shared keys
+        natively.  This influences the effectiveness of any encryption-based
+        security mechanism deployed by HNCP as homenet routing information is
+        thus usually not encrypted.</t>
 
-    </section>
+      </section>
 
     </section>
 
