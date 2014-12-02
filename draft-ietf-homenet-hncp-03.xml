@@ -122,9 +122,9 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         immediately generate and use a new random node identifier.</t>
 
         <t>HNCP nodes MUST treat all Long Network State Update messages
-        received via multicast on a link which has security enabled as if they
-        were Short Network State Update message, i.e. it MUST ignore all
-        contained Node State TLVs.</t>
+        received via multicast on a link which has DNCP security enabled as if
+        they were Short Network State Update message, i.e. they MUST ignore
+        all contained Node State TLVs.</t>
         
         <t>HNCP nodes use the following Trickle parameters:
 
