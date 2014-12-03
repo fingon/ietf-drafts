@@ -176,9 +176,9 @@ TBD:
 
         <t>The latest update sequence number, a 32 bit number that is
         incremented any time the TLV set is published. For comparison
-        purposes, values near overflow (greater than 2^32-2^16) are
-        considered less than values after the overflow (less than
-        2^16).</t>
+        purposes, a looping comparison should be used to avoid problems in
+        case of overflow. An example would be: a &lt; b &lt;=&gt; (a - b)
+        modulo 2^32 &amp; 2^31 != 0.</t>
 
         <t>The relative time (in milliseconds) since last publishing of the
         current TLV data set with the current update sequence number. It is
