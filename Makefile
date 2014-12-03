@@ -4,8 +4,8 @@
 # Author: Markus Stenberg <markus stenberg@iki.fi>
 #
 # Created:       Mon Jun 17 04:40:32 2013 mstenber
-# Last modified: Wed Nov 26 10:12:48 2014 mstenber
-# Edit time:     19 min
+# Last modified: Tue Dec  2 10:20:17 2014 mstenber
+# Edit time:     20 min
 #
 
 DRAFTS=\
@@ -34,6 +34,7 @@ all: $(DRAFTS)
 push: all
 	git push
 	rsync -a draft*.html employees.org:WWW
+	rsync -a draft*.txt employees.org:WWW
 
 clean:
 	rm -f *.txt *.html
