@@ -11,6 +11,7 @@ TBD:
 - consider if node state + data should be merged like Pierre suggested
 
 - think about short node state, ~medium long state, full long state
+( probably not worth it, as in secure mode, not really worth it )
 
 -->
 
@@ -168,7 +169,7 @@ TBD:
 
         <t>A node identifier.</t>
 
-        <t>The node data: an ordered set of TLV tuples it wants to share
+        <t>The node data, an ordered set of TLV tuples it wants to share
         with other nodes possibly far off. This set of TLVs has a
         well-defined order based on ascending binary content (including TLV
         type and length). This facilitates linear time state delta
@@ -209,11 +210,28 @@ TBD:
 
         <t>The connection identifier of the DNCP peer.</t>
 
-        <t>A timestamp which indicates the last time something was received
-        from the DNCP peer.</t>
-
         <t>The most recent address used by the DNCP peer (in an
         authenticated message, if security is enabled).</t>
+
+      </list>
+
+      Additionally, if keep-alive support is specified in the DNCP profile,
+      node should also have for each peer:
+
+      <list style="symbols">
+
+        <t>Most recently consistent, a timestamp which indicates the last
+        time a consistent <xref target="net-state">Network State TLV</xref>
+        was received from the DNCP peer.</t>
+
+        <t>(Per-peer keep-alive only) A preferred keep-alive reception
+        interval, a 32-bit value which indicates the peer's preferred
+        keep-alive interval, which indicates the interval with which it
+        would like to receive keep-alive messages from local node. </t>
+
+        <t>(Per-peer keep-alive only) A keep-alive send interval, a 32-bit
+        value which indicates the the interval the peer is sending
+        keep-alive messages.</t>
 
       </list>
       </t>
@@ -277,17 +295,39 @@ TBD:
         connection, as well as state change notification, another mechanism
         may be needed to get rid of old, no longer valid DNCP peers.</t>
 
-        <t>If keep-alives are specified in the DNCP profile, based either
-        on the whole connection or per DNCP peer, if no other traffic has
-        been sent to the particular destination within
-        DNCP_KEEPALIVE_INTERVAL, <xref target="long-net-message">Long
-        Network State Update message</xref> or <xref
-        target="short-net-message">Short Network State Update
+        <t>If keep-alives are not specified in the DNCP profile, the rest
+        of the text here can be ignored.</t>
+
+        <t>The keep-alive messages can be sent either on the whole
+        connection, or to individual DNCP peers, as specified by the DNCP
+        profile. If per-peer keep-alives are specified in the DNCP profile,
+        individual peers can override the the rate at which they want to
+        receive keep-alive messages.  The peer can request a custom
+        keep-alive interval by including the <xref
+        target="ka-interval">Keep-Alive Interval TLV</xref> in the messages
+        that are used for detecting new neighbors specified in <xref
+        target="neighbor"/>. The provided value should be stored per-peer,
+        but can be considered only a hint; local node ultimately chooses
+        the interval at which keep-alives are sent to both unicast peers,
+        and to multicast interfaces. </t>
+
+        <t>If no other traffic containing <xref target="net-state">Network
+        State TLV</xref> has been sent to the particular destination
+        (either whole connection or particular peer) within the locally
+        chosen destination-specific keep-alive interval, <xref
+        target="long-net-message">Long Network State Update message</xref>
+        or <xref target="short-net-message">Short Network State Update
         message</xref> MUST be sent to that destination. The type of
         message should be chosen based on considerations in <xref
-        target="trickle-updates" />. When such a message is sent, a new
-        Trickle transmission time 't' MUST be randomly chosen in [I/2,
-        I]. </t>
+        target="trickle-updates" />. When such a message is sent to the
+        whole connection, either using multicast on an interface, or
+        directly via unicast to the only peer on the non-multicast
+        connection, a new Trickle transmission time 't' MUST be randomly
+        chosen in [I/2, I]. If the locally chosen destination-specific
+        keep-alive interval differs from the default specified in the DNCP
+        profile, sent keep-alive message MUST also include Keep-Alive
+        Interval TLV specifying the interval at which the messages are
+        sent.</t>
 
       </section>
 
@@ -298,6 +338,15 @@ TBD:
         are ignored. Any 'reply' mentioned in the steps below denotes
         sending of the specified message via unicast to the originator of
         the message being processed.</t>
+
+        <t>If the received message contains <xref
+        target="net-state">Network State TLV</xref>, it is consistent with
+        the locally calculated network state hash, and keep-alives are enabled,
+        per-peer timestamp indicating most recently consistent should be
+        updated. If it additionally contains <xref
+        target="ka-interval">Keep-Alive Inteval TLV</xref>, per-peer
+        keep-alive send interval SHOULD be updated to match the value
+        within the TLV.</t>
 
         <t>Upon receipt of:
         <list>
@@ -334,7 +383,11 @@ TBD:
 
           <t><xref target="req-net-message">Network State Request</xref>:
           the receiver MUST reply with a <xref
-          target="long-net-message">Long Network State Update</xref>.</t>
+          target="long-net-message">Long Network State Update</xref>. If
+          per-peer keepalives are enabled, and <xref
+          target="ka-interval">Keep-Alive Interval TLV</xref> is present,
+          preferred keep-alive reception interval of the peer should be
+          updated with the value in the TLV.</t>
 
           <t><xref target="req-node-message">Node Data Request</xref>: the
           receiver MUST reply with the requested data in a <xref
@@ -343,7 +396,10 @@ TBD:
           multiple replies MAY be sent in order to e.g. keep size of each
           datagram within the PMTU to the destination. However these
           replies must be valid stand-alone Node Data Reply messages, with
-          the full state for the particular nodes.</t>
+          the full state for the particular nodes. If per-peer keepalives
+          are enabled, and <xref target="ka-interval">Keep-Alive Interval
+          TLV</xref> is present, preferred keep-alive reception interval of
+          the peer should be updated with the value in the TLV.</t>
 
           <t><xref target="reply-node-message">Node Data Reply</xref>: If
           the message contains Node State TLVs that are more recent than
@@ -378,9 +434,14 @@ TBD:
         connection, and a <xref target="neighbor-tlv">Neighbor TLV</xref>
         should be created for it. </t>
 
-        <t>For every peer on every connection, if no traffic is received
-        from it within DNCP_TIMEOUT_INTERVAL, the Neighbor TLV and the
-        local DNCP peer state MUST be removed. </t>
+        <t>For every peer on every connection, if keep-alives are sent by
+        the peer, and no traffic is received from it within the rate at
+        which it sends keep-alives times DNCP_KEEPALIVE_MULTIPLIER, the
+        Neighbor TLV and the local DNCP peer state MUST be removed. If
+        keep-alives are NOT sent by the peer, some other means MUST be
+        employed to ensure DNCP peer is present, and when the peer is no
+        longer present, the Neighbor TLV and the local DNCP peer state MUST
+        be removed.</t>
       </section>
 
       <section title="Purging Unreachable Nodes">
@@ -439,7 +500,7 @@ TBD:
           <t>One <xref target="node-id">Node Connection TLV</xref> identifying
           the originating node and connection.</t>
 
-          <t>One <xref target="net-hash">Network State TLV</xref>
+          <t>One <xref target="net-state">Network State TLV</xref>
           containing the network state hash as calculated by the
           sender.</t>
 
@@ -447,6 +508,14 @@ TBD:
         </t>
         <t>The Short Network Status update message MUST NOT contain any <xref
         target="node-state">Node State TLV(s)</xref>.</t>
+
+        <t>If caused by Trickle algorithm, the Short Network Status update
+        message MUST NOT contain <xref target="ka-interval">Keep-Alive
+        Interval TLV</xref>. If caused by keep-alive timer, they MUST
+        include the Keep-Alive Interval TLV if some DNCP peer on the
+        connection has used the same TLV to request non-default keep-alive
+        interval.</t>
+
       </section>
 
       <section title="Long Network State Update Message"
@@ -462,7 +531,7 @@ TBD:
           <t>One <xref target="node-id">Node Connection TLV</xref> identifying
           the originating node and connection.</t>
 
-          <t>One <xref target="net-hash">Network State TLV</xref>
+          <t>One <xref target="net-state">Network State TLV</xref>
           containing the network state hash as calculated by the
           sender.</t>
 
@@ -476,6 +545,13 @@ TBD:
         <t>The Long Network State Update message MUST include the
         corresponding <xref target="node-state">Node State TLV</xref> for
         each Node Data TLV used to calculated the network state hash.</t>
+
+        <t>If caused by Trickle algorithm, the Short Network Status update
+        message MUST NOT contain <xref target="ka-interval">Keep-Alive
+        Interval TLV</xref>. If caused by keep-alive timer, they MUST
+        include the Keep-Alive Interval TLV if some DNCP peer on the
+        connection has used the same TLV to request non-default keep-alive
+        interval.</t>
 
       </section>
 
@@ -492,11 +568,17 @@ TBD:
           <t>One <xref target="node-id">Node Connection TLV</xref> identifying
           the originating node and connection.</t>
 
-          <t>One <xref target="req-net-hash">Request Network State
+          <t>One <xref target="req-net-state">Request Network State
           TLV</xref> indicating the type of request.</t>
 
         </list>
         </t>
+
+        <t>If per-peer keep-alives are enabled in the DNCP profile, and
+        local node would prefer to receive keep-alives at an interval
+        different from DNCP_KEEPALIVE_INTERVAL, <xref
+        target="ka-interval">Keep-Alive Interval TLV</xref> SHOULD be
+        included.</t>
 
       </section>
 
@@ -518,6 +600,12 @@ TBD:
 
         </list>
         </t>
+
+        <t>If per-peer keep-alives are enabled in the DNCP profile, and
+        local node would prefer to receive keep-alives at an interval
+        different from DNCP_KEEPALIVE_INTERVAL, <xref
+        target="ka-interval">Keep-Alive Interval TLV</xref> SHOULD be
+        included.</t>
 
       </section>
 
@@ -591,7 +679,7 @@ TBD:
 
       <section title="Request TLVs">
 
-        <section anchor="req-net-hash" title="Request Network State TLV">
+        <section anchor="req-net-state" title="Request Network State TLV">
 
           <figure>
             <artwork>
@@ -658,7 +746,7 @@ TBD:
           well as the particular connection identifier. It MUST be sent in all
           messages.</t>
         </section>
-        <section anchor="net-hash" title="Network State TLV">
+        <section anchor="net-state" title="Network State TLV">
 
           <figure>
             <artwork>
@@ -768,6 +856,30 @@ TBD:
 
       </section>
 
+      <section anchor="ka-interval" title="Keep-Alive Interval TLV">
+
+        <figure>
+          <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+| Type: KEEP-ALIVE-INTERVAL (8) |          Length: 8            |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                    Interval in milliseconds                   |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            </artwork>
+          </figure>
+
+          <t>This TLV can be used to indicate a preference for interval at
+          which keep-alive messages should be sent to local node, or to
+          indicate actually used interval within keep-alive messages.
+
+          Value of zero means no keep-alives should be sent at all; in that
+          case, some link-layer mechanism, or transport mechanism that
+          ensures presence of the remote node MUST be available and
+          used. </t>
+        </section>
+
       <section anchor="user-tlv"
                title="Custom TLV (within/without Node Data TLV)">
         <figure>
@@ -775,7 +887,7 @@ TBD:
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: CUSTOM-DATA (8)     |         Length: >= 12         |
+|     Type: CUSTOM-DATA (9)     |         Length: >= 12         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                            H-64(URI)                          |
 |                                                               |
@@ -963,7 +1075,7 @@ TBD:
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|   Type: Trust-Verdict (9)     |        Length: 41-104         |
+|   Type: Trust-Verdict (10)    |        Length: 41-104         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |    Verdict    |                 (reserved)                    |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1106,8 +1218,10 @@ TBD:
         <t>DNCP_KEEPALIVE_INTERVAL: How often keep-alive messages are to be
         sent (if enabled).</t>
 
-        <t>DNCP_TIMEOUT_INTERVAL: How long a node may not be heard from to
-        be considered still viable.</t>
+        <t>DNCP_KEEPALIVE_MULTIPLIER: How many times the
+        DNCP_KEEPALIVE_INTERVAL (or peer-supplied keep-alive interval
+        value) a node may not be heard from to be considered still
+        viable.</t>
 
         <t>DNCP_GRACE_INTERVAL: How long node data for unreachable node is
         kept.</t>
@@ -1154,9 +1268,10 @@ TBD:
     <t>5: Node state</t>
     <t>6: Node data</t>
     <t>7: Neighbor</t>
-    <t>8: Custom</t>
-    <t>9: Trust-Verdict</t>
-    <t>10-31: Reserved for future DNCP versions.</t>
+    <t>8: Keep-alive interval</t>
+    <t>9: Custom</t>
+    <t>10: Trust-Verdict</t>
+    <t>11-31: Reserved for future DNCP versions.</t>
 
     <t>192-255: Reserved for per-implementation experimentation. The
     nodes using TLV types in this range SHOULD use e.g. Custom TLV to
