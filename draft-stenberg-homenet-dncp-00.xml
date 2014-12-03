@@ -313,7 +313,7 @@ TBD:
 
         <t>If no other traffic containing <xref target="net-state">Network
         State TLV</xref> has been sent to the particular destination
-        (either whole connection or particular peer) within the locally
+        (either whole connection or a particular peer) within the locally
         chosen destination-specific keep-alive interval, <xref
         target="long-net-message">Long Network State Update message</xref>
         or <xref target="short-net-message">Short Network State Update
@@ -344,7 +344,7 @@ TBD:
         the locally calculated network state hash, and keep-alives are enabled,
         per-peer timestamp indicating most recently consistent should be
         updated. If it additionally contains <xref
-        target="ka-interval">Keep-Alive Inteval TLV</xref>, per-peer
+        target="ka-interval">Keep-Alive Interval TLV</xref>, per-peer
         keep-alive send interval SHOULD be updated to match the value
         within the TLV.</t>
 
