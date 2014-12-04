@@ -386,27 +386,28 @@ TBD:
 
     <section anchor="ka" title="Keep-Alive Extension">
 
-      <t>In addition to the Trickle-driven messages, which provide for
-      handling of both new peer detection (if applicable) on a
-      connection, as well as state change notification, another mechanism
-      may be needed to get rid of old, no longer valid DNCP peers.</t>
+      <t>The basic Trickle-driven messages provide for handling of both new
+      peer detection (if applicable) on a connection, as well as state
+      change notification, another mechanism may be needed to get rid of
+      old, no longer valid DNCP peers.</t>
 
       <t>If keep-alives are not specified in the DNCP profile, the rest of
       the <xref target="ka" /> MUST be ignored.</t>
 
       <t>DNCP profile MAY specify either per-connection or per-peer
-      keep-alive support.</t>
+      keep-alive support. This document specifies only per-connection
+      keep-alives, and if per-peer support is required, either lower layer
+      mechanism or definition within the DNCP profile is required.. </t>
 
       <section title="Data Model Additions">
 
         <t>These additions to the <xref target="dm">Data Model</xref> are
         needed to support keep-alives.</t>
 
-        <t>If DNCP profile specifies per-connection keep-alives, every node
-        MUST also have for every connection a timestamp, which indicates
-        the last time a <xref target="net-state">Network State TLV</xref>
-        was sent on that interface or to the point-to-point peer by the
-        local node.</t>
+        <t>Every node MUST also have for every connection a timestamp,
+        which indicates the last time a <xref target="net-state">Network
+        State TLV</xref> was sent on that interface or to the
+        point-to-point peer by the local node.</t>
 
         <t>Every node MUST have for each peer:
 
@@ -417,19 +418,10 @@ TBD:
           TLV</xref> was received from the DNCP peer. When adding a new
           peer, it should be initialized to current time. </t>
 
-          <t>If DNCP profile specifies per-peer keep-alives:
-          <list style="symbols">
+          <t>A keep-alive send interval, a 32-bit value which indicates
+          the the interval the peer is sending keep-alive messages to the
+          local node.</t>
 
-            <t>Most recently sent, a timestamp which indicates the last
-            time a <xref target="net-state">Network State TLV</xref> was
-            sent to the DNCP peer. When adding a new peer, it should be
-            initialized to current time.</t>
-
-            <t>A keep-alive send interval, a 32-bit value which indicates
-            the the interval the peer is sending keep-alive messages to the
-            local node.</t>
-          </list>
-          </t>
         </list>
         </t>
 
@@ -437,45 +429,42 @@ TBD:
 
       <section title="Periodic Keep-Alive Messages" anchor="keep-alive">
 
-        <t>For every connection or peer that a keep-alive is specified for
-        in the DNCP profile, destination-specific keep-alive interval MUST
-        be calculated. By default, it is DNCP_KEEPALIVE_INTERVAL. If there
-        is a local value that is preferred for that for some reason
+        <t>For every connection that a keep-alive is specified for in the
+        DNCP profile, connection-specific keep-alive interval MUST be
+        calculated. By default, it is DNCP_KEEPALIVE_INTERVAL. If there is
+        a local value that is preferred for that for some reason
         (configuration, energy conservation, media type, ..), it should be
-        substituted instead. If the local value is DNCP_KEEPALIVE_INTERVAL,
-        or if per-peer keep-alive send interval is not
-        DNCP_KEEPALIVE_INTERVAL and greater than the local value, the
-        per-peer keep-alive send interval should be used instead.</t>
+        substituted instead.</t>
 
         <t>If no other traffic containing <xref target="net-state">Network
-        State TLV</xref> has been sent to a particular destination (either
-        whole connection or a particular peer) within the
-        destination-specific keep-alive interval, <xref
+        State TLV</xref> has been sent to a particular connection within
+        the connection-specific keep-alive interval, <xref
         target="long-net-message">Long Network State Update message</xref>
         or <xref target="short-net-message">Short Network State Update
-        message</xref> MUST be sent to that destination. The type of
-        message should be chosen based on considerations in <xref
-        target="trickle-updates" />. When such a message is sent to the
-        whole connection, either using multicast on an interface, or
-        directly via unicast to the only peer on the non-multicast
-        connection, a new Trickle transmission time 't' MUST be randomly
-        chosen in [I/2, I]. </t>
+        message</xref> MUST be sent to that connection. The type of message
+        should be chosen based on considerations in <xref
+        target="trickle-updates" />. When such a message is sent, a new
+        Trickle transmission time 't' MUST be randomly chosen in [I/2,
+        I]. </t>
 
-        <t>If the destination-specific keep-alive interval differs from
+        <t>If the connection-specific keep-alive interval differs from
         DNCP_KEEPALIVE_INTERVAL, any messages containing <xref
         target="net-state">Network State TLV</xref> MUST also include
-        Keep-Alive Interval TLV with the destination-specific keep-alive
-        interval.</t>
+        Keep-Alive Interval TLV with the connection-specific keep-alive
+        interval. This includes both keep-alive specified here, as well as
+        the <xref target="trickle-updates">Trickle-Driven Status Update
+        Messages</xref>.</t>
 
       </section>
 
       <section title="Received Message Processing Additions">
 
         <t>If the received message contains <xref
-        target="net-state">Network State TLV</xref>, it is consistent with
-        the locally calculated network state hash, and keep-alives are
-        enabled, per-peer timestamp indicating most recently consistent
-        should be updated. If it additionally contains <xref
+        target="net-state">Network State TLV</xref> which is consistent
+        with the locally calculated network state hash, per-peer timestamp
+        indicating most recently consistent should be updated. </t>
+
+        <t>If the received message contains <xref
         target="ka-interval">Keep-Alive Interval TLV</xref>, per-peer
         keep-alive send interval MUST be also updated to match the value
         within the TLV. If secure mode is enabled, this MUST occur only for
@@ -889,9 +878,8 @@ TBD:
           keep-alive messages.
 
           Value of zero means no keep-alives should be sent at all; in that
-          case, some link-layer mechanism, or transport mechanism that
-          ensures presence of the remote node MUST be available and
-          used. </t>
+          case, some lower layer mechanism that ensures presence of the
+          remote node MUST be available and used. </t>
         </section>
 
       <section anchor="user-tlv"
@@ -1309,7 +1297,9 @@ TBD:
     <?rfc include="reference.RFC.6234.xml"?>
   </references>
   <section title="Some Outstanding Issues">
-    <t>None?</t>
+    <t>Should per-peer keep-alives be specified here? They are essentially
+    constant unicast keep-alives, as opposed to unicast OR multicast
+    per-connection ones are.</t>
   </section>
 
   <section title="Some Obvious Questions and Answers">
