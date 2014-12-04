@@ -553,7 +553,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
                 
                 <t>All HNCP routers advertising an IPv6 prefix requiring specific configuration from a DHCPv6 server MUST candidate as DHCPv6 server. Which means that a router unable to run a DHCPv6 server MUST NOT advertise an IPv6 prefix requiring a DHCPv6 server to be run, or adopt such an existing prefix.</t>
                 
-                <t>All HNCP routers SHOULD support DHCPv6 Prefix Delegation. Such routers MUST candidate as DHCPv6 routers. When a DHCPv6-PD request is received, HNCP routers MUST behave as specified in <xref target="downstream" />.</t>
+                <t>All HNCP routers SHOULD support DHCPv6 Prefix Delegation. Such routers MUST candidate as DHCPv6 routers. When a DHCPv6-PD request is received, HNCP routers MUST behave as specified in <!-- TBD XXX xref target="downstream" / -->.</t>
                 
             </section>
         </section>
