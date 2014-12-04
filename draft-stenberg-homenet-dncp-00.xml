@@ -347,13 +347,19 @@ TBD:
 
       <section title="Adding and Removing Peers" anchor="neighbor">
 
-        <t>If a <xref target="req-net-message">Network State Request</xref>
-        or a <xref target="req-node-message">Node Data Request</xref> is
-        received on a connection from another node, indicating
-        bidirectional connectivity as they are used to respond to state
-        messages, the node should be added as a DNCP peer on the
-        connection, and a <xref target="neighbor-tlv">Neighbor TLV</xref>
-        should be created for it. </t>
+        <t>When receiving a message on a connection from unknown peer:
+        <list>
+          <t>If it is a unicast message, the remote node MUST be added as a
+          peer on the connection and a <xref target="neighbor-tlv">Neighbor
+          TLV</xref> MUST be created for it.
+          </t>
+
+          <t>If it is a multicast message, the remote node SHOULD be sent
+          (possibly rate-limited) unicast <xref
+          target="req-net-message">Network State Request
+          Message</xref>.</t>
+        </list>
+        </t>
 
         <t>If keep-alives are NOT sent by the peer (either DNCP profile
         does not specify use of keep-alives, or the particular peer chooses
