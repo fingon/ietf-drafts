@@ -640,7 +640,7 @@ TBD:
     <section anchor="tlvs" title="Type-Length-Value Objects">
       <t>
         Each TLV is encoded as a 2 byte type-field, followed by a 2-byte
-        length-field (of the whole TLV, including header; 4 means no value)
+        length-field (of the value, excluding header; 0 means no value)
         followed by the value itself (if any). Both type and length are
         represented in network byte order. Zero padding bytes MUST be added
         up to the next 4-byte boundary if the length is not divisible by 4.
@@ -690,7 +690,7 @@ TBD:
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Type: REQ-NETWORK-STATE (2)  |           Length: 4           |
+|  Type: REQ-NETWORK-STATE (2)  |           Length: 0           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
             </artwork>
           </figure>
@@ -708,7 +708,7 @@ TBD:
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: REQ-NODE-DATA (3)    |          Length: >4           |
+|    Type: REQ-NODE-DATA (3)    |          Length: >0           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        node identifier                        |
 |                  (length fixed in DNCP profile)               |
@@ -735,7 +735,7 @@ TBD:
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|   Type: NODE-CONNECTION (1)   |          Length: > 8          |
+|   Type: NODE-CONNECTION (1)   |          Length: > 4          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        node identifier                        |
 |                  (length fixed in DNCP profile)               |
@@ -757,7 +757,7 @@ TBD:
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: NETWORK-STATE (4)    |          Length: > 4          |
+|    Type: NETWORK-STATE (4)    |          Length: > 0          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |          H(H(node data TLV 1) .. H(node data TLV N))          |
 |                  (length fixed in DNCP profile)               |
@@ -780,7 +780,7 @@ TBD:
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|      Type: NODE-STATE (5)     |          Length: > 12         |
+|      Type: NODE-STATE (5)     |          Length: > 8          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        node identifier                        |
 |                  (length fixed in DNCP profile)               |
@@ -813,7 +813,7 @@ TBD:
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|      Type: NODE-DATA (6)      |         Length: > 8          |
+|      Type: NODE-DATA (6)      |         Length: > 4           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        node identifier                        |
 |                  (length fixed in DNCP profile)               |
@@ -834,7 +834,7 @@ TBD:
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|       Type: NEIGHBOR (7)      |          Length: > 12         |
+|       Type: NEIGHBOR (7)      |          Length: > 8          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                    neighbor node identifier                   |
 |                  (length fixed in DNCP profile)               |
@@ -867,7 +867,7 @@ TBD:
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Type: KEEP-ALIVE-INTERVAL (8) |          Length: 8            |
+| Type: KEEP-ALIVE-INTERVAL (8) |          Length: 4            |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                    Interval in milliseconds                   |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -889,7 +889,7 @@ TBD:
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: CUSTOM-DATA (9)     |         Length: >= 12         |
+|     Type: CUSTOM-DATA (9)     |         Length: >= 8          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                            H-64(URI)                          |
 |                                                               |
@@ -1077,7 +1077,7 @@ TBD:
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|   Type: Trust-Verdict (10)    |        Length: 41-104         |
+|   Type: Trust-Verdict (10)    |        Length: 37-100         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |    Verdict    |                 (reserved)                    |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1333,7 +1333,27 @@ TBD:
   <section title="Changelog">
 
     <t>draft-stenberg-homenet-dncp-00: Split from pre-version of
-    draft-ietf-homenet-hncp-03 generic parts. </t>
+    draft-ietf-homenet-hncp-03 generic parts. Changes that affect
+    implementations:
+    <list style="symbols">
+
+      <t>TLVs were renumbered.</t>
+
+      <t>TLV length does not include header (=-4). This facilitates
+      e.g. use of DHCPv6 option parsing libraries (same encoding), and
+      reduces complexity (no need to handle error values of length less
+      than 4).</t>
+
+      <t>Trickle is reset only when locally calculated network state hash
+      is changes, not as remote different network state hash is seen. This
+      prevents e.g. attacks by multicast with one multicast packet to force
+      Trickle reset on every interface of every node on a link.</t>
+
+      <t>Instead of 'ping', use 'keep-alive' (optional) for dead peer
+      detection. Different message used!</t>
+
+    </list>
+    </t>
 
   </section>
 
