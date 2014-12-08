@@ -54,7 +54,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
                 <street/>
                 <city>Paris</city>
                 <country>France</country>
-            </postal> 		
+            </postal>
             <email>pierre.pfister@darou.fr</email>
         </address>
     </author>
@@ -119,6 +119,12 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         destination address which is not link-local scoped MUST be
         ignored.</t>
 
+        <t>HNCP operates on multicast-capable interfaces only, thus every DNCP
+        Connection Identifier MUST refer to one, except for the value 0 which
+        is reserved for internal purposes and MUST not be used for connection
+        enumeration. Implementations MAY use a value equivalent to the
+        sin6_scope_id for the given interface.</t>
+
         <t>HNCP unicast messages SHOULD be secured using <xref
         target="RFC6347">DTLS</xref> as described in DNCP if exchanged over
         unsecured links. UDP on port HNCP-DTLS-PORT is used for this
@@ -136,9 +142,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         received via multicast on a link which has DNCP security enabled as if
         they were Short Network State Update messages, i.e. they MUST ignore
         all contained Node State TLVs.</t>
-        
-        <t>HNCP nodes use the following Trickle parameters:
 
+        <t>HNCP nodes use the following Trickle parameters:
         <list style="symbols">
           <t>k SHOULD be 1, given the timer reset on data updates and
           retransmissions should handle packet loss.</t>
@@ -155,15 +160,30 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         target="RFC1321">MD5</xref> as DNCP non-cryptographic hash function
         H(x).</t>
 
-        <t>HNCP nodes MUST use the periodic keep-alive mechanism over
-        unicast to all peers. The keep-alive interval
-        (DNCP_KEEPALIVE_INTERVAL) MUST be 24 seconds, the timeout interval
-        (DNCP_TIMEOUT_INTERVAL) MUST be 2.5 times the keep-alive interval
-        (60 seconds), the grace-interval (DNCP_GRACE_INTERVAL) SHOULD be
-        equal to the keep-alive interval.</t>
+        <t>HNCP nodes MUST use the keep-alive extension on all connections.
+        The default keep-alive interval (DNCP_KEEPALIVE_INTERVAL) is 20
+        seconds, the multiplier (DNCP_KEEPALIVE_MULTIPLIER) MUST be 2.5,
+        the grace-interval (DNCP_GRACE_INTERVAL) SHOULD be equal to
+        DNCP_KEEPALIVE_MULTIPLIER times DNCP_KEEPALIVE_INTERVAL.</t>
 
       </list>
       </t>
+    </section>
+
+    <section title="Adjacent Links" anchor="links">
+      <t>HNCP uses the concept of Adjacent Links for some of its
+      applications. This term is defined as follows:</t>
+
+      <t>If the connection of a node is detected or configured to be an ad-hoc
+      interface the Adjacent Link only consists of said interface.</t>
+
+      <t>Otherwise the Adjacent Link contains all connections directly or
+      indirectly bidirectionally reachable from the given connection. A direct
+      bidirectional reachability exists whenever two nodes advertise a DNCP
+      Neighbor TLV with the respective other nodes' node identifier and
+      swapped Neighbor Connection Identifier and Local Connection Identifier.
+      An indirect reachability exists whenever there is a transitive path
+      between such direct bidirectional reachability relations.</t>
     </section>
 
     <section title="Border Discovery" anchor="bd">
@@ -229,10 +249,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         unless explicitly allowed, instead they SHOULD only be able to reach
         the internet. This category SHOULD be supported.</t>
 
-        <t hangText="Ad-hoc category:"> This declares an interface to be in
-        ad-hoc mode. This indicates to HNCP applications such as prefix
-        assignment that links on this interface are potentially
-        non-transitive. This category MAY be implemented.</t>
+        <t hangText="Ad-hoc category:"> This configures an interface to be
+        <xref target="links">ad-hoc</xref> and MAY be implemented.</t>
 
         <t hangText="Hybrid category:"> This declares an interface to
         be internal while still using external connections on it. It
@@ -263,46 +281,64 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
     </section>
 
     <section title="Autonomic Address Configuration">
-        <t>This section specifies how HNCP routers configure hosts and routers addresses using DNCP. Border routers first share information obtained from the service providers or configuration by publishing one or multiple External Connection TLVs. These TLVs contain other TLVs such as Delegated Prefix TLVs which are then used for prefix assignment. Finally, HNCP routers obtain addresses using SLAAC or a specific stateful mechanism and hosts are configured using SLAAC or DHCP.</t>
-        
-        <section title="External Connections">
-            <t>Each HNCP router MAY obtain external connection information from one or multiple means, e.g., through <xref target="RFC3633">DHCPv6-PD</xref>, <xref target="RFC6241">Netconf</xref>, static configuration. This section specifies how such information is encoded and advertised using HNCP.</t>
-            
-            <section title="External Connection TLV">
-                <t>An External Connection TLV is a container-TLV used to gather network configuration information associated with one single external connection. A node MAY publish zero, one or more instances of this TLV.</t>
-                
-                <figure>
-                    <artwork>
+      <t>This section specifies how HNCP routers configure host and router
+      addresses. At first border routers share information obtained from
+      service providers or local configuration by publishing one or more
+      External Connection TLVs. These contain other TLVs such as Delegated
+      Prefix TLVs which are then used for prefix assignment. Finally, HNCP
+      routers obtain addresses using SLAAC or a specific stateful mechanism
+      and hosts and legacy routers are configured using SLAAC or DHCP.</t>
+
+      <section title="External Connections">
+        <t>Each HNCP router MAY obtain external connection information from
+        one or more sources, e.g. <xref target="RFC3633">DHCPv6-PD</xref>,
+        <xref target="RFC6241">NETCONF</xref> or static configuration. This
+        section specifies how such information is encoded and advertised.</t>
+
+        <section title="External Connection TLV">
+          <t>An External Connection TLV is a container-TLV used to
+          gather network configuration information associated with
+          a single external connection. A node MAY publish zero,
+          one or more instances of this TLV.</t>
+
+          <figure>
+            <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Type: EXTERNAL-CONNECTION (33)|          Length: > 4          |
+| Type: EXTERNAL-CONNECTION (33)|          Length: > 0          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                          Nested TLVs                          |
-                    </artwork>
-                </figure>
-                
-                <t>The External Connection TLV:
-                    <list style="symbols">
-                        <t>MAY contain zero, one or more Delegated Prefix TLVs.</t>
-                        <t>MUST NOT contain multiple Delegated Prefix TLVs with the same prefix. In such situation, the External Connection TLV MUST be ignored.</t>
-                        <t>MAY contain zero or one DHCPv6 (resp. DHCPv4) Data TLV encoding DHCPv6 (resp. DHCPv4) options associated with the whole External Connection.</t>
-                        <t>MUST NOT contain more than one DHCPv6 (resp. DHCPv4) Data TLV. If more than one such TLV is included, the External Connection TLV MUST be ignored.</t>
-                        <t>MAY contain other TLVs for future use. Such TLVs MUST be ignored.</t>
-                    </list>
-                </t>
-                
-            </section>
-            
-            <section title="Delegated Prefix TLV">
-                <t>The Delegated Prefix TLV is used by HNCP routers to advertise prefixes which are allocated to the whole network and will be used for prefix assignment. All Delegated Prefix TLVs MUST be nested in an External Connection TLV.</t>
-                
-                <figure>
-                    <artwork>
+            </artwork>
+          </figure>
+
+          <t>The External Connection TLV is a container which:
+            <list style="symbols">
+              <t>MAY contain zero, one or more Delegated Prefix TLVs.</t>
+              <t>MUST NOT contain multiple Delegated Prefix TLVs with the same
+              prefix. In such a situation, the container MUST be ignored.</t>
+              <t>MAY contain zero or one DHCPv6 (resp. DHCPv4) Data TLV
+              encoding options associated with the External Connection.</t>
+              <t>MUST NOT contain more than one DHCPv6 (resp. DHCPv4) Data TLV
+              otherwise the container MUST BE ignored.</t>
+              <t>MAY contain other TLVs for future use.</t>
+            </list>
+          </t>
+
+        </section>
+
+        <section title="Delegated Prefix TLV">
+          <t>The Delegated Prefix TLV is used by HNCP routers to advertise
+          prefixes which are allocated to the whole network and will be used
+          for prefix assignment. All Delegated Prefix TLVs MUST be nested
+          in an External Connection TLV.</t>
+
+          <figure>
+            <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Type: DELEGATED-PREFIX (34)  |         Length: >= 13         |
+|  Type: DELEGATED-PREFIX (34)  |         Length: >= 9         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        Valid Lifetime                         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -311,217 +347,420 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 | Prefix Length |                                               |
 +-+-+-+-+-+-+-+-+            Prefix [+ nested TLVs]             +
 |                                                               |
-                    </artwork>
-                </figure>
-                
-                <t>
-                    <list style="hanging">
-                        <t hangText="Valid Lifetime: ">The time in seconds the delegated prefix
-                            is valid. The value is relative to the point in time the Node-Data TLV
-                            containing the External Connection TLV was last published.
-                            It MUST be updated whenever the node republishes its Node-Data TLV.</t>
-                        <t hangText="Preferred Lifetime: ">The time in seconds the delegated prefix
-                            is preferred. The value is relative to the point in time the Node-Data TLV
-                            containing the External Connection TLV was last published.
-                            It MUST be updated whenever the node republishes its Node-Data TLV.</t>
-                        <t hangText="Prefix Length: ">The number of significant bits in the Prefix.</t>
-                        <t hangText="Prefix: ">Significant bits of the prefix padded with zeroes up to the next
-                            byte boundary.</t>
-                        <t hangText="Nested TLVs:">Other TLVs included in the Delegated Prefix TLV and starting at the next 32bits boundary following the end of the encoded prefix.
-                            <list>
-                                <t>If the encoded prefix represents an IPv6 prefix (resp. an IPv4-mapped IPv6 address), at most one DHCPv6 (resp. DHCPv4) Data TLV MAY be included. If more than one such TLV is included, or a DHCPv4 (resp. DHCPv6) Data TLV is included, the External Connection TLV containing the Delegated Prefix TLV MUST be ignored.</t>
-                                <t>It MAY contain other TLVs for future use. Such TLVs MUST be ignored.</t>
-                            </list>
-                        </t>
-                    </list>
-                </t>
-            </section>
-            
-            <section title="DHCP Data TLVs">
-                <t>Auxiliary connectivity information is encoded as a stream of DHCPv6 or DHCPv4 options. Such TLVs MUST NOT be present unless included in an External Connection TLV or a Delegated Prefix TLV. When included in an External Connection TLV, they MUST contain DHCP options which are relevant to the whole External Connection. When included in a Delegated Prefix, they MUST contain DHCP options which are specific to the Delegated Prefix.</t>
-                
-                <t>The DHCPv6 Data TLV uses the following format:
-                    <figure>
-                        <artwork>
+            </artwork>
+          </figure>
+
+          <t>
+            <list style="hanging">
+              <t hangText="Valid Lifetime: ">The time in seconds the delegated
+              prefix is valid. The value is relative to the point in time the
+              Node-Data TLV was last published. It MUST be updated whenever
+              the node republishes its Node-Data TLV.</t>
+
+              <t hangText="Preferred Lifetime: ">The time in seconds the
+              delegated prefix is preferred. The value is relative to the
+              point in time the Node-Data TLV was last published. It MUST be
+              updated whenever the node republishes its Node-Data TLV.</t>
+
+              <t hangText="Prefix Length: ">The number of significant bits in
+              the Prefix.</t>
+
+              <t hangText="Prefix: ">Significant bits of the prefix padded
+              with zeroes up to the next byte boundary.</t>
+
+              <t hangText="Nested TLVs:">Other TLVs included in the Delegated
+              Prefix TLV and starting at the next 32bits boundary following
+              the end of the encoded prefix.
+
+                <list>
+                  <t>If the encoded prefix represents an IPv6 prefix (resp. an
+                  IPv4-mapped IPv6 address), at most one DHCPv6 (resp. DHCPv4)
+                  Data TLV MAY be included.</t>
+
+                  <t>It MAY contain other TLVs for future use.</t>
+                </list>
+              </t>
+            </list>
+          </t>
+        </section>
+
+        <section title="DHCP Data TLVs">
+          <t>Auxiliary connectivity information is encoded as a stream of
+          DHCPv6 or DHCPv4 options. Such TLVs MUST only be present in an
+          External Connection TLV or a Delegated Prefix TLV. When included in
+          an External Connection TLV, they MUST contain DHCP options which are
+          relevant to the whole External Connection. When included in a
+          Delegated Prefix, they MUST contain DHCP options which are specific
+          to the Delegated Prefix.</t>
+
+          <t>The DHCPv6 Data TLV uses the following format:
+            <figure>
+              <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: DHCPV6-DATA (37)     |          Length: > 4          |
+|    Type: DHCPV6-DATA (37)     |          Length: > 0          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                      DHCPv6 option stream                     |
-                        </artwork>
-                    </figure>
-                    <list style="hanging">
-                        <t hangText="DHCPv6 option stream: ">DHCPv6 options encoded as specified in <xref target="RFC3315"/>.</t>
-                    </list>
-                </t>
-                
-                <t>The DHCPv4 Data TLV uses the following format:
-                    <figure>
-                        <artwork>
+              </artwork>
+            </figure>
+
+            <list style="hanging">
+              <t hangText="DHCPv6 option stream: ">DHCPv6 options encoded as
+              specified in <xref target="RFC3315"/>.</t>
+            </list>
+          </t>
+
+          <t>The DHCPv4 Data TLV uses the following format:
+            <figure>
+              <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: DHCPV4-DATA (38)    |          Length: > 4          |
+|     Type: DHCPV4-DATA (38)    |          Length: > 0          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                       DHCPv4 option stream                    |
-                        </artwork>
-                    </figure>
-                    <list style="hanging">
-                        <t hangText="DHCPv4 option stream: ">DHCPv4 options encoded as specified in <xref target="RFC2131"/>.</t>
-                    </list>
-                </t>
-                
-                
-            </section>
-            
+              </artwork>
+            </figure>
+            <list style="hanging">
+              <t hangText="DHCPv4 option stream: ">DHCPv4 options encoded as
+              specified in <xref target="RFC2131"/>.</t>
+            </list>
+          </t>
         </section>
-        
-        <section anchor="pa" title="Prefix Assignment">
-            <t>HNCP uses the Distributed Prefix Assignment Algorithm specified in <xref target="I-D.ietf-homenet-prefix-assignment" /> in order to assign prefixes to HNCP internal links. In this section, terms defined in <xref target="I-D.ietf-homenet-prefix-assignment" /> are used and specific sections of this same document are referred to.</t>
-            
-            <section title="Assigned Prefix TLV">
-            
-            <t>Published Assigned Prefixes MUST be advertised using the Assigned Prefix TLV:</t>
-            <figure>
-                <artwork>
+
+      </section>
+
+      <section anchor="pa" title="Prefix Assignment">
+        <t>HNCP uses the Distributed Prefix Assignment Algorithm specified in
+        <xref target="I-D.ietf-homenet-prefix-assignment" /> in order to
+        assign prefixes to HNCP internal links and uses the terminology
+        defined therein.</t>
+
+        <section title="Assigned Prefix TLV">
+          <t>Published Assigned Prefixes MUST be advertised using the Assigned
+          Prefix TLV:</t>
+          <figure>
+            <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Type: ASSIGNED-PREFIX (35)   |          Length: >= 9         |
+|  Type: ASSIGNED-PREFIX (35)   |          Length: >= 6         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                        Link Identifier                        |
+|                     Connection Identifier                     |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |  Rsv. | Prty. | Prefix Length |                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            Prefix             +
 |                                                               |
-                </artwork>
-            </figure>
-            <t>
-                <list style="hanging">
-                    <t hangText="Link Identifier: ">The HNCP Link Identifier of the link the prefix is assigned to, or 0 if the link is a Private Link.</t>
-                    <t hangText="Rsv.: ">Bits reserved for future use. MUST be set to zero by the node publishing the TLV and ignored when included in some Node Data.</t>
-                    <t hangText="Prty: ">The Advertised Prefix Priority, from 0 to 15.</t>
-                    <t hangText="Prefix Length: ">The number of significant bits in the Prefix field.</t>
-                    <t hangText="Prefix: ">Significant bits of the prefix padded with zeroes up to the next byte boundary.</t>
-                </list>
-            </t>
-            
-            </section>
-            
-            <section title="Prefix Assignment Algorithm Parameters">
-                
-                <t>All HNCP routers MUST run the prefix assignment algorithm with the following parameters:
-                    <list style="hanging">
-                        <t hangText="Node IDs: ">HNCP Node Identifiers are used. The comparison operation is defined as the usual bit-wise comparison operation.</t>
-                        <t hangText="Set of Delegated Prefixes: ">The set of prefixes encoded in Delegated Prefix TLVs which are not strictly included in prefixes encoded in other Delegated Prefix TLVs. Note that Delegated Prefix TLVs included in ignored External Connection TLVs are not considered. It is dynamicaly updated as Delegated Prefix TLVs are added or removed.</t>
-                        <t hangText="Set of Shared Links: ">The set of HNCP internal links. It is dynamicaly updated as HNCP links are added, removed, become internal or are not internal anymore.</t>
-                        <t hangText="Set of Private Links: ">This document defines Private Links representing DHCPv6-PD clients or as a mean to advertise prefixes included in the DHCPv6 Exclude Prefix options. Implementation may use other Private Links for other purposes.</t>
-                        <t hangText="Set of Advertised Prefixes: ">The set of prefixes included in Assigned Prefix TLVs advertised by other HNCP routers. The associated Advertised Prefix Priority is the priority specified in the TLV. The associated Shared Link is determined as follows:
-                            <list style="symbols">
-                                <t>If the Link Identifier is zero, the Advertised Prefix is not assigned on a Shared Link.</t>
-                                <t>If the Link Identifier is not zero, look at the set of DNCP Neighbor TLVs currently advertised by the local router such that:
-                                    <list style="symbols">
-                                        <t>The Neighbor Node Identifier is equal to the Node Identifier specified in the Node Data TLV including the considered Assigned Prefix TLV.</t>
-                                        <t>The Neighbor Link Identifier is equal to the Link Identifier specified in the Assigned Prefix TLV.</t>
-                                        <t>The node identified by the Neighbor Node Identifier is advertising another Neighbor TLV containing the local node identifier as Neighbor Node Identifier and the Link Identifier specified in the considered Neighbor TLV as Neighbor Link Identifier.</t>
-                                    </list>
-                                    If a corresponding Neighbor TLV is found, the Advertised Prefix is associated with the Shared Link identified by the Local Link Identifier specified in the Neighbor TLV.
-                                </t>
-                            </list>
-                            Advertised Prefixes as well as their associated priorities and links MUST be updated as Assigned Prefix TLVs or Neighbor TLVs are added, removed or updated.
-                        </t>
-                        <t hangText="ADOPT_MAX_DELAY: ">The default value is 0 seconds (i.e. prefix adoption MAY be done instantly).</t>
-                        <t hangText="BACKOFF_MAX_DELAY: ">The default value is 4 seconds.</t>
-                        <t hangText="RANDOM_SET_SIZE: ">The default value is 64.</t>
-                        <t hangText="Flooding Delay: ">The default value is 5 seconds.</t>
-                        <t hangText="Default Advertised Prefix Priority: ">When a new assignement is created or an assignment is adopted, as specified in the prefix assignment algorithm routine, the default Advertised Prefix Priority to be used is 2.</t>
-                    </list>
-                </t>
-                
-            </section>
-            
-            <section title="Making New Assignments">
-                
-            <t>Whenever the Prefix Assignment Algorithm routine is executed on an internal HNCP link and whenever a new prefix may be assigned (case 1 of the routine), the decision of whether the assignment of a new prefix is desired MUST follow these rules:
-                <list style="hanging">
-                    <t>If the External Connection TLV or the Delegated Prefix TLV contains a DHCPv4 or DHCPv6 Data TLV, and the meaning of one of the DHCP option is not understood by the HNCP router, the creation of a new prefix is desired.</t>
-                    <t>If the remaining prefix preferred lifetime is null and there is another delegated prefix, used for prefix assignment, with a non-null preferred lifetime, the creation of a new prefix is desired.</t>
-                    <t>Otherwise, the creation of a new prefix is desired.</t>
-                </list>
-                If the considered delegated prefix is an IPv6 prefix, and whenever there is at least one available prefix of length 64, a prefix of length 64 MUST be selected. In case no prefix of length 64 would be available, a longer prefix MAY be selected.
-                If the considered delegated prefix is an IPv4 prefix, prefix of length 24 SHOULD be preferred.
-            </t>
-            
-            </section>
-            
-            <section title="Applying Assigned Prefixes">
-                <t>TODO</t>
-            </section>
-            
-            <section title="DHCPv6-PD Excluded Prefix Support">
-                <t>Whenever a delegated prefix is received alongwith a <xref target="RFC6603" >DHCPv6 Prefix Exclude option</xref>, the excluded prefix MUST be advertised as assigned on a Private Link with the maximal priority (i.e. 15).</t>
-                <t>The same procedure MAY be applied in order to exclude prefixes obtained by other means of configuration.</t>
-            </section>
-            
-            <section title="Downstream Prefix Delegation Support">
-                <t>When a HNCP router receives a request for prefix delegation, it SHOULD assign a set of prefixes, wait for them to be applied, and delegate them to the client. Such assignment MUST be done in full conformance of the Prefix Assignment Algorithm. Each client MUST be considered as an independent Private Link and prefix delegation MUST be based on the same set of Delegated Prefixes.</t>
-                <t>The assigned prefixes MUST NOT be given to clients before they are applied, and MUST be withdrawned whenever they are destroyed.</t>
-            </section>
-            
+            </artwork>
+          </figure>
+          <t>
+            <list style="hanging">
+              <t hangText="Connection Identifier: ">The DNCP Connection
+              Identifier of the link the prefix is assigned to, or 0 if the
+              link is a Private Link.</t>
+
+              <t hangText="Rsv.: ">Bits reserved for future use. MUST be set
+              to zero when creating this TLV and ignored when parsing it.</t>
+
+              <t hangText="Prty: ">The Advertised Prefix Priority (0-15).</t>
+
+              <t hangText="Prefix Length: ">The number of significant bits
+              in the Prefix field.</t>
+
+              <t hangText="Prefix: ">The significant bits of the prefix padded
+              with zeroes up to the next byte boundary.</t>
+            </list>
+          </t>
         </section>
-        
-        <section title="Router's Address Assignment">
-            <t>This section specifies how HNCP routers reserve addresses for their own use. Routers MAY, at any time, try to reserve a new address. For any IPv6 prefix of length 64, SLAAC MUST be used for that purpose. For IPv4 prefixes, or whenever the IPv6 prefix length is not 64, routers MUST use the procedure specified in this section.</t>
-            
-            <t>For any assigned prefix, the last quarter of the addresses are reserved for routers HNCP based assignments. The three first quarters are reserved for DHCP based allocations. For instance, if the prefix 10.0.1.0/24 is assigned and applied to some HNCP link, addresses included in 10.0.1.192/26 are reserved for HNCP routers, while addresses included in 10.0.1.128/26 and 10.0.1.0/25 are reserved for allocations by the mean of DHCP.</t>
-            
-            <t>HNCP routers assign themselves addresses using the Node Address TLV:
-                <figure>
-                    <artwork>
+
+        <section title="Prefix Assignment Algorithm Parameters">
+          <t>All HNCP nodes running the prefix assignment algorithm MUST use
+          the following parameters:
+
+            <list style="hanging">
+              <t hangText="Node IDs: ">DNCP Node Identifiers are used. The
+              comparison operation is defined as bit-wise comparison.</t>
+
+              <t hangText="Set of Delegated Prefixes: ">The set of prefixes
+              encoded in Delegated Prefix TLVs which are not strictly included
+              in prefixes encoded in other Delegated Prefix TLVs. Note that
+              Delegated Prefix TLVs included in ignored External Connection
+              TLVs are not considered. It is dynamicaly updated as Delegated
+              Prefix TLVs are added or removed.</t>
+
+              <t hangText="Set of Shared Links: ">The set of HNCP internal
+              links. It is dynamicaly updated as HNCP links are added,
+              removed, become internal or cease to be.</t>
+
+              <t hangText="Set of Private Links: ">This document defines
+              Private Links representing DHCPv6-PD clients or as a mean to
+              advertise prefixes included in the DHCPv6 Exclude Prefix option.
+              Other implementation-specific Private Links may exist.</t>
+
+              <t hangText="Set of Advertised Prefixes: ">The set of prefixes
+              included in Assigned Prefix TLVs advertised by other HNCP
+              routers. The associated Advertised Prefix Priority is the
+              priority specified in the TLV. The associated Shared Link
+              is determined as follows:
+
+                <list style="symbols">
+                  <t>If the Link Identifier is zero, the Advertised Prefix
+                  is not assigned on a Shared Link.</t>
+
+                  <t>If the Link Identifier is not zero the Shared Link is
+                  equal to the <xref target="links">Adjacent Link</xref>.
+                  Advertised Prefixes as well as their associated priorities
+                  and links MUST be updated as Assigned Prefix TLVs or
+                  Neighbor TLVs are added, removed or updated.</t>
+
+                  <t hangText="ADOPT_MAX_DELAY: ">The default value is 0
+                  seconds (i.e. prefix adoption MAY be done instantly).</t>
+
+                  <t hangText="BACKOFF_MAX_DELAY: ">The default value is
+                  4 seconds.</t>
+
+                  <t hangText="RANDOM_SET_SIZE: ">The default value is 64.</t>
+
+                  <t hangText="Flooding Delay: ">The default value is
+                  5 seconds.</t>
+
+                  <t hangText="Default Advertised Prefix Priority: ">When a
+                  new assignement is created or an assignment is adopted -
+                  as specified in the prefix assignment algorithm routine -
+                  the default Advertised Prefix Priority to be used is 2.</t>
+                </list>
+              </t>
+            </list>
+            </t>
+          </section>
+
+          <section title="Making New Assignments">
+            <t>Whenever the Prefix Assignment Algorithm routine is run on an
+            Adjacent Link and whenever a new prefix may be assigned (case 1
+            of the routine), the decision of whether the assignment of a new
+            prefix is desired MUST follow these rules:
+
+            <list style="hanging">
+              <t>If the Delegated Prefix TLV contains a DHCPv4 or DHCPv6
+              Data TLV, and the meaning of one of the DHCP options is not
+              understood by the HNCP router, the creation of a new prefix
+              is not desired.</t>
+<!-- removed unknown global DHCP options, these should not affect PD since there are possibly
+many including vendor-specific and this would make general PA often not happen -->
+
+              <t>If the remaining preferred lifetime of the prefix is 0 and
+              there is another delegated prefix of the same kind used for
+              prefix assignment with a non-null preferred lifetime, the
+              creation of a new prefix is not desired.</t>
+
+<!--  this said is desired in all 3 paragraphs but I assume it was meant this way instead:
+        not desired, not desired otherwise desired -->
+
+              <t>Otherwise, the creation of a new prefix is desired.</t>
+            </list>
+
+            If the considered delegated prefix is an IPv6 prefix, and
+            whenever there is at least one available prefix of length 64,
+            a prefix of length 64 MUST be selected unless configured
+            otherwise by an administrator. In case no prefix of length 64
+            would be available, a longer prefix MAY be selected.
+<!--  Added overriding of /64 size by admin. -->
+
+            If the considered delegated prefix is an IPv4 prefix,
+            a prefix of length 24 SHOULD be preferred.
+
+            In any case a router MUST support a mechanism suitable to
+            distribute addresses from the considered prefix to clients on
+            the link otherwise it MUST NOT advertise or apply it, i.e. a
+            router assigning an IPv4-Prefix MUST support the L-capability
+            and a router assigning an IPv6-Prefix not suitable for stateless
+            autoconfiguration MUST support the H-capability as defined in
+            <xref target="version-tlv" />
+<!-- Added this since otherwise we may get non-stateful DHCPv6 capable routers
+creating /80 or so or non DHCPv4-capable routers creating IPv4 prefixes on a link. -->
+            </t>
+
+          </section>
+
+          <section title="Applying Assignments">
+            <t>The prefix assignment algorithm indicates when a prefix is
+            applied to the respective Adjacent Link. When that happens
+            each router connected to said link:
+
+            <list>
+              <t>MUST create an appropriate on-link route for said prefix
+              and advertise it using the chosen routing protocol.</t>
+
+              <t>MUST participate in the client configuration election as
+              described in <xref target="client-config" />.</t>
+
+              <t>SHOULD add an address from said prefix to the respective
+              connection as described in <xref target="node-addr" /></t>
+            </list>
+
+            </t>
+          </section>
+
+          <section title="DHCPv6-PD Excluded Prefix Support">
+            <t>Whenever a <xref target="RFC6603">DHCPv6 Prefix Exclude option
+            </xref> is received with a delegated prefix the excluded prefix
+            MUST be advertised as assigned to a Private Link with the maximum
+            priority (i.e. 15).</t>
+
+            <t>The same procedure MAY be applied in order to exclude
+            prefixes obtained by other means of configuration.</t>
+          </section>
+
+          <section title="Downstream Prefix Delegation Support" anchor="pd">
+            <t>When an HNCP router receives a request for prefix delegation,
+            it SHOULD assign a set of prefixes, wait for them to be applied,
+            and delegate them to the client. Such assignment MUST be done in
+            accordance with the Prefix Assignment Algorithm. Each client
+            MUST be considered as an independent Private Link and delegation
+            MUST be based on the same set of Delegated Prefixes.</t>
+
+            <t>The assigned prefixes MUST NOT be given to clients before
+            they are applied, and MUST be withdrawn whenever they are
+            destroyed. As an exception to this rule a router MAY prematurely
+            give out a prefix which is advertised but not yet applied if it
+            does so with a valid lifetime of not more than 30 seconds and
+            ensures removal or correction of lifetimes as soon as possible
+            to shorten delays of processed requests.</t>
+<!-- Added our old premature PD exception back. -->
+          </section>
+
+        </section>
+
+        <section title="Node Address Assignment" anchor="node-addr">
+          <t>This section specifies how HNCP nodes reserve addresses for their
+          own use. Nodes MAY, at any time, try to reserve a new address.
+          If SLAAC can be used to derive addresses it SHOULD be used,
+          otherwise the following method MUST be used.</t>
+<!-- Made MUST SLAAC a SHOULD SLAAC since naming sometimes requires use of Node-Address. -->
+
+          <t>For any assigned prefix, the fourth quarter of the addresses are
+          reserved for routers HNCP based assignments, whereas the first three
+          quarters are reserved for DHCP-based allocations. For instance, if
+          the prefix 10.0.1.0/24 is assigned and applied to an Adjacent Link,
+          addresses included in 10.0.1.192/26 are reserved for HNCP nodes and
+          the remaining addresses are reserved for allocations using DHCP.</t>
+
+          <t>HNCP routers assign themselves addresses using the Node Address TLV:
+            <figure>
+              <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: NODE-ADDRESS (36)    |           Length: 24          |
+|    Type: NODE-ADDRESS (36)    |           Length: 20          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                        Link Identifier                        |
+|                     Connection Identifier                     |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
 |                           IP-Address                          |
 |                                                               |
 |                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-                    </artwork>
-                </figure>
-                <list style="hanging">
-                    <t hangText="Link Identifier: ">The HNCP Link Identifier of the link the address is assigned to, or 0 if it is not assigned on a HNCP enabled link.</t>
-                    <t hangText="IP-Address: ">The IPv6 address, or the IPv4 address encoded as an IPv4-mapped IPv6 address.</t>
-                </list>
-            </t>
-            
-            <t>Additionaly, the process of obtaining addresses is specified as follows:
-                <list style="symbols">
-                    <t>An assigned address MUST be in the last quarter of an assigned prefix, currently applied on the specified link (see <xref target="I-D.ietf-homenet-prefix-assignment" />).</t>
-                    <t>An address MUST NOT be used unless it has been advertised for NODE_ADDRESS_BACKOFF consecutive seconds, and is still currently advertised.</t>
-                    <t>Whenever the same address is advertised by another HNCP node, only the TLV advertised by the node with the greatest ID among conflicting Node Addresses TLVs may be kept. Other conflicting TLVs MUST be removed.</t>
-                </list>
-            </t>
-            
+              </artwork>
+            </figure>
+            <list style="hanging">
+              <t hangText="Connection Identifier: ">The DNCP Connection
+              Identifier of the link the address is assigned to, or 0 if it is
+              not assigned on a HNCP enabled link.</t>
+
+              <t hangText="IP-Address: ">The IPv6 address, or the IPv4 address
+              encoded as an IPv4-mapped IPv6 address.</t>
+            </list>
+          </t>
+
+          <t>The process of obtaining addresses is specified as follows:
+            <list style="symbols">
+              <t>An assigned address MUST be in the last quarter of an
+              assigned prefix, currently applied on the specified link.</t>
+
+              <t>An address MUST NOT be used unless it has been advertised for
+              at least NODE_ADDRESS_BACKOFF consecutive seconds, and is still
+              currently being advertised.</t>
+
+              <t>Whenever the same address is advertised by more than one node
+              only the one advertised by the node with the highest Node
+              Identifier MAY be kept, all other conflicting TLVs MUST NOT.</t>
+            </list>
+          </t>
         </section>
-        
+
+        <section title="Local IPv4 and ULA prefixes">
+          <t>HNCP routers can create an ULA or private IPv4 prefix to enable
+          connectivity between local devices. These prefixes are inserted in
+          HNCP as if they were delegated prefixes. The following rules apply:
+
+          <list>
+            <t>An HNCP-router SHOULD create a random ULA-prefix if there is no
+            other non-deprecated IPv6-prefix in the network. It MAY also do so
+            if there are other delegated IPv6-prefixes but none of which is a
+            non-deprecated ULA but MUST NOT do so otherwise. Once it detects
+            another non-deprecated ULA being advertised it MUST  cease to
+            announce its locally generated one. It MAY also do so once it
+            detects a non-deprecated non-ULA IPv6 delegated prefix.</t>
+
+            <t>An HNCP-router MUST create a non-deprecated
+            <xref target="RFC1918">private IPv4-prefix</xref>
+            whenever it wishes to provide external IPv4 connectivity to the
+            network and no other non-deprecated private IPv4 prefix currently
+            exists. It MAY also create a deprecated private IPv4-prefix if no
+            IPv4 prefix exists and it wants to enable local IPv4 connectivity
+            but MUST NOT do so otherwise. In case multiple IPv4 prefixes are
+            announced all but one MUST be removed while non-deprecated ones
+            take precedence over deprecated ones and announcements by nodes
+            with a higher node identifier take precedence over those with a
+            lower one.</t>
+<!-- TODO: restrict IPv4 default route to router "owning" the DP? -->
+          </list>
+
+          </t>
+
+          <t>Creation of such ULA and IPv4 prefixes MUST be delayed by a
+          random timespan between 0 and 10 seconds in which the router MUST
+          scan for other nodes trying to doing the same.</t>
+        </section>
+
+<!--
+TODO: the following section has some issue which is why I have commented it for now.
+
+* Router must support at least stateless DHCPv6 for Windows etc.
+* While all routers sending RAs is a nice thing it also causes additional / redundant MC traffic on a link
+* Per-link election / voting etc. is complex and only solves a small corner case of the actual issue of topology changes
+  * It avoids new routers which have a higher node ID being added to a link causing the DHCP-election to flap, but does not solve
+    * The currently elected DHCP going away
+    * a link split causing clients to have dangling leases to a previous DHCP
+    * a link merger " - "
+    * ...
+* Also we want to centralize certain services (PD-server should be same as stateful server, naming services - both MDNS and hostname-based- should be centralized)
+
         <section title="Host Configuration">
-            <t>This section specifies how routers must behave in order to configure hosts by the mean of router advertisements and, when necessary, DHCP servers.</t>
-            
+            <t>This section specifies how routers behave in order to configure hosts by the mean of router advertisements and, when necessary, DHCP servers.</t>
+
             <section title="Sending Router Advertisements">
                 <t>All HNCP routers MUST send Router Advertisements (RAs) on all internal interfaces and MUST NOT send RAs on external interfaces.</t>
-                
+
                 <t>The router advertisements (RAs) MUST include a Prefix Information Options for each IPv6 prefix assigned to the considered link, applied and advertised. SLAAC MUST be enabled when the prefix length is 64. The specified valid and preferred lifetimes MUST be set to values lower or equal to the associated valid and preferred lifetimes from the delegated prefix the assigned prefix is from.</t>
-                    
+
                  <t>Whenever at least one IPv6 default route (source-specific or not) which next-hop is not located on the considered link is present in the RIB, the designated router MUST advertise itself as default router by specifying a strictly positive valid lifetime.</t>
-                 
+
                  <t>Whenever at least one source-specific IPv6 default route which next-hop is not located on the considered link and which source-prefix equals a delegated prefix used for prefix assignment, the router MUST advertise itself as a router for all IPv6 delegated prefixes using <xref target="RFC4191">Route Information Options</xref>.</t>
+
+
+                <t>HNCP routers run independent election processes on each internal link. A Link Election TLV is considered as advertised on a link in the same way an Assigned Prefix TLV is associated to a given Shared Link (see <xref target="pa"/>). The HNCP router advertising the Link Election TLV specifying the highest and not null DHCPv6 (resp. DHCPv4) priority MUST run a DHCPv6 (resp. DHCPv4) server (In case of a tie, the node with the greatest node identifier is elected).</t>
+
+                <t>DHCPv4 and DHCPv6 servers MUST be configured to provide addresses from each assigned and applied prefixes, while excluding addresses included in the last quarter of each assigned prefix.</t>
+
+                <t>All HNCP routers advertising an IPv4 prefix as assigned on a link MUST candidate as DHCP server. Which means that all routers unable to run a DHCP server MUST NOT advertise a new IPv4 prefix or adopt an existing one.</t>
+
+                <t>All HNCP routers advertising an IPv6 prefix requiring specific configuration from a DHCPv6 server MUST candidate as DHCPv6 server. Which means that a router unable to run a DHCPv6 server MUST NOT advertise an IPv6 prefix requiring a DHCPv6 server to be run, or adopt such an existing prefix.</t>
+
+                <t>All HNCP routers SHOULD support DHCPv6 Prefix Delegation. Such routers MUST candidate as DHCPv6 routers. When a DHCPv6-PD request is received, HNCP routers MUST behave as specified in  TBD XXX xref target="downstream" .</t>
+
             </section>
-            
             <section title="DHCP operations">
                 <t>Whenever an IPv4 prefix is advertised on a given link, or whenever the use of stateless or statefull DHCPv6 is required, a single DHCPv4 and / or DHCPv6 server MUST be elected. The Link Election TLV is defined for that purpose:
                     <figure>
@@ -544,27 +783,146 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
                         <t hangText="Reserved: ">TLV alignment leaves room for other similar election mechanisms. These bits MUST be set to zero by the node publishing the TLV and MUST be ignored when published by another node.</t>
                     </list>
                 </t>
-                
+
                 <t>HNCP routers run independent election processes on each internal link. A Link Election TLV is considered as advertised on a link in the same way an Assigned Prefix TLV is associated to a given Shared Link (see <xref target="pa"/>). The HNCP router advertising the Link Election TLV specifying the highest and not null DHCPv6 (resp. DHCPv4) priority MUST run a DHCPv6 (resp. DHCPv4) server (In case of a tie, the node with the greatest node identifier is elected).</t>
-                
+
                 <t>DHCPv4 and DHCPv6 servers MUST be configured to provide addresses from each assigned and applied prefixes, while excluding addresses included in the last quarter of each assigned prefix.</t>
-                
+
                 <t>All HNCP routers advertising an IPv4 prefix as assigned on a link MUST candidate as DHCP server. Which means that all routers unable to run a DHCP server MUST NOT advertise a new IPv4 prefix or adopt an existing one.</t>
-                
+
                 <t>All HNCP routers advertising an IPv6 prefix requiring specific configuration from a DHCPv6 server MUST candidate as DHCPv6 server. Which means that a router unable to run a DHCPv6 server MUST NOT advertise an IPv6 prefix requiring a DHCPv6 server to be run, or adopt such an existing prefix.</t>
-                
-                <t>All HNCP routers SHOULD support DHCPv6 Prefix Delegation. Such routers MUST candidate as DHCPv6 routers. When a DHCPv6-PD request is received, HNCP routers MUST behave as specified in <!-- TBD XXX xref target="downstream" / -->.</t>
-                
+
+                <t>All HNCP routers SHOULD support DHCPv6 Prefix Delegation. Such routers MUST candidate as DHCPv6 routers. When a DHCPv6-PD request is received, HNCP routers MUST behave as specified in TBD XXX xref target="downstream" .</t>
+
             </section>
         </section>
-        
-        <section title="IPv4 and ULA delegated prefixes">
-            <t>TODO</t>
-        </section>
-        
+-->
     </section>
 
-    <section title="Naming and Service Discovery">
+    <section title="Configuration of hosts and non-HNCP routers" anchor="client-config">
+      <t>HNCP routers need to ensure that hosts and non-HNCP downstream
+      routers on internal links are configured with addresses and routes.
+      Since DHCP-clients can usually only bind to one server at a time an
+      election takes place.</t>
+
+      <t>HNCP routers may have different capabilities for configuring
+      downstream devices and providing naming services. Each router MUST
+      therefore indicate its capabilities as specified in <xref
+      target="version-tlv" /> in order to candidate for election.</t>
+
+      <section title="DHCPv6 for adressing or configuration">
+        <t>In general stateless address configuration is preferred whenever
+        possible since it enables fast renumbering and low overhead, however
+        stateful DHCPv6 can be useful in addition to collect hostnames and
+        use them to provide naming services or if stateless configuration
+        is not possible for the assigned prefix length.</t>
+
+        <t>The designated stateful DHCPv6-server for a link is elected based
+        on the capabilities described in <xref target="version-tlv" />. It is
+        the router with the highest node identifier among those with the
+        highest Capability Value on the link that support the H-capability.
+        This router MUST serve stateful DHCPv6 and Router Advertisements on
+        the given link. Furthermore it MUST provide naming services for
+        acquired hostnames as outlined in <xref target="naming-sd" />.
+        Stateful addresses being handed out SHOULD have a low preferred
+        lifetime (e.g. 1s) to not hinder fast renumbering if either the DHCPv6
+        server or client do not support the DHCPv6 reconfigure mechanism and
+        the address is from a prefix for which stateless autoconfiguration is
+        supported as well.  In case no router was elected, stateful DHCPv6 is
+        not provided and each router assigning IPv6 prefixes on said link MUST
+        serve Router Advertisements and stateless DHCPv6.</t>
+      </section>
+
+      <section title="Sending Router Advertisements">
+        <t>The HNCP router being elected as DHCPv6 server for adressing or
+        configuration MUST send Router Advertisements periodically via
+        multicast and via unicast in response to Router Solicitations. In
+        addition other routers on the link MAY announce Router Advertisements
+        if doing so might result in a more optimal routing decision for
+        clients, i.e. the router has a delegated prefix. The following rules
+        MUST be followed then sending Router Advertisements:
+
+        <list>
+          <t>The "Managed address configuration" flag MUST be set whenever
+          there is a router announcing the H-capability on the respective link
+          and MUST NOT be set otherwise. The "Other configuration" flag MUST
+          always be set.</t>
+
+          <t>The default Router Lifetime MUST be set to an appropriate value
+          whenever an IPv6 default route is known in the HNCP network and
+          MUST be set to zero otherwise.</t>
+
+          <t>A Prefix Information Option MUST be added for each assigned IPv6
+          prefix on the given link. The autonomous address-configuration flag
+          MUST be set whenever the prefix is suitable for stateless
+          configuraton.</t>
+
+          <t>A <xref target="RFC4191">Route Information Option</xref> MUST be
+          added for each delegated IPv6 prefix known in the HNCP network.
+          Additional ones SHOULD be added for each non-default IPv6 route
+          in the HNCP network with a destination being external to it.</t>
+
+          <t>A Recursive DNS Server Option and a DNS Search List Option MUST
+          be included with appropriate contents.</t>
+
+          <t>To allow for optimized routing decisions for clients on the local
+          link routers SHOULD adjust their <xref target="RFC4191">Default
+          Router Preference and Route Preferences</xref> so that the priority
+          is set to low if the next hop of the default or more specific route
+          is on the same interface as the Route Advertisement being sent on.
+          Similarly the router MAY use the high priority if it is certain it
+          has the best metric of all routers on the link for all routes known
+          in the network with the respective destination.</t>
+        </list>
+
+        Upon detecting a change leading to updated Router Advertisement
+        contents, all routers sending Router Advertisements MUST immediately
+        send an updated Router Advertisement message via multicast.
+
+        </t>
+      </section>
+
+      <section title="DHCPv6 for prefix delegation">
+        <t>The designated DHCPv6-server for prefix-delegation on a link is
+        elected based on the capabilities described in
+        <xref target="version-tlv" />. It is the router with the highest node
+        identifier among those with the highest Capability Value on the link
+        that support the P-capability. This router MUST provide
+        <xref target="RFC3633">prefix-delegation services</xref>
+        on the given link and follow the rules in <xref target="pd" />.</t>
+      </section>
+
+      <section title="DHCPv4 for adressing and configuration">
+        <t>The designated DHCPv4-server on a link is elected based on the
+        capabilities described in <xref target="version-tlv" />. It is the
+        router with the highest node identifier among those with the highest
+        Capability Value on the link that support the L-capability. This
+        router MUST provide DHCPv4 services on the given link.</t>
+
+        <t>The DHCPv4 serving router MUST announce itself as
+        <xref target="RFC2132">router</xref> to clients if and only if there
+        is an IPv4 default route known in the network. In addition the router
+        SHOULD announce a
+        <xref target="RFC3442">Classless Static Route Option</xref>
+        for each non-default IPv4 route known in the HNCP network with a
+        destination being external to it.</t>
+
+        <t>DHCPv4 lease times SHOULD be short (i.e. not longer than 5 minutes)
+        in order to provide reasonable response times to changes.</t>
+      </section>
+
+      <section title="Multicast DNS Proxy">
+        <t>The designated <xref target="RFC6762">MDNS</xref>-proxy on a link
+        is elected based on the capabilities described in
+        <xref target="version-tlv" />. It is the router with the highest node
+        identifier among those with the highest Capability Value on the link
+        that support the M-capability. This router MUST provide an MDNS-proxy
+        on the given link and announce it as described in
+        <xref target="naming-sd" />.</t>
+      </section>
+    </section>
+
+    <section title="Naming and Service Discovery" anchor="naming-sd">
 
       <t>Network-wide naming and service discovery can greatly improve the
       user-friendliness of an IPv6 network. The following mechanism provides
@@ -572,12 +930,11 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       multiple HNCP routers.</t>
 
       <t>Each HNCP router SHOULD provide and announce an auto-generated or
-      user-configured name for each internal link for which it is the
-      designated DHCP or stateful DHCPv6-server and provide DNS-services on
-      behalf of devices on said link. This SHOULD be achieved by proxying
-      <xref target="RFC6762">MDNS</xref> and / or resolving device hostnames
-      acquired using DHCPv4, DHCPv6 or other means via DNS. In addition
-      reverse lookup services and delegations MAY be provided similarly.</t>
+      user-configured name for each internal <xref target="links">Adjacent
+      Link</xref> for which it is the designated DHCPv4, stateful
+      DHCPv6-server or <xref target="RFC6762">MDNS</xref>-proxy and for
+      which it provides DNS-services on behalf of devices on said link.
+      In addition it MAY provide reverse lookup services similarly.</t>
 
       <t>The following TLVs are defined and MUST be supported by all nodes
       implementing naming and service discovery:</t>
@@ -597,7 +954,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Type: DNS-DELEGATED-ZONE (39) |        Length: >= 21          |
+| Type: DNS-DELEGATED-ZONE (39) |        Length: >= 17          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
 |                           IP-Address                          |
@@ -665,7 +1022,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: DOMAIN-NAME (40)     |         Length: >= 4          |
+|    Type: DOMAIN-NAME (40)     |         Length: > 0           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |        Domain (DNS label sequence - variable length)          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -695,7 +1052,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: NODE-NAME (41)      |         Length: >= 4          |
+|     Type: NODE-NAME (41)      |         Length: > 0           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |         Name (not null-terminated - variable length)          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -730,7 +1087,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: Managed-PSK (42)     |          Length: 36           |
+|    Type: Managed-PSK (42)     |          Length: 32           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
 |                                                               |
@@ -756,10 +1113,11 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       </t>
     </section>
 
-    <section anchor="version-tlv" title="HNCP-Versioning">
+    <section anchor="version-tlv" title="HNCP-versioning and capabilities">
 
       <t>Multiple versions of HNCP based on compatible DNCP profiles may be
-      present in the same network when transitioning between HNCP versions.
+      present in the same network when transitioning between HNCP versions
+      and HNCP-routers may have different capabilities to support clients.
       The following mechanism describes a way to announce the currently active
       version and User-agent of a node. Each node MUST include an
       HNCP-Version-TLV in its Node Data and MUST ignore (except for DNCP
@@ -767,14 +1125,18 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       not publishing an HNCP-Version TLV or publishing such a TLV with a
       different Version number.</t>
 
+      <t>Capabilities are indicated by setting certain bits in the TLV. The
+      "capability value" is a metric indicated by interpreting the bits as an
+      integer, i.e. (M &lt;&lt; 3 | P &lt;&lt; 2 | H &lt;&lt; 1 | L).</t>
+
       <figure>
         <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: HNCP-VERSION (32)    |         Length: >= 9          |
+|    Type: HNCP-VERSION (32)    |         Length: >= 5          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Version    |                  (reserved)                   |
+|    Version    | (res) |M|P|H|L|             (res)             |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                          User-agent                           |
         </artwork>
@@ -783,8 +1145,23 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <t>Version indicates which version of HNCP is currently in use by
       this particular node. It MUST be set to 0.</t>
 
-      <t>(reserved) bits must be set to 0 when creating and ignored when
-      parsing this TLV.</t>
+      <t>M-Bit indicates that the router is capable of proxying
+      <xref target="RFC6762">MDNS</xref></t>
+
+      <t>P-Bit indicates that the router is capable of running a DHCPv6-PD
+      server for legacy routers and can announce prefixes delegated to them
+      on their behalf in the homenet.</t>
+
+      <t>H-Bit indicates that the router is capable of running a stateful
+      DHCPv6 server offering non-temporary addresses to clients AND is capable
+      of providing name-resolution on behalf of clients on a link based on
+      acquired hostnames.</t>
+
+      <t>L-Bit indicates that the router is capable of running a legacy
+      DHCPv4 server offering IPv4-addresses to clients.</t>
+
+      <t>(res.) bits are reserved and MUST be set to 0 when creating
+      and ignored when parsing this TLV.</t>
 
       <t>The user-agent is a null-terminated human-readable UTF-8 string
       that describes the name and version of the current HNCP
@@ -796,8 +1173,9 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <t>Each router implementing HNCP is subject to the following
       requirements:
       <list style="symbols">
-        <t>It MUST implement HNCP-Versioning, Border Discovery and Prefix
-        Assignment as defined in this document.</t>
+        <t>It MUST implement HNCP-Versioning, Border Discovery, Prefix
+        Assignment and Configuration of hosts and non-HNCP routers
+        as defined in this document.</t>
         <t>It MUST implement and run the method for securing third-party
         protocols whenever it uses the security mechanism of HNCP.</t>
         <t>It SHOULD implement support for the Service Discovery and Naming
@@ -836,7 +1214,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       and routes in such networks to this day have rarely security enabled
       within the configuration protocol itself. However these issues are out
       of scope for the security of HNCP itself.</t>
-      
+
       <t>HNCP is a DNCP-based state synchronization mechanism carrying
       information with varying threat potential. For this consideration the
       payloads defined in DNCP and this document are reviewed:
@@ -894,7 +1272,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         HNCP traffic. If left unsecured attackers may perform arbitrary
         eavesdropping, spoofing or denial of service attacks on HNCP services
         such as address assignment or service discovery.</t>
-        
+
 
         <t>Detailed interface categories like "leaf" or "guest" can be used
         to integrate not fully trusted devices to various degrees into the
@@ -978,6 +1356,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <?rfc include="reference.RFC.6762.xml"?>
       <?rfc include="reference.RFC.6763.xml"?>
       <?rfc include="reference.RFC.6241.xml"?>
+      <?rfc include="reference.RFC.2132.xml"?>
+      <?rfc include="reference.RFC.3442.xml"?>
     </references>
 
     <section title="Changelog">
