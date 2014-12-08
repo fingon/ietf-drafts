@@ -13,8 +13,6 @@ TBD:
 - think about short node state, ~medium long state, full long state
 ( probably not worth it, as in secure mode, not really worth it )
 
-- fix spacing in hangText's (Pierre pointed out) - double spacing, argh.
-
 - move keep-alive interval TLV to node data
 
 -->
@@ -103,70 +101,64 @@ TBD:
     </section>
 
     <section title="Terminology">
-      <t>
-        <list style="hanging">
+      <t>DNCP profile is a definition of a set of rules and
+      values listed in <xref target="profile-bits"/> specifying the
+      behavior of a DNCP based protocol, such as the used transport
+      method.  For readability, any DNCP profile specific parameters
+      with profile-specific fixed value are prefixed with DNCP_.</t>
 
-          <t hangText="DNCP profile"> is definition of a set of rules and
-          values listed in <xref target="profile-bits"/> specifying the
-          behavior of a DNCP based protocol, such as the used transport
-          method.  For readability, any DNCP profile specific parameters
-          with profile-specific fixed value are prefixed with DNCP_.</t>
+      <t>DNCP node is a single node which runs a protocol
+      based on a DNCP profile.</t>
 
-          <t hangText="DNCP node"> is a single node which runs a protocol
-          based on a DNCP profile.</t>
+      <t>DNCP network is a set of DNCP nodes running the
+      same DNCP profile that can reach each other, either via learned
+      shared connections in the underlying network, or by knowing
+      address of each other. As DNCP exchanges are bidirectional, DNCP
+      nodes connected via only unidirectional links are not considered
+      connected. </t>
 
-          <t hangText="DNCP network"> is a set of DNCP nodes running the
-          same DNCP profile that can reach each other, either via learned
-          shared connections in the underlying network, or by knowing
-          address of each other. As DNCP exchanges are bidirectional, DNCP
-          nodes connected via only unidirectional links are not considered
-          connected. </t>
+      <t>(DNCP) peer refers to another DNCP node with which
+      a DNCP node communicates directly.</t>
 
-          <t hangText="(DNCP) peer"> refers to another DNCP node with which
-          a DNCP node communicates directly.</t>
+      <t>Node identifier is an opaque fixed-length
+      identifier of DNCP_NODE_IDENTIFIER_LENGTH bytes which uniquely
+      identifies a DNCP node in a DNCP network. </t>
 
-          <t hangText="Node identifier"> is an opaque, fixed-length
-          identifier of DNCP_NODE_IDENTIFIER_LENGTH bytes which uniquely
-          identifies a DNCP node in a DNCP network. </t>
+      <t>Link indicates a link-layer media over which
+      directly connected nodes can communicate.</t>
 
-          <t hangText="Link"> indicates a link-layer media over which
-          directly connected nodes can communicate.</t>
+      <t>Interface indicates a port of a node that is
+      directly connected to a particular link. </t>
 
-          <t hangText="Interface"> indicates a port of a node that is
-          directly connected to a particular link. </t>
+      <t>Connection denotes a locally configured use
+      of DNCP on a DNCP node, that is attached either to an interface,
+      or to a specific remote unicast address.</t>
 
-          <t hangText="Connection"> denotes a locally configured use
-          of DNCP on a DNCP node, that is attached either to an interface,
-          or to a specific remote unicast address.</t>
+      <t>Connection identifier is a 32-bit opaque value,
+      which identifies locally uniquely particular connection of that
+      particular DNCP node.</t>
 
-          <t hangText="Connection identifier"> is a 32-bit opaque value,
-          which identifies locally uniquely particular connection of that
-          particular DNCP node.</t>
+      <t>Node data is a set of TLVs published by a node in
+      the DNCP network.</t>
 
-          <t hangText="Node data"> is a set of TLVs published by a node in
-          the DNCP network.</t>
+      <t>Node state is a set of metadata attributes for
+      node data.  It includes a sequence number for versioning, a
+      hash-value for comparing and a timestamp indicating the time
+      passed since its last publication.</t>
 
-          <t hangText="Node state"> is a set of metadata attributes for
-          node data.  It includes a sequence number for versioning, a
-          hash-value for comparing and a timestamp indicating the time
-          passed since its last publication.</t>
+      <t>Network state (hash) is a hash-value representing
+      the current state of the network.  The function and the number of
+      bits used from the function defined in the DNCP profile.
 
-          <t hangText="Network state (hash)"> is a hash-value representing
-          the current state of the network.  The function and the number of
-          bits used from the function defined in the DNCP profile.
+      Whenever any node is added, removed or changes its published node
+      data this hash-value changes as well. It is calculated over the
+      hash-values of each reachable nodes' node data in ascending order
+      of the respective node identifier.</t>
 
-          Whenever any node is added, removed or changes its published node
-          data this hash-value changes as well. It is calculated over the
-          hash-values of each reachable nodes' node data in ascending order
-          of the respective node identifier.</t>
-
-          <t hangText="Effective (trust) verdict"> for any certificate is
-          defined as the one with the highest priority from all verdicts
-          announced for said certificate at the time in the DNCP
-          network.</t>
-
-        </list>
-      </t>
+      <t>Effective (trust) verdict for any certificate is
+      defined as the one with the highest priority from all verdicts
+      announced for said certificate at the time in the DNCP
+      network.</t>
 
     </section>
 
