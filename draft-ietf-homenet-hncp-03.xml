@@ -471,7 +471,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
                       <t hangText="8-11 :">Administrative priorities. MUST NOT
                           be used unless specified in the router's
                           configuration.</t>
-                      <t hangText="12-14:">Reserved for futur use.</t>
+                      <t hangText="12-14:">Reserved for future use.</t>
                       <t hangText="15   :">Provider priorities. MAY only be used
                           by the router advertising the corresponding
                           delegated prefix.
@@ -1097,22 +1097,25 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
               </t>
               <t hangText="M-capability:">Priority value used for electing the
                   on-link <xref target="RFC6762">MDNS</xref> proxy. It MUST be
-                  set to 1 if the router is capable of proxying MDNS and 0
-                  otherwise. Other values are reserved for futur use.</t>
+                  set to 4 if the router is capable of proxying MDNS and 0
+                  otherwise. An administrator MAY override the value.
+                  The values 8-15 are reserved for future use.</t>
               <t hangText="P-capability:">Priority value used for electing the
-                  on-link DHCPv6-PD server. It MUST be set to 1 if the router is
+                  on-link DHCPv6-PD server. It MUST be set to 4 if the router is
                   capable of <xref target="pd">providing prefixes through DHCPv6-PD</xref>
-                  and 0 otherwise. Other values are reserved for futur use.</t>
+                  and 0 otherwise. An administrator MAY override the value.
+                  The values 8-15 are reserved for future use.</t>
               <t hangText="H-capability:">Priority value used for electing the
                   on-link DHCPv6 server offering non-temporary addresses.  It
-                  MUST be set to 1 if the router is capable of providing such
-                  addresses and 0 otherwise. Other values are reserved
-                  for futur use.</t>
+                  MUST be set to 4 if the router is capable of providing such
+                  addresses and and 0 otherwise. An administrator MAY override
+                  the value. The values 8-15 are reserved for future use.</t>
               <t hangText="L-capability:">Priority value used for electing the
-                  on-link DHCPv4 server. It MUST be set to 1 if the router is
+                  on-link DHCPv4 server. It MUST be set to 4 if the router is
                   capable of running a legacy DHCPv4 server offering
-                  IPv4-addresses to clients and 0 otherwise.
-                  Other values are reserved for futur use.</t>
+                  IPv4-addresses to clients and 0 otherwise. An administrator
+                  MAY override the value. The values 8-15 are reserved for
+                  future use.</t>
               <t hangText="User-Agent:">
                   The user-agent is a null-terminated human-readable UTF-8 string
                   that describes the name and version of the current HNCP
