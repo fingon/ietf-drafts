@@ -677,11 +677,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         <t>.. = octet string concatenation operation.</t>
 
         <t>H(x) = non-cryptographic hash function specified by DNCP
-        profile. Calling it MUST result in at least 64 bits of relatively
-        collision-free data.</t>
-
-        <t>H-64(x) = H(x) truncated by taking the first 64 bits of the
-        result if it has more than 64 bits. Otherwise H-64(x) = H(x).</t>
+        profile. </t>
 
       </list>
       </t>
@@ -908,10 +904,10 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: CUSTOM-DATA (9)     |         Length: >= 8          |
+|     Type: CUSTOM-DATA (9)     |         Length: > 0           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                            H-64(URI)                          |
-|                                                               |
+|                            H(URI)                             |
+|                  (length fixed in DNCP profile)               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                          Opaque Data                          |
           </artwork>
@@ -921,12 +917,12 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         under control of the author of that specification.
         For example:</t>
 
-        <t>V = H-64('http://example.com/author/json-for-dncp') .. '{"cool":
+        <t>V = H('http://example.com/author/json-for-dncp') .. '{"cool":
         "json extension!"}'</t>
 
         <t>or</t>
 
-        <t>V = H-64('mailto:author@example.com') .. '{"cool": "json
+        <t>V = H('mailto:author@example.com') .. '{"cool": "json
         extension!"}'</t>
 
       </section>
