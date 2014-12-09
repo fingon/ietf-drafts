@@ -500,11 +500,11 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
               encoded in Delegated Prefix TLVs which are not strictly included
               in prefixes encoded in other Delegated Prefix TLVs. Note that
               Delegated Prefix TLVs included in ignored External Connection
-              TLVs are not considered. It is dynamicaly updated as Delegated
+              TLVs are not considered. It is dynamically updated as Delegated
               Prefix TLVs are added or removed.</t>
 
               <t hangText="Set of Shared Links: ">The set of HNCP internal
-              links. It is dynamicaly updated as HNCP links are added,
+              links. It is dynamically updated as HNCP links are added,
               removed, become internal or cease to be.</t>
 
               <t hangText="Set of Private Links: ">This document defines
@@ -542,7 +542,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
                   5 seconds.</t>
               
               <t hangText="Default Advertised Prefix Priority: ">When a
-                  new assignement is created or an assignment is adopted -
+                  new assignment is created or an assignment is adopted -
                   as specified in the prefix assignment algorithm routine -
                   the default Advertised Prefix Priority to be used is 2.</t>
             </list>
@@ -775,7 +775,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       </section>
 
       <section title="Sending Router Advertisements">
-        <t>The HNCP router being elected as DHCPv6 server for adressing or
+        <t>The HNCP router being elected as DHCPv6 server for addressing or
         configuration MUST send Router Advertisements periodically via
         multicast and via unicast in response to Router Solicitations. In
         addition other routers on the link MAY announce Router Advertisements.
@@ -795,7 +795,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
           <t>A Prefix Information Option MUST be added for each assigned IPv6
           prefix on the given link. The autonomous address-configuration flag
           MUST be set whenever the prefix is suitable for stateless
-          configuraton. The preferred and valid lifetimes MUST be
+          configuration. The preferred and valid lifetimes MUST be
           smaller than the preferred and valid lifetimes of the
           delegated prefix the prefix is from. When a prefix is removed,
           it MUST be deprecated as specified in <xref target="RFC7084"/>.</t>
@@ -1067,7 +1067,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       The following mechanism describes a way to announce the currently active
       version and User-agent of a node. Each node MUST include an
       HNCP-Version-TLV in its Node Data and MUST ignore (except for DNCP
-      synchronisation purposes) any TLVs with a type greater than 32 of nodes
+      synchronization purposes) any TLVs with a type greater than 32 of nodes
       not publishing an HNCP-Version TLV or publishing such a TLV with a
       different Version number.</t>
 
