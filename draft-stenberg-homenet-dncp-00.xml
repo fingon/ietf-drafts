@@ -4,15 +4,6 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
 split from draft-ietf-homenet-hncp-03-pre - generic parts
 
-TBD:
-
-- proactive 'push' MAY/SHOULD?
-
-- consider if node state + data should be merged like Pierre suggested
-
-- think about short node state, ~medium long state, full long state
-( probably not worth it, as in secure mode, not really worth it )
-
 -->
 
 <!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
@@ -64,10 +55,10 @@ TBD:
     <abstract>
 
       <t>This document describes the Distributed Node Consensus Protocol
-      (DNCP), a generic state synchronization protocol using Trickle and
-      Merkle trees. DNCP is transport agnostic and leaves some of the
+      (DNCP), a generic state synchronization protocol which uses Trickle
+      and Merkle trees. DNCP is transport agnostic and leaves some of the
       details to be defined or specified in profiles, which define actual
-      implementable protocols based on DNCP. </t>
+      implementable DNCP based protocols. </t>
 
     </abstract>
   </front>
@@ -108,50 +99,54 @@ TBD:
       <t>DNCP node is a single node which runs a protocol
       based on a DNCP profile.</t>
 
-      <t>DNCP network is a set of DNCP nodes running the
-      same DNCP profile that can reach each other, either via learned
-      shared connections in the underlying network, or by knowing
-      address of each other. As DNCP exchanges are bidirectional, DNCP
-      nodes connected via only unidirectional links are not considered
+      <t>DNCP network is a set of DNCP nodes running the same DNCP profile
+      that can reach each other, either via learned shared connections in
+      the underlying network, or using each other's addresses learned via
+      other means. As DNCP exchanges are bidirectional, DNCP nodes
+      connected via only unidirectional links are not considered
       connected. </t>
 
-      <t>(DNCP) peer refers to another DNCP node with which
-      a DNCP node communicates directly.</t>
+      <t>Node identifier is an opaque fixed-length identifier of
+      DNCP_NODE_IDENTIFIER_LENGTH bytes which uniquely identifies a DNCP
+      node within a DNCP network. </t>
 
-      <t>Node identifier is an opaque fixed-length
-      identifier of DNCP_NODE_IDENTIFIER_LENGTH bytes which uniquely
-      identifies a DNCP node in a DNCP network. </t>
+      <t>Link indicates a link-layer media over which directly connected
+      nodes can communicate.</t>
 
-      <t>Link indicates a link-layer media over which
-      directly connected nodes can communicate.</t>
+      <t>Interface indicates a port of a node that is connected to a
+      particular link. </t>
 
-      <t>Interface indicates a port of a node that is
-      directly connected to a particular link. </t>
-
-      <t>Connection denotes a locally configured use
-      of DNCP on a DNCP node, that is attached either to an interface,
-      or to a specific remote unicast address.</t>
+      <t>Connection denotes a locally configured use of DNCP on a DNCP
+      node, that is attached either to an interface, to a specific remote
+      unicast address to be contacted, or to a range of remote unicast
+      addresses that are allowed to contact.</t>
 
       <t>Connection identifier is a 32-bit opaque value, which identifies
-      locally uniquely particular connection of that particular DNCP
-      node. Value of 0 is reserved for DNCP and sub-protocol purposes in
-      the TLVs, and MUST NOT be used to identify an actual connection.</t>
+      particular connection of that particular DNCP node. Value of 0 is
+      reserved for DNCP and sub-protocol purposes in the TLVs, and MUST NOT
+      be used to identify an actual connection. This definition is in sync
+      with <xref target="RFC2553"/>, as the non-zero small positive
+      integers should comfortably fit within 32 bits.</t>
+
+      <t>(DNCP) peer refers to another DNCP node with which
+      a DNCP node communicates directly on a particular connection.</t>
 
       <t>Node data is a set of TLVs published by a node in
       the DNCP network.</t>
 
-      <t>Node state is a set of metadata attributes for
-      node data.  It includes a sequence number for versioning, a
-      hash-value for comparing and a timestamp indicating the time
-      passed since its last publication.</t>
+      <t>Node state is a set of metadata attributes for node data.  It
+      includes a sequence number for versioning, a hash value for comparing
+      and a timestamp indicating the time passed since its last
+      publication. The hash function and the number of bits used are
+      defined in the DNCP profile. </t>
 
-      <t>Network state (hash) is a hash-value representing
-      the current state of the network.  The function and the number of
-      bits used from the function defined in the DNCP profile.
+      <t>Network state (hash) is a hash value which represents
+      the current state of the network.  The hash function and the number of
+      bits used are defined in the DNCP profile.
 
       Whenever any node is added, removed or changes its published node
-      data this hash-value changes as well. It is calculated over the
-      hash-values of each reachable nodes' node data in ascending order
+      data this hash value changes as well. It is calculated over the
+      hash values of each reachable nodes' node data in ascending order
       of the respective node identifier.</t>
 
       <t>Effective (trust) verdict for any certificate is
@@ -163,13 +158,22 @@ TBD:
 
     <section anchor="dm" title="Data Model">
 
+      <t>A DNCP node has:
+      <list style="symbols">
+
+        <t>A timestamp indicating the most recent neighbor graph traversal
+        described in <xref target="purge" />.</t>
+
+      </list>
+      </t>
+
       <t>A DNCP node has for every DNCP node in the DNCP network:
 
       <list style="symbols">
 
-        <t>A node identifier.</t>
+        <t>A node identifier, which uniquely identifies the node.</t>
 
-        <t>The node data, an ordered set of TLV tuples it published by that
+        <t>The node data, an ordered set of TLV tuples published by that
         particular node. This set of TLVs has a well-defined order based on
         ascending binary content (including TLV type and length). This
         facilitates linear time state delta processing. </t>
@@ -180,11 +184,16 @@ TBD:
         case of overflow. An example would be: a &lt; b &lt;=&gt; (a - b)
         % 2^32 &amp; 2^31 != 0.</t>
 
-        <t>The relative time (in milliseconds) since last publishing of the
-        current TLV data set with the current update sequence number. It is
+        <t>The relative time (in milliseconds) since the current TLV data
+        set with the current update sequence number was published. It is
         also 32 bit number on the wire.  If this number is close to
         overflow (greater than 2^32-2^16), a node MUST re-publish it's TLVs
-        even if there is no change to avoid overflow of the value.</t>
+        even if there is no change to avoid overflow of the value. In other
+        words, absent any other changes, TLV set MUST be re-published
+        roughly every 49 days.</t>
+
+        <t>A timestamp identifying the time it was last reachable based on
+        neighbor graph traversal described in <xref target="purge" />.</t>
 
       </list>
       </t>
@@ -195,8 +204,9 @@ TBD:
       <list style="symbols">
         <t>A connection identifier.</t>
 
-        <t>An interface, or an unicast address of a DNCP peer it is
-        connected to.</t>
+        <t>An interface, an unicast address of a DNCP peer it should
+        connect with, or a range of addresses from which DNCP peers are
+        allowed to connect.</t>
 
         <t>A <xref target="RFC6206">Trickle</xref> instance with parameters
         I, T, and c.</t>
@@ -206,6 +216,8 @@ TBD:
       <t>For each DNCP peer detected on a connection, a DNCP node has:
 
       <list style="symbols">
+
+        <t>The node identifier of the DNCP peer.</t>
 
         <t>The connection identifier of the DNCP peer.</t>
 
@@ -226,12 +238,12 @@ TBD:
       necessary. </t>
 
       <t>If DNCP is to be used on a multicast-capable interface, as opposed
-      to only point-to-point using known unicast remote address, a
-      datagram-based transport which supports multicast SHOULD be defined
-      in the DNCP profile to be used for the messages to be sent to the
-      whole link. As this is used only to identify potential new DNCP
-      nodes, and to notify that an unicast exchange should be triggered,
-      the multicast transport does not have to be particularly secure.</t>
+      to only point-to-point using unicast, a datagram-based transport
+      which supports multicast SHOULD be defined in the DNCP profile to be
+      used for the messages to be sent to the whole link. As this is used
+      only to identify potential new DNCP nodes, and to notify that an
+      unicast exchange should be triggered, the multicast transport does
+      not have to be particularly secure.</t>
 
       <section title="Trickle-Driven Status Update Messages"
                anchor="trickle-updates">
@@ -246,18 +258,18 @@ TBD:
         of an interface which is multicast-capable, or the unicast address
         of the remote party in case of a point-to-point connection.
 
-        By default, Long Network State Update messages SHOULD be used,
-        but if it is defined as undesirable for some case by the DNCP
-        profile, Short Network State Update message MUST be sent
-        instead. This may be useful to avoid fragmenting packets to multicast
-        destinations.</t>
+        By default, Long Network State Update messages SHOULD be used, but
+        if it is defined as undesirable for some case by the DNCP profile,
+        Short Network State Update message MUST be sent instead. This may
+        be useful to avoid fragmenting packets to multicast destinations,
+        or for security reasons.</t>
 
         <t>A Trickle state MUST be maintained separately for each
         connection. The Trickle state for all connections is considered
         inconsistent and reset if and only if the locally calculated
-        network state hash changes. This occurs due to a change in the
-        local node's own node data, or due to receipt of more recent data
-        from another node.</t>
+        network state hash changes. This occurs either due to a change in
+        the local node's own node data, or due to receipt of more recent
+        data from another node.</t>
 
         <t>The Trickle algorithm has 3 parameters; Imin, Imax and k. Imin
         and Imax represent the minimum and maximum values for I, which is
@@ -304,9 +316,10 @@ TBD:
             differs) or missing.</t>
 
             <t>If any such nodes are identified, the receiver MUST reply
-            with a <xref target="req-node-message">Node Data Request
-            message</xref> containing <xref target="req-node-data">Request
-            Node Data TLV(s)</xref> for the corresponding nodes.</t>
+            with one or more <xref target="req-node-message">Node Data
+            Request message(s)</xref> containing <xref
+            target="req-node-data">Request Node Data TLV(s)</xref> for the
+            corresponding nodes.</t>
 
           </list>
           </t>
@@ -326,10 +339,11 @@ TBD:
 
           <t><xref target="reply-node-message">Node Data Reply</xref>: If
           the message contains Node State TLVs that are more recent than
-          the local state (higher update sequence number, different node
-          data TLV hash, or missing altogether), and if the message also
-          contains corresponding Node Data TLVs, the receiver MUST update
-          its locally stored state.</t>
+          the local state (the received TLV has a higher update sequence
+          number, node data TLV hash differs from the local one, or local
+          data is missing altogether), and if the message also contains
+          corresponding Node Data TLVs, the receiver MUST update its
+          locally stored state.</t>
         </list>
         </t>
 
@@ -371,7 +385,7 @@ TBD:
         removed.</t>
       </section>
 
-      <section title="Purging Unreachable Nodes">
+      <section anchor="purge" title="Purging Unreachable Nodes">
 
         <t>When a Neighbor TLV or a whole node is added or removed, the
         neighbor graph SHOULD be traversed for each node following the
@@ -381,12 +395,13 @@ TBD:
         connection identifiers swapped. Each node reached should be marked
         currently reachable.</t>
 
-        <t>DNCP nodes SHOULD be purged eventually if they have not been
-        reachable within DNCP_GRACE_INTERVAL. During the grace period, the
-        nodes that were not marked reachable in the most recent graph
-        traversal MUST NOT be used for calculation of network state hash,
-        or even be provided to any applications that need to use the whole
-        TLV graph. </t>
+        <t>DNCP nodes MUST be either purged immediately when not marked
+        reachable in a particular graph traversal, or eventually after they
+        have not been marked reachable within DNCP_GRACE_INTERVAL. During
+        the grace period, the nodes that were not marked reachable in the
+        most recent graph traversal MUST NOT be used for calculation of
+        network state hash, be provided to any applications that need to
+        use the whole TLV graph, or be provided to remote nodes. </t>
 
       </section>
 
@@ -394,10 +409,11 @@ TBD:
 
     <section anchor="ka" title="Keep-Alive Extension">
 
-      <t>The basic Trickle-driven messages provide for handling of both new
-      peer detection (if applicable) on a connection as well as state
-      change notification, however another mechanism may be needed to get
-      rid of old, no longer valid DNCP peers.</t>
+      <t>The Trickle-driven messages provide a mechanism for handling of
+      new peer detection (if applicable) on a connection, as well as state
+      change notifications. Another mechanism may be needed to get rid of
+      old, no longer valid DNCP peers if the transport or lower layers do
+      not provide one.</t>
 
       <t>If keep-alives are not specified in the DNCP profile, the rest of
       this section MUST be ignored.</t>
@@ -415,7 +431,7 @@ TBD:
         <t>Each node MUST have a timestamp which indicates the last time a
         <xref target="net-state">Network State TLV</xref> was sent for each
         connection, i.e. on a physical interface or to the point-to-point
-        peer.</t>
+        peer(s).</t>
 
         <t>Each node MUST have for each peer:
 
@@ -439,7 +455,7 @@ TBD:
         a local value that is preferred for that for any reason
         (configuration, energy conservation, media type, ..), it should be
         substituted instead. If non-default keep-alive interval is used on
-        any connection, DNCP node MUST publish appropriate <xref
+        any connection, a DNCP node MUST publish appropriate <xref
         target="ka-interval">Keep-Alive Interval TLV(s)</xref>.</t>
 
         <t>If no traffic containing a <xref target="net-state">Network
@@ -465,15 +481,17 @@ TBD:
       </section>
 
       <section title="Neighbor Removal">
+
         <t>For every peer on every connection, their connection-specific
         keep-alive interval must be calculated by looking for <xref
         target="ka-interval">Keep-Alive Interval TLVs</xref> published by
-        the peer, and if none exist, using default value of
+        the node, and if none exist, using default value of
         DNCP_KEEPALIVE_INTERVAL. If the peer's last consistent state
         timestamp has not been updated for at least
         DNCP_KEEPALIVE_MULTIPLIER times peer's connection-specific
         keep-alive interval, the Neighbor TLV for that peer and the local
         DNCP peer state MUST be removed.</t>
+
       </section>
 
     </section>
@@ -499,7 +517,7 @@ TBD:
       </t>
 
       <t>DNCP profiles MAY add additional TLVs to the message specified
-      here or even additional messages as needed.</t>
+      here, or even define additional messages as needed.</t>
 
       <section title="Short Network State Update Message"
                anchor="short-net-message">
@@ -519,8 +537,9 @@ TBD:
 
         </list>
         </t>
-        <t>The Short Network Status update message MUST NOT contain any <xref
-        target="node-state">Node State TLV(s)</xref>.</t>
+
+        <t>The Short Network Status update message MUST NOT contain any
+        <xref target="node-state">Node State TLV(s)</xref>.</t>
 
       </section>
 
@@ -622,8 +641,8 @@ TBD:
 
     <section anchor="tlvs" title="Type-Length-Value Objects">
       <t>
-        Each TLV is encoded as a 2 byte type-field, followed by a 2-byte
-        length-field (of the value, excluding header; 0 means no value)
+        Each TLV is encoded as a 2 byte type field, followed by a 2-byte
+        length field (of the value, excluding header; 0 means no value)
         followed by the value itself (if any). Both type and length fields
         in the header as well as all integer fields inside the value
         - unless explicitly stated otherwise - are
@@ -660,7 +679,7 @@ TBD:
         <t>H(x) = hash function specified by DNCP profile</t>
 
         <t>H-64(x) = H(x) truncated by taking the first 64 bits of the
-        result.</t>
+        result if it has more than 64 bits. Otherwise H-64(x) = H(x).</t>
 
       </list>
       </t>
@@ -695,7 +714,7 @@ TBD:
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |    Type: REQ-NODE-DATA (3)    |          Length: >0           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                        node identifier                        |
+|                        Node Identifier                        |
 |                  (length fixed in DNCP profile)               |
 ...
 |                                                               |
@@ -703,11 +722,11 @@ TBD:
             </artwork>
           </figure>
 
-          <t>This TLV is used within a <xref
-          target="req-node-message">Node Data Request message</xref> to
-          request node state and node data, if any, to be included in
-          a subsequent <xref target="reply-node-message">Node Data Reply
-          message</xref>.</t>
+          <t>This TLV is used within a <xref target="req-node-message">Node
+          Data Request message</xref> to request node state and node data
+          for the node with matching node identifier, if any, to be
+          included in a subsequent <xref target="reply-node-message">Node
+          Data Reply message</xref>.</t>
 
         </section>
 
@@ -722,7 +741,7 @@ TBD:
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |   Type: NODE-CONNECTION (1)   |          Length: > 4          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                        node identifier                        |
+|                        Node Identifier                        |
 |                  (length fixed in DNCP profile)               |
 ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -751,11 +770,12 @@ TBD:
             </artwork>
           </figure>
 
-          <t>The network state hash is derived by calculating the
-          hash-value for each currently reachable node's Node Data TLV,
-          concatenating said hash-values based on the ascending order of
-          their corresponding node identifiers and hashing the resulting
-          concatenated hash-values.</t>
+          <t>This TLV contains the current locally calculated network state
+          hash. The network state hash is derived by calculating the hash
+          value for each currently reachable node's Node Data TLV,
+          concatenating said hash values based on the ascending order of
+          their corresponding node identifiers, and hashing the resulting
+          concatenated hash values.</t>
 
         </section>
         <section anchor="node-state" title="Node State TLV">
@@ -767,7 +787,7 @@ TBD:
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |      Type: NODE-STATE (5)     |          Length: > 8          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                        node identifier                        |
+|                        Node Identifier                        |
 |                  (length fixed in DNCP profile)               |
 ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -782,13 +802,17 @@ TBD:
             </artwork>
           </figure>
 
-          <t>The whole network should have roughly the same idea about the
-          time since origination. Therefore even the originating node should
-          increment the time whenever it needs to send a new Node State TLV
-          regarding itself without changing the corresponding Node Data
-          TLV. This age value is not included within the Node Data TLV,
-          however, as that is immutable and used to detect changes in the
-          network state.</t>
+          <t>This TLV represents the local node's knowledge about published
+          state of a node in the DNCP network. The node is identified by
+          the node identifier field in the TLV. </t>
+
+          <t>The whole network should have roughly same idea about the time
+          since origination of any particular published state. Therefore
+          every node, including the originating one, MUST increment the
+          time whenever it needs to send a Node State TLV for already
+          published Node Data TLV. This age value is not included within
+          the Node Data TLV, however, as that is immutable and used to
+          detect changes in the network state.</t>
 
         </section>
         <section anchor="node-data" title="Node Data TLV">
@@ -851,7 +875,7 @@ TBD:
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Type: KEEP-ALIVE-INTERVAL (8) |          Length: 4            |
+| Type: KEEP-ALIVE-INTERVAL (8) |          Length: 8            |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                     Connection Identifier                     |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -882,10 +906,9 @@ TBD:
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: CUSTOM-DATA (9)     |         Length: >= 8          |
+|     Type: CUSTOM-DATA (9)     |         Length: >= 4          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                            H-64(URI)                          |
-|                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                          Opaque Data                          |
           </artwork>
@@ -895,12 +918,12 @@ TBD:
         under control of the author of that specification.
         For example:</t>
 
-        <t>V=H-64('http://example.com/author/json-for-dncp') .. '{"cool":
+        <t>V = H-64('http://example.com/author/json-for-dncp') .. '{"cool":
         "json extension!"}'</t>
 
         <t>or</t>
 
-        <t>V=H-64('mailto:author@example.com') .. '{"cool": "json
+        <t>V = H-64('mailto:author@example.com') .. '{"cool": "json
         extension!"}'</t>
 
       </section>
@@ -911,11 +934,11 @@ TBD:
     <section title="Security and Trust Management">
 
       <t>If specified in the DNCP profile, either <xref
-      target="RFC6347">DTLS</xref> or <xref target="RFC5246">TLS</xref>
-      MUST be used to authenticate and encrypt either some (if specified
+      target="RFC6347">DTLS</xref> or <xref target="RFC5246">TLS</xref> may
+      be used to authenticate and encrypt either some (if specified
       optional in the profile), or all unicast traffic. The following
       methods for establishing trust are defined, but it is up to the DNCP
-      profile to specify which ones should be supported.</t>
+      profile to specify which ones may, should or must be supported.</t>
 
 
       <section title="Pre-Shared Key Based Trust Method">
@@ -936,6 +959,7 @@ TBD:
         bootstrapping effort. It however allows trust to be managed in a
         centralized manner and is therefore useful for larger networks
         with a need for an authoritative trust management.</t>
+
       </section>
 
       <section title="Certificate Based Trust Consensus Method">
@@ -1008,15 +1032,16 @@ TBD:
             hierarchy have an effective verdict of (Cached or Configured)
             Distrust.
 
-            In case a node has a configured verdict which is different
-            from the current effective verdict for a certificate the
-            current effective verdict takes precedence in deciding
-            trustworthiness however the node still retains and announces
-            its configured verdict.
+            In case a node has a configured verdict which is different from
+            the current effective verdict for a certificate the current
+            effective verdict takes precedence in deciding
+            trustworthiness. Despite that, the node still retains and
+            announces its configured verdict.
           </t>
         </section>
 
         <section title="Trust Cache">
+
           <t>Each node SHOULD maintain a trust cache containing the current
           effective trust verdicts for all certificates currently announced
           in the DNCP network. This cache is used as a backup of the last
@@ -1027,16 +1052,17 @@ TBD:
 
           <t>Every time a node (re)joins the homenet or detects the change
           of an effective trust verdict for any certificate it will
-          synchronize its cache, i.e.  store new effective verdicts
-          overwriting any previously cached verdicts.  Configured verdicts
+          synchronize its cache, i.e. store new effective verdicts
+          overwriting any previously cached verdicts. Configured verdicts
           are stored in the cache as their respective cached counterparts,
           Neutral verdicts are never stored. Neutral verdicts do not
           override existing cached verdicts.</t>
         </section>
 
         <section title="Announcement of Verdicts">
+
           <t>A node SHOULD always announce any configured trust verdicts it
-          has established by itself, it MUST do so if announcing the
+          has established by itself, and it MUST do so if announcing the
           configured trust verdict leads to a change in the current
           effective verdict for the respective certificate.  In absence of
           configured verdicts it MUST announce cached trust verdicts it has
@@ -1060,9 +1086,9 @@ TBD:
           the hierarchy until an effective verdict different from Neutral
           can be found for any of the certificates or a reasonable amount
           of time (10 minutes is suggested) with no reaction and no further
-          DTLS or TLS authentication attempts has passed.  Such verdicts
-          SHOULD also be limited in rate and number to prevent
-          denial-of-service attacks.</t>
+          authentication attempts has passed.  Such verdicts SHOULD also be
+          limited in rate and number to prevent denial-of-service
+          attacks.</t>
 
           <t>Trust verdicts are announced using Trust-Verdict TLVs:
           <figure>
@@ -1094,7 +1120,7 @@ TBD:
             to 0 when creating TLVs and ignored when parsing them.</t>
 
             <t>SHA-256 Fingerprint contains the <xref
-            target="RFC6234">SHA-256</xref> hash-value of the certificate
+            target="RFC6234">SHA-256</xref> hash value of the certificate
             in DER-format.</t>
 
             <t>Common Name contains the variable-length (1-64 bytes) common
@@ -1161,13 +1187,7 @@ TBD:
       <t>Each DNCP profile MUST define following:
       <list style="symbols">
 
-        <t>DNCP_NODE_IDENTIFIER_LENGTH: The fixed length a node
-        identifier (in bytes).</t>
-
-        <t>DNCP_GRACE_INTERVAL: How long node data for unreachable nodes is
-        kept.</t>
-
-        <t>How it is secured:
+        <t>How the messages are secured:
         <list>
           <t>Not at all,</t>
           <t>optionally or always with TLS scheme defined here using one or
@@ -1182,7 +1202,8 @@ TBD:
 
         <t>Unicast and optionally multicast transport protocol(s) to be
         used. If TLS scheme within this document is to be used security,
-        TLS or DTLS support for the transport protocols is mandatory.</t>
+        TLS or DTLS support for at least the unicast transport protocol is
+        mandatory.</t>
 
         <t>Transport protocols' parameters such as port numbers to be used,
         or multicast address to be used. Unicast, multicast, and secure
@@ -1213,13 +1234,19 @@ TBD:
         hash of node specific data hashes. SHA-256 defined in <xref
         target="RFC6234" /> is the recommended default choice.</t>
 
+        <t>DNCP_NODE_IDENTIFIER_LENGTH: The fixed length of a node
+        identifier (in bytes).</t>
+
+        <t>DNCP_GRACE_INTERVAL: How long node data for unreachable nodes is
+        kept.</t>
+
         <t>Whether to send keep-alives, and if so, on an interface, using
         multicast, or directly using unicast to peers. Keep-alive has also
         associated parameters:
 
         <list style="symbols">
           <t>DNCP_KEEPALIVE_INTERVAL: How often keep-alive messages are to be
-          sent (if enabled).</t>
+          sent by default (if enabled).</t>
 
           <t>DNCP_KEEPALIVE_MULTIPLIER: How many times the
           DNCP_KEEPALIVE_INTERVAL (or peer-supplied keep-alive interval
@@ -1235,7 +1262,7 @@ TBD:
 
     <t>DNCP profiles may use multicast to indicate DNCP state changes and
     for keep-alive purposes. However, no actual data TLVs will be sent
-    across that channel. Therefore an attacker may only learn hash-values
+    across that channel. Therefore an attacker may only learn hash values
     of the state within DNCP and may be able to trigger unicast
     synchronization attempts between nodes on a local link this way. A DNCP
     node should therefore rate-limit its reactions to multicast
@@ -1244,13 +1271,10 @@ TBD:
     <t>The Certificate-based trust consensus mechanism defined in this
     document allows for a consenting revocation, however in case of a
     compromised device the trust cache may be poisoned before the actual
-    revocation happens allowing the distrusted device to rejoin the
-    network using a different identity.  Stopping such an attack might
-    require physical intervention and flushing of the trust
-    caches. However such an attack is often times more easily detectable
-    than threats discussed earlier in this document such as silent
-    manipulation of routing information and related man-in-the-middle
-    attacks.</t>
+    revocation happens allowing the distrusted device to rejoin the network
+    using a different identity.  Stopping such an attack might require
+    physical intervention and flushing of the trust caches. </t>
+
   </section>
 
   <section anchor="iana" title="IANA Considerations">
@@ -1287,15 +1311,19 @@ TBD:
     <?rfc include="reference.RFC.5246.xml"?>
   </references>
   <references title="Informative references">
+    <?rfc include="reference.RFC.2553.xml"?>
     <?rfc include="reference.RFC.6234.xml"?>
   </references>
   <section title="Some Outstanding Issues">
+
     <t>Should per-peer keep-alives be specified here? They are essentially
     constant unicast keep-alives, as opposed to unicast OR multicast
     per-connection ones are.</t>
+
   </section>
 
   <section title="Some Obvious Questions and Answers">
+
     <t>Q: Should there be nested container syntax that is actually
     self-describing? (i.e. type flag that indicates container, no body
     except sub-TLVs?)</t>
@@ -1304,8 +1332,13 @@ TBD:
 
     <t>Q: Add third case for multicast - 'medium' network state, which is
     'long' one, but partial?</t>
+
     <t>A: Drops typical convergence on large networks 5->3 packets, at
-    expense of some specification/implementation complexity.</t>
+    expense of some specification/implementation complexity. However, as
+    anything else than short network state leaks information via multicast,
+    it does not seem worth it as secure protocols probably want to prevent
+    multicast sending of anything else than short network state in any
+    case. </t>
 
     <t>Q: 32-bit connection id?</t>
 
