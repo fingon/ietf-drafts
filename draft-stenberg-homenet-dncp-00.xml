@@ -121,8 +121,8 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       unicast address to be contacted, or to a range of remote unicast
       addresses that are allowed to contact.</t>
 
-      <t>Connection identifier is a 32-bit opaque value, which identifies
-      particular connection of that particular DNCP node. Value of 0 is
+      <t>Connection identifier is a 32-bit opaque value, which identifies a
+      particular connection of that particular DNCP node. The value 0 is
       reserved for DNCP and sub-protocol purposes in the TLVs, and MUST NOT
       be used to identify an actual connection. This definition is in sync
       with <xref target="RFC2553"/>, as the non-zero small positive
@@ -186,10 +186,10 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
         <t>The relative time (in milliseconds) since the current TLV data
         set with the current update sequence number was published. It is
-        also 32 bit number on the wire.  If this number is close to
-        overflow (greater than 2^32-2^16), a node MUST re-publish it's TLVs
+        also a 32 bit number on the wire.  If this number is close to
+        overflow (greater than 2^32-2^16), a node MUST re-publish its TLVs
         even if there is no change to avoid overflow of the value. In other
-        words, absent any other changes, TLV set MUST be re-published
+        words, absent any other changes, the TLV set MUST be re-published
         roughly every 49 days.</t>
 
         <t>A timestamp identifying the time it was last reachable based on
@@ -204,7 +204,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       <list style="symbols">
         <t>A connection identifier.</t>
 
-        <t>An interface, an unicast address of a DNCP peer it should
+        <t>An interface, a unicast address of a DNCP peer it should
         connect with, or a range of addresses from which DNCP peers are
         allowed to connect.</t>
 
@@ -340,10 +340,10 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
           <t><xref target="reply-node-message">Node Data Reply</xref>: If
           the message contains Node State TLVs that are more recent than
           the local state (the received TLV has a higher update sequence
-          number, node data TLV hash differs from the local one, or local
-          data is missing altogether), and if the message also contains
-          corresponding Node Data TLVs, the receiver MUST update its
-          locally stored state.</t>
+          number, the node data TLV hash differs from the local one, or
+          local data is missing altogether), and if the message also
+          contains corresponding Node Data TLVs, the receiver MUST update
+          its locally stored state.</t>
         </list>
         </t>
 
@@ -399,7 +399,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         reachable in a particular graph traversal, or eventually after they
         have not been marked reachable within DNCP_GRACE_INTERVAL. During
         the grace period, the nodes that were not marked reachable in the
-        most recent graph traversal MUST NOT be used for calculation of
+        most recent graph traversal MUST NOT be used for calculation of the
         network state hash, be provided to any applications that need to
         use the whole TLV graph, or be provided to remote nodes. </t>
 
@@ -809,7 +809,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
           <t>The whole network should have roughly same idea about the time
           since origination of any particular published state. Therefore
           every node, including the originating one, MUST increment the
-          time whenever it needs to send a Node State TLV for already
+          time whenever it needs to send a Node State TLV for an already
           published Node Data TLV. This age value is not included within
           the Node Data TLV, however, as that is immutable and used to
           detect changes in the network state.</t>
@@ -906,9 +906,10 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: CUSTOM-DATA (9)     |         Length: >= 4          |
+|     Type: CUSTOM-DATA (9)     |         Length: >= 8          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                            H-64(URI)                          |
+|                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                          Opaque Data                          |
           </artwork>
