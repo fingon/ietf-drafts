@@ -4,6 +4,17 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
 split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
+TBD:
+
+- A lot of RFCs seem to assume DHCP = DHCPv4. Perhaps define the fact
+somewhere that DHCP = DHCPv4+DHCPv6 here?
+
+- Mostly uppercase starting words in section titles seem popular; at least
+upper casing things that should be upper cased should be done ;)
+e.g. DHCPv6 PD.
+
+- Announce <> publish term bit mixed; hmm
+
 -->
 
 <!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
@@ -109,6 +120,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
     </section>
 
     <section title="DNCP Profile">
+      <!-- TBD - refer to DNCP draft here -->
       <t>HNCP is defined as a profile of DNCP with the following parameters:
 
       <list style="symbols">
@@ -184,6 +196,25 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       swapped Neighbor Connection Identifier and Local Connection Identifier.
       An indirect reachability exists whenever there is a transitive path
       between such direct bidirectional reachability relations.</t>
+      <!-- TBD - this definition is inexact; it does not tell essentially
+           what the vertices and edges considered are. If we assume
+           vertices are connections between nodes,
+
+           this definition hops across interfaces too!
+           (n1, c1) - (n2, c2) (n2, c3) - (n3, c4)
+
+           OR
+
+           (n1, c1) - (n2, c2)
+           (n1, c2) - (n3, c3)
+           (again, unrelated)
+
+           Please clarify text somehow, I understand what it means but you
+           can interpret it differently based on how you define 'path'. I
+           _think_ sufficient clarification would be to note that indirect
+           reachability's that the path cannot cross connections _on the
+           same node_..
+           -->
     </section>
 
     <section title="Border Discovery" anchor="bd">
@@ -224,7 +255,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         <t>If a delegated prefix could be acquired by running a DHCPv6
         client on the interface it MUST be considered external.</t>
 
-        <t>If an IPv4-address could be acquired by running a DHCP client
+        <t>If an IPv4-address could be acquired by running a DHCPv4 client
         on the interface it MUST be considered external.</t>
 
         <t>Otherwise the interface MUST be considered internal.</t>
@@ -289,6 +320,13 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       routers obtain addresses using SLAAC or a specific stateful mechanism
       and hosts and legacy routers are configured using SLAAC or DHCP.</t>
 
+      <!-- TBD: RFC4862 - The autoconfiguration process specified in this
+           document applies only to hosts and not routers.
+
+        => HNCP routers cannot do SLAAC (but can do SLAAC-like,
+           obviously)
+      -->
+
       <section title="External Connections">
         <t>Each HNCP router MAY obtain external connection information from
         one or more sources, e.g. <xref target="RFC3633">DHCPv6-PD</xref>,
@@ -321,6 +359,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
               encoding options associated with the External Connection.</t>
               <t>MUST NOT contain more than one DHCPv6 (resp. DHCPv4) Data TLV
               otherwise the container MUST BE ignored.</t>
+              <!-- TBD - this resp. notation is confusing as I am not even
+                   sure what it really tries to mean; how about just
+                   'or'? and here, it is actually and/or, and in later
+                   place just or.. -->
               <t>MAY contain other TLVs for future use.</t>
             </list>
           </t>
@@ -386,13 +428,12 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
         <section title="DHCP Data TLVs">
           <t>Auxiliary connectivity information is encoded as a stream of
-          DHCPv6 or DHCPv4 options. Such TLVs MUST only be present in an
+          DHCP options. Such TLVs MUST only be present in an
           External Connection TLV or a Delegated Prefix TLV. When included in
           an External Connection TLV, they MUST contain DHCP options which are
           relevant to the whole External Connection. When included in a
           Delegated Prefix, they MUST contain DHCP options which are specific
           to the Delegated Prefix.</t>
-
           <t>The DHCPv6 Data TLV uses the following format:
             <figure>
               <artwork>
@@ -475,6 +516,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
                       <t hangText="15   :">Provider priorities. MAY only be used
                           by the router advertising the corresponding
                           delegated prefix.
+                          <!-- TBD - why? (yes, I know, exclude, but spell
+                               it out or forward reference) -->
                       </t>
                   </list>
               </t>
@@ -532,15 +575,15 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
               </t>
               <t hangText="ADOPT_MAX_DELAY: ">The default value is 0
                   seconds (i.e. prefix adoption MAY be done instantly).</t>
-              
+
               <t hangText="BACKOFF_MAX_DELAY: ">The default value is
                   4 seconds.</t>
-              
+
               <t hangText="RANDOM_SET_SIZE: ">The default value is 64.</t>
-              
+
               <t hangText="Flooding Delay: ">The default value is
                   5 seconds.</t>
-              
+
               <t hangText="Default Advertised Prefix Priority: ">When a
                   new assignment is created or an assignment is adopted -
                   as specified in the prefix assignment algorithm routine -
@@ -577,6 +620,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
             If the considered delegated prefix is an IPv4 prefix,
             a prefix of length 24 SHOULD be preferred.
+
+            <!-- TBD - where is what/how IPv4 prefix is created out of
+                 single IPv4 address specified? forward reference would be
+                 nice (or more generic description somewhere earlier) -->
 
             In any case a router MUST support a mechanism suitable to
             distribute addresses from the considered prefix to clients on
@@ -650,7 +697,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
           the prefix 10.0.1.0/24 is assigned and applied to an Adjacent Link,
           addresses included in 10.0.1.192/26 are reserved for HNCP nodes and
           the remaining addresses are reserved for allocations using DHCP.</t>
-
+          <!-- TBD This seems very v4-centric (see also above comment of no
+               SLAAC for routers). Yet 'using DHCP' and not DHCPv4. Hmm.
+               also, I am not sure why the address range part is inverted -
+               traditionally, routers etc, have smallest #s. -->
           <t>HNCP routers assign themselves addresses using the Node Address TLV:
             <figure>
               <artwork>
@@ -723,7 +773,12 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
             take precedence over deprecated ones and announcements by nodes
             with a higher node identifier take precedence over those with a
             lower one.</t>
-<!-- TODO restrict IPv4 default route to router "owning" the DP? -->
+            <!-- TODO restrict IPv4 default route to router "owning" the DP? -->
+            <!-- TBD agreed; otherwise given dynamic-ish routing, multiple
+                 egress NATs result in trouble.. also, creating prefix is
+                 not enough, you _do_ have to do NAPT (or NAT if you want
+                 to be colloquial); NAT is not mentioned anywhere in the
+                 text currently. -->
           </list>
 
           </t>
@@ -731,7 +786,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
           <t>Creation of such ULA and IPv4 prefixes MUST be delayed by a
           random timespan between 0 and 10 seconds in which the router MUST
           scan for other nodes trying to doing the same.</t>
-          
+
           <t>When a new ULA prefix is created, the prefix is selected based
           on the configuration, using the last non-deprecated ULA prefix,
           or generated based on <xref target="RFC4193"/>.</t>
@@ -750,7 +805,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       therefore indicate its capabilities as specified in <xref
       target="version-tlv" /> in order to candidate for election.</t>
 
-      <section title="DHCPv6 for adressing or configuration">
+      <section title="DHCPv6 for addressing or configuration">
         <t>In general stateless address configuration is preferred whenever
         possible since it enables fast renumbering and low overhead, however
         stateful DHCPv6 can be useful in addition to collect hostnames and
@@ -804,7 +859,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
           added for each delegated IPv6 prefix known in the HNCP network.
           Additional ones SHOULD be added for each non-default IPv6 route
           in the HNCP network with a destination being external to it.</t>
-
+<!-- TBD - clumsy language 'being external to it'; 'for external
+     destinations'? (although not sure if semantically correct here) -->
           <t>A Recursive DNS Server Option and a DNS Search List Option MUST
           be included with appropriate contents.</t>
 
@@ -821,6 +877,11 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         Upon detecting a change leading to updated Router Advertisement
         contents, all routers sending Router Advertisements MUST immediately
         send an updated Router Advertisement message via multicast.
+
+        <!-- TBD these semantics make it sound as if it was _really_
+             immediate across all routers. I would rather coach it just on
+             per-router basis, i.e. 'every router which sends RAs MUST
+             ... blah .. when .. RA content changes' -->
 
         </t>
       </section>
@@ -852,7 +913,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         <xref target="RFC3442">Classless Static Route Option</xref>
         for each non-default IPv4 route known in the HNCP network with a
         destination being external to it.</t>
-
+<!-- TBD - how are they 'known'? routing protocol? something else? -->
         <t>DHCPv4 lease times SHOULD be short (i.e. not longer than 5 minutes)
         in order to provide reasonable response times to changes.</t>
       </section>
@@ -881,7 +942,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       DHCPv6-server or <xref target="RFC6762">MDNS</xref>-proxy and for
       which it provides DNS-services on behalf of devices on said link.
       In addition it MAY provide reverse lookup services similarly.</t>
-
+<!-- TBD - similarly? seems spurious. remove? -->
       <t>The following TLVs are defined and MUST be supported by all nodes
       implementing naming and service discovery:</t>
 
