@@ -12,9 +12,17 @@ TBD:
 - A lot of RFCs seem to assume DHCP = DHCPv4. Perhaps define the fact
 somewhere that DHCP = DHCPv4+DHCPv6 here?
 [SB] should be unambiguous now, if not please mark single occurences where it isn't
+[MSt] it is now. some initial definition would still be nice ;)
 
 - Announce <> publish term bit mixed; hmm
 [SB] is that problematic? what is the "genuine" term?
+[MSt] Not really problematic I think, just makes it potentially harder to
+read for someone not initiated to this stuff. There are some cases where
+'announce' is only valid verb though in the current text, and TLVs are typically
+published/originated/whatever in the link-state literature. (Mostly to
+indicate that they persist for long period of time, as opposed just to
+announce, which by definition is only transient occurrence. Why the hell am
+I writing an essay on this. :-p)
 
 -->
 
@@ -390,9 +398,12 @@ somewhere that DHCP = DHCPv4+DHCPv6 here?
               the end of the encoded prefix.
 
                 <list>
-                  <t>If the encoded prefix represents an IPv6 prefix (resp. an
-                  IPv4-mapped IPv6 address), at most one DHCPv6 (resp. DHCPv4)
-                  Data TLV MAY be included.</t>
+                  <t>If the encoded prefix represents an IPv6 prefix, at
+                  most one DHCPv6 Data TLV MAY be included.</t>
+
+                  <t>If the encoded prefix represents an an IPv4-mapped
+                  IPv6 address, at most one DHCPv4 Data TLV MAY be
+                  included.</t>
 
                   <t>It MAY contain other TLVs for future use.</t>
                 </list>
@@ -490,7 +501,7 @@ somewhere that DHCP = DHCPv4+DHCPv6 here?
                       <t hangText="12-14:">Reserved for future use.</t>
                       <t hangText="15   :">Provider priorities. MAY only be used
                           by the router advertising the corresponding
-                          delegated prefix for <xref target="RFC6603" /> or 
+                          delegated prefix for <xref target="RFC6603" /> or
                           similar purposes.
                       </t>
                   </list>
@@ -1179,7 +1190,7 @@ somewhere that DHCP = DHCPv4+DHCPv6 here?
         apply to external interfaces and "LAN interface requirements"
         to internal interfaces respectively.</t>
         <t>It SHOULD be able to provide connectivity to IPv4-devices using
-        DHCP.</t>
+        DHCPv4.</t>
         <t>It SHOULD be able to delegate prefixes to legacy IPv6-routers
         using DHCPv6-PD.</t>
       </list></t>
