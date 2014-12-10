@@ -1014,7 +1014,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
               given certificate have been disconnected or turned off.</t>
 
               <t>The Neutral verdict is used to announce a new node
-              intending to join the homenet so a final verdict for it can
+              intending to join the network so a final verdict for it can
               be found.</t>
             </list>
           </t>
@@ -1049,7 +1049,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
           non-volatile memory at reasonable time intervals to survive a
           reboot or power outage.</t>
 
-          <t>Every time a node (re)joins the homenet or detects the change
+          <t>Every time a node (re)joins the network or detects the change
           of an effective trust verdict for any certificate it will
           synchronize its cache, i.e. store new effective verdicts
           overwriting any previously cached verdicts. Configured verdicts
@@ -1132,7 +1132,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
           <t>The following non-exhaustive list of methods describes
           possible ways to establish trust relationships between
           DNCP nodes and node certificates. Trust establishment is a
-          two-way process in which the existing homenet must trust the
+          two-way process in which the existing network must trust the
           newly added node and the newly added node must trust at least
           one of its neighboring nodes.
 
