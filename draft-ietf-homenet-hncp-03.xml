@@ -4,16 +4,17 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
 split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
+
 TBD:
+
+[SB] make (some?) DNCP references into actual <xrefs>
 
 - A lot of RFCs seem to assume DHCP = DHCPv4. Perhaps define the fact
 somewhere that DHCP = DHCPv4+DHCPv6 here?
-
-- Mostly uppercase starting words in section titles seem popular; at least
-upper casing things that should be upper cased should be done ;)
-e.g. DHCPv6 PD.
+[SB] should be unambiguous now, if not please mark single occurences where it isn't
 
 - Announce <> publish term bit mixed; hmm
+[SB] is that problematic? what is the "genuine" term?
 
 -->
 
@@ -120,7 +121,6 @@ e.g. DHCPv6 PD.
     </section>
 
     <section title="DNCP Profile">
-      <!-- TBD - refer to DNCP draft here -->
       <t>HNCP is defined as a profile of DNCP with the following parameters:
 
       <list style="symbols">
@@ -189,32 +189,17 @@ e.g. DHCPv6 PD.
       <t>If the connection of a node is detected or configured to be an ad-hoc
       interface the Adjacent Link only consists of said interface.</t>
 
-      <t>Otherwise the Adjacent Link contains all connections directly or
-      indirectly bidirectionally reachable from the given connection. A direct
-      bidirectional reachability exists whenever two nodes advertise a DNCP
-      Neighbor TLV with the respective other nodes' node identifier and
-      swapped Neighbor Connection Identifier and Local Connection Identifier.
-      An indirect reachability exists whenever there is a transitive path
-      between such direct bidirectional reachability relations.</t>
-      <!-- TBD - this definition is inexact; it does not tell essentially
-           what the vertices and edges considered are. If we assume
-           vertices are connections between nodes,
-
-           this definition hops across interfaces too!
-           (n1, c1) - (n2, c2) (n2, c3) - (n3, c4)
-
-           OR
-
-           (n1, c1) - (n2, c2)
-           (n1, c2) - (n3, c3)
-           (again, unrelated)
-
-           Please clarify text somehow, I understand what it means but you
-           can interpret it differently based on how you define 'path'. I
-           _think_ sufficient clarification would be to note that indirect
-           reachability's that the path cannot cross connections _on the
-           same node_..
-           -->
+      <t>Otherwise the Adjacent Link contains all interfaces bidirectionally
+      reachable from a given local interface. An interface X of a node A and
+      an interface Y of a node B are bidirectionally reachable if and only if
+      node A publishes a Neighbor TLV with the Neighbor Node Identifier B,
+      the Neighbor Connection Identifier Y and the Local Connection Identifier
+      X and node B publishes a Neighbor TLV with the Neighbor Node Identifier
+      A, a Neighbor Connection Identifier X and the Local Connection
+      Identifier Y. In addition a node MUST be able to detect whether two of
+      its local interfaces belong to the same Adjacent Link either by local
+      means or by inferring that from the bidirectional reachability between
+      two different local interfaces and the same remote interface.</t>
     </section>
 
     <section title="Border Discovery" anchor="bd">
@@ -317,15 +302,9 @@ e.g. DHCPv6 PD.
       service providers or local configuration by publishing one or more
       External Connection TLVs. These contain other TLVs such as Delegated
       Prefix TLVs which are then used for prefix assignment. Finally, HNCP
-      routers obtain addresses using SLAAC or a specific stateful mechanism
-      and hosts and legacy routers are configured using SLAAC or DHCP.</t>
-
-      <!-- TBD: RFC4862 - The autoconfiguration process specified in this
-           document applies only to hosts and not routers.
-
-        => HNCP routers cannot do SLAAC (but can do SLAAC-like,
-           obviously)
-      -->
+      routers obtain addresses using a stateless (SLAAC-like) procedure or a
+      specific stateful mechanism and hosts and legacy routers are configured
+      using SLAAC or DHCP.</t>
 
       <section title="External Connections">
         <t>Each HNCP router MAY obtain external connection information from
@@ -355,14 +334,10 @@ e.g. DHCPv6 PD.
               <t>MAY contain zero, one or more Delegated Prefix TLVs.</t>
               <t>MUST NOT contain multiple Delegated Prefix TLVs with the same
               prefix. In such a situation, the container MUST be ignored.</t>
-              <t>MAY contain zero or one DHCPv6 (resp. DHCPv4) Data TLV
-              encoding options associated with the External Connection.</t>
-              <t>MUST NOT contain more than one DHCPv6 (resp. DHCPv4) Data TLV
-              otherwise the container MUST BE ignored.</t>
-              <!-- TBD - this resp. notation is confusing as I am not even
-                   sure what it really tries to mean; how about just
-                   'or'? and here, it is actually and/or, and in later
-                   place just or.. -->
+              <t>MAY contain at most one DHCPv6 Data TLV and at most one
+              DHCPv4 Data TLV encoding options associated with the External
+              Connection but MUST NOT contain more than one of each otherwise
+              the whole External Connection TLV MUST BE ignored.</t>
               <t>MAY contain other TLVs for future use.</t>
             </list>
           </t>
@@ -515,9 +490,8 @@ e.g. DHCPv6 PD.
                       <t hangText="12-14:">Reserved for future use.</t>
                       <t hangText="15   :">Provider priorities. MAY only be used
                           by the router advertising the corresponding
-                          delegated prefix.
-                          <!-- TBD - why? (yes, I know, exclude, but spell
-                               it out or forward reference) -->
+                          delegated prefix for <xref target="RFC6603" /> or 
+                          similar purposes.
                       </t>
                   </list>
               </t>
@@ -701,6 +675,10 @@ e.g. DHCPv6 PD.
                SLAAC for routers). Yet 'using DHCP' and not DHCPv4. Hmm.
                also, I am not sure why the address range part is inverted -
                traditionally, routers etc, have smallest #s. -->
+          <!-- [SB] seconded, also IMO it would just make sense to reseve a
+               portion for HNCP allocations and leave the rest at discretion
+               of the router (i.e. not reserve them for DHCP explicitly)
+           -->
           <t>HNCP routers assign themselves addresses using the Node Address TLV:
             <figure>
               <artwork>
@@ -748,7 +726,7 @@ e.g. DHCPv6 PD.
           </t>
         </section>
 
-        <section title="Local IPv4 and ULA prefixes">
+        <section title="Local IPv4 and ULA Prefixes">
           <t>HNCP routers can create an ULA or private IPv4 prefix to enable
           connectivity between local devices. These prefixes are inserted in
           HNCP as if they were delegated prefixes. The following rules apply:
@@ -772,13 +750,10 @@ e.g. DHCPv6 PD.
             announced all but one MUST be removed while non-deprecated ones
             take precedence over deprecated ones and announcements by nodes
             with a higher node identifier take precedence over those with a
-            lower one.</t>
-            <!-- TODO restrict IPv4 default route to router "owning" the DP? -->
-            <!-- TBD agreed; otherwise given dynamic-ish routing, multiple
-                 egress NATs result in trouble.. also, creating prefix is
-                 not enough, you _do_ have to do NAPT (or NAT if you want
-                 to be colloquial); NAT is not mentioned anywhere in the
-                 text currently. -->
+            lower one. The router publishing the non-deprecated prefix MUST
+            announce an IPv4 default route using the routing protocol and
+            perform NAT on behalf of the network as long as it publishes the
+            prefix, other routers in the network MUST NOT.</t>
           </list>
 
           </t>
@@ -794,7 +769,7 @@ e.g. DHCPv6 PD.
 
     </section>
 
-    <section title="Configuration of hosts and non-HNCP routers" anchor="client-config">
+    <section title="Configuration of Hosts and non-HNCP Routers" anchor="client-config">
       <t>HNCP routers need to ensure that hosts and non-HNCP downstream
       routers on internal links are configured with addresses and routes.
       Since DHCP-clients can usually only bind to one server at a time an
@@ -805,7 +780,7 @@ e.g. DHCPv6 PD.
       therefore indicate its capabilities as specified in <xref
       target="version-tlv" /> in order to candidate for election.</t>
 
-      <section title="DHCPv6 for addressing or configuration">
+      <section title="DHCPv6 for Addressing or Configuration">
         <t>In general stateless address configuration is preferred whenever
         possible since it enables fast renumbering and low overhead, however
         stateful DHCPv6 can be useful in addition to collect hostnames and
@@ -858,9 +833,7 @@ e.g. DHCPv6 PD.
           <t>A <xref target="RFC4191">Route Information Option</xref> MUST be
           added for each delegated IPv6 prefix known in the HNCP network.
           Additional ones SHOULD be added for each non-default IPv6 route
-          in the HNCP network with a destination being external to it.</t>
-<!-- TBD - clumsy language 'being external to it'; 'for external
-     destinations'? (although not sure if semantically correct here) -->
+          with an external destination advertised by the routing protocol.</t>
           <t>A Recursive DNS Server Option and a DNS Search List Option MUST
           be included with appropriate contents.</t>
 
@@ -874,19 +847,13 @@ e.g. DHCPv6 PD.
           in the network with the respective destination.</t>
         </list>
 
-        Upon detecting a change leading to updated Router Advertisement
-        contents, all routers sending Router Advertisements MUST immediately
-        send an updated Router Advertisement message via multicast.
-
-        <!-- TBD these semantics make it sound as if it was _really_
-             immediate across all routers. I would rather coach it just on
-             per-router basis, i.e. 'every router which sends RAs MUST
-             ... blah .. when .. RA content changes' -->
-
+        Every router sending Router Advertisements MUST immediately send an
+        updated Router Advertisement via multicast as soon as it notices a
+        condition resulting in a change of any advertised information.
         </t>
       </section>
 
-      <section title="DHCPv6 for prefix delegation">
+      <section title="DHCPv6 for Prefix Delegation">
         <t>The designated DHCPv6-server for prefix-delegation on a link is
         elected based on the capabilities described in
         <xref target="version-tlv" />. It is the router connected to the
@@ -898,7 +865,7 @@ e.g. DHCPv6 PD.
         on the given link and follow the rules in <xref target="pd" />.</t>
       </section>
 
-      <section title="DHCPv4 for adressing and configuration">
+      <section title="DHCPv4 for Adressing and Configuration">
         <t>The designated DHCPv4-server on a link is elected based on the
         capabilities described in <xref target="version-tlv" />.
         It is the router connected to the <xref target="links">Adjacent Link</xref>
@@ -911,9 +878,8 @@ e.g. DHCPv6 PD.
         is an IPv4 default route known in the network. In addition the router
         SHOULD announce a
         <xref target="RFC3442">Classless Static Route Option</xref>
-        for each non-default IPv4 route known in the HNCP network with a
-        destination being external to it.</t>
-<!-- TBD - how are they 'known'? routing protocol? something else? -->
+        for each non-default IPv4 route advertised in the routing protocol
+        with an external destination.</t>
         <t>DHCPv4 lease times SHOULD be short (i.e. not longer than 5 minutes)
         in order to provide reasonable response times to changes.</t>
       </section>
@@ -941,8 +907,7 @@ e.g. DHCPv6 PD.
       Link</xref> for which it is the designated DHCPv4, stateful
       DHCPv6-server or <xref target="RFC6762">MDNS</xref>-proxy and for
       which it provides DNS-services on behalf of devices on said link.
-      In addition it MAY provide reverse lookup services similarly.</t>
-<!-- TBD - similarly? seems spurious. remove? -->
+      In addition it MAY provide reverse lookup services.</t>
       <t>The following TLVs are defined and MUST be supported by all nodes
       implementing naming and service discovery:</t>
 
@@ -1120,7 +1085,7 @@ e.g. DHCPv6 PD.
       </t>
     </section>
 
-    <section anchor="version-tlv" title="HNCP-versioning and capabilities">
+    <section anchor="version-tlv" title="HNCP Versioning and Capabilities">
 
       <t>Multiple versions of HNCP based on compatible DNCP profiles may be
       present in the same network when transitioning between HNCP versions
@@ -1169,7 +1134,7 @@ e.g. DHCPv6 PD.
               <t hangText="H-capability:">Priority value used for electing the
                   on-link DHCPv6 server offering non-temporary addresses.  It
                   MUST be set to 4 if the router is capable of providing such
-                  addresses and and 0 otherwise. An administrator MAY override
+                  addresses and 0 otherwise. An administrator MAY override
                   the value. The values 8-15 are reserved for future use.</t>
               <t hangText="L-capability:">Priority value used for electing the
                   on-link DHCPv4 server. It MUST be set to 4 if the router is
@@ -1273,8 +1238,8 @@ e.g. DHCPv6 PD.
         eavesdropping, man-in-the-middle and similar attacks on external
         traffic can still happen between a homenet border-router and the
         ISP, however these cannot be mitigated from inside the homenet. For
-        example, DHCP has defined <xref target="RFC3118" /> to authenticate
-        DHCP messages, but this is very rarely implemented in large or
+        example, DHCPv4 has defined <xref target="RFC3118" /> to authenticate
+        DHCPv4 messages, but this is very rarely implemented in large or
         small networks.  Further, while PPP can provide secure
         authentication of both sides of a point to point link, it is most
         often deployed with one-way authentication of the subscriber to the
