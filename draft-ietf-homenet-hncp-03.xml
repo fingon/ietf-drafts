@@ -603,12 +603,9 @@ I writing an essay on this. :-p)
             otherwise by an administrator. In case no prefix of length 64
             would be available, a longer prefix MAY be selected.
 
-            If the considered delegated prefix is an IPv4 prefix,
-            a prefix of length 24 SHOULD be preferred.
-
-            <!-- TBD - where is what/how IPv4 prefix is created out of
-                 single IPv4 address specified? forward reference would be
-                 nice (or more generic description somewhere earlier) -->
+            If the considered delegated prefix is an IPv4 prefix (
+            <xref target="ula" /> details how IPv4 delegated prefixes
+            are generated), a prefix of length 24 SHOULD be preferred.
 
             In any case a router MUST support a mechanism suitable to
             distribute addresses from the considered prefix to clients on
@@ -676,12 +673,15 @@ I writing an essay on this. :-p)
           If SLAAC can be used to derive addresses, it SHOULD be used,
           otherwise the following method MUST be used.</t>
 
-          <t>For any assigned prefix, the fourth quarter of the addresses are
-          reserved for routers HNCP based assignments, whereas the first three
-          quarters are reserved for DHCP-based allocations. For instance, if
-          the prefix 10.0.1.0/24 is assigned and applied to an Adjacent Link,
-          addresses included in 10.0.1.192/26 are reserved for HNCP nodes and
-          the remaining addresses are reserved for allocations using DHCP.</t>
+          <t>For any IPv6 prefix longer than 64 bits (resp. any IPv4 prefix)
+          assigned to an Adjacent Link, the first quarter of the addresses
+          are reserved for routers HNCP based assignments, whereas the last
+          three quarters are left to the DHCPv6 (resp. DHCPv4) elected router
+          (<xref target="version-tlv" /> specifies the DHCP server election process).
+          For instance, if the prefix 10.0.1.0/24 is assigned and
+          applied to an Adjacent Link, addresses included in 10.0.1.0/26 are
+          reserved for HNCP nodes and the remaining addresses are reserved
+          for the elected DHCPv4 server.</t>
           <!-- TBD This seems very v4-centric (see also above comment of no
                SLAAC for routers). Yet 'using DHCP' and not DHCPv4. Hmm.
                also, I am not sure why the address range part is inverted -
@@ -689,6 +689,11 @@ I writing an essay on this. :-p)
           <!-- [SB] seconded, also IMO it would just make sense to reseve a
                portion for HNCP allocations and leave the rest at discretion
                of the router (i.e. not reserve them for DHCP explicitly)
+           -->
+          <!-- [PP] It is very IPv4 centric because some people will just bark
+               if I assume it could be use for something else (which it could).
+               I changed it back to first quarter, and moved the reservation
+               to the elected server.
            -->
           <t>HNCP routers assign themselves addresses using the Node Address TLV:
             <figure>
@@ -722,7 +727,7 @@ I writing an essay on this. :-p)
               <t>A router MUST NOT start advertising an address if it is
               already advertised by another router.</t>
 
-              <t>An assigned address MUST be in the last quarter of an
+              <t>An assigned address MUST be in the first quarter of an
               assigned prefix, currently applied on the specified link.</t>
 
               <t>An address MUST NOT be used unless it has been advertised for
@@ -737,7 +742,7 @@ I writing an essay on this. :-p)
           </t>
         </section>
 
-        <section title="Local IPv4 and ULA Prefixes">
+        <section anchor="ula" title="Local IPv4 and ULA Prefixes">
           <t>HNCP routers can create an ULA or private IPv4 prefix to enable
           connectivity between local devices. These prefixes are inserted in
           HNCP as if they were delegated prefixes. The following rules apply:
