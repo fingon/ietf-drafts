@@ -4,7 +4,7 @@
 # Author: Markus Stenberg <markus stenberg@iki.fi>
 #
 # Created:       Mon Jun 17 04:40:32 2013 mstenber
-# Last modified: Tue Dec  2 10:20:17 2014 mstenber
+# Last modified: Mon Jan  5 17:06:27 2015 mstenber
 # Edit time:     20 min
 #
 
@@ -13,7 +13,6 @@ DRAFTS=\
   draft-stenberg-homenet-minimalist-pcp-proxy-01.txt \
   draft-ietf-homenet-dncp-00.txt \
   draft-ietf-homenet-hncp-03.txt \
-  draft-barth-homenet-hncp-security-trust-01.txt \
 
 ifndef XML_LIBRARY
 XML_LIBRARY=$(HOME)/share/1/ietf-bib/bibxml:$(HOME)/share/1/ietf-bib/bibxml2:$(HOME)/share/1/ietf-bib/bibxml3:$(HOME)/share/1/ietf-bib/bibxml4:$(HOME)/share/1/ietf-bib/bibxml5
