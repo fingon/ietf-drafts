@@ -1304,7 +1304,8 @@ I writing an essay on this. :-p)
     <section anchor="iana" title="IANA Considerations">
 
       <t>IANA is requested to maintain a registry for HNCP TLV-Types.</t>
-      <t>HNCP inherits the TLV-Types defined in DNCP.
+
+      <t>HNCP inherits the TLV-Types and allocation policy defined in DNCP.
       In addition the following TLV-Types are defined in this document:
 
       <list>
