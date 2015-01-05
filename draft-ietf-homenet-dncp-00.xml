@@ -18,7 +18,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
 <rfc
     ipr='trust200902'
-    docName='draft-stenberg-homenet-dncp-00'
+    docName='draft-ietf-homenet-dncp-00'
     category='std'
     >
   <front>
@@ -47,7 +47,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         <email>cyrus@openwrt.org</email>
       </address>
     </author>
-    <date month="December" year="2014" />
+    <date month="January" year="2015" />
 
     <area>Internet</area>
     <workgroup>Homenet Working Group</workgroup>
@@ -57,7 +57,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       <t>This document describes the Distributed Node Consensus Protocol
       (DNCP), a generic state synchronization protocol which uses Trickle
       and Merkle trees. DNCP is transport agnostic and leaves some of the
-      details to be defined or specified in profiles, which define actual
+      details to be specified in profiles, which define actual
       implementable DNCP based protocols. </t>
 
     </abstract>
@@ -94,7 +94,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       values listed in <xref target="profile-bits"/> specifying the
       behavior of a DNCP based protocol, such as the used transport
       method.  For readability, any DNCP profile specific parameters
-      with profile-specific fixed value are prefixed with DNCP_.</t>
+      with a profile-specific fixed value are prefixed with DNCP_.</t>
 
       <t>DNCP node is a single node which runs a protocol
       based on a DNCP profile.</t>
@@ -125,7 +125,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       particular connection of that particular DNCP node. The value 0 is
       reserved for DNCP and sub-protocol purposes in the TLVs, and MUST NOT
       be used to identify an actual connection. This definition is in sync
-      with <xref target="RFC2553"/>, as the non-zero small positive
+      with <xref target="RFC3493"/>, as the non-zero small positive
       integers should comfortably fit within 32 bits.</t>
 
       <t>(DNCP) peer refers to another DNCP node with which
@@ -286,9 +286,9 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         DNCP profile may specify criteria based on which received messages
         are ignored. Any 'reply' mentioned in the steps below denotes
         sending of the specified message via unicast to the originator of
-        the message being processed. If replying to a multicast message
-        using a link with shared bandwidth, reply SHOULD be delayed random
-        interval in [0, Imin/2].</t>
+        the message being processed. If the reply was caused by a multicast
+        message and sent to a link with shared bandwidth it SHOULD be delayed
+        by a random timespan in [0, Imin/2].</t>
 
         <t>Upon receipt of:
         <list>
@@ -353,17 +353,17 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         current local value, or the same update sequence number and a
         different hash, the node SHOULD re-publish its own node data with an
         update sequence number 1000 higher than the received one. This may
-        occur normally once due to local node restarting, and not storing
+        occur normally once due to the local node restarting, and not storing
         the most recently used update sequence number. If this occurs more
         than once, the DNCP profile should provide guidance on how to
-        handle these situations as it indicates existence of a second
+        handle these situations as it indicates the existence of a second
         active node on the network with the same node identifier.</t>
 
       </section>
 
       <section title="Adding and Removing Peers" anchor="neighbor">
 
-        <t>When receiving a message on a connection from unknown peer:
+        <t>When receiving a message on a connection from an unknown peer:
         <list>
           <t>If it is a unicast message, the remote node MUST be added as a
           peer on the connection and a <xref target="neighbor-tlv">Neighbor
@@ -371,16 +371,16 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
           </t>
 
           <t>If it is a multicast message, the remote node SHOULD be sent
-          (possibly rate-limited) unicast <xref
+          a (possibly rate-limited) unicast <xref
           target="req-net-message">Network State Request
           Message</xref>.</t>
         </list>
         </t>
 
         <t>If keep-alives are NOT sent by the peer (either DNCP profile
-        does not specify use of keep-alives, or the particular peer chooses
+        does not specify the use of keep-alives, or the particular peer chooses
         not to send keep-alive messages), some other means MUST be employed
-        to ensure DNCP peer is present, and when the peer is no longer
+        to ensure a DNCP peer is present, and when the peer is no longer
         present, the Neighbor TLV and the local DNCP peer state MUST be
         removed.</t>
       </section>
@@ -482,13 +482,13 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
       <section title="Neighbor Removal">
 
-        <t>For every peer on every connection, their connection-specific
+        <t>For every peer on every connection, the connection-specific
         keep-alive interval must be calculated by looking for <xref
         target="ka-interval">Keep-Alive Interval TLVs</xref> published by
-        the node, and if none exist, using default value of
+        the node, and if none exist, using the default value of
         DNCP_KEEPALIVE_INTERVAL. If the peer's last consistent state
         timestamp has not been updated for at least
-        DNCP_KEEPALIVE_MULTIPLIER times peer's connection-specific
+        DNCP_KEEPALIVE_MULTIPLIER times the peer's connection-specific
         keep-alive interval, the Neighbor TLV for that peer and the local
         DNCP peer state MUST be removed.</t>
 
@@ -668,7 +668,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         For example, encoding of type=123 (0x7b) TLV with value 'x' (120 =
         0x78):
 
-        007B 0005 7800 0000
+        007B 0001 7800 0000
       </t>
 
       <t>Notation:
@@ -761,7 +761,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |    Type: NETWORK-STATE (4)    |          Length: > 0          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|          H(H(node data TLV 1) .. H(node data TLV N))          |
+|     H(H(node data TLV 1) .. [...] .. H(node data TLV N))      |
 |                  (length fixed in DNCP profile)               |
 ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -800,9 +800,9 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
             </artwork>
           </figure>
 
-          <t>This TLV represents the local node's knowledge about published
-          state of a node in the DNCP network. The node is identified by
-          the node identifier field in the TLV. </t>
+          <t>This TLV represents the local node's knowledge about the published
+          state of a node in the DNCP network identified by the node identifier
+          field in the TLV.</t>
 
           <t>The whole network should have roughly same idea about the time
           since origination of any particular published state. Therefore
@@ -882,7 +882,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
             </artwork>
           </figure>
 
-          <t>This TLV is used indicate a non-default interval used to send
+          <t>This TLV indicates a non-default interval being used to send
           keep-alive messages specified in <xref target="ka" />.</t>
 
           <t>Connection identifier is used to identify the particular
@@ -890,7 +890,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
           ALL connections for which no specific TLV exists.</t>
 
           <t>Interval specifies the interval in milliseconds at which the
-          node sends keep-alives. Value of zero means no keep-alives are
+          node sends keep-alives. A value of zero means no keep-alives are
           sent at all; in that case, some lower layer mechanism that
           ensures presence of nodes MUST be available and used. </t>
         </section>
@@ -1054,8 +1054,8 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
           synchronize its cache, i.e. store new effective verdicts
           overwriting any previously cached verdicts. Configured verdicts
           are stored in the cache as their respective cached counterparts,
-          Neutral verdicts are never stored. Neutral verdicts do not
-          override existing cached verdicts.</t>
+          Neutral verdicts are never stored and do not override existing
+          cached verdicts.</t>
         </section>
 
         <section title="Announcement of Verdicts">
@@ -1189,7 +1189,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         <t>How the messages are secured:
         <list>
           <t>Not at all,</t>
-          <t>optionally or always with TLS scheme defined here using one or
+          <t>optionally or always with the TLS scheme defined here using one or
           more of the methods, or</t>
           <t>with something else.</t>
         </list>
@@ -1221,7 +1221,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         someone about a fatal error condition in the DNCP network.</t>
 
         <t>Imin, Imax and k ranges to be suggested for implementations to
-        be used in the Trickle algorithm. Trickle algorithm does not
+        be used in the Trickle algorithm. The Trickle algorithm does not
         require these to be same across all implementations for it to work,
         but similar orders of magnitude helps implementations of a DNCP
         profile to behave more consistently and to facilitate estimation of
@@ -1278,8 +1278,8 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
   <section anchor="iana" title="IANA Considerations">
 
-    <t>IANA should set up a registry (policy TBD) for DNCP TLV types,
-    with following initial contents:</t>
+    <t>IANA should set up a registry for DNCP TLV types,
+    with the following initial contents:</t>
 
     <t>0: Reserved (should not happen on wire)</t>
     <t>1: Node connection</t>
@@ -1299,6 +1299,9 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
     identify each other and therefore eliminate potential conflict caused
     by potential different use of same TLV numbers. </t>
 
+    <t>For the rest of the values (32-191, 256-65535), policy of 'standards
+    action' should be used.</t>
+
   </section>
 
 </middle>
@@ -1310,7 +1313,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
     <?rfc include="reference.RFC.5246.xml"?>
   </references>
   <references title="Informative references">
-    <?rfc include="reference.RFC.2553.xml"?>
+    <?rfc include="reference.RFC.3493.xml"?>
     <?rfc include="reference.RFC.6234.xml"?>
   </references>
   <section title="Some Outstanding Issues">

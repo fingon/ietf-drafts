@@ -1231,7 +1231,7 @@ I writing an essay on this. :-p)
 
       <t>General security issues for existing home networks are discussed
       in <xref target="RFC7368" />. The protocols used to set up addresses
-      and routes in such networks to this day have rarely security enabled
+      and routes in such networks to this day rarely have security enabled
       within the configuration protocol itself. However these issues are out
       of scope for the security of HNCP itself.</t>
 
@@ -1325,7 +1325,8 @@ I writing an essay on this. :-p)
     <section anchor="iana" title="IANA Considerations">
 
       <t>IANA is requested to maintain a registry for HNCP TLV-Types.</t>
-      <t>HNCP inherits the TLV-Types defined in DNCP.
+
+      <t>HNCP inherits the TLV-Types and allocation policy defined in DNCP.
       In addition the following TLV-Types are defined in this document:
 
       <list>
