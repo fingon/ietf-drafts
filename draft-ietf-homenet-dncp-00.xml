@@ -149,10 +149,9 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       hash values of each reachable nodes' node data in ascending order
       of the respective node identifier.</t>
 
-      <t>Effective (trust) verdict for any certificate is
-      defined as the one with the highest priority from all verdicts
-      announced for said certificate at the time in the DNCP
-      network.</t>
+      <t>Effective (trust) verdict for a certificate is defined as the
+      verdict with the highest priority within the set of verdicts
+      announced for the certificate in the DNCP network.</t>
 
     </section>
 
@@ -430,7 +429,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
         <t>Each node MUST have a timestamp which indicates the last time a
         <xref target="net-state">Network State TLV</xref> was sent for each
-        connection, i.e. on a physical interface or to the point-to-point
+        connection, i.e. on an interface or to the point-to-point
         peer(s).</t>
 
         <t>Each node MUST have for each peer:
@@ -513,8 +512,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       and value. By design, the TLVs which MUST be present have the
       lowest available type values, ensuring they will naturally occur at
       the start of the Protocol Message, resembling a fixed format
-      preamble.
-      </t>
+      header.</t>
 
       <t>DNCP profiles MAY add additional TLVs to the message specified
       here, or even define additional messages as needed.</t>
@@ -641,13 +639,13 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
     <section anchor="tlvs" title="Type-Length-Value Objects">
       <t>
-        Each TLV is encoded as a 2 byte type field, followed by a 2-byte
+        Each TLV is encoded as a 2 byte type field, followed by a 2 byte
         length field (of the value, excluding header; 0 means no value)
         followed by the value itself (if any). Both type and length fields
         in the header as well as all integer fields inside the value
         - unless explicitly stated otherwise - are
         represented in network byte order. Zero padding bytes MUST be added
-        up to the next 4-byte boundary if the length is not divisible by 4.
+        up to the next 4 byte boundary if the length is not divisible by 4.
         These padding bytes MUST NOT be included in the length field.
       </t>
 
@@ -665,10 +663,8 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       </figure>
 
       <t>
-        For example, encoding of type=123 (0x7b) TLV with value 'x' (120 =
-        0x78):
-
-        007B 0001 7800 0000
+        For example, type=123 (0x7b) TLV with value 'x' (120 =
+        0x78) is encoded as: 007B 0001 7800 0000.
       </t>
 
       <t>Notation:
@@ -759,7 +755,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: NETWORK-STATE (4)    |          Length: > 0          |
+|    Type: NETWORK-STATE (10)   |          Length: > 0          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |     H(H(node data TLV 1) .. [...] .. H(node data TLV N))      |
 |                  (length fixed in DNCP profile)               |
@@ -783,7 +779,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|      Type: NODE-STATE (5)     |          Length: > 8          |
+|      Type: NODE-STATE (11)    |          Length: > 8          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        Node Identifier                        |
 |                  (length fixed in DNCP profile)               |
@@ -820,7 +816,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|      Type: NODE-DATA (6)      |         Length: > 4           |
+|      Type: NODE-DATA (12)     |         Length: > 4           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        node identifier                        |
 |                  (length fixed in DNCP profile)               |
@@ -841,7 +837,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|       Type: NEIGHBOR (7)      |          Length: > 8          |
+|       Type: NEIGHBOR (13)     |          Length: > 8          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                    neighbor node identifier                   |
 |                  (length fixed in DNCP profile)               |
@@ -861,7 +857,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
           The presence of this TLV at least guarantees that the node
           publishing it has received traffic from the neighbor
           recently. For guaranteed up-to-date bidirectional reachability,
-          existence of both nodes' matching Neighbor TLVs should be
+          the existence of both nodes' matching Neighbor TLVs should be
           checked. </t>
         </section>
 
@@ -873,7 +869,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Type: KEEP-ALIVE-INTERVAL (8) |          Length: 8            |
+| Type: KEEP-ALIVE-INTERVAL (14)|          Length: 8            |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                     Connection Identifier                     |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -904,7 +900,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: CUSTOM-DATA (9)     |         Length: > 0           |
+|     Type: CUSTOM-DATA (15)    |         Length: > 0           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                            H(URI)                             |
 |                  (length fixed in DNCP profile)               |
@@ -1021,8 +1017,8 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
           <t>
             The current effective trust verdict for any certificate is
-            defined as the one with the highest priority from all verdicts
-            announced for said certificate at the time.
+            defined as the one with the highest priority within the set of
+            verdicts + announced for the certificate in the DNCP network.
 
             A node MUST be trusted for participating in the DNCP network if
             and only if the current effective verdict for its own
@@ -1031,9 +1027,9 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
             hierarchy have an effective verdict of (Cached or Configured)
             Distrust.
 
-            In case a node has a configured verdict which is different from
-            the current effective verdict for a certificate the current
-            effective verdict takes precedence in deciding
+            In case a node has a configured verdict, which is different
+            from the current effective verdict for a certificate, the
+            current effective verdict takes precedence in deciding
             trustworthiness. Despite that, the node still retains and
             announces its configured verdict.
           </t>
@@ -1050,10 +1046,10 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
           reboot or power outage.</t>
 
           <t>Every time a node (re)joins the network or detects the change
-          of an effective trust verdict for any certificate it will
+          of an effective trust verdict for any certificate, it will
           synchronize its cache, i.e. store new effective verdicts
           overwriting any previously cached verdicts. Configured verdicts
-          are stored in the cache as their respective cached counterparts,
+          are stored in the cache as their respective cached counterparts.
           Neutral verdicts are never stored and do not override existing
           cached verdicts.</t>
         </section>
@@ -1064,8 +1060,8 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
           has established by itself, and it MUST do so if announcing the
           configured trust verdict leads to a change in the current
           effective verdict for the respective certificate.  In absence of
-          configured verdicts it MUST announce cached trust verdicts it has
-          stored in its trust cache if one of the following conditions
+          configured verdicts, it MUST announce cached trust verdicts it has
+          stored in its trust cache, if one of the following conditions
           applies:
 
           <list style="symbols">
@@ -1080,14 +1076,14 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
           </t>
 
           <t>Upon encountering a node with a hierarchy of certificates for
-          which there is no effective verdict a node adds a Neutral
+          which there is no effective verdict, a node adds a Neutral
           Trust-Verdict-TLV to its node data for all certificates found in
-          the hierarchy until an effective verdict different from Neutral
-          can be found for any of the certificates or a reasonable amount
-          of time (10 minutes is suggested) with no reaction and no further
-          authentication attempts has passed.  Such verdicts SHOULD also be
-          limited in rate and number to prevent denial-of-service
-          attacks.</t>
+          the hierarchy, and publishes it until an effective verdict
+          different from Neutral can be found for any of the certificates,
+          or a reasonable amount of time (10 minutes is suggested) with no
+          reaction and no further authentication attempts has passed.  Such
+          verdicts SHOULD also be limited in rate and number to prevent
+          denial-of-service attacks.</t>
 
           <t>Trust verdicts are announced using Trust-Verdict TLVs:
           <figure>
@@ -1095,7 +1091,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|   Type: Trust-Verdict (10)    |        Length: 37-100         |
+|   Type: Trust-Verdict (16)    |        Length: 37-100         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |    Verdict    |                 (reserved)                    |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1123,7 +1119,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
             in DER-format.</t>
 
             <t>Common Name contains the variable-length (1-64 bytes) common
-            name of the certificate including a trailing 0-Byte.</t>
+            name of the certificate. Final byte MUST have value of 0.</t>
           </list>
           </t>
         </section>
@@ -1267,6 +1263,11 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
     node should therefore rate-limit its reactions to multicast
     packets.</t>
 
+    <t>When using DNCP to bootstrap a network, PKI based solutions may have
+    issues when validating certificates due to potentially unavailable
+    accurate time, or due to inability to use the network to either check
+    Certifcate Revocation Lists or perform on-line validation.</t>
+
     <t>The Certificate-based trust consensus mechanism defined in this
     document allows for a consenting revocation, however in case of a
     compromised device the trust cache may be poisoned before the actual
@@ -1285,14 +1286,15 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
     <t>1: Node connection</t>
     <t>2: Request network state</t>
     <t>3: Request node data</t>
-    <t>4: Network state</t>
-    <t>5: Node state</t>
-    <t>6: Node data</t>
-    <t>7: Neighbor</t>
-    <t>8: Keep-alive interval</t>
-    <t>9: Custom</t>
-    <t>10: Trust-Verdict</t>
-    <t>11-31: Reserved for future DNCP versions.</t>
+    <t>4-9: Reserved for DNCP profile use</t>
+    <t>10: Network state</t>
+    <t>11: Node state</t>
+    <t>12: Node data</t>
+    <t>13: Neighbor</t>
+    <t>14: Keep-alive interval</t>
+    <t>15: Custom</t>
+    <t>16: Trust-Verdict</t>
+    <t>17-31: Reserved for future DNCP versions.</t>
 
     <t>192-255: Reserved for per-implementation experimentation. The
     nodes using TLV types in this range SHOULD use e.g. Custom TLV to
