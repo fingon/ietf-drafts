@@ -1210,7 +1210,7 @@ I writing an essay on this. :-p)
 
       <t>General security issues for existing home networks are discussed
       in <xref target="RFC7368" />. The protocols used to set up addresses
-      and routes in such networks to this day have rarely security enabled
+      and routes in such networks to this day rarely have security enabled
       within the configuration protocol itself. However these issues are out
       of scope for the security of HNCP itself.</t>
 

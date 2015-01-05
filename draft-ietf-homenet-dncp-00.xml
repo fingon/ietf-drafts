@@ -1279,7 +1279,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
   <section anchor="iana" title="IANA Considerations">
 
     <t>IANA should set up a registry (policy TBD) for DNCP TLV types,
-    with following initial contents:</t>
+    with the following initial contents:</t>
 
     <t>0: Reserved (should not happen on wire)</t>
     <t>1: Node connection</t>
