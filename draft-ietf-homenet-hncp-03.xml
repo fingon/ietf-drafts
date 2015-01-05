@@ -78,7 +78,7 @@ I writing an essay on this. :-p)
             <email>pierre.pfister@darou.fr</email>
         </address>
     </author>
-    <date month="January" year="2014" />
+    <date month="January" year="2015" />
 
     <area>Internet</area>
     <workgroup>Homenet Working Group</workgroup>
@@ -141,7 +141,7 @@ I writing an essay on this. :-p)
 
         <t>HNCP operates on multicast-capable interfaces only, thus every DNCP
         Connection Identifier MUST refer to one, except for the value 0 which
-        is reserved for internal purposes and MUST not be used for connection
+        is reserved for internal purposes and MUST NOT be used for connection
         enumeration. Implementations MAY use a value equivalent to the
         sin6_scope_id for the given interface.</t>
 
@@ -169,10 +169,11 @@ I writing an essay on this. :-p)
           <t>k SHOULD be 1, given the timer reset on data updates and
           retransmissions should handle packet loss.</t>
 
-          <t>Imin SHOULD be 40 seconds but MUST NOT be lower.</t>
+          <t>Imin SHOULD be 200 milliseconds but MUST NOT be lower.
+          Note: Earliest transmissions may occur at Imin / 2.</t>
 
-          <t>Imax SHOULD be 320 milliseconds (i.e., 3 doublings of Imin) but MUST NOT be lower.  Note:
-          Earliest transmissions may occur at Imin/2.</t>
+          <t>Imax SHOULD be 7 doublings of Imin (i.e. 25.6 seconds)
+          but MUST NOT be lower.</t>
         </list>
         </t>
 
@@ -686,8 +687,8 @@ I writing an essay on this. :-p)
           are reserved for routers HNCP based assignments, whereas the last
           three quarters are left to the DHCPv6 (resp. DHCPv4) elected router
           (<xref target="version-tlv" /> specifies the DHCP server election process).
-          For instance, if the prefix 10.0.1.0/24 is assigned and
-          applied to an Adjacent Link, addresses included in 10.0.1.0/26 are
+          For instance, if the prefix 192.0.2.0/24 is assigned and
+          applied to an Adjacent Link, addresses included in 192.0.2.0/26 are
           reserved for HNCP nodes and the remaining addresses are reserved
           for the elected DHCPv4 server.</t>
           <!-- TBD This seems very v4-centric (see also above comment of no
@@ -907,6 +908,7 @@ I writing an essay on this. :-p)
         with an external destination.</t>
         <!-- [PP] What if we just want internal IPv4 connectivity ?
          We don't announce self as router ? -->
+        <!-- [SB] yep. -->
 
         <t>DHCPv4 lease times SHOULD be short (i.e. not longer than 5 minutes)
         in order to provide reasonable response times to changes.</t>
@@ -1040,21 +1042,22 @@ I writing an essay on this. :-p)
       </section>
       <section anchor="router-name-tlv" title="Node Name TLV">
 
-        <t>This TLV is used to announce the name of a node in the network.
-        In case of conflicts the announcement of the node with the highest
-        node identifier takes precedence and all other nodes MUST cease to
-        announce the conflicting TLV. A node announcing such a TLV
-        MUST also announce at least one Node-Address TLV which is used
-        as destination address.</t>
-        <!-- [PP] I think it is not appropriate to use the Node-Address TLV for that.
-         IMO, the address(es) should be included in the TLV. -->
+        <t>This TLV is used to assign the name of a node in the network
+        to a certain IP-address. In case of conflicts the announcement of
+        the node with the highest node identifier for a name takes precedence
+        and all other nodes MUST cease to announce the conflicting TLV.</t>
 
         <figure>
           <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: NODE-NAME (41)      |         Length: > 0           |
+|     Type: NODE-NAME (41)      |         Length: > 16          |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|                           IP-Address                          |
+|                                                               |
+|                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |         Name (not null-terminated - variable length)          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1147,11 +1150,9 @@ I writing an essay on this. :-p)
           <list style="hanging">
               <t hangText="Version:">Version indicates which version of HNCP is
                   currently in use by this particular node. It MUST be set to 0.
-                  When some Node Data TLV contains an HNCP Version TLV which
-                  specifies a version different than 0, other TLVs present in
-                  the Node Data TLV MUST be ignored.
+                  Nodes with different versions are considered incompatible.
               </t>
-              <t hangText="Reserved:">Byte reserved for future use. MUST be set
+              <t hangText="Reserved:">Bits reserved for future use. MUST be set
                   to zero when creating this TLV and ignored when parsing it.
               </t>
               <t hangText="M-capability:">Priority value used for electing the
@@ -1198,7 +1199,7 @@ I writing an essay on this. :-p)
         protocols whenever it uses the security mechanism of HNCP.</t>
         <t>It SHOULD implement support for the Service Discovery and Naming
         TLVs as defined in this document.</t>
-        <t>It MUST implement and run the routing protocol $FOO [RFCXYZ]
+        <t>It MUST implement and run the routing protocol $FOO
         with support for source-specific routes on all of the interfaces it
         sends and receives HNCP-messages on and MUST resort to announcing
         source-specific routes for external destinations appropriately.</t>
