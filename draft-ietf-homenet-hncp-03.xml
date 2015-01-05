@@ -90,8 +90,9 @@ I writing an essay on this. :-p)
 
       <t>This document describes the Home Networking Control Protocol
       (HNCP), an extensible configuration protocol and a set of requirements
-      for home network devices on top of the Distributed Node Consensus Protocol
-      (DNCP). It enables automated configuration of addresses, naming,
+      for home network devices on top of the
+      <xref target="I-D.ietf-homenet-dncp">Distributed Node Consensus Protocol
+      (DNCP)</xref>. It enables automated configuration of addresses, naming,
       network borders and the seamless use of a routing protocol.</t>
 
     </abstract>
@@ -129,7 +130,8 @@ I writing an essay on this. :-p)
     </section>
 
     <section title="DNCP Profile">
-      <t>HNCP is defined as a profile of DNCP with the following parameters:
+      <t>HNCP is defined as a profile of <xref target="I-D.ietf-homenet-dncp">
+      DNCP</xref> with the following parameters:
 
       <list style="symbols">
 
@@ -1120,7 +1122,8 @@ I writing an essay on this. :-p)
 
     <section anchor="version-tlv" title="HNCP Versioning and Capabilities">
 
-      <t>Multiple versions of HNCP based on compatible DNCP profiles may be
+      <t>Multiple versions of HNCP based on compatible
+      <xref target="I-D.ietf-homenet-dncp">DNCP</xref> profiles may be
       present in the same network when transitioning between HNCP versions
       and HNCP routers may have different capabilities to support clients.
       The following mechanism describes a way to announce the currently active
@@ -1236,9 +1239,10 @@ I writing an essay on this. :-p)
       within the configuration protocol itself. However these issues are out
       of scope for the security of HNCP itself.</t>
 
-      <t>HNCP is a DNCP-based state synchronization mechanism carrying
-      information with varying threat potential. For this consideration the
-      payloads defined in DNCP and this document are reviewed:
+      <t>HNCP is a <xref target="I-D.ietf-homenet-dncp">DNCP</xref>-based
+      state synchronization mechanism carrying information with varying
+      threat potential. For this consideration the payloads defined in DNCP
+      and this document are reviewed:
 
       <list style="symbols">
         <t>Network topology information such as HNCP nodes and their
@@ -1327,8 +1331,9 @@ I writing an essay on this. :-p)
 
       <t>IANA is requested to maintain a registry for HNCP TLV-Types.</t>
 
-      <t>HNCP inherits the TLV-Types and allocation policy defined in DNCP.
-      In addition the following TLV-Types are defined in this document:
+      <t>HNCP inherits the TLV-Types and allocation policy defined in
+      <xref target="I-D.ietf-homenet-dncp">DNCP</xref>. In addition the
+      following TLV-Types are defined in this document:
 
       <list>
         <t>32: HNCP-Version</t>
@@ -1354,11 +1359,12 @@ I writing an essay on this. :-p)
   </middle>
   <back>
     <references title="Normative references">
+      <?rfc include="reference.I-D.draft-ietf-homenet-dncp-00"?>
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6347.xml"?>
       <?rfc include="reference.RFC.6603.xml"?>
       <?rfc include="reference.RFC.4191.xml"?>
-      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-01"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-02"?>
     </references>
 
     <references title="Informative references">
