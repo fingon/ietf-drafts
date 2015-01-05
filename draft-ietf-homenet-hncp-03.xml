@@ -231,11 +231,11 @@ I writing an essay on this. :-p)
 
       <list style="symbols">
 
-        <t>An HNCP-router running a DHCP client on a homenet interface
+        <t>An HNCP router running a DHCP client on a homenet interface
         MUST include a DHCP User-Class consisting of the ASCII-String
         "HOMENET".</t>
 
-        <t>An HNCP-router running a DHCP server on a homenet interface
+        <t>An HNCP router running a DHCP server on a homenet interface
         MUST ignore or reject DHCP-Requests containing a DHCP User-Class
         consisting of the ASCII-String "HOMENET".</t>
 
@@ -251,7 +251,7 @@ I writing an essay on this. :-p)
         <t>If a delegated prefix could be acquired by running a DHCPv6
         client on the interface, it MUST be considered external.</t>
 
-        <t>If an IPv4-address could be acquired by running a DHCPv4 client
+        <t>If an IPv4 address could be acquired by running a DHCPv4 client
         on the interface it MUST be considered external.</t>
 
         <t>Otherwise the interface MUST be considered internal.</t>
@@ -715,7 +715,7 @@ I writing an essay on this. :-p)
 |                     Connection Identifier                     |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
-|                           IP-Address                          |
+|                           IP Address                          |
 |                                                               |
 |                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -726,7 +726,7 @@ I writing an essay on this. :-p)
               Identifier of the link the address is assigned to, or 0 if it is
               not assigned on an HNCP enabled link.</t>
 
-              <t hangText="IP-Address: ">The IPv6 address, or the IPv4 address
+              <t hangText="IP Address: ">The IPv6 address, or the IPv4 address
               encoded as an <xref target="RFC4291">IPv4-mapped IPv6 address</xref>.</t>
             </list>
           </t>
@@ -757,7 +757,7 @@ I writing an essay on this. :-p)
           HNCP as if they were delegated prefixes. The following rules apply:
 
           <list>
-            <t>An HNCP-router SHOULD create an ULA-prefix
+            <t>An HNCP router SHOULD create an ULA-prefix
             if there is no other non-deprecated IPv6-prefix in the network. It MAY also do so
             if there are other delegated IPv6-prefixes but none of which is a
             non-deprecated ULA but MUST NOT do so otherwise. Whenever it detects
@@ -765,7 +765,7 @@ I writing an essay on this. :-p)
             announce its locally generated one. It MAY also do so once it
             detects a non-deprecated non-ULA IPv6 delegated prefix.</t>
 
-            <t>An HNCP-router MUST create a non-deprecated
+            <t>An HNCP router MUST create a non-deprecated
             <xref target="RFC1918">private IPv4-prefix</xref>
             whenever it wishes to provide external IPv4 connectivity to the
             network and no other non-deprecated private IPv4 prefix currently
@@ -959,7 +959,7 @@ I writing an essay on this. :-p)
 | Type: DNS-DELEGATED-ZONE (39) |        Length: >= 17          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
-|                           IP-Address                          |
+|                           IP Address                          |
 |                                                               |
 |                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -971,8 +971,8 @@ I writing an essay on this. :-p)
 
         <t>
           <list>
-            <t>IP Address is the IPv6-address of the authoritative
-            DNS-server for the zone; IPv4-addresses are represented as
+            <t>IP Address is the IPv6 address of the authoritative
+            DNS-server for the zone; IPv4 addresses are represented as
             <xref target="RFC4291">IPv4-mapped addresses</xref>.  The
             special value of :: (all-zero) means the delegation is
             available in the global DNS-hierarchy.</t>
@@ -1043,7 +1043,7 @@ I writing an essay on this. :-p)
       <section anchor="router-name-tlv" title="Node Name TLV">
 
         <t>This TLV is used to assign the name of a node in the network
-        to a certain IP-address. In case of conflicts the announcement of
+        to a certain IP address. In case of conflicts the announcement of
         the node with the highest node identifier for a name takes precedence
         and all other nodes MUST cease to announce the conflicting TLV.</t>
 
@@ -1055,7 +1055,7 @@ I writing an essay on this. :-p)
 |     Type: NODE-NAME (41)      |         Length: > 16          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
-|                           IP-Address                          |
+|                           IP Address                          |
 |                                                               |
 |                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1122,7 +1122,7 @@ I writing an essay on this. :-p)
 
       <t>Multiple versions of HNCP based on compatible DNCP profiles may be
       present in the same network when transitioning between HNCP versions
-      and HNCP-routers may have different capabilities to support clients.
+      and HNCP routers may have different capabilities to support clients.
       The following mechanism describes a way to announce the currently active
       version and User-agent of a node. Each node MUST include an
       HNCP-Version-TLV in its Node Data and MUST ignore (except for DNCP
@@ -1176,7 +1176,7 @@ I writing an essay on this. :-p)
                   on-link DHCPv4 server. It MUST be set to some value between
                   1 and 7 included (4 is the default) if the router is
                   capable of running a legacy DHCPv4 server offering
-                  IPv4-addresses to clients and 0 otherwise.
+                  IPv4 addresses to clients and 0 otherwise.
                   The values 8-15 are reserved for future use.</t>
               <t hangText="User-Agent:">
                   The user-agent is a null-terminated human-readable UTF-8 string
@@ -1218,7 +1218,7 @@ I writing an essay on this. :-p)
          we will have to provide the list of rules that apply at some point. -->
         <t>It SHOULD be able to provide connectivity to IPv4-devices using
         DHCPv4.</t>
-        <t>It SHOULD be able to delegate prefixes to legacy IPv6-routers
+        <t>It SHOULD be able to delegate prefixes to legacy IPv6 routers
         using DHCPv6-PD.</t>
       </list></t>
     </section>
@@ -1274,7 +1274,7 @@ I writing an essay on this. :-p)
         of HNCP routers to an adequate fixed-category in order to secure
         the homenet border.  Depending on the security of the external link
         eavesdropping, man-in-the-middle and similar attacks on external
-        traffic can still happen between a homenet border-router and the
+        traffic can still happen between a homenet border router and the
         ISP, however these cannot be mitigated from inside the homenet. For
         example, DHCPv4 has defined <xref target="RFC3118" /> to authenticate
         DHCPv4 messages, but this is very rarely implemented in large or
