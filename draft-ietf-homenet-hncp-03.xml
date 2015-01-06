@@ -101,23 +101,16 @@ I writing an essay on this. :-p)
     <section title="Introduction">
 
       <t>HNCP synchronizes state across a small site
-      in order to allow automated configuration.
-      The protocol enables border discovery, address prefix distribution
-      <xref target="I-D.ietf-homenet-prefix-assignment" />,
-      naming and other services being used across multiple links.</t>
+      in order to allow automated network configuration.
+      The protocol enables use of border discovery, address prefix
+      distribution <xref target="I-D.ietf-homenet-prefix-assignment" />,
+      naming and other services across multiple links.</t>
 
       <t>HNCP provides enough information for a routing protocol to operate
       without homenet-specific extensions. In homenet environments where
       multiple IPv6 source-prefixes can be present, routing based on source
       and destination address is necessary <xref target="RFC7368" />.</t>
 
-      <t>A GPLv2-licensed implementation of HNCP is currently under
-      development at <eref target="https://github.com/sbyx/hnetd/">
-      https://github.com/sbyx/hnetd/</eref> and binaries are available in
-      the <eref target="http://www.openwrt.org">OpenWrt</eref> package
-      repositories.  See <eref
-      target="http://www.homewrt.org/doku.php?id=run-conf" /> for more
-      information.  Feedback and contributions are welcome.</t>
     </section>
 
     <section anchor="kwd" title='Requirements language'>
@@ -185,7 +178,7 @@ I writing an essay on this. :-p)
 
         <t>HNCP nodes MUST use the keep-alive extension on all connections.
         The default keep-alive interval (DNCP_KEEPALIVE_INTERVAL) is 20
-        seconds, the multiplier (DNCP_KEEPALIVE_MULTIPLIER) MUST be 2.5,
+        seconds, the multiplier (DNCP_KEEPALIVE_MULTIPLIER) MUST be 2.1,
         the grace-interval (DNCP_GRACE_INTERVAL) SHOULD be equal to
         DNCP_KEEPALIVE_MULTIPLIER times DNCP_KEEPALIVE_INTERVAL.</t>
 
@@ -373,7 +366,7 @@ I writing an essay on this. :-p)
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Type: DELEGATED-PREFIX (34)  |         Length: >= 9         |
+|  Type: DELEGATED-PREFIX (34)  |          Length: >= 9         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        Valid Lifetime                         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -472,7 +465,7 @@ I writing an essay on this. :-p)
         <t>HNCP uses the Distributed Prefix Assignment Algorithm specified in
         <xref target="I-D.ietf-homenet-prefix-assignment" /> in order to
         assign prefixes to HNCP internal links and uses the terminology
-        defined therein.</t>
+        defined there.</t>
 
         <section title="Assigned Prefix TLV">
           <t>Published Assigned Prefixes MUST be advertised using the Assigned
@@ -607,24 +600,25 @@ I writing an essay on this. :-p)
 
               <t>Otherwise, the creation of a new prefix is desired.</t>
             </list>
+            </t>
 
-            If the considered delegated prefix is an IPv6 prefix, and
-            whenever there is at least one available prefix of length 64,
-            a prefix of length 64 MUST be selected unless configured
+            <t>If the considered delegated prefix is an IPv6 prefix, and
+            whenever there is at least one available prefix of length 64, a
+            prefix of length 64 MUST be selected unless configured
             otherwise by an administrator. In case no prefix of length 64
-            would be available, a longer prefix MAY be selected.
+            would be available, a longer prefix MAY be selected.</t>
 
-            If the considered delegated prefix is an IPv4 prefix (
-            <xref target="ula" /> details how IPv4 delegated prefixes
-            are generated), a prefix of length 24 SHOULD be preferred.
+            <t>If the considered delegated prefix is an IPv4 prefix ( <xref
+            target="ula" /> details how IPv4 delegated prefixes are
+            generated), a prefix of length 24 SHOULD be preferred.</t>
 
-            In any case, a router MUST support a mechanism suitable to
+            <t>In any case, a router MUST support a mechanism suitable to
             distribute addresses from the considered prefix to clients on
             the link. Otherwise it MUST NOT create or adopt it, i.e. a
-            router assigning an IPv4-Prefix MUST support the L-capability
-            and a router assigning an IPv6-Prefix not suitable for stateless
-            autoconfiguration MUST support the H-capability as defined in
-            <xref target="version-tlv" />
+            router assigning an IPv4 prefix MUST support the L-capability
+            and a router assigning an IPv6 prefix not suitable for
+            stateless autoconfiguration MUST support the H-capability as
+            defined in <xref target="version-tlv" />.
             </t>
 
           </section>
@@ -759,19 +753,19 @@ I writing an essay on this. :-p)
           HNCP as if they were delegated prefixes. The following rules apply:
 
           <list>
-            <t>An HNCP router SHOULD create an ULA-prefix
-            if there is no other non-deprecated IPv6-prefix in the network. It MAY also do so
-            if there are other delegated IPv6-prefixes but none of which is a
+            <t>An HNCP router SHOULD create an ULA prefix
+            if there is no other non-deprecated IPv6 prefix in the network. It MAY also do so
+            if there are other delegated IPv6 prefixes but none of which is a
             non-deprecated ULA but MUST NOT do so otherwise. Whenever it detects
             another non-deprecated ULA being advertised it MUST cease to
             announce its locally generated one. It MAY also do so once it
             detects a non-deprecated non-ULA IPv6 delegated prefix.</t>
 
             <t>An HNCP router MUST create a non-deprecated
-            <xref target="RFC1918">private IPv4-prefix</xref>
+            <xref target="RFC1918">private IPv4 prefix</xref>
             whenever it wishes to provide external IPv4 connectivity to the
             network and no other non-deprecated private IPv4 prefix currently
-            exists. It MAY also create a deprecated private IPv4-prefix if no
+            exists. It MAY also create a deprecated private IPv4 prefix if no
             IPv4 prefix exists and it wants to enable local IPv4 connectivity
             but MUST NOT do so otherwise. In case multiple IPv4 prefixes are
             announced all but one MUST be removed while non-deprecated ones
@@ -805,7 +799,8 @@ I writing an essay on this. :-p)
       <t>HNCP routers may have different capabilities for configuring
       downstream devices and providing naming services. Each router MUST
       therefore indicate its capabilities as specified in <xref
-      target="version-tlv" /> in order to candidate for election.</t>
+      target="version-tlv" /> in order to participate as a candidate in the
+      election.</t>
 
       <section title="DHCPv6 for Addressing or Configuration">
         <t>In general stateless address configuration is preferred whenever
@@ -814,21 +809,23 @@ I writing an essay on this. :-p)
         use them to provide naming services or if stateless configuration
         is not possible for the assigned prefix length.</t>
 
-        <t>The designated stateful DHCPv6-server for a link is elected based
-        on the capabilities described in <xref target="version-tlv" />.
-        It is the router connected to the <xref target="links">Adjacent Link</xref>
-        advertising the greatest H-capability. In case of a tie, Capability
-        Values and node identifiers are considered (greatest value is elected).
-        This router MUST serve stateful DHCPv6 and Router Advertisements on
-        the given link. Furthermore it MUST provide naming services for
+        <t>The designated stateful DHCPv6 server for a link is elected
+        based on the capabilities described in <xref target="version-tlv"
+        />.  The winner is the router connected to the <xref
+        target="links">Adjacent Link</xref> advertising the greatest
+        H-capability. In case of a tie, Capability Values and node
+        identifiers are considered (greatest value is elected).  The
+        elected router MUST serve stateful DHCPv6 and Router Advertisements
+        on the given link. Furthermore it MUST provide naming services for
         acquired hostnames as outlined in <xref target="naming-sd" />.
         Stateful addresses being handed out SHOULD have a low preferred
-        lifetime (e.g. 1s) to not hinder fast renumbering if either the DHCPv6
-        server or client do not support the DHCPv6 reconfigure mechanism and
-        the address is from a prefix for which stateless autoconfiguration is
-        supported as well.  In case no router was elected, stateful DHCPv6 is
-        not provided and each router assigning IPv6 prefixes on said link MUST
-        serve Router Advertisements and stateless DHCPv6.</t>
+        lifetime (e.g. 1s) to not hinder fast renumbering if either the
+        DHCPv6 server or client do not support the DHCPv6 reconfigure
+        mechanism and the address is from a prefix for which stateless
+        autoconfiguration is supported as well.  In case no router was
+        elected, stateful DHCPv6 is not provided and each router assigning
+        IPv6 prefixes on said link MUST serve Router Advertisements and
+        stateless DHCPv6.</t>
       </section>
 
       <section title="Sending Router Advertisements">
@@ -882,24 +879,25 @@ I writing an essay on this. :-p)
       </section>
 
       <section title="DHCPv6 for Prefix Delegation">
-        <t>The designated DHCPv6-server for prefix-delegation on a link is
+        <t>The designated DHCPv6 server for prefix-delegation on a link is
         elected based on the capabilities described in
-        <xref target="version-tlv" />. It is the router connected to the
+        <xref target="version-tlv" />. The winner is the router connected to the
         <xref target="links">Adjacent Link</xref> advertising the greatest
         P-capability. In case of a tie, Capability Values and Node
         Identifiers are considered (greatest value is elected).
-        This router MUST provide
+        The elected router MUST provide
         <xref target="RFC3633">prefix-delegation services</xref>
         on the given link and follow the rules in <xref target="pd" />.</t>
       </section>
 
       <section title="DHCPv4 for Adressing and Configuration">
-        <t>The designated DHCPv4-server on a link is elected based on the
-        capabilities described in <xref target="version-tlv" />.
-        It is the router connected to the <xref target="links">Adjacent Link</xref>
-        advertising the greatest L-capability. In case of a tie, Capability
-        Values and node identifiers are considered (greatest value is elected).
-        This router MUST provide DHCPv4 services on the given link.</t>
+        <t>The designated DHCPv4 server on a link is elected based on the
+        capabilities described in <xref target="version-tlv" />.  The
+        winner is the router connected to the <xref target="links">Adjacent
+        Link</xref> advertising the greatest L-capability. In case of a
+        tie, Capability Values and node identifiers are considered
+        (greatest value is elected).  The elected router MUST provide
+        DHCPv4 services on the given link.</t>
 
         <t>The DHCPv4 serving router MUST announce itself as
         <xref target="RFC2132">router</xref> to clients if and only if there
@@ -917,13 +915,13 @@ I writing an essay on this. :-p)
       </section>
 
       <section title="Multicast DNS Proxy">
-        <t>The designated <xref target="RFC6762">MDNS</xref>-proxy on a link
-        is elected based on the capabilities described in
-        <xref target="version-tlv" />. It is the router with the highest Node
-        Identifier among those with the highest Capability Value on the link
-        that support the M-capability. This router MUST provide an MDNS-proxy
-        on the given link and announce it as described in
-        <xref target="naming-sd" />.</t>
+        <t>The designated <xref target="RFC6762">MDNS</xref>-proxy on a
+        link is elected based on the capabilities described in <xref
+        target="version-tlv" />. The winner is the router with the highest
+        Node Identifier among those with the highest Capability Value on
+        the link that support the M-capability. The elected router MUST
+        provide an MDNS-proxy on the given link and announce it as
+        described in <xref target="naming-sd" />.</t>
       </section>
     </section>
 
@@ -937,7 +935,7 @@ I writing an essay on this. :-p)
       <t>Each HNCP router SHOULD provide and announce an auto-generated or
       user-configured name for each internal <xref target="links">Adjacent
       Link</xref> for which it is the designated DHCPv4, stateful
-      DHCPv6-server or <xref target="RFC6762">MDNS</xref>-proxy and for
+      DHCPv6 server or <xref target="RFC6762">MDNS</xref>-proxy and for
       which it provides DNS-services on behalf of devices on said link.
       In addition it MAY provide reverse lookup services.</t>
       <t>The following TLVs are defined and MUST be supported by all nodes
@@ -974,7 +972,7 @@ I writing an essay on this. :-p)
         <t>
           <list>
             <t>IP Address is the IPv6 address of the authoritative
-            DNS-server for the zone; IPv4 addresses are represented as
+            DNS server for the zone; IPv4 addresses are represented as
             <xref target="RFC4291">IPv4-mapped addresses</xref>.  The
             special value of :: (all-zero) means the delegation is
             available in the global DNS-hierarchy.</t>
@@ -1416,6 +1414,16 @@ I writing an essay on this. :-p)
       <t>This draft is available at <eref
       target="https://github.com/fingon/ietf-drafts/">https://github.com/fingon/ietf-drafts/</eref>
       in source format. Issues and pull requests are welcome.</t>
+    </section>
+
+    <section title="Implementation">
+      <t>A GPLv2-licensed implementation of HNCP is currently under
+      development at <eref target="https://github.com/sbyx/hnetd/">
+      https://github.com/sbyx/hnetd/</eref> and binaries are available in
+      the <eref target="http://www.openwrt.org">OpenWrt</eref> package
+      repositories.  See <eref
+      target="http://www.homewrt.org/doku.php?id=run-conf" /> for more
+      information.  Feedback and contributions are welcome.</t>
     </section>
 
     <section title="Acknowledgements">
