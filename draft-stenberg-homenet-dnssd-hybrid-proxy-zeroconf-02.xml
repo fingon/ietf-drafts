@@ -1,8 +1,8 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Mon Jun 17 04:55:57 2013 mstenber
-Last modified: Mon Jan 19 13:42:22 2015 mstenber
-Edit time:     558 min
+Last modified: Mon Jan 19 13:53:46 2015 mstenber
+Edit time:     564 min
 -->
 
 <!--
@@ -29,7 +29,7 @@ Edit time:     558 min
 
 <rfc
     ipr='trust200902'
-    docName='draft-stenberg-homenet-dnssd-hybrid-proxy-zeroconf-01'
+    docName='draft-stenberg-homenet-dnssd-hybrid-proxy-zeroconf-02'
     category='std'
     >
   <front>
@@ -102,9 +102,10 @@ Edit time:     558 min
 
     <section anchor="kwd" title='Requirements language'>
 
-      <t>In this document, the key words "MAY", "MUST, "MUST NOT",
-      "OPTIONAL", "RECOMMENDED", "SHOULD", and "SHOULD NOT", are to be
-      interpreted as described in <xref target='RFC2119' />.</t>
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+      NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in
+      this document are to be interpreted as described in <xref
+      target='RFC2119' />.</t>
 
     </section>
 
@@ -255,9 +256,9 @@ Edit time:     558 min
 
         <t>
           Contents:
-          <list style="hanging">
+          <list style="symbols">
 
-            <t hangText="Address"> field is IPv6 address (e.g. 2001:db8::3)
+            <t>Address field is IPv6 address (e.g. 2001:db8::3)
             or IPv4 address mapped to IPv6 address (e.g. ::FFFF:192.0.2.1)
             where the authoritative DNS server for Zone can be found. If
             the address field is all zeros, the Zone is under global DNS
@@ -266,7 +267,7 @@ Edit time:     558 min
             relevant with the S bit below).
             </t>
 
-            <t hangText="S-bit"> indicates that this delegated zone consists of
+            <t>S-bit indicates that this delegated zone consists of
             a full DNS-SD domain, which should be used as base for DNS-SD
             domain enumeration (that is, (field)._dns-sd._udp.(zone)
             exists). Forward zones MAY have this set. Reverse zones MUST
@@ -275,17 +276,17 @@ Edit time:     558 min
             by ISP, or other manually configured service providers).
             </t>
 
-            <t hangText="B-bit"> indicates that this delegated zone should
+            <t>B-bit indicates that this delegated zone should
             be included in network's DNS-SD browse list of domains at
             b._dns-sd._udp.(domain). Local forward zones SHOULD have this
             set. Reverse zones SHOULD NOT have this set.</t>
 
-            <t hangText="L-bit"> indicates that this delegated zone should
+            <t>L-bit indicates that this delegated zone should
             be included in the network's DNS-SD legacy browse list of
             domains at lb._dns- sd._udp.(DOMAIN-NAME). Local forward zones
             SHOULD have this bit set, reverse zones SHOULD NOT.</t>
 
-            <t hangText="Zone"> is the label sequence of the zone, encoded
+            <t>Zone is the label sequence of the zone, encoded
             according to section 3.1. ("Name space definitions") of <xref
             target="RFC1035"/>. Note that name compression is not required
             here (and would not have any point in any case), as we encode
@@ -409,6 +410,12 @@ Edit time:     558 min
 
     </section>
 
+    <section title="IANA Considerations">
+
+      <t>This document has no actions for IANA.</t>
+
+    </section>
+
   </middle>
   <back>
     <references title="Normative references">
@@ -419,7 +426,7 @@ Edit time:     558 min
       <?rfc include="reference.RFC.6763.xml"?>
     </references>
     <references title="Informative references">
-      <?rfc include="reference.I-D.draft-ietf-homenet-hncp-00.xml"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-hncp-03.xml"?>
       <?rfc include="reference.RFC.3633.xml"?>
       <?rfc include="reference.RFC.3646.xml"?>
     </references>
