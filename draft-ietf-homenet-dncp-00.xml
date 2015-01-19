@@ -66,16 +66,16 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
     <section title="Introduction">
 
       <t>DNCP is designed to provide a way for nodes to publish data
-      consisting of an ordered set of TLV (Type-Length-Value) tuples, and
+      consisting of an ordered set of TLV (Type-Length-Value) tuples and
       to receive the data published by all other reachable DNCP nodes.</t>
 
       <t>DNCP has relatively few requirements for the underlying transport;
       it requires some way of transmitting either unicast datagram or
-      stream data to a DNCP peer, and if used in multicast mode, a way of
+      stream data to a DNCP peer and, if used in multicast mode, a way of
       sending multicast datagrams. If security is desired and one of the
       built-in security methods is to be used, support for some TLS-derived
-      transport scheme, such as <xref target="RFC5246">TLS</xref> on top of
-      TCP, or <xref target="RFC6347">DTLS</xref> on top of UDP, is also
+      transport scheme - such as <xref target="RFC5246">TLS</xref> on top of
+      TCP or <xref target="RFC6347">DTLS</xref> on top of UDP - is also
       required. </t>
 
     </section>
@@ -90,57 +90,57 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
     </section>
 
     <section title="Terminology">
-      <t>DNCP profile is a definition of a set of rules and
+      <t>A DNCP profile is a definition of a set of rules and
       values listed in <xref target="profile-bits"/> specifying the
       behavior of a DNCP based protocol, such as the used transport
       method.  For readability, any DNCP profile specific parameters
       with a profile-specific fixed value are prefixed with DNCP_.</t>
 
-      <t>DNCP node is a single node which runs a protocol
+      <t>A DNCP node is a single node which runs a protocol
       based on a DNCP profile.</t>
 
-      <t>DNCP network is a set of DNCP nodes running the same DNCP profile
+      <t>The DNCP network is a set of DNCP nodes running the same DNCP profile
       that can reach each other, either via learned shared connections in
       the underlying network, or using each other's addresses learned via
       other means. As DNCP exchanges are bidirectional, DNCP nodes
       connected via only unidirectional links are not considered
       connected. </t>
 
-      <t>Node identifier is an opaque fixed-length identifier of
+      <t>The node identifier is an opaque fixed-length identifier consisting of
       DNCP_NODE_IDENTIFIER_LENGTH bytes which uniquely identifies a DNCP
       node within a DNCP network. </t>
 
-      <t>Link indicates a link-layer media over which directly connected
+      <t>A link indicates a link-layer media over which directly connected
       nodes can communicate.</t>
 
-      <t>Interface indicates a port of a node that is connected to a
+      <t>An interface indicates a port of a node that is connected to a
       particular link. </t>
 
-      <t>Connection denotes a locally configured use of DNCP on a DNCP
+      <t>A connection denotes a locally configured use of DNCP on a DNCP
       node, that is attached either to an interface, to a specific remote
       unicast address to be contacted, or to a range of remote unicast
       addresses that are allowed to contact.</t>
 
-      <t>Connection identifier is a 32-bit opaque value, which identifies a
+      <t>The connection identifier is a 32-bit opaque value, which identifies a
       particular connection of that particular DNCP node. The value 0 is
       reserved for DNCP and sub-protocol purposes in the TLVs, and MUST NOT
       be used to identify an actual connection. This definition is in sync
       with <xref target="RFC3493"/>, as the non-zero small positive
       integers should comfortably fit within 32 bits.</t>
 
-      <t>(DNCP) peer refers to another DNCP node with which
+      <t>A (DNCP) peer refers to another DNCP node with which
       a DNCP node communicates directly on a particular connection.</t>
 
-      <t>Node data is a set of TLVs published by a node in
+      <t>The node data is a set of TLVs published by a node in
       the DNCP network.</t>
 
-      <t>Node state is a set of metadata attributes for node data.  It
+      <t>The node state is a set of metadata attributes for node data.  It
       includes a sequence number for versioning, a hash value for comparing
       and a timestamp indicating the time passed since its last
       publication. The hash function and the number of bits used are
       defined in the DNCP profile. </t>
 
-      <t>Network state (hash) is a hash value which represents
+      <t>The network state (hash) is a hash value which represents
       the current state of the network.  The hash function and the number of
       bits used are defined in the DNCP profile.
 
@@ -149,7 +149,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       hash values of each reachable nodes' node data in ascending order
       of the respective node identifier.</t>
 
-      <t>Effective (trust) verdict for a certificate is defined as the
+      <t>The effective (trust) verdict for a certificate is defined as the
       verdict with the highest priority within the set of verdicts
       announced for the certificate in the DNCP network.</t>
 
@@ -232,7 +232,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
       <t>The DNCP protocol consists of <xref target="RFC6206">Trickle</xref>
       driven unicast or multicast status messages which indicate the current
-      status of shared TLV data, and additional unicast message exchanges
+      status of shared TLV data and additional unicast message exchanges
       which ensure DNCP peer reachability and synchronize the data when
       necessary. </t>
 
@@ -240,7 +240,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       to only point-to-point using unicast, a datagram-based transport
       which supports multicast SHOULD be defined in the DNCP profile to be
       used for the messages to be sent to the whole link. As this is used
-      only to identify potential new DNCP nodes, and to notify that an
+      only to identify potential new DNCP nodes and to notify that an
       unicast exchange should be triggered, the multicast transport does
       not have to be particularly secure.</t>
 
@@ -270,7 +270,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         the local node's own node data, or due to receipt of more recent
         data from another node.</t>
 
-        <t>The Trickle algorithm has 3 parameters; Imin, Imax and k. Imin
+        <t>The Trickle algorithm has 3 parameters: Imin, Imax and k. Imin
         and Imax represent the minimum and maximum values for I, which is
         the time interval during which at least k Trickle updates must be
         seen on a connection to prevent local state transmission.  The
@@ -308,7 +308,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
             <t>If the network state hash within the message matches the
             locally calculated network state hash, stop processing.</t>
 
-            <t>Otherwise the receiver MUST identify nodes for which local
+            <t>Otherwise the receiver MUST identify all nodes for which local
             information is outdated (local update sequence number is lower
             than that within the message), potentially incorrect (local
             update sequence number matches but the hash of the node data TLV
@@ -340,7 +340,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
           the message contains Node State TLVs that are more recent than
           the local state (the received TLV has a higher update sequence
           number, the node data TLV hash differs from the local one, or
-          local data is missing altogether), and if the message also
+          local data is missing altogether) and if the message also
           contains corresponding Node Data TLVs, the receiver MUST update
           its locally stored state.</t>
         </list>
@@ -352,11 +352,11 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         current local value, or the same update sequence number and a
         different hash, the node SHOULD re-publish its own node data with an
         update sequence number 1000 higher than the received one. This may
-        occur normally once due to the local node restarting, and not storing
+        occur normally once due to the local node restarting and not storing
         the most recently used update sequence number. If this occurs more
         than once, the DNCP profile should provide guidance on how to
-        handle these situations as it indicates the existence of a second
-        active node on the network with the same node identifier.</t>
+        handle these situations as it indicates the existence of another
+        active node with the same node identifier.</t>
 
       </section>
 
@@ -376,10 +376,10 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         </list>
         </t>
 
-        <t>If keep-alives are NOT sent by the peer (either DNCP profile
-        does not specify the use of keep-alives, or the particular peer chooses
+        <t>If keep-alives are NOT sent by the peer (either the DNCP profile
+        does not specify the use of keep-alives or the particular peer chooses
         not to send keep-alive messages), some other means MUST be employed
-        to ensure a DNCP peer is present, and when the peer is no longer
+        to ensure a DNCP peer is present. When the peer is no longer
         present, the Neighbor TLV and the local DNCP peer state MUST be
         removed.</t>
       </section>
