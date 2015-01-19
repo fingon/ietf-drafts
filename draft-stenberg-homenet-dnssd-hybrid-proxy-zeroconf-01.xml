@@ -1,14 +1,11 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Mon Jun 17 04:55:57 2013 mstenber
-Last modified: Thu Jun 19 12:15:38 2014 mstenber
-Edit time:     556 min
+Last modified: Mon Jan 19 13:42:22 2015 mstenber
+Edit time:     558 min
 -->
 
 <!--
-
-- Is tying this whole draft with particular routing protocol good?
- - another option: General idea + practical transport drafts?
 
 - Terminology
 
@@ -51,7 +48,7 @@ Edit time:     556 min
         <email>markus.stenberg@iki.fi</email>
       </address>
     </author>
-    <date month="June" year="2014" />
+    <date month="January" year="2015" />
 <!--    <workgroup></workgroup> -->
     <keyword>IPv6</keyword>
     <keyword>Homenet</keyword>
@@ -269,7 +266,7 @@ Edit time:     556 min
             relevant with the S bit below).
             </t>
 
-            <t hangText="S bit"> indicates that this delegated zone consists of
+            <t hangText="S-bit"> indicates that this delegated zone consists of
             a full DNS-SD domain, which should be used as base for DNS-SD
             domain enumeration (that is, (field)._dns-sd._udp.(zone)
             exists). Forward zones MAY have this set. Reverse zones MUST
@@ -278,10 +275,15 @@ Edit time:     556 min
             by ISP, or other manually configured service providers).
             </t>
 
-            <t hangText="B bit"> indicates that this delegated zone should
+            <t hangText="B-bit"> indicates that this delegated zone should
             be included in network's DNS-SD browse list of domains at
             b._dns-sd._udp.(domain). Local forward zones SHOULD have this
             set. Reverse zones SHOULD NOT have this set.</t>
+
+            <t hangText="L-bit"> indicates that this delegated zone should
+            be included in the network's DNS-SD legacy browse list of
+            domains at lb._dns- sd._udp.(DOMAIN-NAME). Local forward zones
+            SHOULD have this bit set, reverse zones SHOULD NOT.</t>
 
             <t hangText="Zone"> is the label sequence of the zone, encoded
             according to section 3.1. ("Name space definitions") of <xref
