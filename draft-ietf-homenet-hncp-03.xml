@@ -823,17 +823,16 @@ I writing an essay on this. :-p)
         mechanism and the address is from a prefix for which stateless
         autoconfiguration is supported as well.  In case no router was
         elected, stateful DHCPv6 is not provided and each router assigning
-        IPv6 prefixes on said link MUST serve Router Advertisements and
-        stateless DHCPv6.</t>
+        IPv6-prefixes on said link MUST provide stateless DHCPv6 service.</t>
       </section>
 
       <section title="Sending Router Advertisements">
-        <t>The HNCP router being elected as DHCPv6 server for addressing or
-        configuration MUST send Router Advertisements periodically via
-        multicast and via unicast in response to Router Solicitations. In
-        addition other routers on the link MAY announce Router Advertisements.
-        This might result in a more optimal routing decision for clients. The following rules
-        MUST be followed when sending Router Advertisements:
+        <t>Each HNCP router assigning an IPV6-prefix to an interface MUST send
+        Router Advertisements periodically via multicast and via unicast in
+        response to Router Solicitations. In addition other routers on the
+        link MAY announce Router Advertisements. This might result in a more
+        optimal routing decision for clients. The following rules MUST be
+        followed when sending Router Advertisements:
 
         <list>
           <t>The "Managed address configuration" flag MUST be set whenever
