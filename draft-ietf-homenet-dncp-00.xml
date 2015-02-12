@@ -286,8 +286,10 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         are ignored. Any 'reply' mentioned in the steps below denotes
         sending of the specified message via unicast to the originator of
         the message being processed. If the reply was caused by a multicast
-        message and sent to a link with shared bandwidth it SHOULD be delayed
-        by a random timespan in [0, Imin/2].</t>
+        message and sent to a link with shared bandwidth it SHOULD be
+        delayed by a random timespan in [0, Imin/2]. Sending of replies
+        SHOULD be rate-limited by the implementation, and in case of excess
+        load (or some other reason), a reply MAY be omitted altogether. </t>
 
         <t>Upon receipt of:
         <list>
@@ -472,10 +474,16 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
       <section title="Received Message Processing Additions">
 
-        <t>If the received message contains a <xref
+        <t>If a message is received via unicast from the peer, the Last
+        consistent state timestamp for the peer MUST be updated.</t>
+
+        <t>If the received multicast message contains a <xref
         target="net-state">Network State TLV</xref> which is consistent
-        with the locally calculated network state hash, the
-        Last consistent state timestamp for the peer MUST be updated.</t>
+        with the locally calculated network state hash, the Last consistent
+        state timestamp for the peer MUST be updated. If the TLV is
+        inconsistent, and would not cause any unicast exchange, <xref
+        target="req-net-message">Network State Request</xref> SHOULD be
+        sent via unicast.</t>
 
       </section>
 
@@ -1324,6 +1332,10 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
     constant unicast keep-alives, as opposed to unicast OR multicast
     per-connection ones are.</t>
 
+    <t>Should better forms of combined messages be defined? e.g. allow
+    sending both request-network-state, and currently set of known local
+    state at same time in one message.</t>
+
   </section>
 
   <section title="Some Obvious Questions and Answers">
@@ -1362,7 +1374,12 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
   </section>
   <section title="Changelog">
 
-    <t>draft-stenberg-homenet-dncp-00: Split from pre-version of
+    <t>draft-ietf-homenet-dncp-01: Fixed keepalive semantics to consider
+    unicast requests also updates of most recently consistent, and added
+    proactive unicast request to ensure even inconsistent keep-alive
+    messages eventually triggering consistency timestamp update.</t>
+
+    <t>draft-ietf-homenet-dncp-00: Split from pre-version of
     draft-ietf-homenet-hncp-03 generic parts. Changes that affect
     implementations:
     <list style="symbols">
