@@ -466,9 +466,10 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         or a <xref target="short-net-message">Short Network State Update
         message</xref> MUST be sent on that connection. The type of message
         should be chosen based on the considerations in <xref
-        target="trickle-updates" />. When such a message is sent, a new
-        Trickle transmission time 't' in [I/2, I] MUST be randomly
-        chosen.</t>
+        target="trickle-updates" />. The actual sending time SHOULD be
+        further delayed by a random timespan in [0, Imin/2].  When such a
+        message is sent, a new Trickle transmission time 't' in [I/2, I]
+        MUST be randomly chosen.</t>
 
       </section>
 
