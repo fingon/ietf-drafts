@@ -131,7 +131,8 @@ I writing an essay on this. :-p)
         over link-local scoped IPv6, using unicast and multicast (group
         All-Homenet-Routers).  Received datagrams with an IPv6 source or
         destination address which is not link-local scoped MUST be
-        ignored.</t>
+        ignored. IPv6 fragmentation and reassembly up to TBD bytes MUST be
+        supported by the stack of the node.</t>
 
         <t>HNCP operates on multicast-capable interfaces only, thus every DNCP
         Connection Identifier MUST refer to one, except for the value 0 which
@@ -1383,6 +1384,14 @@ I writing an essay on this. :-p)
       <?rfc include="reference.RFC.3442.xml"?>
       <?rfc include="reference.RFC.4193.xml"?>
     </references>
+
+  <section title="Some Outstanding Issues">
+
+    <t>Should we define in-protocol fragmentation scheme or just use IPv6
+    fragmentation with 'big enough' minimum acceptable size allowed for
+    implementations?</t>
+
+  </section>
 
     <section title="Changelog">
 
