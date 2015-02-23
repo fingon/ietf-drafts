@@ -132,7 +132,9 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       a DNCP node communicates directly on a particular connection.</t>
 
       <t>The node data is a set of TLVs published by a node in
-      the DNCP network.</t>
+      the DNCP network. Whole "node data" is owned by the node that
+      publishes it, and it MUST be passed along as-is, including TLVs
+      unknown to the forwarder.</t>
 
       <t>The node state is a set of metadata attributes for node data.  It
       includes a sequence number for versioning, a hash value for comparing
@@ -152,6 +154,9 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       <t>The effective (trust) verdict for a certificate is defined as the
       verdict with the highest priority within the set of verdicts
       announced for the certificate in the DNCP network.</t>
+
+      <t>The neighbor graph is the undirected graph of DNCP nodes produced
+      by retaining only bidirectional peer relationships between nodes.</t>
 
     </section>
 
@@ -389,12 +394,12 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       <section anchor="purge" title="Purging Unreachable Nodes">
 
         <t>When a Neighbor TLV or a whole node is added or removed, the
-        neighbor graph SHOULD be traversed for each node following the
-        bidirectional neighbor relationships. These are identified by
-        looking for Neighbor TLVs on both nodes, that have the other node's
-        identifier in the neighbor node identifier, and local and neighbor
-        connection identifiers swapped. Each node reached should be marked
-        currently reachable.</t>
+        neighbor graph SHOULD be traversed, starting from the local
+        node. The edges to be traversed are identified by looking for
+        Neighbor TLVs on both nodes, that have the other node's identifier
+        in the neighbor node identifier, and local and neighbor connection
+        identifiers swapped. Each node reached should be marked currently
+        reachable.</t>
 
         <t>DNCP nodes MUST be either purged immediately when not marked
         reachable in a particular graph traversal, or eventually after they
@@ -524,7 +529,8 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       header.</t>
 
       <t>DNCP profiles MAY add additional TLVs to the message specified
-      here, or even define additional messages as needed.</t>
+      here, or even define additional messages as needed. TLVs not
+      recognized by the receiver MUST be ignored.</t>
 
       <section title="Short Network State Update Message"
                anchor="short-net-message">
