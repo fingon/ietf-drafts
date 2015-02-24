@@ -1,7 +1,7 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Tue Feb 24 10:27:17 2015 mstenber
-Last modified: Tue Feb 24 14:29:53 2015 mstenber
+Last modified: Tue Feb 24 15:15:36 2015 mstenber
 -->
 
 <!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
@@ -76,13 +76,16 @@ Last modified: Tue Feb 24 14:29:53 2015 mstenber
     </section>
     <section title="Terminology">
 
+      <t>(ADNCP) area: A set of ADNCP running nodes that are directly
+      connected using a set of DNCP connections.</t>
+
       <t>per-area: Applicable to the nodes in a particular area.</t>
 
       <t>area-wide: Distribution scope in which content is made available
       to nodes in only one area.</t>
 
-      <t>per-net: A data that applies to the whole network of nodes,
-      including all areas.</t>
+      <t>per-net: Applies to the whole network of nodes, including all
+      areas.</t>
 
       <t>net-wide: Distribution scope in which content is made available to
       nodes in all areas.</t>
@@ -137,11 +140,12 @@ Last modified: Tue Feb 24 14:29:53 2015 mstenber
         </list>
         </t>
 
-        <t>ADNCP nodes MUST use the keep-alive extension on all connections.
-        The default keep-alive interval (DNCP_KEEPALIVE_INTERVAL) is 20
-        seconds, the multiplier (DNCP_KEEPALIVE_MULTIPLIER) MUST be 2.1,
-        the grace-interval (DNCP_GRACE_INTERVAL) SHOULD be equal to
-        DNCP_KEEPALIVE_MULTIPLIER times DNCP_KEEPALIVE_INTERVAL.</t>
+        <t>ADNCP nodes MUST use the keep-alive extension on all multicast
+        interface-based connections. The default keep-alive interval
+        (DNCP_KEEPALIVE_INTERVAL) is 20 seconds, the multiplier
+        (DNCP_KEEPALIVE_MULTIPLIER) MUST be 2.1, the grace-interval
+        (DNCP_GRACE_INTERVAL) SHOULD be equal to DNCP_KEEPALIVE_MULTIPLIER
+        times DNCP_KEEPALIVE_INTERVAL.</t>
 
       </list>
       </t>
@@ -162,17 +166,18 @@ Last modified: Tue Feb 24 14:29:53 2015 mstenber
       <t>Such objective-specific messages should either define some
       transaction id scheme (TBD - should it be here), or include the
       request verbatim within the replies, if any.</t>
-      
+
     </section>
 
     <section title="Distributed Operations">
 
       <section title="Discovery">
 
-        <t>If point-to-point discovery is not chosen, discovery can be
-        handled also either by participating in the ADNCP, or by performing
-        point-to-point operation with a node participating in the
-        ADNCP.</t>
+        <t>If point-to-point discovery (using either multicast-capable
+        interface(s), or known unicast peers) is not chosen, discovery can
+        be handled also either by participating in the ADNCP, or by
+        performing point-to-point operation with a node participating in
+        the ADNCP.</t>
 
         <t>Presence (or lack) of content with ADNCP can be used to discover
         nodes that support particular objectives in some specific way; for
@@ -187,8 +192,8 @@ Last modified: Tue Feb 24 14:29:53 2015 mstenber
       <section title="Negotiation / Synchronization">
 
         <t>ADNCP is not suitable for (especially net-wide) transmission of
-        any data that changes rapidly. Therefore, it should be mostly used
-        to publish sparingly data that changes at most gradually.</t>
+        any data that changes rapidly. Therefore, it should be used to
+        publish sparingly data that changes at most gradually.</t>
 
         <t>With that limitation in mind, ADNCP can be used to implement
         arbitrary multi-party algorithms, such as <xref
@@ -201,7 +206,7 @@ Last modified: Tue Feb 24 14:29:53 2015 mstenber
         <t>For rapidly changing data, point-to-point exchanges (as needed)
         should be used instead and just e.g. relevant IP addresses
         published via ADNCP.</t>
-        
+
       </section>
 
       <section title="Intent Distribution">
@@ -212,7 +217,7 @@ Last modified: Tue Feb 24 14:29:53 2015 mstenber
       </section>
 
     </section>
-    
+
     <section title="Area Support">
 
       <t>Area support for DNCP is added so that non-area-capable
@@ -233,11 +238,11 @@ Last modified: Tue Feb 24 14:29:53 2015 mstenber
         area owner, and pared down (recursive) list of Remote Area TLVs
         from that area, that MUST be loop free.  An exception to the rule
         is the current area; if the current area is advertised elsewhere,
-        it MUST be included if and only if the owner node identifier
+        it MUST be included if and only if the owner's Node Identifier
         differs from the local one.
 
         Longer paths to particular areas MAY be also omitted.</t>
-        
+
         <t>TBD: Remote Area TLV - area id, area owner (+container for more
         Remote Area TLVs recursively)</t>
       </section>
@@ -245,7 +250,7 @@ Last modified: Tue Feb 24 14:29:53 2015 mstenber
       <section title="Area Identifier">
 
         <t>Area Identifier is chosen by the owner of the area. The area is
-        owned by the node with the highest node identifier on a connection
+        owned by the node with the highest Node Identifier on a connection
         which consists of a multicast-capable link, or the "server" node
         which other nodes are connecting in case of an unicast link.</t>
 
@@ -257,7 +262,7 @@ Last modified: Tue Feb 24 14:29:53 2015 mstenber
         owner, and then included in every unicast message on link.</t>
 
       </section>
-      
+
       <section title="Area Formation">
 
         <t>Areas by definition are connected parts of the network. An
@@ -297,7 +302,14 @@ Last modified: Tue Feb 24 14:29:53 2015 mstenber
         random delay of [TBD1, TBD2] seconds before announcing. At the end
         of the interval, the presence of available areas to join should be
         checked before publishing the Area Identifier TLV.</t>
-        
+
+        <t>Once the area owner notices that the directly connected
+        suitability criteria enumerated above are no longer filled by the
+        local area (=it is too large), the area owner MUST publish an Area
+        Full TLV. It MAY be removed at later point, but if and only if the
+        area is substantially below the maximum desired size in terms of
+        number of links and number of nodes.</t>
+
         <t>TBD: Area Full TLV - no content, but net-wide.</t>
 
       </section>
@@ -312,18 +324,20 @@ Last modified: Tue Feb 24 14:29:53 2015 mstenber
         another area (TBD), but within the area the originator is still
         visible.</t>
 
-        <t>Given the node is on an area boundary, for a single area it is in,
-        it must recursively traverse all Remote Area TLVs announced within
-        the area, and keep track of the shortest recursion depth at which a
-        particular area is first encountered. The Node Identifier of the
-        Remote Area TLV originator is used for tie-breaking.</t>
+        <t>Given the node is on an area boundary, for a single area it is
+        in, it must recursively traverse all Remote Area TLVs announced
+        within the area, and keep track of the shortest recursion depth at
+        which a particular area is first encountered. The Node Identifier
+        of the Remote Area TLV originator is used for tie-breaking, with
+        the higher one preferred.</t>
 
         <t>For any areas for which the node is identified as the importer
-        (by having shortest path, or tie-break), the node MUST import
-        Remote Area Content TLV from the first-hop remote area verbatim if
-        there are other areas on the path. If the node is directly
-        connected to the remote area, it MUST create and maintain Remote Area
-        Content TLV which contains all TLVs marked for export. </t>
+        (by having shortest path of areas, or winning tie-break), the node
+        MUST import Remote Area Content TLV from the first-hop remote area
+        verbatim if there are other areas on the path. If the node is
+        directly connected to the remote area, it MUST create and maintain
+        Remote Area Content TLV which contains all TLVs marked for
+        export. </t>
 
         <t>When Remote Area Content TLV changes, or is no longer present in
         the "upstream" area, it must be also updated/removed by the
@@ -349,15 +363,18 @@ Last modified: Tue Feb 24 14:29:53 2015 mstenber
       DNCP_KEEPALIVE_INTERVAL) times DNCP_KEEPALIVE_MULTIPLIER, it SHOULD be
       removed.</t>
 
-      <t>Implementations MAY choose to publish Keep-Alive Interval TLV with a
-      value of 0. In that case, the liveliness of the peer should be tied to
-      the duration of the (TLS) TCP connection instead.</t>
-      
+      <t>Implementations MAY choose to publish a per-connection Keep-Alive
+      Interval TLV with a value of 0. In that case, the liveliness of the
+      peer should be tied to the duration of the (TLS) TCP connection
+      instead.</t>
+
     </section>
 
-    
+
     <section title="Security Considerations">
 
+      <t>TBD</t>
+      <!--
       <t>Using non-signed node data, any node may impersonate any other,
       although not without leaving traces; nodes are able to detect someone
       else publishing data that looks like their own. With signed node
@@ -366,7 +383,7 @@ Last modified: Tue Feb 24 14:29:53 2015 mstenber
       of node data updates. Therefore some rate limiting should be employed
       in this case.
       </t>
-
+-->
     </section>
 
     <section anchor="iana" title="IANA Considerations">
@@ -402,12 +419,16 @@ Last modified: Tue Feb 24 14:29:53 2015 mstenber
       need per-TLV signature(!) in that case with hefty footprint due to
       needing to include way to identify the public key too. So I think
       not.</t>
-      
+
+      <t>Should some way to publish certificate id / raw public key be
+      defined? So it can be verified that e.g. node identifier is really
+      generated based on one. Perhaps..</t>
+
     </section>
 
     <section title="Changelog">
 
-      <t>draft-stenberg-anima-dncp-00: Initial version.</t>
+      <t>draft-stenberg-anima-adncp-00: Initial version.</t>
 
     </section>
 
