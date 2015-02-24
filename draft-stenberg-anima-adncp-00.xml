@@ -1,0 +1,425 @@
+<?xml version='1.0' ?>
+<!--
+Created:       Tue Feb 24 10:27:17 2015 mstenber
+Last modified: Tue Feb 24 14:29:53 2015 mstenber
+-->
+
+<!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
+
+<?rfc autobreaks="yes"?>
+<?rfc compact="yes"?>
+<?rfc strict='yes'?>
+<?rfc subcompact="no"?>
+<?rfc symrefs="yes"?>
+<?rfc toc="yes"?>
+<?rfc tocindent="yes"?>
+
+<rfc
+    ipr='trust200902'
+    docName='draft-stenberg-anima-adncp-00'
+    category='std'
+    >
+  <front>
+    <title abbrev="Autonomic Distributed Node Consensus Protocol">
+      Autonomic Distributed Node Consensus Protocol
+    </title>
+    <author initials="M" surname="Stenberg" fullname="Markus Stenberg">
+      <address>
+        <postal>
+          <street/>
+          <city>Helsinki</city>
+          <code>00930</code>
+          <country>Finland</country>
+        </postal>
+        <email>markus.stenberg@iki.fi</email>
+      </address>
+    </author>
+    <date month="February" year="2015" />
+
+    <area>Internet</area>
+    <workgroup>ANIMA</workgroup>
+    <keyword>DNCP</keyword>
+    <abstract>
+
+      <t>This document describes the Autonomic Distributed Node Consensus
+      Protocol (ADNCP), a profile of Distributed Node Consensus Protocol
+      (DNCP) for autonomic networking. </t>
+
+    </abstract>
+  </front>
+  <middle>
+    <section title="Introduction">
+
+      <t><xref target="I-D.ietf-homenet-dncp">DNCP</xref> provides a
+      single-area link state database for arbitrary use. ADNCP extends DNCP
+      in several ways and makes it implementable by defining a profile.
+      ADNCP allows for several types of point-to-point exchanges that match
+      typical autonomic operations (discovery, negotiation,
+      synchronization). The shared state within ADNCP itself is used to
+      also facilitate some autonomic operations (discovery, negotiation,
+      intent distribution, and synchronization). Whether point-to-point or
+      multi-party algorithms are used is left up to the specification of
+      particular objectives. </t>
+
+      <t>To provide for better scalability than the base DNCP, ADNCP also
+      defines (optionally zero-configuration) multi-area system.</t>
+
+    </section>
+
+    <section anchor="kwd" title='Requirements Language'>
+
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+      NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
+      "OPTIONAL" in this document are to be interpreted as described in
+      <xref target='RFC2119'>RFC 2119</xref>.</t>
+
+    </section>
+    <section title="Terminology">
+
+      <t>per-area: Applicable to the nodes in a particular area.</t>
+
+      <t>area-wide: Distribution scope in which content is made available
+      to nodes in only one area.</t>
+
+      <t>per-net: A data that applies to the whole network of nodes,
+      including all areas.</t>
+
+      <t>net-wide: Distribution scope in which content is made available to
+      nodes in all areas.</t>
+
+    </section>
+
+    <section title="DNCP Profile">
+
+      <t>ADNCP is defined as a profile of <xref
+      target="I-D.ietf-homenet-dncp"> DNCP</xref> with the following
+      parameters:
+
+      <list style="symbols">
+
+        <t>ADNCP uses UDP datagrams on port ADNCP-UDP-PORT as a multicast
+        transport over IPv6 using group All-ADNCP-Nodes-6, or IPv4 using
+        group All-ADNCP-Nodes-4. <xref target="RFC5246">TLS</xref> on port
+        ADNCP-TCP-PORT is used for unicast transport. Non-secure unicast
+        transport MUST NOT be used and therefore is not defined at all.</t>
+
+        <t>ADNCP operates over either unicast connections, or over
+        multicast-capable interfaces. Therefore the value encoded in the
+        DNCP Connection Identifier is left up to the implementation.</t>
+
+        <t>ADNCP nodes MUST support the PKI-based trust method, and MAY
+        support the DNCP Certificate Based Trust Consensus method.</t>
+
+        <t>ADNCP nodes MUST use the leading 128 bits of <xref
+        target="RFC6234">HMAC-SHA256</xref> as DNCP non-cryptographic hash
+        function H(x).</t>
+
+        <t>ADNCP uses 128-bit node identifiers (DNCP_NODE_IDENTIFIER_LENGTH
+        = 128). A node implementing ADNCP MUST generate their node
+        identifier by applying the H function to their public key. If the
+        node receives a Node State TLV with the same node identifier and a
+        higher update sequence number multiple times, an error SHOULD be
+        made visible somehow to an administrator.</t>
+
+        <t>ADNCP nodes MUST NOT send multicast Long Network State messages,
+        and received ones MUST be ignored</t>
+
+        <t>ADNCP nodes use the following Trickle parameters:
+        <list style="symbols">
+          <t>k SHOULD be 1, given the timer reset on data updates and
+          retransmissions should handle packet loss.</t>
+
+          <t>Imin SHOULD be 200 milliseconds but SHOULD NOT be lower.
+          Note: Earliest transmissions may occur at Imin / 2.</t>
+
+          <t>Imax SHOULD be 7 doublings of Imin (i.e. 25.6 seconds)
+          but SHOULD NOT be lower.</t>
+        </list>
+        </t>
+
+        <t>ADNCP nodes MUST use the keep-alive extension on all connections.
+        The default keep-alive interval (DNCP_KEEPALIVE_INTERVAL) is 20
+        seconds, the multiplier (DNCP_KEEPALIVE_MULTIPLIER) MUST be 2.1,
+        the grace-interval (DNCP_GRACE_INTERVAL) SHOULD be equal to
+        DNCP_KEEPALIVE_MULTIPLIER times DNCP_KEEPALIVE_INTERVAL.</t>
+
+      </list>
+      </t>
+
+    </section>
+
+    <section title="Point-to-point Operations">
+
+      <t>For point-to-point operations such as discovery, negotiation, and
+      synchronization, a single new class of DNCP messages is defined (TBD
+      - more detail?). It is identified by the presence of an
+      objective-specific TLV, and if specified by the objective, it SHOULD
+      be responded to only via unicast at most. Therefore, if an ADNCP
+      implementation does not recognize a message, it MUST be silently
+      ignored. These messages do not establish a DNCP-style neighbor
+      relationship between nodes.</t>
+
+      <t>Such objective-specific messages should either define some
+      transaction id scheme (TBD - should it be here), or include the
+      request verbatim within the replies, if any.</t>
+      
+    </section>
+
+    <section title="Distributed Operations">
+
+      <section title="Discovery">
+
+        <t>If point-to-point discovery is not chosen, discovery can be
+        handled also either by participating in the ADNCP, or by performing
+        point-to-point operation with a node participating in the
+        ADNCP.</t>
+
+        <t>Presence (or lack) of content with ADNCP can be used to discover
+        nodes that support particular objectives in some specific way; for
+        example, an objective might specify TLV which contains an address
+        of some particular type of server (for example, DHCPv6 PD), and
+        therefore by just using ADNCP information, "closest" node (in terms
+        of areas / in terms of routing of the address) could be
+        determined.</t>
+
+      </section>
+
+      <section title="Negotiation / Synchronization">
+
+        <t>ADNCP is not suitable for (especially net-wide) transmission of
+        any data that changes rapidly. Therefore, it should be mostly used
+        to publish sparingly data that changes at most gradually.</t>
+
+        <t>With that limitation in mind, ADNCP can be used to implement
+        arbitrary multi-party algorithms, such as <xref
+        target="I-D.ietf-homenet-prefix-assignment">Prefix
+        Assignment</xref>. Given appropriate per-area hierarchical
+        assignment (published net-wide), it could be also employed net-wide
+        though, as the per-net prefix assignments would change only
+        rarely.</t>
+
+        <t>For rapidly changing data, point-to-point exchanges (as needed)
+        should be used instead and just e.g. relevant IP addresses
+        published via ADNCP.</t>
+        
+      </section>
+
+      <section title="Intent Distribution">
+
+        <t>Arbitrary (operator-supplied) objective-specific intent can be
+        supplied as TLVs within ADNCP, either per-area or per-network.</t>
+
+      </section>
+
+    </section>
+    
+    <section title="Area Support">
+
+      <t>Area support for DNCP is added so that non-area-capable
+      implementations can benefit from it, but cannot support more than one
+      interface (for same DNCP instance at any rate), as they cannot handle
+      the logic for transferring data between areas.</t>
+
+      <t>Areas are uniquely identified by a 32-bit Area Identifier.</t>
+
+      <section title="Area Boundaries">
+        <t>A single connection always uses same area. Therefore the
+        boundaries of the areas are within nodes that have multiple
+        connections, and can transfer data between them.</t>
+
+        <t>For every remote area detected (=on other interfaces, not on
+        that particular connection), a node should include a Remote Area
+        TLV which contains an Area Identifier, a Node Identifier of the
+        area owner, and pared down (recursive) list of Remote Area TLVs
+        from that area, that MUST be loop free.  An exception to the rule
+        is the current area; if the current area is advertised elsewhere,
+        it MUST be included if and only if the owner node identifier
+        differs from the local one.
+
+        Longer paths to particular areas MAY be also omitted.</t>
+        
+        <t>TBD: Remote Area TLV - area id, area owner (+container for more
+        Remote Area TLVs recursively)</t>
+      </section>
+
+      <section title="Area Identifier">
+
+        <t>Area Identifier is chosen by the owner of the area. The area is
+        owned by the node with the highest node identifier on a connection
+        which consists of a multicast-capable link, or the "server" node
+        which other nodes are connecting in case of an unicast link.</t>
+
+        <t>The area owner MUST choose a new (random) Area Identifier, if
+        Remote Area TLV with the same area id, and area owner with higher
+        value than the area owner's own Node Identifier exists.</t>
+
+        <t>TBD: Area Identifier TLV - just area id - originated by the area
+        owner, and then included in every unicast message on link.</t>
+
+      </section>
+      
+      <section title="Area Formation">
+
+        <t>Areas by definition are connected parts of the network. An
+        operator may set explicit values for the Area Identifiers, thereby
+        forming the areas, or alternatively an automatic formation process
+        described here can be used by the area owner. Non area owners on a
+        particular connection should simply follow the area owner's
+        lead.</t>
+
+        <t>For a node which does not have an area on a particular connection
+        yet, it may use an existing area from some other connection if and
+        only if following suitability criteria are met:
+
+        <list style="symbols">
+
+          <t>The current set of links covered by that area (calculated
+          by traversing through the neighbor graph) is not more than TBD.</t>
+
+          <t>The number of nodes in that area is not more than TBD.</t>
+
+          <t>The area owner does not publish an Area Full TLV.</t>
+        </list>
+
+        </t>
+
+        <t>If nothing suitable is present, areas connected directly to
+        other nodes within the area can be also considered. For them, only
+        suitability criteria is the lack of a published Area Full TLV.</t>
+
+        <t>If choosing to use a particular area, the node MUST wait random
+        [TBD1, TBD2] seconds before making the actual assignment, and
+        ensure that the suitability criteria are still matched when it
+        makes the assignment. If not, this process should be repeated
+        again, starting from evaluating the candidates.</t>
+
+        <t>If no area is found at all, a new area should be created, with
+        random delay of [TBD1, TBD2] seconds before announcing. At the end
+        of the interval, the presence of available areas to join should be
+        checked before publishing the Area Identifier TLV.</t>
+        
+        <t>TBD: Area Full TLV - no content, but net-wide.</t>
+
+      </section>
+
+      <section title="Import/Export">
+
+        <t>There is no explicit exporting of TLVs; any TLV type that has
+        highest bit set (0x8000) will be considered area-originated, and
+        spread net-wide, as opposed to the default area-wide
+        node-originated. It is important to note that currently node
+        identifier of the originating node is lost as it transitions to
+        another area (TBD), but within the area the originator is still
+        visible.</t>
+
+        <t>Given the node is on an area boundary, for a single area it is in,
+        it must recursively traverse all Remote Area TLVs announced within
+        the area, and keep track of the shortest recursion depth at which a
+        particular area is first encountered. The Node Identifier of the
+        Remote Area TLV originator is used for tie-breaking.</t>
+
+        <t>For any areas for which the node is identified as the importer
+        (by having shortest path, or tie-break), the node MUST import
+        Remote Area Content TLV from the first-hop remote area verbatim if
+        there are other areas on the path. If the node is directly
+        connected to the remote area, it MUST create and maintain Remote Area
+        Content TLV which contains all TLVs marked for export. </t>
+
+        <t>When Remote Area Content TLV changes, or is no longer present in
+        the "upstream" area, it must be also updated/removed by the
+        importer.</t>
+
+
+        <t>TBD: Remote Area Content TLV - area id (+container for any
+        exported TLVs from that area)</t>
+      </section>
+
+    </section>
+
+    <section title="Per-Peer Keep-Alives">
+
+      <t>As base specification of DNCP omits per-peer keep-alives, it is
+      defined here instead. Therefore, for any existing peer on an unicast
+      connection for which keep-alives are to be sent, most recently sent to
+      timer must be maintained, and once it expires, a keep-alive which
+      consists of a Short Network State message must be sent.</t>
+
+      <t>The reception is handled just as in DNCP, and once a peer has not
+      been heard for in the keep-alive interval it announces (or default
+      DNCP_KEEPALIVE_INTERVAL) times DNCP_KEEPALIVE_MULTIPLIER, it SHOULD be
+      removed.</t>
+
+      <t>Implementations MAY choose to publish Keep-Alive Interval TLV with a
+      value of 0. In that case, the liveliness of the peer should be tied to
+      the duration of the (TLS) TCP connection instead.</t>
+      
+    </section>
+
+    
+    <section title="Security Considerations">
+
+      <t>Using non-signed node data, any node may impersonate any other,
+      although not without leaving traces; nodes are able to detect someone
+      else publishing data that looks like their own. With signed node
+      data, this attack is no longer feasible but it enables Denial of
+      Service attacks due to processing required to handle too large amount
+      of node data updates. Therefore some rate limiting should be employed
+      in this case.
+      </t>
+
+    </section>
+
+    <section anchor="iana" title="IANA Considerations">
+      <t>TBD - TLVs values here + ADNCP-UDP-PORT, ADNCP-TCP-PORT</t>
+      <t>All-ADNCP-Nodes-4, All-ADNCP-Nodes-6</t>
+    </section>
+
+  </middle>
+  <back>
+    <references title="Normative references">
+      <?rfc include="reference.I-D.draft-ietf-homenet-dncp-00"?>
+      <?rfc include="reference.RFC.6234.xml"?>
+      <?rfc include="reference.RFC.2119.xml"?>
+      <?rfc include="reference.RFC.5246.xml"?>
+    </references>
+    <references title="Informative references">
+      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-02"?>
+    </references>
+
+    <section title="Open Issues">
+
+      <t>Should hierarchical PA be defined here or not? <xref
+      target="I-D.ietf-homenet-prefix-assignment" />, with cross-area
+      hierarchical extension, would facilitate even very large scale PA (with
+      potentially multiple upstreams). Perhaps the current mention is
+      enough. </t>
+
+      <t>Should areas importers / area ID choice TLVs include precedence
+      value?</t>
+
+      <t>Should we include node-data signatures or not? They improve
+      security, but are not visible across areas in any case - it would
+      need per-TLV signature(!) in that case with hefty footprint due to
+      needing to include way to identify the public key too. So I think
+      not.</t>
+      
+    </section>
+
+    <section title="Changelog">
+
+      <t>draft-stenberg-anima-dncp-00: Initial version.</t>
+
+    </section>
+
+    <section title="Draft Source">
+
+      <t>As usual, this draft is available at <eref
+      target="https://github.com/fingon/ietf-drafts/">
+      https://github.com/fingon/ietf-drafts/</eref> in source format (with
+      nice Makefile too). Feel free to send comments and/or pull requests if
+      and when you have changes to it! </t>
+
+    </section>
+
+  </back>
+</rfc>
