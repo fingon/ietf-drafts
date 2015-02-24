@@ -1381,7 +1381,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
   </section>
   <section title="Changelog">
 
-    <t>draft-ietf-homenet-dncp-01: Fixed keepalive semantics to consider
+    <t>draft-ietf-homenet-dncp-01: Fixed keep-alive semantics to consider
     unicast requests also updates of most recently consistent, and added
     proactive unicast request to ensure even inconsistent keep-alive
     messages eventually triggering consistency timestamp update.</t>
