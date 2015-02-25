@@ -1,7 +1,7 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Tue Feb 24 10:27:17 2015 mstenber
-Last modified: Wed Feb 25 12:17:14 2015 mstenber
+Last modified: Wed Feb 25 12:31:41 2015 mstenber
 -->
 
 <!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
@@ -252,7 +252,8 @@ Last modified: Wed Feb 25 12:17:14 2015 mstenber
         it MUST be included if and only if the owner's Node Identifier
         differs from the local one.
 
-        Longer paths to particular areas MAY be also omitted.</t>
+        Longer paths to particular areas with matching owner Node
+        Identifier MAY be also omitted.</t>
 
         <t>TBD: Remote Area TLV - area id, area owner (+container for more
         Remote Area TLVs recursively)</t>
