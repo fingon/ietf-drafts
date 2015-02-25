@@ -1,7 +1,7 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Tue Feb 24 10:27:17 2015 mstenber
-Last modified: Tue Feb 24 15:15:36 2015 mstenber
+Last modified: Wed Feb 25 12:17:14 2015 mstenber
 -->
 
 <!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
@@ -77,7 +77,17 @@ Last modified: Tue Feb 24 15:15:36 2015 mstenber
     <section title="Terminology">
 
       <t>(ADNCP) area: A set of ADNCP running nodes that are directly
-      connected using a set of DNCP connections.</t>
+      connected using a set of DNCP connections. In other words, DNCP
+      network. </t>
+
+      <t>(ADNCP) network: A set of connected ADNCP areas.</t>
+
+      <t>area owner: The ADNCP node with the highest Node Identifier within
+      the ADNCP area.</t>
+
+      <t>connection owner: Either ADNCP node with the highest Node
+      Identifier on a multicast-capable link the connection maps to, or the
+      unicast "server" node that other nodes connect.</t>
 
       <t>per-area: Applicable to the nodes in a particular area.</t>
 
@@ -119,10 +129,10 @@ Last modified: Tue Feb 24 15:15:36 2015 mstenber
 
         <t>ADNCP uses 128-bit node identifiers (DNCP_NODE_IDENTIFIER_LENGTH
         = 128). A node implementing ADNCP MUST generate their node
-        identifier by applying the H function to their public key. If the
+        identifier by applying the HMAC-SHA256 to their public key. If the
         node receives a Node State TLV with the same node identifier and a
         higher update sequence number multiple times, an error SHOULD be
-        made visible somehow to an administrator.</t>
+        made visible to an administrator.</t>
 
         <t>ADNCP nodes MUST NOT send multicast Long Network State messages,
         and received ones MUST be ignored</t>
@@ -223,16 +233,17 @@ Last modified: Tue Feb 24 15:15:36 2015 mstenber
       <t>Area support for DNCP is added so that non-area-capable
       implementations can benefit from it, but cannot support more than one
       interface (for same DNCP instance at any rate), as they cannot handle
-      the logic for transferring data between areas.</t>
+      the logic for transferring data between areas. </t>
 
       <t>Areas are uniquely identified by a 32-bit Area Identifier.</t>
 
       <section title="Area Boundaries">
+
         <t>A single connection always uses same area. Therefore the
         boundaries of the areas are within nodes that have multiple
         connections, and can transfer data between them.</t>
 
-        <t>For every remote area detected (=on other interfaces, not on
+        <t>For every remote area detected (=on other connections, not on
         that particular connection), a node should include a Remote Area
         TLV which contains an Area Identifier, a Node Identifier of the
         area owner, and pared down (recursive) list of Remote Area TLVs
@@ -249,14 +260,15 @@ Last modified: Tue Feb 24 15:15:36 2015 mstenber
 
       <section title="Area Identifier">
 
-        <t>Area Identifier is chosen by the owner of the area. The area is
-        owned by the node with the highest Node Identifier on a connection
-        which consists of a multicast-capable link, or the "server" node
-        which other nodes are connecting in case of an unicast link.</t>
+        <t>Area Identifier is chosen by the area owner. The area is owned
+        by the node with the highest Node Identifier on a connection which
+        consists of a multicast-capable link, or the "server" node which
+        other nodes are connecting in case of an unicast link.</t>
 
-        <t>The area owner MUST choose a new (random) Area Identifier, if
-        Remote Area TLV with the same area id, and area owner with higher
-        value than the area owner's own Node Identifier exists.</t>
+        <t>If Remote Area TLV with the same Area Identifier, and area owner
+        Node Identifier a with higher value than the area owner's own Node
+        Identifier exists, the area owner MUST choose a new (random) Area
+        Identifier.</t>
 
         <t>TBD: Area Identifier TLV - just area id - originated by the area
         owner, and then included in every unicast message on link.</t>
@@ -268,13 +280,13 @@ Last modified: Tue Feb 24 15:15:36 2015 mstenber
         <t>Areas by definition are connected parts of the network. An
         operator may set explicit values for the Area Identifiers, thereby
         forming the areas, or alternatively an automatic formation process
-        described here can be used by the area owner. Non area owners on a
-        particular connection should simply follow the area owner's
-        lead.</t>
+        described here can be used by the connection owner. Non connection
+        owners on a particular connection should simply follow the
+        connection owner's lead.</t>
 
-        <t>For a node which does not have an area on a particular connection
-        yet, it may use an existing area from some other connection if and
-        only if following suitability criteria are met:
+        <t>If the connection owner does not have an area on a particular
+        connection yet, it may use an existing area from some other
+        connection if and only if following suitability criteria are met:
 
         <list style="symbols">
 
@@ -289,8 +301,15 @@ Last modified: Tue Feb 24 15:15:36 2015 mstenber
         </t>
 
         <t>If nothing suitable is present, areas connected directly to
-        other nodes within the area can be also considered. For them, only
-        suitability criteria is the lack of a published Area Full TLV.</t>
+        other nodes within the area can be also considered. For them, the
+        suitability criteria are:
+
+        <list style="symbols">
+          <t>A node within current area exists which publishes Remote Area
+          TLV with the Area Identifier of the area.</t>
+          <t>No published Area Full TLV for the area.</t>
+        </list>
+        </t>
 
         <t>If choosing to use a particular area, the node MUST wait random
         [TBD1, TBD2] seconds before making the actual assignment, and
@@ -298,7 +317,7 @@ Last modified: Tue Feb 24 15:15:36 2015 mstenber
         makes the assignment. If not, this process should be repeated
         again, starting from evaluating the candidates.</t>
 
-        <t>If no area is found at all, a new area should be created, with
+        <t>If no area is found at all, a new area should be created, with a
         random delay of [TBD1, TBD2] seconds before announcing. At the end
         of the interval, the presence of available areas to join should be
         checked before publishing the Area Identifier TLV.</t>
@@ -329,7 +348,9 @@ Last modified: Tue Feb 24 15:15:36 2015 mstenber
         within the area, and keep track of the shortest recursion depth at
         which a particular area is first encountered. The Node Identifier
         of the Remote Area TLV originator is used for tie-breaking, with
-        the higher one preferred.</t>
+        the higher one preferred. If encountering Remote Area TLV with the
+        local area's Area Identifier, that TLV MUST NOT be recursed into to
+        avoid loops.</t>
 
         <t>For any areas for which the node is identified as the importer
         (by having shortest path of areas, or winning tie-break), the node
@@ -442,5 +463,10 @@ Last modified: Tue Feb 24 15:15:36 2015 mstenber
 
     </section>
 
+  <section title="Acknowledgements">
+
+    <t>Thanks to Pierre Pfister for contributions to the draft.</t>
+
+  </section>
   </back>
 </rfc>
