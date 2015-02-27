@@ -1,7 +1,7 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Tue Feb 24 10:27:17 2015 mstenber
-Last modified: Wed Feb 25 12:31:41 2015 mstenber
+Last modified: Fri Feb 27 15:42:52 2015 mstenber
 -->
 
 <!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
@@ -52,14 +52,13 @@ Last modified: Wed Feb 25 12:31:41 2015 mstenber
 
       <t><xref target="I-D.ietf-homenet-dncp">DNCP</xref> provides a
       single-area link state database for arbitrary use. ADNCP extends DNCP
-      in several ways and makes it implementable by defining a profile.
-      ADNCP allows for several types of point-to-point exchanges that match
-      typical autonomic operations (discovery, negotiation,
-      synchronization). The shared state within ADNCP itself is used to
-      also facilitate some autonomic operations (discovery, negotiation,
-      intent distribution, and synchronization). Whether point-to-point or
-      multi-party algorithms are used is left up to the specification of
-      particular objectives. </t>
+      in several ways and makes it implementable by defining a profile.</t>
+
+      <t>ADNCP allows for several types of point-to-point exchanges that
+      match typical autonomic operations. The shared state within ADNCP
+      itself is used to also facilitate some autonomic operations. Whether
+      point-to-point or multi-party algorithms are used is left up to the
+      specification of particular objectives. </t>
 
       <t>To provide for better scalability than the base DNCP, ADNCP also
       defines (optionally zero-configuration) multi-area system.</t>
@@ -76,9 +75,15 @@ Last modified: Wed Feb 25 12:31:41 2015 mstenber
     </section>
     <section title="Terminology">
 
+      <t>Reader is assumed to be familiar with the autonomic networking
+      terminology described in <xref
+      target="I-D.irtf-nmrg-autonomic-network-definitions" />.</t>
+
       <t>(ADNCP) area: A set of ADNCP running nodes that are directly
       connected using a set of DNCP connections. In other words, DNCP
-      network. </t>
+      network. They share a link state database, and may also have some
+      other data from other areas but no actual topology of the other
+      areas. </t>
 
       <t>(ADNCP) network: A set of connected ADNCP areas.</t>
 
@@ -94,8 +99,7 @@ Last modified: Wed Feb 25 12:31:41 2015 mstenber
       <t>area-wide: Distribution scope in which content is made available
       to nodes in only one area.</t>
 
-      <t>per-net: Applies to the whole network of nodes, including all
-      areas.</t>
+      <t>per-net: Applies to the whole (ADNCP) network.</t>
 
       <t>net-wide: Distribution scope in which content is made available to
       nodes in all areas.</t>
@@ -114,23 +118,26 @@ Last modified: Wed Feb 25 12:31:41 2015 mstenber
         transport over IPv6 using group All-ADNCP-Nodes-6, or IPv4 using
         group All-ADNCP-Nodes-4. <xref target="RFC5246">TLS</xref> on port
         ADNCP-TCP-PORT is used for unicast transport. Non-secure unicast
-        transport MUST NOT be used and therefore is not defined at all.</t>
+        transport MUST NOT be used and therefore is not defined at all. In
+        a typical case, multicast transport SHOULD be link-local scoped,
+        although other scopes MAY be also used and supported if multicast
+        routing is available.</t>
 
         <t>ADNCP operates over either unicast connections, or over
         multicast-capable interfaces. Therefore the value encoded in the
         DNCP Connection Identifier is left up to the implementation.</t>
 
-        <t>ADNCP nodes MUST support the PKI-based trust method, and MAY
+        <t>ADNCP nodes MUST support the X.509 PKI-based trust method, and MAY
         support the DNCP Certificate Based Trust Consensus method.</t>
 
         <t>ADNCP nodes MUST use the leading 128 bits of <xref
-        target="RFC6234">HMAC-SHA256</xref> as DNCP non-cryptographic hash
+        target="RFC6234">SHA256</xref> as DNCP non-cryptographic hash
         function H(x).</t>
 
         <t>ADNCP uses 128-bit node identifiers (DNCP_NODE_IDENTIFIER_LENGTH
         = 128). A node implementing ADNCP MUST generate their node
-        identifier by applying the HMAC-SHA256 to their public key. If the
-        node receives a Node State TLV with the same node identifier and a
+        identifier by applying the SHA256 to their public key. If the node
+        receives a Node State TLV with the same node identifier and a
         higher update sequence number multiple times, an error SHOULD be
         made visible to an administrator.</t>
 
@@ -185,7 +192,7 @@ Last modified: Wed Feb 25 12:31:41 2015 mstenber
 
         <t>If point-to-point discovery (using either multicast-capable
         interface(s), or known unicast peers) is not chosen, discovery can
-        be handled also either by participating in the ADNCP, or by
+        be handled also either by participating in the ADNCP network, or by
         performing point-to-point operation with a node participating in
         the ADNCP.</t>
 
@@ -202,8 +209,8 @@ Last modified: Wed Feb 25 12:31:41 2015 mstenber
       <section title="Negotiation / Synchronization">
 
         <t>ADNCP is not suitable for (especially net-wide) transmission of
-        any data that changes rapidly. Therefore, it should be used to
-        publish sparingly data that changes at most gradually.</t>
+        any data that changes rapidly. Therefore it should be used to
+        sparingly publish data that changes at most gradually.</t>
 
         <t>With that limitation in mind, ADNCP can be used to implement
         arbitrary multi-party algorithms, such as <xref
@@ -239,9 +246,9 @@ Last modified: Wed Feb 25 12:31:41 2015 mstenber
 
       <section title="Area Boundaries">
 
-        <t>A single connection always uses same area. Therefore the
-        boundaries of the areas are within nodes that have multiple
-        connections, and can transfer data between them.</t>
+        <t>A single connection always belongs to exactly one
+        area. Therefore the boundaries of the areas are within nodes that
+        have multiple connections, and can transfer data between them.</t>
 
         <t>For every remote area detected (=on other connections, not on
         that particular connection), a node should include a Remote Area
@@ -264,11 +271,12 @@ Last modified: Wed Feb 25 12:31:41 2015 mstenber
         <t>Area Identifier is chosen by the area owner. The area is owned
         by the node with the highest Node Identifier on a connection which
         consists of a multicast-capable link, or the "server" node which
-        other nodes are connecting in case of an unicast link.</t>
+        other nodes are connecting to in case of an unicast link.</t>
 
-        <t>If Remote Area TLV with the same Area Identifier, and area owner
-        Node Identifier a with higher value than the area owner's own Node
-        Identifier exists, the area owner MUST choose a new (random) Area
+        <t>If the owner of an area detects the presence of a Remote Area
+        TLV with an Area Identifier identical to that of the area it is
+        advertising and with an owner having a higher Node Identifier than
+        itself, then the area owner MUST choose a new (random) Area
         Identifier.</t>
 
         <t>TBD: Area Identifier TLV - just area id - originated by the area
@@ -423,6 +431,7 @@ Last modified: Wed Feb 25 12:31:41 2015 mstenber
     </references>
     <references title="Informative references">
       <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-02"?>
+      <?rfc include="reference.I-D.draft-irtf-nmrg-autonomic-network-definitions-04"?>
     </references>
 
     <section title="Open Issues">
@@ -438,7 +447,7 @@ Last modified: Wed Feb 25 12:31:41 2015 mstenber
 
       <t>Should we include node-data signatures or not? They improve
       security, but are not visible across areas in any case - it would
-      need per-TLV signature(!) in that case with hefty footprint due to
+      need per-TLV signature(!) in that case with a hefty footprint due to
       needing to include way to identify the public key too. So I think
       not.</t>
 
@@ -446,6 +455,10 @@ Last modified: Wed Feb 25 12:31:41 2015 mstenber
       defined? So it can be verified that e.g. node identifier is really
       generated based on one. Perhaps..</t>
 
+      <t>Should some sort of more granular delta transfer scheme be
+      defined? For a large network, the current scheme's TLV set published
+      by a single node can grow to substantial size.</t>
+      
     </section>
 
     <section title="Changelog">
@@ -466,7 +479,8 @@ Last modified: Wed Feb 25 12:31:41 2015 mstenber
 
   <section title="Acknowledgements">
 
-    <t>Thanks to Pierre Pfister for contributions to the draft.</t>
+    <t>Thanks to Pierre Pfister, Mark Baugher and Steven Barth for their
+    contributions to the draft.</t>
 
   </section>
   </back>
