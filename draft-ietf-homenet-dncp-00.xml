@@ -371,13 +371,15 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
         <t>When receiving a message on a connection from an unknown peer:
         <list>
-          <t>If it is a unicast message, the remote node MUST be added as a
-          peer on the connection and a <xref target="neighbor-tlv">Neighbor
-          TLV</xref> MUST be created for it.
+          <t>If it is a unicast message, and the message contains a <xref
+          target="node-id">Node Connection TLV</xref>, the remote node MUST
+          be added as a peer on the connection and a <xref
+          target="neighbor-tlv">Neighbor TLV</xref> MUST be created for it.
           </t>
 
-          <t>If it is a multicast message, the remote node SHOULD be sent
-          a (possibly rate-limited) unicast <xref
+          <t>If it is a multicast message, and the message contains a <xref
+          target="node-id">Node Connection TLV</xref>, the remote node
+          SHOULD be sent a (possibly rate-limited) unicast <xref
           target="req-net-message">Network State Request
           Message</xref>.</t>
         </list>
@@ -425,9 +427,16 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       this section MUST be ignored.</t>
 
       <t>A DNCP profile MAY specify either per-connection or per-peer
-      keep-alive support. This document specifies only per-connection
-      keep-alive, thus if per-peer support is required either a lower layer
-      mechanism or a definition within the profile is required.</t>
+      keep-alive support. </t>
+
+      <t>For every connection that a keep-alive is specified for in the
+      DNCP profile, the connection-specific keep-alive interval MUST be
+      maintained. By default, it is DNCP_KEEPALIVE_INTERVAL. If there is a
+      local value that is preferred for that for any reason (configuration,
+      energy conservation, media type, ..), it should be substituted
+      instead. If non-default keep-alive interval is used on any
+      connection, a DNCP node MUST publish appropriate <xref
+      target="ka-interval">Keep-Alive Interval TLV(s)</xref>.</t>
 
       <section title="Data Model Additions">
 
@@ -453,20 +462,12 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
       </section>
 
-      <section title="Periodic Keep-Alive Messages" anchor="keep-alive">
+      <section title="Per-Connection Periodic Keep-Alive Messages">
 
-        <t>For every connection that a keep-alive is specified for in the
-        DNCP profile, the connection-specific keep-alive interval MUST be
-        maintained. By default, it is DNCP_KEEPALIVE_INTERVAL. If there is
-        a local value that is preferred for that for any reason
-        (configuration, energy conservation, media type, ..), it should be
-        substituted instead. If non-default keep-alive interval is used on
-        any connection, a DNCP node MUST publish appropriate <xref
-        target="ka-interval">Keep-Alive Interval TLV(s)</xref>.</t>
-
-        <t>If no traffic containing a <xref target="net-state">Network
-        State TLV</xref> has been sent to a particular connection within
-        the connection-specific keep-alive interval, a <xref
+        <t>If per-connection keep-alives are enabled on a connection, and
+        if no traffic containing a <xref target="net-state">Network State
+        TLV</xref> has been sent to a particular connection within the
+        connection-specific keep-alive interval, a <xref
         target="long-net-message">Long Network State Update message</xref>
         or a <xref target="short-net-message">Short Network State Update
         message</xref> MUST be sent on that connection. The type of message
@@ -475,6 +476,22 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         further delayed by a random timespan in [0, Imin/2].  When such a
         message is sent, a new Trickle transmission time 't' in [I/2, I]
         MUST be randomly chosen.</t>
+
+      </section>
+
+      <section title="Per-Peer Periodic Keep-Alive Messages">
+
+        <t>If per-peer keep-alives are enabled on a connection, and if no
+        traffic containing a <xref target="net-state">Network State
+        TLV</xref> has been sent to a particular peer within the
+        connection-specific keep-alive interval, a <xref
+        target="long-net-message">Long Network State Update message</xref>
+        or a <xref target="short-net-message">Short Network State Update
+        message</xref> MUST be sent on that connection to the peer. The
+        type of message should be chosen based on the considerations in
+        <xref target="trickle-updates" />. When such a message is sent, a
+        new Trickle transmission time 't' in [I/2, I] MUST be randomly
+        chosen.</t>
 
       </section>
 
@@ -506,6 +523,23 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         DNCP peer state MUST be removed.</t>
 
       </section>
+
+    </section>
+
+    <section title="Support For Dense Broadcast Links">
+
+      <t>DNCP profile or user configuration should limit the number of
+      neighbors that is the upper bound for a (particular type of) link
+      that a connection runs on. If that bound is exceeded, all nodes
+      without highest Node Identifier on the link MUST treat the connection
+      as unicast connection with the node that has the highest Node
+      Identifier detected on the link, but keep listening to multicast
+      traffic to both detect presence of that node, and to react to new,
+      higher Node Identifier nodes appearing. If the highest Node
+      Identifier present on the link changes, the connection endpoint
+      MUST be changed. If the Node Identifier of the local node is the
+      highest one, the node MUST keep the connection in normal multicast
+      mode, and it MUST attempt to peer with all nodes on the link.</t>
 
     </section>
 
@@ -596,9 +630,6 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         <t>The following TLVs MUST be present:
         <list style="symbols">
 
-          <t>One <xref target="node-id">Node Connection TLV</xref> identifying
-          the originating node and connection.</t>
-
           <t>One <xref target="req-net-state">Request Network State
           TLV</xref> indicating the type of request.</t>
 
@@ -615,9 +646,6 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
         <t>The following TLVs MUST be present:
         <list style="symbols">
-
-          <t>One <xref target="node-id">Node Connection TLV</xref> identifying
-          the originating node and connection.</t>
 
           <t>One or more <xref target="req-node-data">Request Node Data
           TLVs</xref> indicating the nodes for which state and data is
@@ -760,8 +788,12 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
           </figure>
 
           <t>This TLV identifies both the local node's node identifier, as
-          well as the particular connection identifier. It MUST be sent in all
-          messages.</t>
+          well as the particular connection identifier. It MUST be sent in
+          all messages if bidirectional peer relationship is desired with
+          remote nodes. Bidirectional peer relationship is not necessary
+          for read-only access to the DNCP state, but it is required to be
+          able to publish something.</t>
+
         </section>
         <section anchor="net-state" title="Network State TLV">
 
@@ -1381,10 +1413,22 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
   </section>
   <section title="Changelog">
 
-    <t>draft-ietf-homenet-dncp-01: Fixed keep-alive semantics to consider
-    unicast requests also updates of most recently consistent, and added
-    proactive unicast request to ensure even inconsistent keep-alive
-    messages eventually triggering consistency timestamp update.</t>
+    <t>draft-ietf-homenet-dncp-01:
+    <list style="symbols">
+
+      <t>Fixed keep-alive semantics to consider unicast requests also
+      updates of most recently consistent, and added proactive unicast
+      request to ensure even inconsistent keep-alive messages eventually
+      triggering consistency timestamp update.</t>
+
+      <t>Facilitated (simple) read-only clients by making Node Connection
+      TLV optional if just using DNCP for read-only purposes.</t>
+
+      <t>Added text describing how to deal with "dense" networks, but left
+      actual numbers and mechanics up to DNCP profiles and (local)
+      configurations.</t>
+    </list>
+    </t>
 
     <t>draft-ietf-homenet-dncp-00: Split from pre-version of
     draft-ietf-homenet-hncp-03 generic parts. Changes that affect
