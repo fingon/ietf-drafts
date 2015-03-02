@@ -1405,13 +1405,6 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
     ifindex in various operating systems, making for simpler
     implementation.</t>
 
-    <t>Q: Why not doing (performance thing X, Y or Z)?</t>
-
-    <t>A: This is designed mostly to be minimal (only timers Trickle
-    ones; everything triggered by Trickle-driven messages or local state
-    changes). However, feel free to suggest better (even more minimal)
-    design which works. </t>
-
   </section>
   <section title="Changelog">
 
