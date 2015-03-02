@@ -1393,7 +1393,9 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
     anything else than short network state leaks information via multicast,
     it does not seem worth it as secure protocols probably want to prevent
     multicast sending of anything else than short network state in any
-    case. </t>
+    case. Additionally, the long network state being complete set of nodes
+    actually facilitates light-weight nodes that do not want to do
+    graph-based pruning. So all in all, perhaps not worth it.</t>
 
     <t>Q: 32-bit connection id?</t>
 
