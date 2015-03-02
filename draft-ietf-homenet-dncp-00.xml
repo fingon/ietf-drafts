@@ -528,18 +528,19 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
     <section title="Support For Dense Broadcast Links">
 
-      <t>DNCP profile or user configuration should limit the number of
-      neighbors that is the upper bound for a (particular type of) link
-      that a connection runs on. If that bound is exceeded, all nodes
-      without highest Node Identifier on the link MUST treat the connection
-      as unicast connection with the node that has the highest Node
-      Identifier detected on the link, but keep listening to multicast
-      traffic to both detect presence of that node, and to react to new,
-      higher Node Identifier nodes appearing. If the highest Node
-      Identifier present on the link changes, the connection endpoint
-      MUST be changed. If the Node Identifier of the local node is the
-      highest one, the node MUST keep the connection in normal multicast
-      mode, and it MUST attempt to peer with all nodes on the link.</t>
+      <t>DNCP profile or an user configuration should limit the number of
+      neighbors that are allowed for a (particular type of) link that a
+      connection runs on. If that limit is exceeded, nodes without the
+      highest Node Identifier on the link SHOULD treat the connection as an
+      unicast connection connected to the node that has the highest Node
+      Identifier detected on the link. The nodes MUST also keep listening
+      to multicast traffic to both detect the presence of that node, and to
+      react to nodes with a higher Node Identifier appearing. If the
+      highest Node Identifier present on the link changes, the connection
+      endpoint MUST be changed. If the Node Identifier of the local node is
+      the highest one, the node MUST keep the connection in normal
+      multicast mode, and the node MUST allow others to peer with it over
+      the link.</t>
 
     </section>
 
