@@ -484,13 +484,13 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         <t>If per-peer keep-alives are enabled on a connection, and if no
         traffic containing a <xref target="net-state">Network State
         TLV</xref> has been sent to a particular peer within the
-        connection-specific keep-alive interval, a <xref
+        connection-specific keep-alive interval, an unicast <xref
         target="long-net-message">Long Network State Update message</xref>
         or a <xref target="short-net-message">Short Network State Update
-        message</xref> MUST be sent on that connection to the peer. The
-        type of message should be chosen based on the considerations in
-        <xref target="trickle-updates" />. When such a message is sent, a
-        new Trickle transmission time 't' in [I/2, I] MUST be randomly
+        message</xref> MUST be sent to the peer. The type of message should
+        be chosen based on the considerations in <xref
+        target="trickle-updates" />. When such a message is sent, a new
+        Trickle transmission time 't' in [I/2, I] MUST be randomly
         chosen.</t>
 
       </section>
@@ -1366,10 +1366,6 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
     <?rfc include="reference.RFC.6234.xml"?>
   </references>
   <section title="Some Outstanding Issues">
-
-    <t>Should per-peer keep-alives be specified here? They are essentially
-    constant unicast keep-alives, as opposed to unicast OR multicast
-    per-connection ones are.</t>
 
     <t>Should better forms of combined messages be defined? e.g. allow
     sending both request-network-state, and currently set of known local
