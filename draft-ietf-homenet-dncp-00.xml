@@ -1372,6 +1372,13 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
     sending both request-network-state, and currently set of known local
     state at same time in one message.</t>
 
+    <t>Should some sort of fragmentation scheme be defined for the data?
+    Currently, DNCP uses Merkle tree of depth 2 (node data -> node hash ->
+    network hash). However, it essentially treats all TLVs published by
+    a single node as a single chunk on the protocol level. Is that a
+    scalability problem? Adding one more level to the tree might address
+    this.</t>
+
   </section>
 
   <section title="Some Obvious Questions and Answers">
