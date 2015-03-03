@@ -1409,6 +1409,11 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
     ifindex in various operating systems, making for simpler
     implementation.</t>
 
+    <t>Q: Why have topology information at all?</t>
+    <t>A: It is an alternative to the more traditional seq#/TTL-based flooding
+    schemes. In steady state, there is no need to e.g. re-publish every now
+    and then.</t>
+
   </section>
   <section title="Changelog">
 
