@@ -4,15 +4,15 @@
 # Author: Markus Stenberg <markus stenberg@iki.fi>
 #
 # Created:       Mon Jun 17 04:40:32 2013 mstenber
-# Last modified: Tue Feb 24 12:52:59 2015 mstenber
-# Edit time:     22 min
+# Last modified: Wed Mar  4 17:53:54 2015 mstenber
+# Edit time:     26 min
 #
 
 DRAFTS=\
-  draft-stenberg-homenet-dnssd-hybrid-proxy-zeroconf-02.txt \
+  draft-ietf-homenet-hybrid-proxy-zeroconf-00.txt \
   draft-stenberg-homenet-minimalist-pcp-proxy-01.txt \
   draft-stenberg-anima-adncp-00.txt \
-  draft-ietf-homenet-dncp-00.txt \
+  draft-ietf-homenet-dncp-01.txt \
   draft-ietf-homenet-hncp-03.txt \
 
 ifndef XML_LIBRARY
@@ -20,6 +20,8 @@ XML_LIBRARY=$(HOME)/share/1/ietf-bib/bibxml:$(HOME)/share/1/ietf-bib/bibxml2:$(H
 endif
 
 all: $(DRAFTS)
+
+check: $(patsubst %.txt,%.xml.check,$(DRAFTS))
 
 %.txt: %.xml
 	XML_LIBRARY=$(XML_LIBRARY) xml2rfc $< -v --text --html

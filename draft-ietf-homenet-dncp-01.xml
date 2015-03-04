@@ -18,7 +18,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
 <rfc
     ipr='trust200902'
-    docName='draft-ietf-homenet-dncp-00'
+    docName='draft-ietf-homenet-dncp-01'
     category='std'
     >
   <front>
@@ -47,7 +47,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         <email>cyrus@openwrt.org</email>
       </address>
     </author>
-    <date month="January" year="2015" />
+    <date month="March" year="2015" />
 
     <area>Internet</area>
     <workgroup>Homenet Working Group</workgroup>
@@ -66,8 +66,22 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
     <section title="Introduction">
 
       <t>DNCP is designed to provide a way for nodes to publish data
-      consisting of an ordered set of TLV (Type-Length-Value) tuples and
-      to receive the data published by all other reachable DNCP nodes.</t>
+      consisting of an ordered set of TLV (Type-Length-Value) tuples and to
+      receive the data published by all other reachable DNCP nodes.</t>
+
+      <t>DNCP validates the set of data within it by ensuring that it is
+      reachable via nodes that are currently accounted for; therefore,
+      unlike Time-To-Live (TTL) based solutions, it does not require
+      periodic re-publishing of the data by the nodes. On the other hand,
+      it does require the topology to be visible to every node that wants
+      to be able to identify unreachable nodes and therefore remove old,
+      stale data. Another notable feature is the use of Trickle to send
+      status updates as it makes the DNCP network very thrifty when there
+      are no updates. DNCP is most suitable for data that changes only
+      gradually to gain the maximum benefit from using Trickle, and if more
+      rapid state exchanges are needed, something point-to-point is
+      recommended and just e.g. publishing of addresses of the services
+      within DNCP. </t>
 
       <t>DNCP has relatively few requirements for the underlying transport;
       it requires some way of transmitting either unicast datagram or
@@ -99,10 +113,10 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       <t>A DNCP node is a single node which runs a protocol
       based on a DNCP profile.</t>
 
-      <t>The DNCP network is a set of DNCP nodes running the same DNCP profile
-      that can reach each other, either via learned shared connections in
-      the underlying network, or using each other's addresses learned via
-      other means. As DNCP exchanges are bidirectional, DNCP nodes
+      <t>The DNCP network is a set of DNCP nodes running the same DNCP
+      profile that can reach each other, either via discovered connectivity
+      in the underlying network, or using each other's addresses learned
+      via other means. As DNCP exchanges are bidirectional, DNCP nodes
       connected via only unidirectional links are not considered
       connected. </t>
 
@@ -131,10 +145,10 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       <t>A (DNCP) peer refers to another DNCP node with which
       a DNCP node communicates directly on a particular connection.</t>
 
-      <t>The node data is a set of TLVs published by a node in
-      the DNCP network. Whole "node data" is owned by the node that
-      publishes it, and it MUST be passed along as-is, including TLVs
-      unknown to the forwarder.</t>
+      <t>The node data is a set of TLVs published by a node in the DNCP
+      network. Whole node data is owned by the node that publishes it, and
+      it MUST be passed along as-is, including TLVs unknown to the
+      forwarder.</t>
 
       <t>The node state is a set of metadata attributes for node data.  It
       includes a sequence number for versioning, a hash value for comparing
@@ -464,31 +478,31 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
       <section title="Per-Connection Periodic Keep-Alive Messages">
 
-        <t>If per-connection keep-alives are enabled on a connection, and
-        if no traffic containing a <xref target="net-state">Network State
-        TLV</xref> has been sent to a particular connection within the
-        connection-specific keep-alive interval, a <xref
-        target="long-net-message">Long Network State Update message</xref>
-        or a <xref target="short-net-message">Short Network State Update
-        message</xref> MUST be sent on that connection. The type of message
-        should be chosen based on the considerations in <xref
-        target="trickle-updates" />. The actual sending time SHOULD be
-        further delayed by a random timespan in [0, Imin/2].  When such a
-        message is sent, a new Trickle transmission time 't' in [I/2, I]
-        MUST be randomly chosen.</t>
+        <t>If per-connection keep-alives are enabled on connection with a
+        multicast-enabled link, and if no traffic containing a <xref
+        target="net-state">Network State TLV</xref> has been sent to a
+        particular connection within the connection-specific keep-alive
+        interval, a <xref target="long-net-message">Long Network State
+        Update message</xref> or a <xref target="short-net-message">Short
+        Network State Update message</xref> MUST be sent on that
+        connection. The type of message should be chosen based on the
+        considerations in <xref target="trickle-updates" />. The actual
+        sending time SHOULD be further delayed by a random timespan in [0,
+        Imin/2].  When such a message is sent, a new Trickle transmission
+        time 't' in [I/2, I] MUST be randomly chosen.</t>
 
       </section>
 
       <section title="Per-Peer Periodic Keep-Alive Messages">
 
-        <t>If per-peer keep-alives are enabled on a connection, and if no
-        traffic containing a <xref target="net-state">Network State
-        TLV</xref> has been sent to a particular peer within the
-        connection-specific keep-alive interval, an unicast <xref
-        target="long-net-message">Long Network State Update message</xref>
-        or a <xref target="short-net-message">Short Network State Update
-        message</xref> MUST be sent to the peer. The type of message should
-        be chosen based on the considerations in <xref
+        <t>If per-peer keep-alives are enabled on an unicast-only
+        connection, and if no traffic containing a <xref
+        target="net-state">Network State TLV</xref> has been sent to a
+        particular peer within the connection-specific keep-alive interval,
+        a <xref target="long-net-message">Long Network State Update
+        message</xref> or a <xref target="short-net-message">Short Network
+        State Update message</xref> MUST be sent to the peer. The type of
+        message should be chosen based on the considerations in <xref
         target="trickle-updates" />. When such a message is sent, a new
         Trickle transmission time 't' in [I/2, I] MUST be randomly
         chosen.</t>
@@ -1230,18 +1244,12 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       <t>Each DNCP profile MUST define following:
       <list style="symbols">
 
-        <t>How the messages are secured:
-        <list>
-          <t>Not at all,</t>
-          <t>optionally or always with the TLS scheme defined here using one or
-          more of the methods, or</t>
-          <t>with something else.</t>
-        </list>
-
-        Given that links with DNCP nodes can be sufficiently
-        secured or isolated it is possible to run DNCP in a secure manner
-        without using any form of authentication or encryption.
-        </t>
+        <t>How the messages are secured: Not at all, optionally or always
+        with the TLS scheme defined here using one or more of the methods,
+        or with something else. If the links with DNCP nodes can be
+        sufficiently secured or isolated, it is possible to run DNCP in a
+        secure manner without using any form of authentication or
+        encryption.</t>
 
         <t>Unicast and optionally multicast transport protocol(s) to be
         used. If TLS scheme within this document is to be used security,

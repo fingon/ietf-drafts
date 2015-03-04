@@ -1,8 +1,8 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Mon Jun 17 04:55:57 2013 mstenber
-Last modified: Mon Jan 19 13:53:46 2015 mstenber
-Edit time:     564 min
+Last modified: Wed Mar  4 18:01:55 2015 mstenber
+Edit time:     565 min
 -->
 
 <!--
@@ -29,7 +29,7 @@ Edit time:     564 min
 
 <rfc
     ipr='trust200902'
-    docName='draft-stenberg-homenet-dnssd-hybrid-proxy-zeroconf-02'
+    docName='draft-ietf-homenet-hybrid-proxy-zeroconf-00'
     category='std'
     >
   <front>
@@ -48,8 +48,10 @@ Edit time:     564 min
         <email>markus.stenberg@iki.fi</email>
       </address>
     </author>
-    <date month="January" year="2015" />
+    <date month="March" year="2015" />
 <!--    <workgroup></workgroup> -->
+    <area>Internet</area>
+    <workgroup>Homenet Working Group</workgroup>
     <keyword>IPv6</keyword>
     <keyword>Homenet</keyword>
     <keyword>DNS-SD</keyword>
@@ -174,7 +176,7 @@ Edit time:     564 min
             Unique link name based - (unique-link).(domain).
           </t>
           <t>
-            Node and link name - (link).(node).(domain).
+            Node and link name - (link).(unique-node).(domain).
           </t>
         </list>
 
@@ -205,10 +207,10 @@ Edit time:     564 min
           the number of the networks won't be significant enough to confuse
           (e.g. "lan", or "wlan"). </t>
 
-          <t>The network-wide unique link names should be only used
-          in small networks. Given larger network, after conflict
-          resolution, identifying which network is 'lan-42.example.com'
-          may be challenging.</t>
+          <t>The network-wide unique link names should be only used in
+          small networks. Given a larger network, after conflict
+          resolution, identifying which link is 'lan-42.example.com' may be
+          challenging.</t>
         </section>
 
         <section anchor="rname" title="Node name (scheme 2)">
@@ -216,7 +218,7 @@ Edit time:     564 min
           <t>Our recommendation is to use some short form which indicates
           the type of node it is, for example, "openwrt.example.com". As
           the name is visible to users, it should be kept as short as
-          possible. If theory even more exact model could be helpful, for
+          possible. In theory even more exact model could be helpful, for
           example, "openwrt-buffalo-wzr-600-dhr.example.com".  In practice
           providing some other records indicating exact node information
           (and access to management UI) is more sensible.</t>
@@ -290,7 +292,7 @@ Edit time:     564 min
             according to section 3.1. ("Name space definitions") of <xref
             target="RFC1035"/>. Note that name compression is not required
             here (and would not have any point in any case), as we encode
-            the zones one by one. The zone MUST end with empty label. </t>
+            the zones one by one. The zone MUST end with an empty label. </t>
 
           </list>
         </t>
@@ -472,7 +474,7 @@ Edit time:     564 min
 
       <t>Given implementation that chooses to use the second naming scheme
       (link).(node).(domain), and no configuration whatsoever, here's
-      what happens (the steps are interleaved in practise but illustrated
+      what happens (the steps are interleaved in practice but illustrated
       here in order):</t>
       <t>
       <list style="numbers">

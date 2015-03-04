@@ -1,7 +1,7 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Tue Feb 24 10:27:17 2015 mstenber
-Last modified: Fri Feb 27 15:42:52 2015 mstenber
+Last modified: Wed Mar  4 18:26:48 2015 mstenber
 -->
 
 <!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
@@ -34,7 +34,7 @@ Last modified: Fri Feb 27 15:42:52 2015 mstenber
         <email>markus.stenberg@iki.fi</email>
       </address>
     </author>
-    <date month="February" year="2015" />
+    <date month="March" year="2015" />
 
     <area>Internet</area>
     <workgroup>ANIMA</workgroup>
@@ -77,7 +77,8 @@ Last modified: Fri Feb 27 15:42:52 2015 mstenber
 
       <t>Reader is assumed to be familiar with the autonomic networking
       terminology described in <xref
-      target="I-D.irtf-nmrg-autonomic-network-definitions" />.</t>
+      target="I-D.irtf-nmrg-autonomic-network-definitions" /> and <xref
+      target="I-D.ietf-homenet-dncp" />.</t>
 
       <t>(ADNCP) area: A set of ADNCP running nodes that are directly
       connected using a set of DNCP connections. In other words, DNCP
@@ -169,7 +170,7 @@ Last modified: Fri Feb 27 15:42:52 2015 mstenber
 
     </section>
 
-    <section title="Point-to-point Operations">
+    <section title="Point-To-Point Operations">
 
       <t>For point-to-point operations such as discovery, negotiation, and
       synchronization, a single new class of DNCP messages is defined (TBD
@@ -177,8 +178,9 @@ Last modified: Fri Feb 27 15:42:52 2015 mstenber
       objective-specific TLV, and if specified by the objective, it SHOULD
       be responded to only via unicast at most. Therefore, if an ADNCP
       implementation does not recognize a message, it MUST be silently
-      ignored. These messages do not establish a DNCP-style neighbor
-      relationship between nodes.</t>
+      ignored. These messages SHOULD NOT in and of themselves establish a
+      DNCP-style bidirectional peering relationship between nodes, and
+      therefore SHOULD NOT contain Node Connection TLV..</t>
 
       <t>Such objective-specific messages should either define some
       transaction id scheme (TBD - should it be here), or include the
@@ -268,16 +270,11 @@ Last modified: Fri Feb 27 15:42:52 2015 mstenber
 
       <section title="Area Identifier">
 
-        <t>Area Identifier is chosen by the area owner. The area is owned
-        by the node with the highest Node Identifier on a connection which
-        consists of a multicast-capable link, or the "server" node which
-        other nodes are connecting to in case of an unicast link.</t>
-
-        <t>If the owner of an area detects the presence of a Remote Area
-        TLV with an Area Identifier identical to that of the area it is
-        advertising and with an owner having a higher Node Identifier than
-        itself, then the area owner MUST choose a new (random) Area
-        Identifier.</t>
+        <t>Area Identifier for every connection is chosen by the connection
+        owner. The link is owned by the node with the highest Node
+        Identifier on a connection which consists of a multicast-capable
+        link, or the "server" node which other nodes are connecting to in
+        case of an unicast link.</t>
 
         <t>TBD: Area Identifier TLV - just area id - originated by the area
         owner, and then included in every unicast message on link.</t>
@@ -289,7 +286,7 @@ Last modified: Fri Feb 27 15:42:52 2015 mstenber
         <t>Areas by definition are connected parts of the network. An
         operator may set explicit values for the Area Identifiers, thereby
         forming the areas, or alternatively an automatic formation process
-        described here can be used by the connection owner. Non connection
+        described here can be used by the connection owners. Non connection
         owners on a particular connection should simply follow the
         connection owner's lead.</t>
 
@@ -338,6 +335,12 @@ Last modified: Fri Feb 27 15:42:52 2015 mstenber
         area is substantially below the maximum desired size in terms of
         number of links and number of nodes.</t>
 
+        <t>If the owner of an area detects the presence of a Remote Area
+        TLV with an Area Identifier identical to that of the area it is
+        advertising and with an owner having a higher Node Identifier than
+        itself, then the area owner MUST choose a new (random) Area
+        Identifier.</t>
+
         <t>TBD: Area Full TLV - no content, but net-wide.</t>
 
       </section>
@@ -352,12 +355,12 @@ Last modified: Fri Feb 27 15:42:52 2015 mstenber
         another area (TBD), but within the area the originator is still
         visible.</t>
 
-        <t>Given the node is on an area boundary, for a single area it is
-        in, it must recursively traverse all Remote Area TLVs announced
-        within the area, and keep track of the shortest recursion depth at
-        which a particular area is first encountered. The Node Identifier
-        of the Remote Area TLV originator is used for tie-breaking, with
-        the higher one preferred. If encountering Remote Area TLV with the
+        <t>Given the node is on an area boundary, for all areas it is in,
+        it must recursively traverse all Remote Area TLVs announced within
+        the area, and keep track of the shortest recursion depth at which a
+        particular area is first encountered. The Node Identifier of the
+        Remote Area TLV originator is used for tie-breaking, with the
+        higher one preferred. If encountering Remote Area TLV with the
         local area's Area Identifier, that TLV MUST NOT be recursed into to
         avoid loops.</t>
 
@@ -379,27 +382,6 @@ Last modified: Fri Feb 27 15:42:52 2015 mstenber
       </section>
 
     </section>
-
-    <section title="Per-Peer Keep-Alives">
-
-      <t>As base specification of DNCP omits per-peer keep-alives, it is
-      defined here instead. Therefore, for any existing peer on an unicast
-      connection for which keep-alives are to be sent, most recently sent to
-      timer must be maintained, and once it expires, a keep-alive which
-      consists of a Short Network State message must be sent.</t>
-
-      <t>The reception is handled just as in DNCP, and once a peer has not
-      been heard for in the keep-alive interval it announces (or default
-      DNCP_KEEPALIVE_INTERVAL) times DNCP_KEEPALIVE_MULTIPLIER, it SHOULD be
-      removed.</t>
-
-      <t>Implementations MAY choose to publish a per-connection Keep-Alive
-      Interval TLV with a value of 0. In that case, the liveliness of the
-      peer should be tied to the duration of the (TLS) TCP connection
-      instead.</t>
-
-    </section>
-
 
     <section title="Security Considerations">
 
@@ -430,8 +412,8 @@ Last modified: Fri Feb 27 15:42:52 2015 mstenber
       <?rfc include="reference.RFC.5246.xml"?>
     </references>
     <references title="Informative references">
-      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-02"?>
-      <?rfc include="reference.I-D.draft-irtf-nmrg-autonomic-network-definitions-04"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-03"?>
+      <?rfc include="reference.I-D.draft-irtf-nmrg-autonomic-network-definitions-05"?>
     </references>
 
     <section title="Open Issues">
@@ -457,7 +439,8 @@ Last modified: Fri Feb 27 15:42:52 2015 mstenber
 
       <t>Should some sort of more granular delta transfer scheme be
       defined? For a large network, the current scheme's TLV set published
-      by a single node can grow to substantial size.</t>
+      by a single node can grow to substantial size. This may occur either
+      here or in DNCP.</t>
       
     </section>
 
