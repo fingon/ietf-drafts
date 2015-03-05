@@ -38,7 +38,7 @@ I writing an essay on this. :-p)
 
 <rfc
     ipr='trust200902'
-    docName='draft-ietf-homenet-hncp-03'
+    docName='draft-ietf-homenet-hncp-04'
     category='std'
     >
   <front>
@@ -78,7 +78,7 @@ I writing an essay on this. :-p)
             <email>pierre.pfister@darou.fr</email>
         </address>
     </author>
-    <date month="January" year="2015" />
+    <date month="March" year="2015" />
 
     <area>Internet</area>
     <workgroup>Homenet Working Group</workgroup>
@@ -1361,7 +1361,7 @@ I writing an essay on this. :-p)
       <?rfc include="reference.RFC.6347.xml"?>
       <?rfc include="reference.RFC.6603.xml"?>
       <?rfc include="reference.RFC.4191.xml"?>
-      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-02"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-03"?>
     </references>
 
     <references title="Informative references">
@@ -1389,7 +1389,10 @@ I writing an essay on this. :-p)
 
     <t>Should we define in-protocol fragmentation scheme or just use IPv6
     fragmentation with 'big enough' minimum acceptable size allowed for
-    implementations?</t>
+    implementations? In the same sense should we use TCP over UDP?</t>
+
+    <t>How should we deal with stub-routers requiring reduced complexity
+    versions? Stub IGPs? An HNCP-based solution? Even a stub-HNCP?</t>
 
   </section>
 
