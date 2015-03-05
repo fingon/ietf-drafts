@@ -1356,7 +1356,7 @@ I writing an essay on this. :-p)
   </middle>
   <back>
     <references title="Normative references">
-      <?rfc include="reference.I-D.draft-ietf-homenet-dncp-00"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-dncp-01"?>
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6347.xml"?>
       <?rfc include="reference.RFC.6603.xml"?>
