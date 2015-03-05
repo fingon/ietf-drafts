@@ -146,7 +146,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       a DNCP node communicates directly on a particular connection.</t>
 
       <t>The node data is a set of TLVs published by a node in the DNCP
-      network. Whole node data is owned by the node that publishes it, and
+      network. The whole node data is owned by the node that publishes it, and
       it MUST be passed along as-is, including TLVs unknown to the
       forwarder.</t>
 
@@ -448,7 +448,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       maintained. By default, it is DNCP_KEEPALIVE_INTERVAL. If there is a
       local value that is preferred for that for any reason (configuration,
       energy conservation, media type, ..), it should be substituted
-      instead. If non-default keep-alive interval is used on any
+      instead. If a non-default keep-alive interval is used on any
       connection, a DNCP node MUST publish appropriate <xref
       target="ka-interval">Keep-Alive Interval TLV(s)</xref>.</t>
 
@@ -495,7 +495,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
       <section title="Per-Peer Periodic Keep-Alive Messages">
 
-        <t>If per-peer keep-alives are enabled on an unicast-only
+        <t>If per-peer keep-alives are enabled on a unicast-only
         connection, and if no traffic containing a <xref
         target="net-state">Network State TLV</xref> has been sent to a
         particular peer within the connection-specific keep-alive interval,
@@ -542,7 +542,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
     <section title="Support For Dense Broadcast Links">
 
-      <t>DNCP profile or an user configuration should limit the number of
+      <t>The DNCP profile or a user configuration should limit the number of
       neighbors that are allowed for a (particular type of) link that a
       connection runs on. If that limit is exceeded, nodes without the
       highest Node Identifier on the link SHOULD treat the connection as an
