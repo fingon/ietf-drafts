@@ -4,6 +4,9 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
 split from draft-ietf-homenet-hncp-03-pre - generic parts
 
+TBD: Where should we note that DNCP is fundamentally about individual TLVs,
+and they can be queued (and jittered) freely?
+
 -->
 
 <!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
@@ -250,44 +253,51 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
     <section title="Operation">
 
       <t>The DNCP protocol consists of <xref target="RFC6206">Trickle</xref>
-      driven unicast or multicast status messages which indicate the current
-      status of shared TLV data and additional unicast message exchanges
+      driven unicast or multicast status payloads which indicate the current
+      status of shared TLV data and additional unicast exchanges
       which ensure DNCP peer reachability and synchronize the data when
       necessary. </t>
 
       <t>If DNCP is to be used on a multicast-capable interface, as opposed
       to only point-to-point using unicast, a datagram-based transport
       which supports multicast SHOULD be defined in the DNCP profile to be
-      used for the messages to be sent to the whole link. As this is used
+      used for the TLVs to be sent to the whole link. As this is used
       only to identify potential new DNCP nodes and to notify that an
       unicast exchange should be triggered, the multicast transport does
       not have to be particularly secure.</t>
 
+      <t>DNCP message in and of itself is just an abstraction; when using
+      reliable stream transport, the whole stream of TLVs can be considered
+      a single message, with new TLVs becoming gradually available once
+      they have been fully received. On datagram transport, each individual
+      datagram is a separate message. In order to facilitate fast comparing
+      of local state with that in a received update, TLVs in every
+      container TLV MUST be placed in ascending order based on the binary
+      comparison of both TLV header and value. </t>
+
       <section title="Trickle-Driven Status Update Messages"
                anchor="trickle-updates">
 
-        <t>Each node MUST send either a <xref
-        target="long-net-message">Long Network State Update message</xref>
-        or a <xref target="short-net-message">Short Network State Update
-        message</xref> every time the connection-specific <xref
-        target="RFC6206">Trickle algorithm</xref> instance indicates that
-        an update should be sent.
-        The destination address of the message should be multicast in case
-        of an interface which is multicast-capable, or the unicast address
-        of the remote party in case of a point-to-point connection.
+        <t>When employing unreliable transport, each node MUST send a <xref
+        target="net-state">Network State TLV</xref> every time the
+        connection-specific <xref target="RFC6206">Trickle algorithm</xref>
+        instance indicates that an update should be sent. Multicast MUST be
+        employed on a multicast-capable interface; otherwise, unicast can
+        be used as well.
 
-        By default, Long Network State Update messages SHOULD be used, but
-        if it is defined as undesirable for some case by the DNCP profile,
-        Short Network State Update message MUST be sent instead. This may
-        be useful to avoid fragmenting packets to multicast destinations,
+        If possible, most recent, recently changed, or best of all, all
+        known <xref target="node-state">Node State TLVs</xref> SHOULD be
+        also included, unless it is defined as undesirable for some reason by
+        the DNCP profile. Avoiding sending some or all Node State TLVs may
+        make sense to avoid fragmenting packets to multicast destinations,
         or for security reasons.</t>
 
         <t>A Trickle state MUST be maintained separately for each
-        connection. The Trickle state for all connections is considered
-        inconsistent and reset if and only if the locally calculated
-        network state hash changes. This occurs either due to a change in
-        the local node's own node data, or due to receipt of more recent
-        data from another node.</t>
+        connection which employs unreliable transport. The Trickle state
+        for all connections is considered inconsistent and reset if and
+        only if the locally calculated network state hash changes. This
+        occurs either due to a change in the local node's own node data, or
+        due to receipt of more recent data from another node.</t>
 
         <t>The Trickle algorithm has 3 parameters: Imin, Imax and k. Imin
         and Imax represent the minimum and maximum values for I, which is
@@ -298,86 +308,81 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
       </section>
 
-      <section title="Processing of Received Messages" anchor="reception">
+      <section title="Processing of Received TLVs" anchor="reception">
 
-        <t>This section describes how received messages are processed.  The
-        DNCP profile may specify criteria based on which received messages
-        are ignored. Any 'reply' mentioned in the steps below denotes
-        sending of the specified message via unicast to the originator of
-        the message being processed. If the reply was caused by a multicast
+        <t>This section describes how received TLVs are processed. The DNCP
+        profile may specify criteria based on which particular TLVs are
+        ignored. Any 'reply' mentioned in the steps below denotes sending
+        of the specified TLV(s) via unicast to the originator of the
+        message being processed. If the reply was caused by a multicast
         message and sent to a link with shared bandwidth it SHOULD be
         delayed by a random timespan in [0, Imin/2]. Sending of replies
         SHOULD be rate-limited by the implementation, and in case of excess
-        load (or some other reason), a reply MAY be omitted altogether. </t>
+        load (or some other reason), a reply MAY be omitted
+        altogether. </t>
 
         <t>Upon receipt of:
         <list>
 
-          <t><xref target="short-net-message">Short Network State
-          Update</xref>:
+          <t><xref target="req-net-state">Request Network State TLV</xref>:
+          the receiver MUST reply with a <xref target="node-state">Node
+          State TLV</xref> for each Node Data TLV used to calculate the
+          network state hash.</t>
+
+          <t><xref target="net-state">Network State TLV</xref>:
 
           If the network state hash within the message differs from the
-          locally calculated network state hash, the receiver MUST reply
-          with a <xref target="req-net-message">Network State Request
-          message</xref>.
-          </t>
-
-          <t><xref target="long-net-message">Long Network State
-          Update</xref>:
-
-          <list style="symbols">
-            <t>If the network state hash within the message matches the
-            locally calculated network state hash, stop processing.</t>
-
-            <t>Otherwise the receiver MUST identify all nodes for which local
-            information is outdated (local update sequence number is lower
-            than that within the message), potentially incorrect (local
-            update sequence number matches but the hash of the node data TLV
-            differs) or missing.</t>
-
-            <t>If any such nodes are identified, the receiver MUST reply
-            with one or more <xref target="req-node-message">Node Data
-            Request message(s)</xref> containing <xref
-            target="req-node-data">Request Node Data TLV(s)</xref> for the
-            corresponding nodes.</t>
-
-          </list>
-          </t>
-
-          <t><xref target="req-net-message">Network State Request</xref>:
+          locally calculated network state hash, and the receiver is
+          unaware of any particular node state differences with the sender,
           the receiver MUST reply with a <xref
-          target="long-net-message">Long Network State Update</xref>. </t>
+          target="req-net-state">Request Network State TLV</xref>. The
+          receiver MAY omit this, if there are already recent pending
+          requests for node state or node data.</t>
 
-          <t><xref target="req-node-message">Node Data Request</xref>: the
-          receiver MUST reply with the requested data in a <xref
-          target="reply-node-message">Node Data Reply
-          message</xref>. Optionally - if specified by the DNCP profile -
-          multiple replies MAY be sent in order to e.g. keep size of each
-          datagram within the PMTU to the destination. However these
-          replies must be valid stand-alone Node Data Reply messages, with
-          the full state for the particular nodes.</t>
+          <t><xref target="node-state">Node State TLV</xref>:
 
-          <t><xref target="reply-node-message">Node Data Reply</xref>: If
-          the message contains Node State TLVs that are more recent than
-          the local state (the received TLV has a higher update sequence
-          number, the node data TLV hash differs from the local one, or
-          local data is missing altogether) and if the message also
-          contains corresponding Node Data TLVs, the receiver MUST update
-          its locally stored state.</t>
+          If the node identifier matches the local node identifier and
+          the TLV has a higher update sequence number than its current
+          local value, or the same update sequence number and a different
+          hash, the node SHOULD re-publish its own node data with an update
+          sequence number 1000 higher than the received one. This may occur
+          normally once due to the local node restarting and not storing
+          the most recently used update sequence number. If this occurs
+          more than once, the DNCP profile should provide guidance on how
+          to handle these situations as it indicates the existence of
+          another active node with the same node identifier.
+
+          If the node identifier does not match the local node identifier,
+          and the local information is outdated for the corresponding node
+          (local update sequence number is lower than that within the TLV),
+          potentially incorrect (local update sequence number matches but
+          the hash of the node data TLV differs), or the data is altogether
+          missing, and there is no corresponding Node Data TLV available,
+          the receiver MUST reply with a <xref
+          target="req-node-data">Request Node Data TLV</xref> for the
+          corresponding node. </t>
+
+          <t><xref target="req-node-data">Request Node Data TLV</xref>:
+          if the receiver has node data for the corresponding node, it MUST
+          reply with <xref target="node-state">Node State TLV</xref>
+          and <xref target="node-data">Node Data TLV</xref> for the
+          corresponding node.</t>
+
+          <t><xref target="node-data">Node Data TLV</xref>:
+          if the previous TLV within the message is a Node State TLV that
+          is more recent than the local state (the received TLV has a
+          higher update sequence number, the node data TLV hash differs
+          from the local one, or local data is missing altogether), the
+          receiver MUST update its locally stored state.</t>
+
+          <t>Any other TLV:
+
+          DNCP profiles MAY add additional TLVs to the message specified
+          here, or even define additional messages as needed. TLVs not
+          recognized by the receiver MUST be ignored.</t>
+
         </list>
         </t>
-
-        <t>If a message containing <xref target="node-state">Node State
-        TLVs</xref> is received with the node identifier matching the local
-        node identifier and a higher update sequence number than its
-        current local value, or the same update sequence number and a
-        different hash, the node SHOULD re-publish its own node data with an
-        update sequence number 1000 higher than the received one. This may
-        occur normally once due to the local node restarting and not storing
-        the most recently used update sequence number. If this occurs more
-        than once, the DNCP profile should provide guidance on how to
-        handle these situations as it indicates the existence of another
-        active node with the same node identifier.</t>
 
       </section>
 
@@ -392,16 +397,15 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
           </t>
 
           <t>If it is a multicast message, and the message contains a <xref
-          target="node-id">Node Connection TLV</xref>, the remote node
-          SHOULD be sent a (possibly rate-limited) unicast <xref
-          target="req-net-message">Network State Request
-          Message</xref>.</t>
+          target="node-id">Node Connection TLV</xref>, the node SHOULD be
+          sent a (possibly rate-limited) unicast <xref
+          target="req-net-state">Request Network State TLV</xref>.</t>
         </list>
         </t>
 
         <t>If keep-alives are NOT sent by the peer (either the DNCP profile
         does not specify the use of keep-alives or the particular peer chooses
-        not to send keep-alive messages), some other means MUST be employed
+        not to send keep-alives), some other means MUST be employed
         to ensure a DNCP peer is present. When the peer is no longer
         present, the Neighbor TLV and the local DNCP peer state MUST be
         removed.</t>
@@ -450,7 +454,8 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       energy conservation, media type, ..), it should be substituted
       instead. If a non-default keep-alive interval is used on any
       connection, a DNCP node MUST publish appropriate <xref
-      target="ka-interval">Keep-Alive Interval TLV(s)</xref>.</t>
+      target="ka-interval">Keep-Alive Interval TLV(s)</xref> within its
+      node data.</t>
 
       <section title="Data Model Additions">
 
@@ -466,61 +471,50 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
         <list style="symbols">
 
-          <t>Last consistent state timestamp: a timestamp which indicates
-          the last time a consistent <xref target="net-state">Network State
-          TLV</xref> was received from the peer. When adding a new peer, it
-          should be initialized to the current time.</t>
+          <t>Last contact timestamp: a timestamp which indicates the last
+          time a consistent <xref target="net-state">Network State
+          TLV</xref> was received from the peer via multicast, or anything
+          was received via unicast. When adding a new peer, it should be
+          initialized to the current time.</t>
 
         </list>
         </t>
 
       </section>
 
-      <section title="Per-Connection Periodic Keep-Alive Messages">
+      <section title="Per-Connection Periodic Keep-Alives">
 
         <t>If per-connection keep-alives are enabled on connection with a
         multicast-enabled link, and if no traffic containing a <xref
         target="net-state">Network State TLV</xref> has been sent to a
         particular connection within the connection-specific keep-alive
-        interval, a <xref target="long-net-message">Long Network State
-        Update message</xref> or a <xref target="short-net-message">Short
-        Network State Update message</xref> MUST be sent on that
-        connection. The type of message should be chosen based on the
-        considerations in <xref target="trickle-updates" />. The actual
-        sending time SHOULD be further delayed by a random timespan in [0,
-        Imin/2].  When such a message is sent, a new Trickle transmission
-        time 't' in [I/2, I] MUST be randomly chosen.</t>
+        interval, a <xref target="net-state">Network State TLV</xref> MUST
+        be sent on that connection, and new Trickle transmission time 't'
+        in [I/2, I] MUST be randomly chosen. The actual sending time SHOULD
+        be further delayed by a random timespan in [0, Imin/2].</t>
 
       </section>
 
-      <section title="Per-Peer Periodic Keep-Alive Messages">
+      <section title="Per-Peer Periodic Keep-Alives">
 
         <t>If per-peer keep-alives are enabled on a unicast-only
         connection, and if no traffic containing a <xref
         target="net-state">Network State TLV</xref> has been sent to a
         particular peer within the connection-specific keep-alive interval,
-        a <xref target="long-net-message">Long Network State Update
-        message</xref> or a <xref target="short-net-message">Short Network
-        State Update message</xref> MUST be sent to the peer. The type of
-        message should be chosen based on the considerations in <xref
-        target="trickle-updates" />. When such a message is sent, a new
-        Trickle transmission time 't' in [I/2, I] MUST be randomly
-        chosen.</t>
+        a <xref target="net-state">Network State TLV</xref> MUST be sent to
+        the peer and a new Trickle transmission time 't' in [I/2, I] MUST
+        be randomly chosen.</t>
 
       </section>
 
-      <section title="Received Message Processing Additions">
+      <section title="Received TLV Processing Additions">
 
-        <t>If a message is received via unicast from the peer, the Last
-        consistent state timestamp for the peer MUST be updated.</t>
+        <t>If a TLV is received via unicast from the peer, the Last
+        contact timestamp for the peer MUST be updated.</t>
 
-        <t>If the received multicast message contains a <xref
-        target="net-state">Network State TLV</xref> which is consistent
-        with the locally calculated network state hash, the Last consistent
-        state timestamp for the peer MUST be updated. If the TLV is
-        inconsistent, and would not cause any unicast exchange, <xref
-        target="req-net-message">Network State Request</xref> SHOULD be
-        sent via unicast.</t>
+        <t><xref target="net-state">Network State TLV</xref> which is
+        consistent with the locally calculated network state hash, the Last
+        contact timestamp for the peer MUST be updated.</t>
 
       </section>
 
@@ -530,7 +524,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         keep-alive interval must be calculated by looking for <xref
         target="ka-interval">Keep-Alive Interval TLVs</xref> published by
         the node, and if none exist, using the default value of
-        DNCP_KEEPALIVE_INTERVAL. If the peer's last consistent state
+        DNCP_KEEPALIVE_INTERVAL. If the peer's last contact state
         timestamp has not been updated for at least
         DNCP_KEEPALIVE_MULTIPLIER times the peer's connection-specific
         keep-alive interval, the Neighbor TLV for that peer and the local
@@ -556,143 +550,6 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       multicast mode, and the node MUST allow others to peer with it over
       the link.</t>
 
-    </section>
-
-    <section title="Protocol Messages">
-
-      <t>For point-to-point exchanges, DNCP can run across
-      datagram-based or reliable ordered stream-based transports.
-      If a stream-based transport is used, a 32-bit length-value
-      in network byte order is sent before each message to indicate the
-      number of bytes the following message consists of.</t>
-
-      <t>DNCP messages are encoded as a concatenated sequence of <xref
-      target="tlvs">Type-Length-Value objects</xref>. In order to
-      facilitate fast comparing of local state with that in a received
-      message update, all TLVs in every encoding scope (either within the
-      message itself, or within a container TLV) MUST be placed in
-      ascending order based on the binary comparison of both TLV header
-      and value. By design, the TLVs which MUST be present have the
-      lowest available type values, ensuring they will naturally occur at
-      the start of the Protocol Message, resembling a fixed format
-      header.</t>
-
-      <t>DNCP profiles MAY add additional TLVs to the message specified
-      here, or even define additional messages as needed. TLVs not
-      recognized by the receiver MUST be ignored.</t>
-
-      <section title="Short Network State Update Message"
-               anchor="short-net-message">
-
-        <t>The Short Network State Update Message is used to announce the
-        sender's view of the network state using multicast.</t>
-
-        <t>The following TLVs MUST be present:
-        <list style="symbols">
-
-          <t>One <xref target="node-id">Node Connection TLV</xref> identifying
-          the originating node and connection.</t>
-
-          <t>One <xref target="net-state">Network State TLV</xref>
-          containing the network state hash as calculated by the
-          sender.</t>
-
-        </list>
-        </t>
-
-        <t>The Short Network Status update message MUST NOT contain any
-        <xref target="node-state">Node State TLV(s)</xref>.</t>
-
-      </section>
-
-      <section title="Long Network State Update Message"
-               anchor="long-net-message">
-
-        <t>The Long Network State Update Message is used to announce the
-        sender's view of the network state and all node states using
-        multicast or unicast.</t>
-
-        <t>The following TLVs MUST be present:
-        <list style="symbols">
-
-          <t>One <xref target="node-id">Node Connection TLV</xref> identifying
-          the originating node and connection.</t>
-
-          <t>One <xref target="net-state">Network State TLV</xref>
-          containing the network state hash as calculated by the
-          sender.</t>
-
-          <t>One or more <xref target="node-state">Node State TLVs</xref>
-          containing the node state of DNCP nodes as currently known to the
-          sender.</t>
-
-        </list>
-        </t>
-
-        <t>The Long Network State Update message MUST include the
-        corresponding <xref target="node-state">Node State TLV</xref> for
-        each Node Data TLV used to calculate the network state hash.</t>
-
-      </section>
-
-      <section title="Network State Request Message"
-               anchor="req-net-message">
-
-        <t>The Network State Request message is used to request the
-        recipient's view of the network state and all node states currently
-        known to it.</t>
-
-        <t>The following TLVs MUST be present:
-        <list style="symbols">
-
-          <t>One <xref target="req-net-state">Request Network State
-          TLV</xref> indicating the type of request.</t>
-
-        </list>
-        </t>
-
-      </section>
-
-      <section title="Node Data Request Message"
-               anchor="req-node-message">
-
-        <t>The Node Data Request message is used to request the node state
-        and data of one or more DNCP nodes in the network.</t>
-
-        <t>The following TLVs MUST be present:
-        <list style="symbols">
-
-          <t>One or more <xref target="req-node-data">Request Node Data
-          TLVs</xref> indicating the nodes for which state and data is
-          requested.</t>
-
-        </list>
-        </t>
-
-      </section>
-
-      <section title="Node Data Reply Message"
-               anchor="reply-node-message">
-
-        <t>The Node Data Request message is used to provide
-        the node data of one or more DNCP nodes in the network.</t>
-
-        <t>The following TLVs MUST be present:
-        <list style="symbols">
-
-          <t>One <xref target="node-id">Node Connection TLV</xref> identifying
-          the originating node and connection.</t>
-
-          <t>One or more <xref target="node-state">Node State TLV</xref>
-          and <xref target="node-data">Node Data TLV</xref> pairs with
-          matching node identifiers for each node previously requested in a
-          <xref target="req-node-message">Node Data Request
-          message</xref>.</t>
-
-        </list>
-        </t>
-
-      </section>
     </section>
 
     <section anchor="tlvs" title="Type-Length-Value Objects">
@@ -751,9 +608,8 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
             </artwork>
           </figure>
 
-          <t>This TLV is used to identify a <xref
-          target="req-net-message">Network State Request
-          message</xref>.</t>
+          <t>This TLV is used to request a remote node's Node State TLVs and
+          Network State TLV as well.</t>
 
         </section>
         <section anchor="req-node-data" title="Request Node Data TLV">
@@ -774,11 +630,8 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
             </artwork>
           </figure>
 
-          <t>This TLV is used within a <xref target="req-node-message">Node
-          Data Request message</xref> to request node state and node data
-          for the node with matching node identifier, if any, to be
-          included in a subsequent <xref target="reply-node-message">Node
-          Data Reply message</xref>.</t>
+          <t>This TLV is used to request node state and node data
+          for the node with matching node identifier.</t>
 
         </section>
 
@@ -804,7 +657,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
           <t>This TLV identifies both the local node's node identifier, as
           well as the particular connection identifier. It MUST be sent in
-          all messages if bidirectional peer relationship is desired with
+          every message if bidirectional peer relationship is desired with
           remote nodes. Bidirectional peer relationship is not necessary
           for read-only access to the DNCP state, but it is required to be
           able to publish something.</t>
@@ -941,7 +794,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
           </figure>
 
           <t>This TLV indicates a non-default interval being used to send
-          keep-alive messages specified in <xref target="ka" />.</t>
+          keep-alives specified in <xref target="ka" />.</t>
 
           <t>Connection identifier is used to identify the particular
           connection for which the interval applies. If 0, it applies for
@@ -1263,10 +1116,6 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         <t>When receiving messages, what sort of messages are dropped, as
         specified in <xref target="reception" />.</t>
 
-        <t>What is the criteria for sending Trickle-based <xref
-        target="long-net-message">Long Network State Update message</xref>
-        on an interface or to a DNCP peer.</t>
-
         <t>How to deal with node identifier collision as described in <xref
         target="reception" />. Main options are either for one or both
         nodes to assign new node identifiers to themselves, or to notify
@@ -1296,7 +1145,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         associated parameters:
 
         <list style="symbols">
-          <t>DNCP_KEEPALIVE_INTERVAL: How often keep-alive messages are to be
+          <t>DNCP_KEEPALIVE_INTERVAL: How often keep-alives are to be
           sent by default (if enabled).</t>
 
           <t>DNCP_KEEPALIVE_MULTIPLIER: How many times the
@@ -1375,10 +1224,6 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
     <?rfc include="reference.RFC.6234.xml"?>
   </references>
   <section title="Some Outstanding Issues">
-
-    <t>Should better forms of combined messages be defined? e.g. allow
-    sending both request-network-state, and currently set of known local
-    state at same time in one message.</t>
 
     <t>Should some sort of fragmentation scheme be defined for the data?
     Currently, DNCP uses Merkle tree of depth 2 (node data -> node hash ->
