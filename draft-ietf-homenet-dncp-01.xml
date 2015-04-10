@@ -266,7 +266,7 @@ and they can be queued (and jittered) freely?
       unicast exchange should be triggered, the multicast transport does
       not have to be particularly secure.</t>
 
-      <t>DNCP message in and of itself is just an abstraction; when using
+      <t>A DNCP message in and of itself is just an abstraction; when using
       reliable stream transport, the whole stream of TLVs can be considered
       a single message, with new TLVs becoming gradually available once
       they have been fully received. On datagram transport, each individual
