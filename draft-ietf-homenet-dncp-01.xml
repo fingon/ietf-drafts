@@ -574,9 +574,9 @@ and they can be queued (and jittered) freely?
         bound for the size of a single fragment to accomodate limitations
         of links in the network.</t>
 
-        <t>The ordering of the Node Data TLV tuples MUST be retained
-        across fragments, i.e. for any tuple T1 in fragment N and T2 in
-        fragment M, T1 must be less than T2 if N is less than M.
+        <t>The concatenated Node Data from all fragments MUST be ordered,
+        i.e. for any TLV tuple T1 in fragment N and T2 in fragment M, T1
+        must be less than T2 if N is less than M.
         Any Node Identifiers on the wire used to identify the own or any
         other node MUST have the fragment bytes zeroed.</t>
 
