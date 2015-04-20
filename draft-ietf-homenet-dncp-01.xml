@@ -403,12 +403,13 @@ and they can be queued (and jittered) freely?
         </list>
         </t>
 
-        <t>If keep-alives are NOT sent by the peer (either the DNCP profile
-        does not specify the use of keep-alives or the particular peer chooses
-        not to send keep-alives), some other means MUST be employed
-        to ensure a DNCP peer is present. When the peer is no longer
-        present, the Neighbor TLV and the local DNCP peer state MUST be
-        removed.</t>
+        <t>If keep-alives specified in <xref target="ka" /> are NOT sent by
+        the peer (either the DNCP profile does not specify the use of
+        keep-alives or the particular peer chooses not to send
+        keep-alives), some other means MUST be employed to ensure a DNCP
+        peer is present. When the peer is no longer present, the Neighbor
+        TLV and the local DNCP peer state MUST be removed.</t>
+
       </section>
 
       <section anchor="purge" title="Purging Unreachable Nodes">
@@ -433,123 +434,159 @@ and they can be queued (and jittered) freely?
 
     </section>
 
-    <section anchor="ka" title="Keep-Alive Extension">
+    <section anchor="ext" title="Optional Extensions">
 
-      <t>The Trickle-driven messages provide a mechanism for handling of
-      new peer detection (if applicable) on a connection, as well as state
-      change notifications. Another mechanism may be needed to get rid of
-      old, no longer valid DNCP peers if the transport or lower layers do
-      not provide one.</t>
+      <t>This section specifies extensions to the core protocol that a DNCP
+      profile may want to use.</t>
 
-      <t>If keep-alives are not specified in the DNCP profile, the rest of
-      this section MUST be ignored.</t>
+      <section anchor="ka" title="Keep-Alives">
 
-      <t>A DNCP profile MAY specify either per-connection or per-peer
-      keep-alive support. </t>
+        <t>The Trickle-driven messages provide a mechanism for handling of
+        new peer detection (if applicable) on a connection, as well as state
+        change notifications. Another mechanism may be needed to get rid of
+        old, no longer valid DNCP peers if the transport or lower layers do
+        not provide one.</t>
 
-      <t>For every connection that a keep-alive is specified for in the
-      DNCP profile, the connection-specific keep-alive interval MUST be
-      maintained. By default, it is DNCP_KEEPALIVE_INTERVAL. If there is a
-      local value that is preferred for that for any reason (configuration,
-      energy conservation, media type, ..), it should be substituted
-      instead. If a non-default keep-alive interval is used on any
-      connection, a DNCP node MUST publish appropriate <xref
-      target="ka-interval">Keep-Alive Interval TLV(s)</xref> within its
-      node data.</t>
+        <t>If keep-alives are not specified in the DNCP profile, the rest
+        of this subsection MUST be ignored.</t>
 
-      <section title="Data Model Additions">
+        <t>A DNCP profile MAY specify either per-connection or per-peer
+        keep-alive support. </t>
 
-        <t>The following additions to the <xref target="dm">Data
-        Model</xref> are needed to support keep-alive:</t>
+        <t>For every connection that a keep-alive is specified for in the
+        DNCP profile, the connection-specific keep-alive interval MUST be
+        maintained. By default, it is DNCP_KEEPALIVE_INTERVAL. If there is a
+        local value that is preferred for that for any reason (configuration,
+        energy conservation, media type, ..), it should be substituted
+        instead. If a non-default keep-alive interval is used on any
+        connection, a DNCP node MUST publish appropriate <xref
+        target="ka-interval">Keep-Alive Interval TLV(s)</xref> within its
+        node data.</t>
 
-        <t>Each node MUST have a timestamp which indicates the last time a
-        <xref target="net-state">Network State TLV</xref> was sent for each
-        connection, i.e. on an interface or to the point-to-point
-        peer(s).</t>
+        <section title="Data Model Additions">
 
-        <t>Each node MUST have for each peer:
+          <t>The following additions to the <xref target="dm">Data
+          Model</xref> are needed to support keep-alive:</t>
 
-        <list style="symbols">
+          <t>Each node MUST have a timestamp which indicates the last time a
+          <xref target="net-state">Network State TLV</xref> was sent for each
+          connection, i.e. on an interface or to the point-to-point
+          peer(s).</t>
 
-          <t>Last contact timestamp: a timestamp which indicates the last
-          time a consistent <xref target="net-state">Network State
-          TLV</xref> was received from the peer via multicast, or anything
-          was received via unicast. When adding a new peer, it should be
-          initialized to the current time.</t>
+          <t>Each node MUST have for each peer:
 
-        </list>
-        </t>
+          <list style="symbols">
+
+            <t>Last contact timestamp: a timestamp which indicates the last
+            time a consistent <xref target="net-state">Network State
+            TLV</xref> was received from the peer via multicast, or anything
+            was received via unicast. When adding a new peer, it should be
+            initialized to the current time.</t>
+
+          </list>
+          </t>
+
+        </section>
+
+        <section title="Per-Connection Periodic Keep-Alives">
+
+          <t>If per-connection keep-alives are enabled on connection with a
+          multicast-enabled link, and if no traffic containing a <xref
+          target="net-state">Network State TLV</xref> has been sent to a
+          particular connection within the connection-specific keep-alive
+          interval, a <xref target="net-state">Network State TLV</xref> MUST
+          be sent on that connection, and new Trickle transmission time 't'
+          in [I/2, I] MUST be randomly chosen. The actual sending time SHOULD
+          be further delayed by a random timespan in [0, Imin/2].</t>
+
+        </section>
+
+        <section title="Per-Peer Periodic Keep-Alives">
+
+          <t>If per-peer keep-alives are enabled on a unicast-only
+          connection, and if no traffic containing a <xref
+          target="net-state">Network State TLV</xref> has been sent to a
+          particular peer within the connection-specific keep-alive interval,
+          a <xref target="net-state">Network State TLV</xref> MUST be sent to
+          the peer and a new Trickle transmission time 't' in [I/2, I] MUST
+          be randomly chosen.</t>
+
+        </section>
+
+        <section title="Received TLV Processing Additions">
+
+          <t>If a TLV is received via unicast from the peer, the Last
+          contact timestamp for the peer MUST be updated.</t>
+
+          <t><xref target="net-state">Network State TLV</xref> which is
+          consistent with the locally calculated network state hash, the Last
+          contact timestamp for the peer MUST be updated.</t>
+
+        </section>
+
+        <section title="Neighbor Removal">
+
+          <t>For every peer on every connection, the connection-specific
+          keep-alive interval must be calculated by looking for <xref
+          target="ka-interval">Keep-Alive Interval TLVs</xref> published by
+          the node, and if none exist, using the default value of
+          DNCP_KEEPALIVE_INTERVAL. If the peer's last contact state
+          timestamp has not been updated for at least
+          DNCP_KEEPALIVE_MULTIPLIER times the peer's connection-specific
+          keep-alive interval, the Neighbor TLV for that peer and the local
+          DNCP peer state MUST be removed.</t>
+
+        </section>
 
       </section>
 
-      <section title="Per-Connection Periodic Keep-Alives">
+      <section title="Support For Dense Broadcast Links">
 
-        <t>If per-connection keep-alives are enabled on connection with a
-        multicast-enabled link, and if no traffic containing a <xref
-        target="net-state">Network State TLV</xref> has been sent to a
-        particular connection within the connection-specific keep-alive
-        interval, a <xref target="net-state">Network State TLV</xref> MUST
-        be sent on that connection, and new Trickle transmission time 't'
-        in [I/2, I] MUST be randomly chosen. The actual sending time SHOULD
-        be further delayed by a random timespan in [0, Imin/2].</t>
+        <t>An upper bound for the number of neighbors that are allowed for
+        a (particular type of) link that a connection runs on SHOULD be
+        provided by a DNCP profile, user configuration, or some hardcoded
+        default in the implementation. If an implementation does not
+        support this, the rest of this subsection MUST be ignored.</t>
 
-      </section>
-
-      <section title="Per-Peer Periodic Keep-Alives">
-
-        <t>If per-peer keep-alives are enabled on a unicast-only
-        connection, and if no traffic containing a <xref
-        target="net-state">Network State TLV</xref> has been sent to a
-        particular peer within the connection-specific keep-alive interval,
-        a <xref target="net-state">Network State TLV</xref> MUST be sent to
-        the peer and a new Trickle transmission time 't' in [I/2, I] MUST
-        be randomly chosen.</t>
+        <t>If the specified limit is exceeded, nodes without the highest
+        Node Identifier on the link SHOULD treat the connection as an
+        unicast connection connected to the node that has the highest Node
+        Identifier detected on the link. The nodes MUST also keep listening
+        to multicast traffic to both detect the presence of that node, and
+        to react to nodes with a higher Node Identifier appearing. If the
+        highest Node Identifier present on the link changes, the connection
+        endpoint MUST be changed. If the Node Identifier of the local node
+        is the highest one, the node MUST keep the connection in normal
+        multicast mode, and the node MUST allow others to peer with it over
+        the link.</t>
 
       </section>
 
-      <section title="Received TLV Processing Additions">
+      <section anchor="fragmentation" title="Node Data Fragmentation">
 
-        <t>If a TLV is received via unicast from the peer, the Last
-        contact timestamp for the peer MUST be updated.</t>
+        <t>A DNCP profile may require more than maximum size of a single
+        <xref target="node-data">Node Data TLV</xref> (65535 bytes of
+        payload), or it may be use a datagram-only transport with
+        relatively small MTU and no built-in support for fragmentation. To
+        handle such cases, a DNCP profile MAY specify a fixed number of
+        trailing bytes in the Node Identifier to represent a fragment
+        number of that particular chunk Node Data. The profile MAY also
+        specify lower upper bound for single fragment size.</t>
 
-        <t><xref target="net-state">Network State TLV</xref> which is
-        consistent with the locally calculated network state hash, the Last
-        contact timestamp for the peer MUST be updated.</t>
+        <t>The whole Node Data MUST retain the ordering of the TLV tuples
+        across fragments. In other words, for any tuple T1 in fragment N
+        and T2 in fragment M, T1 must be less than T2 if N is less than M.
+        The Node Identifiers used to identify self or to refer to other
+        nodes on the wire MUST have the fragment bytes zeroed.</t>
+
+        <t>If using fragmentation, the unreachable node purging defined in
+        <xref target="purge" /> is extended so that if a <xref
+        target="fragment-count">Fragment Count TLV</xref> is present within
+        the fragment 0, any fragments up to the Count it specifies are also
+        considered reachable if the fragment 0 itself is reachable based on
+        graph traversal. </t>
 
       </section>
-
-      <section title="Neighbor Removal">
-
-        <t>For every peer on every connection, the connection-specific
-        keep-alive interval must be calculated by looking for <xref
-        target="ka-interval">Keep-Alive Interval TLVs</xref> published by
-        the node, and if none exist, using the default value of
-        DNCP_KEEPALIVE_INTERVAL. If the peer's last contact state
-        timestamp has not been updated for at least
-        DNCP_KEEPALIVE_MULTIPLIER times the peer's connection-specific
-        keep-alive interval, the Neighbor TLV for that peer and the local
-        DNCP peer state MUST be removed.</t>
-
-      </section>
-
-    </section>
-
-    <section title="Support For Dense Broadcast Links">
-
-      <t>The DNCP profile or a user configuration should limit the number of
-      neighbors that are allowed for a (particular type of) link that a
-      connection runs on. If that limit is exceeded, nodes without the
-      highest Node Identifier on the link SHOULD treat the connection as an
-      unicast connection connected to the node that has the highest Node
-      Identifier detected on the link. The nodes MUST also keep listening
-      to multicast traffic to both detect the presence of that node, and to
-      react to nodes with a higher Node Identifier appearing. If the
-      highest Node Identifier present on the link changes, the connection
-      endpoint MUST be changed. If the Node Identifier of the local node is
-      the highest one, the node MUST keep the connection in normal
-      multicast mode, and the node MUST allow others to peer with it over
-      the link.</t>
-
     </section>
 
     <section anchor="tlvs" title="Type-Length-Value Objects">
@@ -745,8 +782,71 @@ and they can be queued (and jittered) freely?
 
         </section>
 
+        <section anchor="user-tlv" title="Custom TLV">
+        <figure>
+          <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|     Type: CUSTOM-DATA (15)    |         Length: > 0           |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                            H(URI)                             |
+|                  (length fixed in DNCP profile)               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                          Opaque Data                          |
+          </artwork>
+        </figure>
+
+        <t>This TLV can be used to contain anything; the URI used should be
+        under control of the author of that specification. The TLV may
+        appear within protocol exchanges, or within <xref
+        target="node-data">Node Data TLV</xref>. For example:</t>
+
+        <t>V = H('http://example.com/author/json-for-dncp') .. '{"cool":
+        "json extension!"}'</t>
+
+        <t>or</t>
+
+        <t>V = H('mailto:author@example.com') .. '{"cool": "json
+        extension!"}'</t>
+
+      </section>
+
+      </section>
+
+
+      <section title="Data TLVs within Node Data TLV">
+
+        <section anchor="fragment-count"
+                 title="Fragment Count TLV">
+          <figure>
+            <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  Type: FRAGMENT-COUNT (9)     |         Length: > 0           |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                             Count                             |
+|                  (length fixed in DNCP profile)               |
+...
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            </artwork>
+          </figure>
+
+          <t>If the DNCP profile supports Node Data fragmentation as
+          specified in <xref target="fragmentation" />, this TLV indicates
+          that the Node Data is encoded as a series of Node Data
+          TLVs. Subsequent Node Data with Node Identifiers up to Count
+          higher than the current one MUST be considered reachable and part
+          of the same logical set of Node Data that this TLV is within. The
+          fragment portion of the Node Identifier of the Node Data this is
+          within MUST be zeros.</t>
+
+        </section>
+
+
         <section anchor="neighbor-tlv"
-                 title="Neighbor TLV (within Node Data TLV)">
+                 title="Neighbor TLV">
           <figure>
             <artwork>
 0                   1                   2                   3
@@ -777,7 +877,7 @@ and they can be queued (and jittered) freely?
         </section>
 
         <section anchor="ka-interval"
-                 title="Keep-Alive Interval TLV (within Node Data TLV)">
+                 title="Keep-Alive Interval TLV">
 
           <figure>
             <artwork>
@@ -805,36 +905,6 @@ and they can be queued (and jittered) freely?
           sent at all; in that case, some lower layer mechanism that
           ensures presence of nodes MUST be available and used. </t>
         </section>
-
-      </section>
-
-      <section anchor="user-tlv"
-               title="Custom TLV (within/without Node Data TLV)">
-        <figure>
-          <artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: CUSTOM-DATA (15)    |         Length: > 0           |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                            H(URI)                             |
-|                  (length fixed in DNCP profile)               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                          Opaque Data                          |
-          </artwork>
-        </figure>
-
-        <t>This TLV can be used to contain anything; the URI used should be
-        under control of the author of that specification.
-        For example:</t>
-
-        <t>V = H('http://example.com/author/json-for-dncp') .. '{"cool":
-        "json extension!"}'</t>
-
-        <t>or</t>
-
-        <t>V = H('mailto:author@example.com') .. '{"cool": "json
-        extension!"}'</t>
 
       </section>
 
@@ -1155,178 +1225,150 @@ and they can be queued (and jittered) freely?
         </list>
         </t>
       </list>
-    </t>
-  </section>
+      </t>
+    </section>
 
-  <section title="Security Considerations">
+    <section title="Security Considerations">
 
-    <t>DNCP profiles may use multicast to indicate DNCP state changes and
-    for keep-alive purposes. However, no actual data TLVs will be sent
-    across that channel. Therefore an attacker may only learn hash values
-    of the state within DNCP and may be able to trigger unicast
-    synchronization attempts between nodes on a local link this way. A DNCP
-    node should therefore rate-limit its reactions to multicast
-    packets.</t>
+      <t>DNCP profiles may use multicast to indicate DNCP state changes and
+      for keep-alive purposes. However, no actual data TLVs will be sent
+      across that channel. Therefore an attacker may only learn hash values
+      of the state within DNCP and may be able to trigger unicast
+      synchronization attempts between nodes on a local link this way. A DNCP
+      node should therefore rate-limit its reactions to multicast
+      packets.</t>
 
-    <t>When using DNCP to bootstrap a network, PKI based solutions may have
-    issues when validating certificates due to potentially unavailable
-    accurate time, or due to inability to use the network to either check
-    Certifcate Revocation Lists or perform on-line validation.</t>
+      <t>When using DNCP to bootstrap a network, PKI based solutions may have
+      issues when validating certificates due to potentially unavailable
+      accurate time, or due to inability to use the network to either check
+      Certifcate Revocation Lists or perform on-line validation.</t>
 
-    <t>The Certificate-based trust consensus mechanism defined in this
-    document allows for a consenting revocation, however in case of a
-    compromised device the trust cache may be poisoned before the actual
-    revocation happens allowing the distrusted device to rejoin the network
-    using a different identity.  Stopping such an attack might require
-    physical intervention and flushing of the trust caches. </t>
+      <t>The Certificate-based trust consensus mechanism defined in this
+      document allows for a consenting revocation, however in case of a
+      compromised device the trust cache may be poisoned before the actual
+      revocation happens allowing the distrusted device to rejoin the network
+      using a different identity.  Stopping such an attack might require
+      physical intervention and flushing of the trust caches. </t>
 
-  </section>
+    </section>
 
-  <section anchor="iana" title="IANA Considerations">
+    <section anchor="iana" title="IANA Considerations">
 
-    <t>IANA should set up a registry for DNCP TLV types,
-    with the following initial contents:</t>
+      <t>IANA should set up a registry for DNCP TLV types,
+      with the following initial contents:</t>
 
-    <t>0: Reserved (should not happen on wire)</t>
-    <t>1: Node connection</t>
-    <t>2: Request network state</t>
-    <t>3: Request node data</t>
-    <t>4-9: Reserved for DNCP profile use</t>
-    <t>10: Network state</t>
-    <t>11: Node state</t>
-    <t>12: Node data</t>
-    <t>13: Neighbor</t>
-    <t>14: Keep-alive interval</t>
-    <t>15: Custom</t>
-    <t>16: Trust-Verdict</t>
-    <t>17-31: Reserved for future DNCP versions.</t>
+      <t>0: Reserved (should not happen on wire)</t>
+      <t>1: Node connection</t>
+      <t>2: Request network state</t>
+      <t>3: Request node data</t>
+      <t>4-8: Reserved for DNCP profile use</t>
+      <t>9: Fragment count</t>
+      <t>10: Network state</t>
+      <t>11: Node state</t>
+      <t>12: Node data</t>
+      <t>13: Neighbor</t>
+      <t>14: Keep-alive interval</t>
+      <t>15: Custom</t>
+      <t>16: Trust-Verdict</t>
+      <t>17-31: Reserved for future DNCP versions.</t>
 
-    <t>192-255: Reserved for per-implementation experimentation. The
-    nodes using TLV types in this range SHOULD use e.g. Custom TLV to
-    identify each other and therefore eliminate potential conflict caused
-    by potential different use of same TLV numbers. </t>
+      <t>192-255: Reserved for per-implementation experimentation. The
+      nodes using TLV types in this range SHOULD use e.g. Custom TLV to
+      identify each other and therefore eliminate potential conflict caused
+      by potential different use of same TLV numbers. </t>
 
-    <t>For the rest of the values (32-191, 256-65535), policy of 'standards
-    action' should be used.</t>
+      <t>For the rest of the values (32-191, 256-65535), policy of 'standards
+      action' should be used.</t>
 
-  </section>
+    </section>
 
-</middle>
-<back>
-  <references title="Normative references">
-    <?rfc include="reference.RFC.2119.xml"?>
-    <?rfc include="reference.RFC.6206.xml"?>
-    <?rfc include="reference.RFC.6347.xml"?>
-    <?rfc include="reference.RFC.5246.xml"?>
-  </references>
-  <references title="Informative references">
-    <?rfc include="reference.RFC.3493.xml"?>
-    <?rfc include="reference.RFC.6234.xml"?>
-  </references>
-  <section title="Some Outstanding Issues">
+  </middle>
+  <back>
+    <references title="Normative references">
+      <?rfc include="reference.RFC.2119.xml"?>
+      <?rfc include="reference.RFC.6206.xml"?>
+      <?rfc include="reference.RFC.6347.xml"?>
+      <?rfc include="reference.RFC.5246.xml"?>
+    </references>
+    <references title="Informative references">
+      <?rfc include="reference.RFC.3493.xml"?>
+      <?rfc include="reference.RFC.6234.xml"?>
+    </references>
 
-    <t>Should some sort of fragmentation scheme be defined for the data?
-    Currently, DNCP uses Merkle tree of depth 2 (node data -> node hash ->
-    network hash). However, it essentially treats all TLVs published by
-    a single node as a single chunk on the protocol level. Is that a
-    scalability problem? Adding one more level to the tree might address
-    this.</t>
+    <section title="Some Questions and Answers">
 
-  </section>
+      <t>Q: 32-bit connection id?</t>
+      <t>A: Here, it would save 32 bits per neighbor if it was 16 bits (and
+      less is not realistic). However, TLVs defined elsewhere would not
+      seem to even gain that much on average.  32 bits is also used for
+      ifindex in various operating systems, making for simpler
+      implementation.</t>
 
-  <section title="Some Obvious Questions and Answers">
+      <t>Q: Why have topology information at all?</t>
+      <t>A: It is an alternative to the more traditional seq#/TTL-based flooding
+      schemes. In steady state, there is no need to e.g. re-publish every now
+      and then.</t>
 
-    <t>Q: Should there be nested container syntax that is actually
-    self-describing? (i.e. type flag that indicates container, no body
-    except sub-TLVs?)</t>
+    </section>
+    <section title="Changelog">
 
-    <t>A: Not for now, but perhaps valid design.. TBD.</t>
+      <t>draft-ietf-homenet-dncp-01:
+      <list style="symbols">
 
-    <t>Q: Add third case for multicast - 'medium' network state, which is
-    'long' one, but partial?</t>
+        <t>Fixed keep-alive semantics to consider unicast requests also
+        updates of most recently consistent, and added proactive unicast
+        request to ensure even inconsistent keep-alive messages eventually
+        triggering consistency timestamp update.</t>
 
-    <t>A: Drops typical convergence on large networks 5->3 packets, at
-    expense of some specification/implementation complexity. However, as
-    anything else than short network state leaks information via multicast,
-    it does not seem worth it as secure protocols probably want to prevent
-    multicast sending of anything else than short network state in any
-    case. Additionally, the long network state being complete set of nodes
-    actually facilitates light-weight nodes that do not want to do
-    graph-based pruning. So all in all, perhaps not worth it.</t>
+        <t>Facilitated (simple) read-only clients by making Node Connection
+        TLV optional if just using DNCP for read-only purposes.</t>
 
-    <t>Q: 32-bit connection id?</t>
+        <t>Added text describing how to deal with "dense" networks, but left
+        actual numbers and mechanics up to DNCP profiles and (local)
+        configurations.</t>
+      </list>
+      </t>
 
-    <t>A: Here, it would save 32 bits per neighbor if it was 16 bits (and
-    less is not realistic). However, TLVs defined elsewhere would not
-    seem to even gain that much on average.  32 bits is also used for
-    ifindex in various operating systems, making for simpler
-    implementation.</t>
+      <t>draft-ietf-homenet-dncp-00: Split from pre-version of
+      draft-ietf-homenet-hncp-03 generic parts. Changes that affect
+      implementations:
+      <list style="symbols">
 
-    <t>Q: Why have topology information at all?</t>
-    <t>A: It is an alternative to the more traditional seq#/TTL-based flooding
-    schemes. In steady state, there is no need to e.g. re-publish every now
-    and then.</t>
+        <t>TLVs were renumbered.</t>
 
-  </section>
-  <section title="Changelog">
+        <t>TLV length does not include header (=-4). This facilitates
+        e.g. use of DHCPv6 option parsing libraries (same encoding), and
+        reduces complexity (no need to handle error values of length less
+        than 4).</t>
 
-    <t>draft-ietf-homenet-dncp-01:
-    <list style="symbols">
+        <t>Trickle is reset only when locally calculated network state hash
+        is changes, not as remote different network state hash is seen. This
+        prevents e.g. attacks by multicast with one multicast packet to force
+        Trickle reset on every interface of every node on a link.</t>
 
-      <t>Fixed keep-alive semantics to consider unicast requests also
-      updates of most recently consistent, and added proactive unicast
-      request to ensure even inconsistent keep-alive messages eventually
-      triggering consistency timestamp update.</t>
+        <t>Instead of 'ping', use 'keep-alive' (optional) for dead peer
+        detection. Different message used!</t>
 
-      <t>Facilitated (simple) read-only clients by making Node Connection
-      TLV optional if just using DNCP for read-only purposes.</t>
+      </list>
+      </t>
 
-      <t>Added text describing how to deal with "dense" networks, but left
-      actual numbers and mechanics up to DNCP profiles and (local)
-      configurations.</t>
-    </list>
-    </t>
+    </section>
 
-    <t>draft-ietf-homenet-dncp-00: Split from pre-version of
-    draft-ietf-homenet-hncp-03 generic parts. Changes that affect
-    implementations:
-    <list style="symbols">
+    <section title="Draft Source">
+      <t>As usual, this draft is available at <eref
+      target="https://github.com/fingon/ietf-drafts/">
+      https://github.com/fingon/ietf-drafts/</eref>
+      in source format (with nice Makefile too). Feel free to send comments
+      and/or pull requests if and when you have changes to it! </t>
+    </section>
 
-      <t>TLVs were renumbered.</t>
+    <section title="Acknowledgements">
 
-      <t>TLV length does not include header (=-4). This facilitates
-      e.g. use of DHCPv6 option parsing libraries (same encoding), and
-      reduces complexity (no need to handle error values of length less
-      than 4).</t>
+      <t>Thanks to Ole Troan, Pierre Pfister, Mark Baugher, Mark Townsley,
+      Juliusz Chroboczek and Jiazi Yi for their contributions to the
+      draft.</t>
 
-      <t>Trickle is reset only when locally calculated network state hash
-      is changes, not as remote different network state hash is seen. This
-      prevents e.g. attacks by multicast with one multicast packet to force
-      Trickle reset on every interface of every node on a link.</t>
+    </section>
 
-      <t>Instead of 'ping', use 'keep-alive' (optional) for dead peer
-      detection. Different message used!</t>
-
-    </list>
-    </t>
-
-  </section>
-
-  <section title="Draft Source">
-    <t>As usual, this draft is available at <eref
-    target="https://github.com/fingon/ietf-drafts/">
-    https://github.com/fingon/ietf-drafts/</eref>
-    in source format (with nice Makefile too). Feel free to send comments
-    and/or pull requests if and when you have changes to it! </t>
-  </section>
-
-  <section title="Acknowledgements">
-
-    <t>Thanks to Ole Troan, Pierre Pfister, Mark Baugher, Mark Townsley,
-    Juliusz Chroboczek and Jiazi Yi for their contributions to the
-    draft.</t>
-
-  </section>
-
-</back>
+  </back>
 </rfc>
