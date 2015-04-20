@@ -564,20 +564,21 @@ and they can be queued (and jittered) freely?
 
       <section anchor="fragmentation" title="Node Data Fragmentation">
 
-        <t>A DNCP profile may require more than maximum size of a single
-        <xref target="node-data">Node Data TLV</xref> (65535 bytes of
-        payload), or it may be use a datagram-only transport with
-        relatively small MTU and no built-in support for fragmentation. To
-        handle such cases, a DNCP profile MAY specify a fixed number of
-        trailing bytes in the Node Identifier to represent a fragment
-        number of that particular chunk Node Data. The profile MAY also
-        specify lower upper bound for single fragment size.</t>
+        <t>A DNCP profile may require a node to exceed the maximum size
+        of a single <xref target="node-data">Node Data TLV</xref> (65535
+        bytes of payload), or use a datagram-only transport with a limited
+        MTU and no reliable support for fragmentation. To handle such
+        cases, a DNCP profile MAY specify a fixed number of trailing bytes
+        in the Node Identifier to represent a fragment number indicating a
+        part of a node's Node Data. The profile MAY also specify an upper
+        bound for the size of a single fragment to accomodate limitations
+        of links in the network.</t>
 
-        <t>The whole Node Data MUST retain the ordering of the TLV tuples
-        across fragments. In other words, for any tuple T1 in fragment N
-        and T2 in fragment M, T1 must be less than T2 if N is less than M.
-        The Node Identifiers used to identify self or to refer to other
-        nodes on the wire MUST have the fragment bytes zeroed.</t>
+        <t>The ordering of the Node Data TLV tuples MUST be retained
+        across fragments, i.e. for any tuple T1 in fragment N and T2 in
+        fragment M, T1 must be less than T2 if N is less than M.
+        Any Node Identifiers on the wire used to identify the own or any
+        other node MUST have the fragment bytes zeroed.</t>
 
         <t>If using fragmentation, the unreachable node purging defined in
         <xref target="purge" /> is extended so that if a <xref
