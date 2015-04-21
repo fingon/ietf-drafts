@@ -578,7 +578,7 @@ and they can be queued (and jittered) freely?
         cases, a DNCP profile MAY specify a fixed number of trailing bytes
         in the Node Identifier to represent a fragment number indicating a
         part of a node's Node Data. The profile MAY also specify an upper
-        bound for the size of a single fragment to accomodate limitations
+        bound for the size of a single fragment to accommodate limitations
         of links in the network.</t>
 
         <t>The concatenated Node Data from all fragments MUST be ordered,
@@ -1327,7 +1327,7 @@ and they can be queued (and jittered) freely?
         optimized round-trip saving synchronization.</t>
 
         <t>Added fragmentation support for bigger node data and for chunking
-        in abscence of reliable L2 and L3 fragmentation.</t>
+        in absence of reliable L2 and L3 fragmentation.</t>
       </list>
       </t>
 
