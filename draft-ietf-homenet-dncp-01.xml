@@ -50,7 +50,7 @@ and they can be queued (and jittered) freely?
         <email>cyrus@openwrt.org</email>
       </address>
     </author>
-    <date month="March" year="2015" />
+    <date month="April" year="2015" />
 
     <area>Internet</area>
     <workgroup>Homenet Working Group</workgroup>
@@ -1296,7 +1296,7 @@ and they can be queued (and jittered) freely?
       <?rfc include="reference.RFC.6234.xml"?>
     </references>
 
-    <section title="Some Questions and Answers">
+    <section title="Some Questions and Answers [RFC Editor: please remove]">
 
       <t>Q: 32-bit connection id?</t>
       <t>A: Here, it would save 32 bits per neighbor if it was 16 bits (and
@@ -1311,7 +1311,18 @@ and they can be queued (and jittered) freely?
       and then.</t>
 
     </section>
-    <section title="Changelog">
+    <section title="Changelog [RFC Editor: please remove]">
+    
+      <t>draft-ietf-homenet-dncp-02:
+      <list style="symbols">
+
+        <t>Changed DNCP "messages" into series of TLV streams, allowing
+        optimized round-trip saving synchronization.</t>
+
+        <t>Added fragmentation support for bigger node data and for chunking
+        in abscence of reliable L2 and L3 fragmentation.</t>
+      </list>
+      </t>
 
       <t>draft-ietf-homenet-dncp-01:
       <list style="symbols">
@@ -1355,7 +1366,7 @@ and they can be queued (and jittered) freely?
 
     </section>
 
-    <section title="Draft Source">
+    <section title="Draft Source [RFC Editor: please remove]">
       <t>As usual, this draft is available at <eref
       target="https://github.com/fingon/ietf-drafts/">
       https://github.com/fingon/ietf-drafts/</eref>
