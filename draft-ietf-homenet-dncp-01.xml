@@ -387,7 +387,7 @@ and they can be queued (and jittered) freely?
         </list>
         </t>
 
-        <t>If secure unicast transport is configured for a connection, and
+        <t>If secure unicast transport is configured for a connection, any
         Node Data TLVs and Node State TLVs received via insecure multicast
         MUST be silently ignored.</t>
 
