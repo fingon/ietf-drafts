@@ -497,12 +497,12 @@ and they can be queued (and jittered) freely?
 
         <section title="Per-Connection Periodic Keep-Alives">
 
-          <t>If per-connection keep-alives are enabled on connection with a
-          multicast-enabled link, and if no traffic containing a <xref
+          <t>If per-connection keep-alives are enabled on a connection with
+          a multicast-enabled link, and if no traffic containing a <xref
           target="net-state">Network State TLV</xref> has been sent to a
           particular connection within the connection-specific keep-alive
           interval, a <xref target="net-state">Network State TLV</xref> MUST
-          be sent on that connection, and new Trickle transmission time 't'
+          be sent on that connection, and a new Trickle transmission time 't'
           in [I/2, I] MUST be randomly chosen. The actual sending time SHOULD
           be further delayed by a random timespan in [0, Imin/2].</t>
 
@@ -525,9 +525,9 @@ and they can be queued (and jittered) freely?
           <t>If a TLV is received via unicast from the peer, the Last
           contact timestamp for the peer MUST be updated.</t>
 
-          <t><xref target="net-state">Network State TLV</xref> which is
-          consistent with the locally calculated network state hash, the Last
-          contact timestamp for the peer MUST be updated.</t>
+          <t>On receipt of a <xref target="net-state">Network State TLV</xref>
+          which is consistent with the locally calculated network state hash,
+          the Last contact timestamp for the peer MUST be updated.</t>
 
         </section>
 
