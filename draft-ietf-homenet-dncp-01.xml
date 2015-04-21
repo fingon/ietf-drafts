@@ -325,7 +325,8 @@ and they can be queued (and jittered) freely?
         <list>
 
           <t><xref target="req-net-state">Request Network State TLV</xref>:
-          the receiver MUST reply with a <xref target="node-state">Node
+
+          The receiver MUST reply with a <xref target="node-state">Node
           State TLV</xref> for each Node Data TLV used to calculate the
           network state hash.</t>
 
@@ -363,13 +364,15 @@ and they can be queued (and jittered) freely?
           corresponding node. </t>
 
           <t><xref target="req-node-data">Request Node Data TLV</xref>:
-          if the receiver has node data for the corresponding node, it MUST
+
+          If the receiver has node data for the corresponding node, it MUST
           reply with <xref target="node-state">Node State TLV</xref>
           and <xref target="node-data">Node Data TLV</xref> for the
           corresponding node.</t>
 
           <t><xref target="node-data">Node Data TLV</xref>:
-          if the previous TLV within the message is a Node State TLV that
+
+          If the previous TLV within the message is a Node State TLV that
           is more recent than the local state (the received TLV has a
           higher update sequence number, the node data TLV hash differs
           from the local one, or local data is missing altogether), the
@@ -379,10 +382,14 @@ and they can be queued (and jittered) freely?
 
           DNCP profiles MAY add additional TLVs to the message specified
           here, or even define additional messages as needed. TLVs not
-          recognized by the receiver MUST be ignored.</t>
+          recognized by the receiver MUST be silently ignored.</t>
 
         </list>
         </t>
+
+        <t>If secure unicast transport is configured for a connection, and
+        Node Data TLVs and Node State TLVs received via insecure multicast
+        MUST be silently ignored.</t>
 
       </section>
 
@@ -1312,7 +1319,7 @@ and they can be queued (and jittered) freely?
 
     </section>
     <section title="Changelog [RFC Editor: please remove]">
-    
+
       <t>draft-ietf-homenet-dncp-02:
       <list style="symbols">
 
