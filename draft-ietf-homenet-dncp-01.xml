@@ -145,8 +145,9 @@ and they can be queued (and jittered) freely?
       with <xref target="RFC3493"/>, as the non-zero small positive
       integers should comfortably fit within 32 bits.</t>
 
-      <t>A (DNCP) peer refers to another DNCP node with which
-      a DNCP node communicates directly on a particular connection.</t>
+      <t>A (DNCP) peer refers to another DNCP node with which a DNCP node
+      communicates directly using a particular local and remote connection
+      pair.</t>
 
       <t>The node data is a set of TLVs published by a node in the DNCP
       network. The whole node data is owned by the node that publishes it, and
@@ -225,16 +226,17 @@ and they can be queued (and jittered) freely?
       <list style="symbols">
         <t>A connection identifier.</t>
 
-        <t>An interface, a unicast address of a DNCP peer it should
-        connect with, or a range of addresses from which DNCP peers are
-        allowed to connect.</t>
+        <t>An interface, a unicast address of a DNCP node it should connect
+        with, or a range of addresses from which DNCP nodes are allowed to
+        connect.</t>
 
         <t>A <xref target="RFC6206">Trickle</xref> instance with parameters
         I, T, and c.</t>
       </list>
       </t>
 
-      <t>For each DNCP peer detected on a connection, a DNCP node has:
+      <t>For each remote (DNCP node,connection) pair detected on a
+      particular connection, a DNCP node has:
 
       <list style="symbols">
 
@@ -322,61 +324,67 @@ and they can be queued (and jittered) freely?
         altogether. </t>
 
         <t>Upon receipt of:
-        <list>
+        <list style="symbols">
 
           <t><xref target="req-net-state">Request Network State TLV</xref>:
 
-          The receiver MUST reply with a <xref target="node-state">Node
-          State TLV</xref> for each Node Data TLV used to calculate the
-          network state hash.</t>
+          The receiver MUST reply with a <xref target="net-state">Network
+          State TLV</xref> and a <xref target="node-state">Node State
+          TLV</xref> for each Node Data TLV used to calculate the network
+          state hash.</t>
 
           <t><xref target="net-state">Network State TLV</xref>:
 
-          If the network state hash within the message differs from the
-          locally calculated network state hash, and the receiver is
-          unaware of any particular node state differences with the sender,
-          the receiver MUST reply with a <xref
-          target="req-net-state">Request Network State TLV</xref>. The
-          receiver MAY omit this, if there are already recent pending
-          requests for node state or node data.</t>
+          If the network state hash differs from the locally calculated
+          network state hash, and the receiver is unaware of any particular
+          node state differences with the sender, the receiver MUST reply
+          with a <xref target="req-net-state">Request Network State
+          TLV</xref>. The receiver MAY omit this, if there are already
+          recent pending requests for node state or node data.</t>
 
           <t><xref target="node-state">Node State TLV</xref>:
 
-          If the node identifier matches the local node identifier and
-          the TLV has a higher update sequence number than its current
-          local value, or the same update sequence number and a different
-          hash, the node SHOULD re-publish its own node data with an update
-          sequence number 1000 higher than the received one. This may occur
-          normally once due to the local node restarting and not storing
-          the most recently used update sequence number. If this occurs
-          more than once, the DNCP profile should provide guidance on how
-          to handle these situations as it indicates the existence of
-          another active node with the same node identifier.
+          <list style="symbols">
+            <t>If the node identifier matches the local node identifier and
+            the TLV has a higher update sequence number than its current
+            local value, or the same update sequence number and a different
+            hash, the node SHOULD re-publish its own node data with an update
+            sequence number 1000 higher than the received one. This may occur
+            normally once due to the local node restarting and not storing
+            the most recently used update sequence number. If this occurs
+            more than once, the DNCP profile should provide guidance on how
+            to handle these situations as it indicates the existence of
+            another active node with the same node identifier.</t>
 
-          If the node identifier does not match the local node identifier,
-          and the local information is outdated for the corresponding node
-          (local update sequence number is lower than that within the TLV),
-          potentially incorrect (local update sequence number matches but
-          the hash of the node data TLV differs), or the data is altogether
-          missing, and there is no corresponding Node Data TLV available,
-          the receiver MUST reply with a <xref
-          target="req-node-data">Request Node Data TLV</xref> for the
-          corresponding node. </t>
+            <t>If the node identifier does not match the local node identifier,
+            and the local information is outdated for the corresponding node
+            (local update sequence number is lower than that within the TLV),
+            potentially incorrect (local update sequence number matches but
+            the hash of the node data TLV differs), or the data is altogether
+            missing, and there is no corresponding Node Data TLV available,
+            the receiver MUST reply with a <xref
+            target="req-node-data">Request Node Data TLV</xref> for the
+            corresponding node. </t>
+          </list>
+          </t>
 
           <t><xref target="req-node-data">Request Node Data TLV</xref>:
 
           If the receiver has node data for the corresponding node, it MUST
-          reply with <xref target="node-state">Node State TLV</xref>
-          and <xref target="node-data">Node Data TLV</xref> for the
+          reply with a <xref target="node-state">Node State TLV</xref> and
+          a <xref target="node-data">Node Data TLV</xref> for the
           corresponding node.</t>
 
           <t><xref target="node-data">Node Data TLV</xref>:
 
-          If the previous TLV within the message is a Node State TLV that
-          is more recent than the local state (the received TLV has a
-          higher update sequence number, the node data TLV hash differs
-          from the local one, or local data is missing altogether), the
-          receiver MUST update its locally stored state.</t>
+          If the message contains also a <xref target="node-state">Node
+          State TLV</xref> with the same update sequence number, that is
+          more recent than the local state (the received TLV has a higher
+          update sequence number, the node data TLV hash differs from the
+          local one, or local data is missing altogether), the receiver
+          MUST update its locally stored state for that node (node data,
+          update sequence number, relative time) to match the received
+          TLVs.</t>
 
           <t>Any other TLV:
 
@@ -396,7 +404,7 @@ and they can be queued (and jittered) freely?
       <section title="Adding and Removing Peers" anchor="neighbor">
 
         <t>When receiving a message on a connection from an unknown peer:
-        <list>
+        <list style="symbols">
           <t>If it is a unicast message, and the message contains a <xref
           target="node-id">Node Connection TLV</xref>, the remote node MUST
           be added as a peer on the connection and a <xref
@@ -577,22 +585,31 @@ and they can be queued (and jittered) freely?
         MTU and no reliable support for fragmentation. To handle such
         cases, a DNCP profile MAY specify a fixed number of trailing bytes
         in the Node Identifier to represent a fragment number indicating a
-        part of a node's Node Data. The profile MAY also specify an upper
+        part of a node's node data. The profile MAY also specify an upper
         bound for the size of a single fragment to accommodate limitations
         of links in the network.</t>
 
-        <t>The concatenated Node Data from all fragments MUST be ordered,
-        i.e. for any TLV tuple T1 in fragment N and T2 in fragment M, T1
-        must be less than T2 if N is less than M.
-        Any Node Identifiers on the wire used to identify the own or any
-        other node MUST have the fragment bytes zeroed.</t>
+        <t>The data within Node Data TLVs of fragments with non-zero
+        fragment number must be treated as opaque (as they may not contain
+        even a single full TLV). However, the concatenated node data for a
+        particular node MUST be produced by concatenating all node data for
+        each fragment, in ascending fragment number order. The concatenated
+        node data MUST follow the ordering described in <xref target="dm"
+        />.</t>
+
+        <t>Any Node Identifiers on the wire used to identify the own or any
+        other node MUST have the fragment number 0. For algorithm purposes,
+        the relative time since the most recent fragment change MUST be
+        used, regardless of fragment number. Therefore, even if just part
+        of the node data fragments change, they all are considered
+        refreshed if one of them is.</t>
 
         <t>If using fragmentation, the unreachable node purging defined in
         <xref target="purge" /> is extended so that if a <xref
         target="fragment-count">Fragment Count TLV</xref> is present within
-        the fragment 0, any fragments up to the Count it specifies are also
-        considered reachable if the fragment 0 itself is reachable based on
-        graph traversal. </t>
+        the fragment number 0, all fragments up to fragment number
+        specified in the Count field are also considered reachable if the
+        fragment number 0 itself is reachable based on graph traversal. </t>
 
       </section>
     </section>
@@ -653,8 +670,9 @@ and they can be queued (and jittered) freely?
             </artwork>
           </figure>
 
-          <t>This TLV is used to request a remote node's Node State TLVs and
-          Network State TLV as well.</t>
+          <t>This TLV is used to request response with a <xref
+          target="net-state">Network State TLV</xref> and all <xref
+          target="node-state">Node State TLVs</xref>.</t>
 
         </section>
         <section anchor="req-node-data" title="Request Node Data TLV">
@@ -675,8 +693,10 @@ and they can be queued (and jittered) freely?
             </artwork>
           </figure>
 
-          <t>This TLV is used to request node state and node data
-          for the node with matching node identifier.</t>
+          <t>This TLV is used to request response with a <xref
+          target="node-state">Node State TLV</xref> and a <xref
+          target="node-data">Node Data TLV</xref> for the node with
+          matching node identifier.</t>
 
         </section>
 
@@ -1232,6 +1252,8 @@ and they can be queued (and jittered) freely?
           valid.</t>
         </list>
         </t>
+        <t>Whether to support fragmentation, and if so, the number of bytes
+        reserved for fragment count in the node identifier.</t>
       </list>
       </t>
     </section>
