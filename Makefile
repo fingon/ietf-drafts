@@ -4,7 +4,7 @@
 # Author: Markus Stenberg <markus stenberg@iki.fi>
 #
 # Created:       Mon Jun 17 04:40:32 2013 mstenber
-# Last modified: Wed Mar  4 17:53:54 2015 mstenber
+# Last modified: Wed Apr 22 12:55:34 2015 mstenber
 # Edit time:     26 min
 #
 
@@ -12,7 +12,7 @@ DRAFTS=\
   draft-ietf-homenet-hybrid-proxy-zeroconf-00.txt \
   draft-stenberg-homenet-minimalist-pcp-proxy-01.txt \
   draft-stenberg-anima-adncp-00.txt \
-  draft-ietf-homenet-dncp-01.txt \
+  draft-ietf-homenet-dncp-02.txt \
   draft-ietf-homenet-hncp-04.txt \
 
 ifndef XML_LIBRARY
