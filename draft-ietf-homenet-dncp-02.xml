@@ -166,9 +166,9 @@ and they can be queued (and jittered) freely?
       bits used are defined in the DNCP profile.
 
       Whenever any node is added, removed or updates its published node
-      data this hash value changes as well. It is calculated over the each
-      reachable nodes' update number and hash value of node data in
-      ascending order of the respective node identifier.</t>
+      data this hash value changes as well. It is calculated over each
+      reachable nodes' update number concatenated with the hash value of
+      its node data in ascending order of the respective node identifier.</t>
 
       <t>The effective (trust) verdict for a certificate is defined as the
       verdict with the highest priority within the set of verdicts
@@ -329,8 +329,8 @@ and they can be queued (and jittered) freely?
           The receiver MUST reply with a <xref target="net-state">Network
           State TLV</xref> and a <xref target="node-state">Node State
           TLV</xref> for each node data used to calculate the network state
-          hash. The Node State TLVs SHOULD NOT contain optional node data
-          part.</t>
+          hash. The Node State TLVs SHOULD NOT contain the optional node
+          data part.</t>
 
           <t><xref target="req-node-state">Request Node State TLV</xref>:
 
@@ -578,9 +578,9 @@ and they can be queued (and jittered) freely?
 
       <section anchor="fragmentation" title="Node Data Fragmentation">
 
-        <t>A DNCP profile may be required to support a node data which
-        would not fit maximum size of a single <xref
-        target="node-state">Node State TLV</xref> (65535 bytes of payload),
+        <t>A DNCP profile may be required to support node data which
+        would not the fit maximum size of a single <xref
+        target="node-state">Node State TLV</xref> (roughly 64KB of payload),
         or use a datagram-only transport with a limited MTU and no reliable
         support for fragmentation. To handle such cases, a DNCP profile MAY
         specify a fixed number of trailing bytes in the Node Identifier to
@@ -589,7 +589,7 @@ and they can be queued (and jittered) freely?
         single fragment to accommodate limitations of links in the
         network.</t>
 
-        <t>The data within Node Sata TLVs of fragments with non-zero
+        <t>The data within Node State TLVs of fragments with non-zero
         fragment number must be treated as opaque (as they may not contain
         even a single full TLV). However, the concatenated node data for a
         particular node MUST be produced by concatenating all node data for
@@ -745,11 +745,9 @@ and they can be queued (and jittered) freely?
           </figure>
 
           <t>This TLV contains the current locally calculated network state
-          hash. The network state hash is derived by calculating the hash
-          value for each currently reachable node's Node Data TLV,
-          concatenating said hash values based on the ascending order of
-          their corresponding node identifiers, and hashing the resulting
-          concatenated hash values.</t>
+          hash. It is calculated over each reachable nodes' update number
+          concatenated with the hash value of its node data in ascending
+          order of the respective node identifier.</t>
 
         </section>
         <section anchor="node-state" title="Node State TLV">
@@ -793,7 +791,7 @@ and they can be queued (and jittered) freely?
 
           <t>The actual node data of the node may be included within the
           TLV as well; see <xref target="reception" /> for the cases where
-          it MUST or MUST NOT be included. In DNCP profile which supports
+          it MUST or MUST NOT be included. In a DNCP profile which supports
           fragmentation, described in <xref target="fragmentation" />, the
           TLV data may be only partial and not really usable without other
           fragments.</t>
