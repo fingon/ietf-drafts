@@ -1,4 +1,4 @@
-<?xml version='1.0' ?>
+<<?xml version='1.0' ?>
 <!--
 Created:       Mon Nov 18 17:55:22 2013 mstenber
 
@@ -133,20 +133,21 @@ and they can be queued (and jittered) freely?
       <t>An interface indicates a port of a node that is connected to a
       particular link. </t>
 
-      <t>A connection denotes a locally configured use of DNCP on a DNCP
+      <t>An endpoint denotes a locally configured use of DNCP on a DNCP
       node, that is attached either to an interface, to a specific remote
       unicast address to be contacted, or to a range of remote unicast
       addresses that are allowed to contact.</t>
 
-      <t>The connection identifier is a 32-bit opaque value, which identifies a
-      particular connection of that particular DNCP node. The value 0 is
+      <t>The endpoint identifier is a 32-bit opaque value, which identifies
+      a particular endpoint of that particular DNCP node. The value 0 is
       reserved for DNCP and sub-protocol purposes in the TLVs, and MUST NOT
-      be used to identify an actual connection. This definition is in sync
-      with <xref target="RFC3493"/>, as the non-zero small positive
-      integers should comfortably fit within 32 bits.</t>
+      be used to identify an actual endpoint. This definition is in sync
+      with the interface index definition in <xref target="RFC3493"/>, as
+      the non-zero small positive integers should comfortably fit within 32
+      bits.</t>
 
       <t>A (DNCP) peer refers to another DNCP node with which a DNCP node
-      communicates directly using a particular local and remote connection
+      communicates directly using a particular local and remote endpoint
       pair.</t>
 
       <t>The node data is a set of TLVs published by a node in the DNCP
@@ -220,11 +221,11 @@ and they can be queued (and jittered) freely?
       </list>
       </t>
 
-      <t>Additionally, a DNCP node has a set of connections for which DNCP
-      is configured to be used. For each such connection, a node has:
+      <t>Additionally, a DNCP node has a set of endpoints for which DNCP
+      is configured to be used. For each such endpoint, a node has:
 
       <list style="symbols">
-        <t>A connection identifier.</t>
+        <t>An endpoint identifier, a 32-bit opaque value.</t>
 
         <t>An interface, a unicast address of a DNCP node it should connect
         with, or a range of addresses from which DNCP nodes are allowed to
@@ -235,14 +236,14 @@ and they can be queued (and jittered) freely?
       </list>
       </t>
 
-      <t>For each remote (DNCP node,connection) pair detected on a
-      particular connection, a DNCP node has:
+      <t>For each remote (DNCP node, endpoint) pair detected on a
+      local endpoint, a DNCP node has:
 
       <list style="symbols">
 
         <t>The node identifier of the DNCP peer.</t>
 
-        <t>The connection identifier of the DNCP peer.</t>
+        <t>The endpoint identifier of the DNCP peer.</t>
 
         <t>The most recent address used by the DNCP peer (in an
         authenticated message, if security is enabled).</t>
@@ -282,7 +283,7 @@ and they can be queued (and jittered) freely?
 
         <t>When employing unreliable transport, each node MUST send a <xref
         target="net-state">Network State TLV</xref> every time the
-        connection-specific <xref target="RFC6206">Trickle algorithm</xref>
+        endpoint-specific <xref target="RFC6206">Trickle algorithm</xref>
         instance indicates that an update should be sent. Multicast MUST be
         employed on a multicast-capable interface; otherwise, unicast can
         be used as well.
@@ -295,8 +296,8 @@ and they can be queued (and jittered) freely?
         or for security reasons.</t>
 
         <t>A Trickle state MUST be maintained separately for each
-        connection which employs unreliable transport. The Trickle state
-        for all connections is considered inconsistent and reset if and
+        endpoint which employs unreliable transport. The Trickle state
+        for all endpoints is considered inconsistent and reset if and
         only if the locally calculated network state hash changes. This
         occurs either due to a change in the local node's own node data, or
         due to receipt of more recent data from another node.</t>
@@ -304,7 +305,7 @@ and they can be queued (and jittered) freely?
         <t>The Trickle algorithm has 3 parameters: Imin, Imax and k. Imin
         and Imax represent the minimum and maximum values for I, which is
         the time interval during which at least k Trickle updates must be
-        seen on a connection to prevent local state transmission.  The
+        seen on an endpoint to prevent local state transmission.  The
         actual suggested Trickle algorithm parameters are DNCP profile
         specific, as described in <xref target="profile-bits"/>.</t>
 
@@ -395,7 +396,7 @@ and they can be queued (and jittered) freely?
         </list>
         </t>
 
-        <t>If secure unicast transport is configured for a connection, any
+        <t>If secure unicast transport is configured for an endpoint, any
         Node Data TLVs and Node State TLVs received via insecure multicast
         MUST be silently ignored.</t>
 
@@ -403,16 +404,16 @@ and they can be queued (and jittered) freely?
 
       <section title="Adding and Removing Peers" anchor="neighbor">
 
-        <t>When receiving a message on a connection from an unknown peer:
+        <t>When receiving a message on an endpoint from an unknown peer:
         <list style="symbols">
           <t>If it is a unicast message, and the message contains a <xref
-          target="node-id">Node Connection TLV</xref>, the remote node MUST
-          be added as a peer on the connection and a <xref
-          target="neighbor-tlv">Neighbor TLV</xref> MUST be created for it.
+          target="endpoint">Node Endpoint TLV</xref>, the remote node MUST
+          be added as a peer on the endpoint and a <xref
+          target="neighbor">Neighbor TLV</xref> MUST be created for it.
           </t>
 
           <t>If it is a multicast message, and the message contains a <xref
-          target="node-id">Node Connection TLV</xref>, the node SHOULD be
+          target="endpoint">Node Endpoint TLV</xref>, the node SHOULD be
           sent a (possibly rate-limited) unicast <xref
           target="req-net-state">Request Network State TLV</xref>.</t>
         </list>
@@ -433,7 +434,7 @@ and they can be queued (and jittered) freely?
         neighbor graph SHOULD be traversed, starting from the local
         node. The edges to be traversed are identified by looking for
         Neighbor TLVs on both nodes, that have the other node's identifier
-        in the neighbor node identifier, and local and neighbor connection
+        in the neighbor node identifier, and local and neighbor endpoint
         identifiers swapped. Each node reached should be marked currently
         reachable.</t>
 
@@ -457,7 +458,7 @@ and they can be queued (and jittered) freely?
       <section anchor="ka" title="Keep-Alives">
 
         <t>The Trickle-driven messages provide a mechanism for handling of
-        new peer detection (if applicable) on a connection, as well as state
+        new peer detection (if applicable) on an endpoint, as well as state
         change notifications. Another mechanism may be needed to get rid of
         old, no longer valid DNCP peers if the transport or lower layers do
         not provide one.</t>
@@ -465,16 +466,16 @@ and they can be queued (and jittered) freely?
         <t>If keep-alives are not specified in the DNCP profile, the rest
         of this subsection MUST be ignored.</t>
 
-        <t>A DNCP profile MAY specify either per-connection or per-peer
+        <t>A DNCP profile MAY specify either per-endpoint or per-peer
         keep-alive support. </t>
 
-        <t>For every connection that a keep-alive is specified for in the
-        DNCP profile, the connection-specific keep-alive interval MUST be
+        <t>For every endpoint that a keep-alive is specified for in the
+        DNCP profile, the endpoint-specific keep-alive interval MUST be
         maintained. By default, it is DNCP_KEEPALIVE_INTERVAL. If there is a
         local value that is preferred for that for any reason (configuration,
         energy conservation, media type, ..), it should be substituted
         instead. If a non-default keep-alive interval is used on any
-        connection, a DNCP node MUST publish appropriate <xref
+        endpoint, a DNCP node MUST publish appropriate <xref
         target="ka-interval">Keep-Alive Interval TLV(s)</xref> within its
         node data.</t>
 
@@ -485,7 +486,7 @@ and they can be queued (and jittered) freely?
 
           <t>Each node MUST have a timestamp which indicates the last time a
           <xref target="net-state">Network State TLV</xref> was sent for each
-          connection, i.e. on an interface or to the point-to-point
+          endpoint, i.e. on an interface or to the point-to-point
           peer(s).</t>
 
           <t>Each node MUST have for each peer:
@@ -503,14 +504,14 @@ and they can be queued (and jittered) freely?
 
         </section>
 
-        <section title="Per-Connection Periodic Keep-Alives">
+        <section title="Per-Endpoint Periodic Keep-Alives">
 
-          <t>If per-connection keep-alives are enabled on a connection with
+          <t>If per-endpoint keep-alives are enabled on an endpoint with
           a multicast-enabled link, and if no traffic containing a <xref
           target="net-state">Network State TLV</xref> has been sent to a
-          particular connection within the connection-specific keep-alive
+          particular endpoint within the endpoint-specific keep-alive
           interval, a <xref target="net-state">Network State TLV</xref> MUST
-          be sent on that connection, and a new Trickle transmission time 't'
+          be sent on that endpoint, and a new Trickle transmission time 't'
           in [I/2, I] MUST be randomly chosen. The actual sending time SHOULD
           be further delayed by a random timespan in [0, Imin/2].</t>
 
@@ -519,9 +520,9 @@ and they can be queued (and jittered) freely?
         <section title="Per-Peer Periodic Keep-Alives">
 
           <t>If per-peer keep-alives are enabled on a unicast-only
-          connection, and if no traffic containing a <xref
+          endpoint, and if no traffic containing a <xref
           target="net-state">Network State TLV</xref> has been sent to a
-          particular peer within the connection-specific keep-alive interval,
+          particular peer within the endpoint-specific keep-alive interval,
           a <xref target="net-state">Network State TLV</xref> MUST be sent to
           the peer and a new Trickle transmission time 't' in [I/2, I] MUST
           be randomly chosen.</t>
@@ -541,13 +542,13 @@ and they can be queued (and jittered) freely?
 
         <section title="Neighbor Removal">
 
-          <t>For every peer on every connection, the connection-specific
+          <t>For every peer on every endpoint, the endpoint-specific
           keep-alive interval must be calculated by looking for <xref
           target="ka-interval">Keep-Alive Interval TLVs</xref> published by
           the node, and if none exist, using the default value of
           DNCP_KEEPALIVE_INTERVAL. If the peer's last contact state
           timestamp has not been updated for at least
-          DNCP_KEEPALIVE_MULTIPLIER times the peer's connection-specific
+          DNCP_KEEPALIVE_MULTIPLIER times the peer's endpoint-specific
           keep-alive interval, the Neighbor TLV for that peer and the local
           DNCP peer state MUST be removed.</t>
 
@@ -558,22 +559,22 @@ and they can be queued (and jittered) freely?
       <section title="Support For Dense Broadcast Links">
 
         <t>An upper bound for the number of neighbors that are allowed for
-        a (particular type of) link that a connection runs on SHOULD be
+        a (particular type of) link that an endpoint runs on SHOULD be
         provided by a DNCP profile, user configuration, or some hardcoded
         default in the implementation. If an implementation does not
         support this, the rest of this subsection MUST be ignored.</t>
 
         <t>If the specified limit is exceeded, nodes without the highest
-        Node Identifier on the link SHOULD treat the connection as an
-        unicast connection connected to the node that has the highest Node
-        Identifier detected on the link. The nodes MUST also keep listening
-        to multicast traffic to both detect the presence of that node, and
-        to react to nodes with a higher Node Identifier appearing. If the
-        highest Node Identifier present on the link changes, the connection
-        endpoint MUST be changed. If the Node Identifier of the local node
-        is the highest one, the node MUST keep the connection in normal
-        multicast mode, and the node MUST allow others to peer with it over
-        the link.</t>
+        Node Identifier on the link SHOULD treat the endpoint as a unicast
+        endpoint connected to the node that has the highest Node Identifier
+        detected on the link. The nodes MUST also keep listening to
+        multicast traffic to both detect the presence of that node, and to
+        react to nodes with a higher Node Identifier appearing. If the
+        highest Node Identifier present on the link changes, the remote
+        unicast address of unicast endpoints MUST be changed. If the Node
+        Identifier of the local node is the highest one, the node MUST keep
+        the endpoint in multicast mode, and the node MUST allow others to
+        peer with it over the link via unicast as well.</t>
 
       </section>
 
@@ -702,30 +703,30 @@ and they can be queued (and jittered) freely?
 
       </section>
       <section title="Data TLVs">
-        <section anchor="node-id" title="Node Connection TLV">
+        <section anchor="endpoint" title="Node Endpoint TLV">
 
           <figure>
             <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|   Type: NODE-CONNECTION (1)   |          Length: > 4          |
+|   Type: NODE-ENDPOINT (1)   |          Length: > 4          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        Node Identifier                        |
 |                  (length fixed in DNCP profile)               |
 ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                     Connection Identifier                     |
+|                      Endpoint Identifier                      |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
             </artwork>
           </figure>
 
           <t>This TLV identifies both the local node's node identifier, as
-          well as the particular connection identifier. It MUST be sent in
-          every message if bidirectional peer relationship is desired with
-          remote nodes. Bidirectional peer relationship is not necessary
-          for read-only access to the DNCP state, but it is required to be
-          able to publish something.</t>
+          well as the particular endpoint's endpoint identifier. It MUST be
+          sent in every message if bidirectional peer relationship is
+          desired with remote nodes on that endpoint. Bidirectional peer
+          relationship is not necessary for read-only access to the DNCP
+          state, but it is required to be able to publish something.</t>
 
         </section>
         <section anchor="net-state" title="Network State TLV">
@@ -810,7 +811,7 @@ and they can be queued (and jittered) freely?
 
         </section>
 
-        <section anchor="user-tlv" title="Custom TLV">
+        <section anchor="custom" title="Custom TLV">
         <figure>
           <artwork>
 0                   1                   2                   3
@@ -873,7 +874,7 @@ and they can be queued (and jittered) freely?
         </section>
 
 
-        <section anchor="neighbor-tlv"
+        <section anchor="neighbor"
                  title="Neighbor TLV">
           <figure>
             <artwork>
@@ -886,16 +887,16 @@ and they can be queued (and jittered) freely?
 |                  (length fixed in DNCP profile)               |
 ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                 Neighbor Connection Identifier                |
+|                  Neighbor Endpoint Identifier                 |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                   Local Connection Identifier                 |
+|                    Local Endpoint Identifier                  |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
             </artwork>
           </figure>
 
           <t>This TLV indicates that the node in question vouches that the
           specified neighbor is reachable by it on the specified local
-          connection.
+          endpoint.
 
           The presence of this TLV at least guarantees that the node
           publishing it has received traffic from the neighbor
@@ -914,7 +915,7 @@ and they can be queued (and jittered) freely?
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 | Type: KEEP-ALIVE-INTERVAL (14)|          Length: 8            |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                     Connection Identifier                     |
+|                      Endpoint Identifier                      |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                           Interval                            |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -924,9 +925,9 @@ and they can be queued (and jittered) freely?
           <t>This TLV indicates a non-default interval being used to send
           keep-alives specified in <xref target="ka" />.</t>
 
-          <t>Connection identifier is used to identify the particular
-          connection for which the interval applies. If 0, it applies for
-          ALL connections for which no specific TLV exists.</t>
+          <t>Endpoint identifier is used to identify the particular
+          endpoint for which the interval applies. If 0, it applies for
+          ALL endpoints for which no specific TLV exists.</t>
 
           <t>Interval specifies the interval in milliseconds at which the
           node sends keep-alives. A value of zero means no keep-alives are
@@ -1288,7 +1289,7 @@ and they can be queued (and jittered) freely?
       with the following initial contents:</t>
 
       <t>0: Reserved (should not happen on wire)</t>
-      <t>1: Node connection</t>
+      <t>1: Node endpoint</t>
       <t>2: Request network state</t>
       <t>3: Request node data</t>
       <t>4-8: Reserved for DNCP profile use</t>
@@ -1327,7 +1328,7 @@ and they can be queued (and jittered) freely?
 
     <section title="Some Questions and Answers [RFC Editor: please remove]">
 
-      <t>Q: 32-bit connection id?</t>
+      <t>Q: 32-bit endpoint id?</t>
       <t>A: Here, it would save 32 bits per neighbor if it was 16 bits (and
       less is not realistic). However, TLVs defined elsewhere would not
       seem to even gain that much on average.  32 bits is also used for
@@ -1341,6 +1342,14 @@ and they can be queued (and jittered) freely?
 
     </section>
     <section title="Changelog [RFC Editor: please remove]">
+
+      <t>draft-ietf-homenet-dncp-03:
+      <list style="symbols">
+
+        <t>Renamed connection -> endpoint.</t>
+
+      </list>
+      </t>
 
       <t>draft-ietf-homenet-dncp-02:
       <list style="symbols">
@@ -1406,8 +1415,8 @@ and they can be queued (and jittered) freely?
     <section title="Acknowledgements">
 
       <t>Thanks to Ole Troan, Pierre Pfister, Mark Baugher, Mark Townsley,
-      Juliusz Chroboczek and Jiazi Yi for their contributions to the
-      draft.</t>
+      Juliusz Chroboczek, Jiazi Yi, Mikael Abrahamsson and Brian Carpenter
+      for their contributions to the draft.</t>
 
     </section>
 
