@@ -852,14 +852,14 @@ and they can be queued (and jittered) freely?
             </artwork>
           </figure>
 
-          <t>If the DNCP profile supports Node Data fragmentation as
+          <t>If the DNCP profile supports node data fragmentation as
           specified in <xref target="fragmentation" />, this TLV indicates
-          that the Node Data is encoded as a series of Node Data
-          TLVs. Subsequent Node Data with Node Identifiers up to Count
+          that the node data is encoded as a sequence of Node State
+          TLVs. Following Node State TLVs with Node Identifiers up to Count
           higher than the current one MUST be considered reachable and part
-          of the same logical set of Node Data that this TLV is within. The
-          fragment portion of the Node Identifier of the Node Data this is
-          within MUST be zeros.</t>
+          of the same logical set of node data that this TLV is within. The
+          fragment portion of the Node Identifier of the Node State TLV
+          this is TLV appears in MUST be zeros.</t>
 
         </section>
 
