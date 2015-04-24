@@ -245,8 +245,8 @@ and they can be queued (and jittered) freely?
 
         <t>The endpoint identifier of the DNCP peer.</t>
 
-        <t>The most recent address used by the DNCP peer (in an
-        authenticated message, if security is enabled).</t>
+        <t>The most recent address used by the DNCP peer (authenticated and
+        authorized, if security is enabled).</t>
 
       </list>
       </t>
@@ -275,7 +275,7 @@ and they can be queued (and jittered) freely?
       they have been fully received. On datagram transport, each individual
       datagram is a separate message. </t>
 
-      <section title="Trickle-Driven Status Update Messages"
+      <section title="Trickle-Driven Status Updates"
                anchor="trickle-updates">
 
         <t>When employing unreliable transport, each node MUST send a <xref
@@ -313,13 +313,13 @@ and they can be queued (and jittered) freely?
         <t>This section describes how received TLVs are processed. The DNCP
         profile may specify criteria based on which particular TLVs are
         ignored. Any 'reply' mentioned in the steps below denotes sending
-        of the specified TLV(s) via unicast to the originator of the
-        message being processed. If the reply was caused by a multicast
-        message and sent to a link with shared bandwidth it SHOULD be
-        delayed by a random timespan in [0, Imin/2]. Sending of replies
-        SHOULD be rate-limited by the implementation, and in case of excess
-        load (or some other reason), a reply MAY be omitted
-        altogether. </t>
+        of the specified TLV(s) via unicast to the originator of the TLV
+        being processed. If the TLV being replied to was received via
+        multicast and it was sent to a link with shared bandwidth, the
+        reply SHOULD be delayed by a random timespan in [0,
+        Imin/2]. Sending of replies SHOULD be rate-limited by the
+        implementation, and in case of excess load (or some other reason),
+        a reply MAY be omitted altogether. </t>
 
         <t>Upon receipt of:
         <list style="symbols">
@@ -387,9 +387,7 @@ and they can be queued (and jittered) freely?
 
           <t>Any other TLV:
 
-          DNCP profiles MAY add additional TLVs to the message specified
-          here, or even define additional messages as needed. TLVs not
-          recognized by the receiver MUST be silently ignored.</t>
+          TLVs not recognized by the receiver MUST be silently ignored.</t>
 
         </list>
         </t>
@@ -402,18 +400,20 @@ and they can be queued (and jittered) freely?
 
       <section title="Adding and Removing Peers">
 
-        <t>When receiving a message on an endpoint from an unknown peer:
+        <t>When receiving a <xref target="endpoint">Node Endpoint
+        TLV</xref> on an endpoint from an unknown peer:
+
         <list style="symbols">
-          <t>If it is a unicast message, and the message contains a <xref
-          target="endpoint">Node Endpoint TLV</xref>, the remote node MUST
-          be added as a peer on the endpoint and a <xref
-          target="neighbor">Neighbor TLV</xref> MUST be created for it.
+
+          <t>If it comes via unicast, the remote node MUST be added as a
+          peer on the endpoint and a <xref target="neighbor">Neighbor
+          TLV</xref> MUST be created for it.
           </t>
 
-          <t>If it is a multicast message, and the message contains a <xref
-          target="endpoint">Node Endpoint TLV</xref>, the node SHOULD be
-          sent a (possibly rate-limited) unicast <xref
-          target="req-net-state">Request Network State TLV</xref>.</t>
+          <t>If it comes via multicast, the node SHOULD be sent a (possibly
+          rate-limited) unicast <xref target="req-net-state">Request
+          Network State TLV</xref>.</t>
+
         </list>
         </t>
 
@@ -455,11 +455,12 @@ and they can be queued (and jittered) freely?
 
       <section anchor="ka" title="Keep-Alives">
 
-        <t>The Trickle-driven messages provide a mechanism for handling of
-        new peer detection (if applicable) on an endpoint, as well as state
-        change notifications. Another mechanism may be needed to get rid of
-        old, no longer valid DNCP peers if the transport or lower layers do
-        not provide one.</t>
+        <t><xref target="trickle-updates">Trickle-driven status
+        updates</xref> provide a mechanism for handling of new peer
+        detection (if applicable) on an endpoint, as well as state change
+        notifications. Another mechanism may be needed to get rid of old,
+        no longer valid DNCP peers if the transport or lower layers do not
+        provide one.</t>
 
         <t>If keep-alives are not specified in the DNCP profile, the rest
         of this subsection MUST be ignored.</t>
@@ -1187,7 +1188,7 @@ and they can be queued (and jittered) freely?
       <t>Each DNCP profile MUST define following:
       <list style="symbols">
 
-        <t>How the messages are secured: Not at all, optionally or always
+        <t>How the transport is secured: Not at all, optionally or always
         with the TLS scheme defined here using one or more of the methods,
         or with something else. If the links with DNCP nodes can be
         sufficiently secured or isolated, it is possible to run DNCP in a
