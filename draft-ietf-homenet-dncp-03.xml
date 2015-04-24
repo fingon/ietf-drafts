@@ -21,7 +21,7 @@ and they can be queued (and jittered) freely?
 
 <rfc
     ipr='trust200902'
-    docName='draft-ietf-homenet-dncp-02'
+    docName='draft-ietf-homenet-dncp-03'
     category='std'
     >
   <front>
