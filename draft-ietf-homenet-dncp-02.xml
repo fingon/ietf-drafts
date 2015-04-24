@@ -123,6 +123,12 @@ and they can be queued (and jittered) freely?
       connected via only unidirectional links are not considered
       connected. </t>
 
+      <t>A DNCP message is an abstract concept: when using a reliable
+      stream transport, the whole stream of TLVs can be considered
+      a single message, with new TLVs becoming one by one available once
+      they have been fully received. On a datagram transport, each individual
+      datagram is considered a separate message.</t>
+
       <t>The node identifier is an opaque fixed-length identifier consisting of
       DNCP_NODE_IDENTIFIER_LENGTH bytes which uniquely identifies a DNCP
       node within a DNCP network. </t>
@@ -269,11 +275,10 @@ and they can be queued (and jittered) freely?
       unicast exchange should be triggered, the multicast transport does
       not have to be particularly secure.</t>
 
-      <t>A DNCP message in and of itself is just an abstraction; when using
-      reliable stream transport, the whole stream of TLVs can be considered
-      a single message, with new TLVs becoming one by one available once
-      they have been fully received. On datagram transport, each individual
-      datagram is a separate message. </t>
+      <t>To form bidirectional peer relationships DNCP requires identification
+      of the endpoints used for communication. A DNCP node therefore MUST
+      include an <xref target="endpoint">Endpoint TLV</xref> in each message
+      intended to maintain a DNCP peer relationship.</t>
 
       <section title="Trickle-Driven Status Updates"
                anchor="trickle-updates">
