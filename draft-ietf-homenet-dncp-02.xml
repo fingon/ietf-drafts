@@ -768,7 +768,7 @@ and they can be queued (and jittered) freely?
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                Milliseconds since Origination                 |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                        H(node data TLV)                       |
+|                         H(node data)                          |
 |                  (length fixed in DNCP profile)               |
 ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -785,10 +785,8 @@ and they can be queued (and jittered) freely?
           <t>The whole network should have roughly same idea about the time
           since origination of any particular published state. Therefore
           every node, including the originating one, MUST increment the
-          time whenever it needs to send a Node State TLV for an already
-          published Node Data TLV. This age value is not included within
-          the Node Data TLV, however, as that is immutable and used to
-          detect changes in the network state.</t>
+          time whenever it needs to send a Node State TLV for already
+          published node data.</t>
 
           <t>The actual node data of the node may be included within the
           TLV as well; see <xref target="reception" /> for the cases where
