@@ -360,10 +360,6 @@ and they can be queued (and jittered) freely?
           requests, and just sending at most one request for network state
           per Imin.
           
-          In addition to the mandatory rate limiting mechanism, if the node
-          knows that the network state hash in question is older than the
-          current it is using, it MAY simply omit reply.
-          
           To facilitate faster state synchronization, if a Request Network
           State TLV is sent in a reply, a local, current Network State TLV
           SHOULD be also sent.</t>
