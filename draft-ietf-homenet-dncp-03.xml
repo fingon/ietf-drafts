@@ -1350,7 +1350,7 @@ and they can be queued (and jittered) freely?
 
     </section>
     <section title="Changelog [RFC Editor: please remove]">
-      <t>draft-ietf-homenet-dncp-03:
+      <t>draft-ietf-homenet-dncp-04:
       <list style="symbols">
 
         <t>Added mandatory rate limiting for network state requests, and
