@@ -193,6 +193,10 @@ and they can be queued (and jittered) freely?
         <t>A timestamp indicating the most recent neighbor graph traversal
         described in <xref target="purge" />.</t>
 
+        <t>Something with data about most recent request(s) for network state
+        - simplest one being a timestamp for the most recent request for
+        network state (see <xref target="reception" />).</t>
+
       </list>
       </t>
 
@@ -350,8 +354,19 @@ and they can be queued (and jittered) freely?
           network state hash, and the receiver is unaware of any particular
           node state differences with the sender, the receiver MUST reply
           with a <xref target="req-net-state">Request Network State
-          TLV</xref>. The receiver MAY omit this, if there are already
-          recent pending requests for network or node state.</t>
+          TLV</xref>. These replies MUST be rate limited to only at most
+          one reply per link per unique network state hash within Imin. The
+          simplest way to ensure this rate limit is a timestamp indicating
+          requests, and just sending at most one request for network state
+          per Imin.
+          
+          In addition to the mandatory rate limiting mechanism, if the node
+          knows that the network state hash in question is older than the
+          current it is using, it MAY simply omit reply.
+          
+          To facilitate faster state synchronization, if a Request Network
+          State TLV is sent in a reply, a local, current Network State TLV
+          SHOULD be also sent.</t>
 
           <t><xref target="node-state">Node State TLV</xref>:
 
@@ -1335,6 +1350,15 @@ and they can be queued (and jittered) freely?
 
     </section>
     <section title="Changelog [RFC Editor: please remove]">
+      <t>draft-ietf-homenet-dncp-03:
+      <list style="symbols">
+
+        <t>Added mandatory rate limiting for network state requests, and
+        optional slightly faster convergence mechanism by including current
+        local network state in the remote network state requests.</t>
+
+      </list>
+      </t>
 
       <t>draft-ietf-homenet-dncp-03:
       <list style="symbols">
