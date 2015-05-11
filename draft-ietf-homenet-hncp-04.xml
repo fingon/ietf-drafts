@@ -24,6 +24,8 @@ indicate that they persist for long period of time, as opposed just to
 announce, which by definition is only transient occurrence. Why the hell am
 I writing an essay on this. :-p)
 
+- what to do with fragmentation <> TCP? [MSt]
+
 -->
 
 <!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
@@ -135,17 +137,18 @@ I writing an essay on this. :-p)
         supported by the stack of the node.</t>
 
         <t>HNCP operates on multicast-capable interfaces only, thus every DNCP
-        Connection Identifier MUST refer to one, except for the value 0 which
-        is reserved for internal purposes and MUST NOT be used for connection
+        Endpoint Identifier MUST refer to one, except for the value 0 which
+        is reserved for internal purposes and MUST NOT be used for endpoint
         enumeration. Implementations MAY use a value equivalent to the
         sin6_scope_id for the given interface.</t>
 
-        <t>HNCP unicast messages SHOULD be secured using <xref
+        <t>HNCP unicast traffic SHOULD be secured using <xref
         target="RFC6347">DTLS</xref> as described in DNCP if exchanged over
         unsecured links. UDP on port HNCP-DTLS-PORT is used for this
         purpose.  A node implementing the security mechanism MUST support
         the DNCP Pre-Shared Key method, SHOULD support the DNCP Certificate
-        Based Trust Consensus and MAY support the PKI-based trust method.</t>
+        Based Trust Consensus and MAY support the PKI-based trust
+        method.</t>
 
         <t>HNCP uses opaque 32-bit node identifiers
         (DNCP_NODE_IDENTIFIER_LENGTH = 32). A node implementing HNCP SHOULD
@@ -154,10 +157,8 @@ I writing an essay on this. :-p)
         it MUST immediately generate and use a new random node identifier which
         is not used by any other node.</t>
 
-        <t>HNCP nodes MUST treat all Long Network State Update messages
-        received via multicast on a link which has DNCP security enabled as if
-        they were Short Network State Update messages, i.e. they MUST ignore
-        all contained Node State TLVs.</t>
+        <t>HNCP nodes MUST ignore all Node State TLVs received via
+        multicast on a link which has DNCP security enabled.</t>
 
         <t>HNCP nodes use the following Trickle parameters:
         <list style="symbols">
@@ -176,7 +177,7 @@ I writing an essay on this. :-p)
         target="RFC1321">MD5</xref> as DNCP non-cryptographic hash function
         H(x).</t>
 
-        <t>HNCP nodes MUST use the keep-alive extension on all connections.
+        <t>HNCP nodes MUST use the keep-alive extension on all endpoints.
         The default keep-alive interval (DNCP_KEEPALIVE_INTERVAL) is 20
         seconds, the multiplier (DNCP_KEEPALIVE_MULTIPLIER) MUST be 2.1,
         the grace-interval (DNCP_GRACE_INTERVAL) SHOULD be equal to
@@ -190,16 +191,16 @@ I writing an essay on this. :-p)
       <t>HNCP uses the concept of Adjacent Links for some of its
       applications. This term is defined as follows:</t>
 
-      <t>If the connection of a node is detected or configured to be an ad-hoc
+      <t>If the endpoint of a node is detected or configured to be an ad-hoc
       interface the Adjacent Link only consists of said interface.</t>
 
       <t>Otherwise the Adjacent Link contains all interfaces bidirectionally
       reachable from a given local interface. An interface X of a node A and
       an interface Y of a node B are bidirectionally reachable if and only if
       node A publishes a Neighbor TLV with the Neighbor Node Identifier B,
-      the Neighbor Connection Identifier Y and the Local Connection Identifier
+      the Neighbor Endpoint Identifier Y and the Local Endpoint Identifier
       X and node B publishes a Neighbor TLV with the Neighbor Node Identifier
-      A, a Neighbor Connection Identifier X and the Local Connection
+      A, a Neighbor Endpoint Identifier X and the Local Endpoint
       Identifier Y. In addition a node MUST be able to detect whether two of
       its local interfaces belong to the same Adjacent Link either by local
       means or by inferring that from the bidirectional reachability between
@@ -262,7 +263,7 @@ I writing an essay on this. :-p)
       <list style="hanging">
         <t hangText="Leaf category:"> This declares an interface used by
         client devices only. A router MUST consider such interface as
-        internal but MUST NOT send nor receive HNCP messages on such
+        internal but MUST NOT send nor receive HNCP traffic on such
         interface. A router SHOULD implement this category.</t>
 
         <t hangText="Guest category:"> This declares an interface used by
@@ -521,7 +522,7 @@ I writing an essay on this. :-p)
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |  Type: ASSIGNED-PREFIX (35)   |          Length: >= 6         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                     Connection Identifier                     |
+|                      Endpoint Identifier                      |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |  Rsv. | Prty. | Prefix Length |                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            Prefix             +
@@ -530,7 +531,7 @@ I writing an essay on this. :-p)
           </figure>
           <t>
             <list style="hanging">
-              <t hangText="Connection Identifier: ">The DNCP Connection
+              <t hangText="Endpoint Identifier: ">The DNCP Endpoint
               Identifier of the link the prefix is assigned to, or 0 if the
               link is a Private Link.</t>
 
@@ -752,7 +753,7 @@ I writing an essay on this. :-p)
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |    Type: NODE-ADDRESS (36)    |           Length: 20          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                     Connection Identifier                     |
+|                      Endpoint Identifier                      |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
 |                           IP Address                          |
@@ -762,7 +763,7 @@ I writing an essay on this. :-p)
               </artwork>
             </figure>
             <list style="hanging">
-              <t hangText="Connection Identifier: ">The DNCP Connection
+              <t hangText="Endpoint Identifier: ">The DNCP Endpoint
               Identifier of the link the address is assigned to, or 0 if it is
               not assigned on an HNCP enabled link.</t>
 
@@ -1247,7 +1248,7 @@ I writing an essay on this. :-p)
         <t>It MUST implement and run a routing protocol appropriate for the
         given link type and
         with support for source-specific routes on all of the interfaces it
-        sends and receives HNCP-messages on and MUST resort to announcing
+        sends and receives HNCP traffic on and MUST resort to announcing
         source-specific routes for external destinations appropriately.</t>
         <t>It MUST use adequate security mechanisms for the routing
         protocol on any interface where it also uses the security
