@@ -819,8 +819,14 @@ I writing an essay on this. :-p)
             lower one. The router publishing a prefix with internet connectivity
             MUST announce an IPv4 default route using the routing protocol and
             perform NAT on behalf of the network as long as it publishes the
-            prefix, other routers in the network MUST NOT. Internet Connectivity
-            is indicated using a Prefix Domain TLV.</t>
+            prefix.
+            <!--
+            , other routers in the network MUST NOT.
+            
+            [SB]: TODO: this is a workaround for flaky RP-behavior, shall we keep it?
+            shall we enforce IGPs to behave sanely instead? shall this be a SHOULD NOT?
+            -->
+            Internet Connectivity is indicated using a Prefix Domain TLV.</t>
           </list>
 
           </t>
