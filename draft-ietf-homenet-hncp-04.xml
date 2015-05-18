@@ -187,14 +187,14 @@ I writing an essay on this. :-p)
       </t>
     </section>
 
-    <section title="Adjacent Links" anchor="links">
-      <t>HNCP uses the concept of Adjacent Links for some of its
+    <section title="Common Links" anchor="links">
+      <t>HNCP uses the concept of Common Links for some of its
       applications. This term is defined as follows:</t>
 
       <t>If the endpoint of a node is detected or configured to be an ad-hoc
-      interface the Adjacent Link only consists of said interface.</t>
+      interface the Common Link only consists of said interface.</t>
 
-      <t>Otherwise the Adjacent Link contains all interfaces bidirectionally
+      <t>Otherwise the Common Link contains all interfaces bidirectionally
       reachable from a given local interface. An interface X of a node A and
       an interface Y of a node B are bidirectionally reachable if and only if
       node A publishes a Neighbor TLV with the Neighbor Node Identifier B,
@@ -202,7 +202,7 @@ I writing an essay on this. :-p)
       X and node B publishes a Neighbor TLV with the Neighbor Node Identifier
       A, a Neighbor Endpoint Identifier X and the Local Endpoint
       Identifier Y. In addition a node MUST be able to detect whether two of
-      its local interfaces belong to the same Adjacent Link either by local
+      its local interfaces belong to the same Common Link either by local
       means or by inferring that from the bidirectional reachability between
       two different local interfaces and the same remote interface.</t>
     </section>
@@ -600,7 +600,7 @@ I writing an essay on this. :-p)
                   is not assigned on a Shared Link.</t>
 
                   <t>If the Link Identifier is not zero the Shared Link is
-                  equal to the <xref target="links">Adjacent Link</xref>.
+                  equal to the <xref target="links">Common Link</xref>.
                   Advertised Prefixes as well as their associated priorities
                   and associated Shared Links MUST be updated as Assigned
                   Prefix TLVs or Neighbor TLVs are added, removed or updated.</t>
@@ -628,7 +628,7 @@ I writing an essay on this. :-p)
 
           <section title="Making New Assignments">
             <t>Whenever the Prefix Assignment Algorithm routine is run on an
-            Adjacent Link and whenever a new prefix may be assigned (case 1
+            Common Link and whenever a new prefix may be assigned (case 1
             of the routine), the decision of whether the assignment of a new
             prefix is desired MUST follow these rules:
 
@@ -670,7 +670,7 @@ I writing an essay on this. :-p)
 
           <section title="Applying Assignments">
             <t>The prefix assignment algorithm indicates when a prefix is
-            applied to the respective Adjacent Link. When that happens
+            applied to the respective Common Link. When that happens
             each router connected to said link:
 
             <list>
@@ -724,12 +724,12 @@ I writing an essay on this. :-p)
           otherwise.</t>
 
           <t>For any IPv6 prefix longer than 64 bits (resp. any IPv4 prefix)
-          assigned to an Adjacent Link, the first quarter of the addresses
+          assigned to a Common Link, the first quarter of the addresses
           are reserved for routers HNCP based assignments, whereas the last
           three quarters are left to the DHCPv6 (resp. DHCPv4) elected router
           (<xref target="version-tlv" /> specifies the DHCP server election process).
           For instance, if the prefix 192.0.2.0/24 is assigned and
-          applied to an Adjacent Link, addresses included in 192.0.2.0/26 are
+          applied to a Common Link, addresses included in 192.0.2.0/26 are
           reserved for HNCP nodes and the remaining addresses are reserved
           for the elected DHCPv4 server.</t>
           <!-- TBD This seems very v4-centric (see also above comment of no
@@ -858,7 +858,7 @@ I writing an essay on this. :-p)
         <t>The designated stateful DHCPv6 server for a link is elected
         based on the capabilities described in <xref target="version-tlv"
         />.  The winner is the router connected to the <xref
-        target="links">Adjacent Link</xref> advertising the greatest
+        target="links">Common Link</xref> advertising the greatest
         H-capability. In case of a tie, Capability Values and node
         identifiers are considered (greatest value is elected).  The
         elected router MUST serve stateful DHCPv6 and Router Advertisements
@@ -927,7 +927,7 @@ I writing an essay on this. :-p)
         <t>The designated DHCPv6 server for prefix-delegation on a link is
         elected based on the capabilities described in
         <xref target="version-tlv" />. The winner is the router connected to the
-        <xref target="links">Adjacent Link</xref> advertising the greatest
+        <xref target="links">Common Link</xref> advertising the greatest
         P-capability. In case of a tie, Capability Values and Node
         Identifiers are considered (greatest value is elected).
         The elected router MUST provide
@@ -938,7 +938,7 @@ I writing an essay on this. :-p)
       <section title="DHCPv4 for Adressing and Configuration">
         <t>The designated DHCPv4 server on a link is elected based on the
         capabilities described in <xref target="version-tlv" />.  The
-        winner is the router connected to the <xref target="links">Adjacent
+        winner is the router connected to the <xref target="links">Common
         Link</xref> advertising the greatest L-capability. In case of a
         tie, Capability Values and node identifiers are considered
         (greatest value is elected).  The elected router MUST provide
@@ -978,7 +978,7 @@ I writing an essay on this. :-p)
       multiple HNCP routers.</t>
 
       <t>Each HNCP router SHOULD provide and announce an auto-generated or
-      user-configured name for each internal <xref target="links">Adjacent
+      user-configured name for each internal <xref target="links">Common
       Link</xref> for which it is the designated DHCPv4, stateful
       DHCPv6 server or <xref target="RFC6762">MDNS</xref>-proxy and for
       which it provides DNS-services on behalf of devices on said link.
@@ -1290,7 +1290,7 @@ I writing an essay on this. :-p)
 
       <list style="symbols">
         <t>Network topology information such as HNCP nodes and their
-        adjacent links</t>
+        common links</t>
 
         <t>Address assignment information such as delegated and assigned
         prefixes for individual links</t>
