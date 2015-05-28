@@ -50,7 +50,7 @@ and they can be queued (and jittered) freely?
         <email>cyrus@openwrt.org</email>
       </address>
     </author>
-    <date month="April" year="2015" />
+    <date month="May" year="2015" />
 
     <area>Internet</area>
     <workgroup>Homenet Working Group</workgroup>
@@ -107,80 +107,85 @@ and they can be queued (and jittered) freely?
     </section>
 
     <section title="Terminology">
-      <t>A DNCP profile is a definition of a set of rules and
+      <t>DNCP profile is a definition of a set of rules and
       values listed in <xref target="profile-bits"/> specifying the
       behavior of a DNCP based protocol, such as the used transport
       method.  For readability, any DNCP profile specific parameters
       with a profile-specific fixed value are prefixed with DNCP_.</t>
 
-      <t>A DNCP node is a single node which runs a protocol
+      <t>DNCP node is a single node which runs a protocol
       based on a DNCP profile.</t>
 
-      <t>The DNCP network is a set of DNCP nodes running the same DNCP
+      <t>DNCP network is a set of DNCP nodes running the same DNCP
       profile that can reach each other, either via discovered connectivity
       in the underlying network, or using each other's addresses learned
       via other means. As DNCP exchanges are bidirectional, DNCP nodes
       connected via only unidirectional links are not considered
       connected. </t>
 
-      <t>A DNCP message is an abstract concept: when using a reliable
+      <t>DNCP message is an abstract concept: when using a reliable
       stream transport, the whole stream of TLVs can be considered
       a single message, with new TLVs becoming one by one available once
       they have been fully received. On a datagram transport, each individual
       datagram is considered a separate message.</t>
 
-      <t>The node identifier is an opaque fixed-length identifier consisting of
+      <t>Node identifier is an opaque fixed-length identifier consisting of
       DNCP_NODE_IDENTIFIER_LENGTH bytes which uniquely identifies a DNCP
       node within a DNCP network. </t>
 
-      <t>A link indicates a link-layer media over which directly connected
+      <t>Link indicates a link-layer media over which directly connected
       nodes can communicate.</t>
 
-      <t>An interface indicates a port of a node that is connected to a
+      <t>Interface indicates a port of a node that is connected to a
       particular link. </t>
 
-      <t>An endpoint denotes a locally configured use of DNCP on a DNCP
-      node, that is attached either to an interface, to a specific remote
-      unicast address to be contacted, or to a range of remote unicast
+      <t>Endpoint denotes a locally configured use of DNCP on a DNCP
+      node. It is attached either to an interface, a specific remote
+      unicast address to be contacted, or a range of remote unicast
       addresses that are allowed to contact.</t>
 
-      <t>The endpoint identifier is a 32-bit opaque value, which identifies
+      <t>Endpoint identifier is a 32-bit opaque value, which identifies
       a particular endpoint of that particular DNCP node. The value 0 is
-      reserved for DNCP and sub-protocol purposes in the TLVs, and MUST NOT
+      reserved for DNCP and sub-protocol purposes and MUST NOT
       be used to identify an actual endpoint. This definition is in sync
       with the interface index definition in <xref target="RFC3493"/>, as
       the non-zero small positive integers should comfortably fit within 32
       bits.</t>
 
-      <t>A (DNCP) peer refers to another DNCP node with which a DNCP node
+      <t>(DNCP) peer refers to another DNCP node with which a DNCP node
       communicates directly using a particular local and remote endpoint
       pair.</t>
 
-      <t>The node data is a set of TLVs published by a node in the DNCP
+      <t>Node data is a set of TLVs published by a node in the DNCP
       network. The whole node data is owned by the node that publishes it, and
       it MUST be passed along as-is, including TLVs unknown to the
       forwarder.</t>
 
-      <t>The node state is a set of metadata attributes for node data.  It
+      <t>Node state is a set of metadata attributes for node data.  It
       includes a sequence number for versioning, a hash value for comparing
       and a timestamp indicating the time passed since its last
       publication. The hash function and the number of bits used are
       defined in the DNCP profile. </t>
 
-      <t>The network state (hash) is a hash value which represents
+      <t>Network state (hash) is a hash value which represents
       the current state of the network.  The hash function and the number of
       bits used are defined in the DNCP profile.
 
-      Whenever any node is added, removed or updates its published node
+      Whenever a node is added, removed or updates its published node
       data this hash value changes as well. It is calculated over each
       reachable nodes' update number concatenated with the hash value of
-      its node data in ascending order of the respective node identifier.</t>
+      its node data. For calculation these tuples are sorted in
+      ascending order of the respective node's node identifier.</t>
 
-      <t>The effective (trust) verdict for a certificate is defined as the
+      <t>(Trust) verdict is a statement about the trustworthiness of
+      a certificate announced by a node participating in the certificate
+      based trust consensus mechanism.</t>
+
+      <t>Effective (trust) verdict for a certificate is defined as the
       verdict with the highest priority within the set of verdicts
       announced for the certificate in the DNCP network.</t>
 
-      <t>The neighbor graph is the undirected graph of DNCP nodes produced
+      <t>Neighbor graph is the undirected graph of DNCP nodes produced
       by retaining only bidirectional peer relationships between nodes.</t>
 
     </section>
@@ -204,28 +209,27 @@ and they can be queued (and jittered) freely?
 
       <list style="symbols">
 
-        <t>A node identifier, which uniquely identifies the node.</t>
+        <t>Node identifier, which uniquely identifies the node.</t>
 
-        <t>The node data, an ordered set of TLV tuples published by that
-        particular node. This set of TLVs MUST use a well-defined order
+        <t>Node data, an ordered set of TLV tuples published by that
+        particular node. This set of TLVs MUST be strictly ordered
         based on ascending binary content (including TLV type and
         length). This facilitates linear time state delta processing. </t>
 
-        <t>The latest update sequence number, a 32 bit number that is
+        <t>Latest update sequence number, a 32 bit number that is
         incremented any time the TLV set is published. For comparison
         purposes, a looping comparison should be used to avoid problems in
         case of overflow. An example would be: a &lt; b &lt;=&gt; (a - b)
         % 2^32 &amp; 2^31 != 0.</t>
 
-        <t>The relative time (in milliseconds) since the current TLV data
+        <t>Relative time (in milliseconds), time since the current TLV data
         set with the current update sequence number was published. It is
         also a 32 bit number on the wire.  If this number is close to
         overflow (greater than 2^32-2^16), a node MUST re-publish its TLVs
-        even if there is no change to avoid overflow of the value. In other
-        words, absent any other changes, the TLV set MUST be re-published
-        roughly every 49 days.</t>
+        even if there is no change. In other words, absent any other changes,
+        the TLV set MUST be re-published roughly every 49 days.</t>
 
-        <t>A timestamp identifying the time it was last reachable based on
+        <t>Timestamp, the time it was last reachable based on
         neighbor graph traversal described in <xref target="purge" />.</t>
 
       </list>
@@ -275,7 +279,7 @@ and they can be queued (and jittered) freely?
       to only point-to-point using unicast, a datagram-based transport
       which supports multicast SHOULD be defined in the DNCP profile to be
       used for the TLVs to be sent to the whole link. As this is used
-      only to identify potential new DNCP nodes and to notify that an
+      only to identify potential new DNCP nodes and to notify that a
       unicast exchange should be triggered, the multicast transport does
       not have to be particularly secure.</t>
 
@@ -596,7 +600,7 @@ and they can be queued (and jittered) freely?
       <section anchor="fragmentation" title="Node Data Fragmentation">
 
         <t>A DNCP profile may be required to support node data which
-        would not the fit maximum size of a single <xref
+        would not fit the maximum size of a single <xref
         target="node-state">Node State TLV</xref> (roughly 64KB of payload),
         or use a datagram-only transport with a limited MTU and no reliable
         support for fragmentation. To handle such cases, a DNCP profile MAY
@@ -638,7 +642,7 @@ and they can be queued (and jittered) freely?
         followed by the value itself (if any). Both type and length fields
         in the header as well as all integer fields inside the value
         - unless explicitly stated otherwise - are
-        represented in network byte order. Zero padding bytes MUST be added
+        represented in network byte order. Zeroed padding bytes MUST be added
         up to the next 4 byte boundary if the length is not divisible by 4.
         These padding bytes MUST NOT be included in the length field.
       </t>
@@ -661,7 +665,7 @@ and they can be queued (and jittered) freely?
         0x78) is encoded as: 007B 0001 7800 0000.
       </t>
 
-      <t>Notation:
+      <t>In this section, the following special notation is used:
       <list>
 
         <t>.. = octet string concatenation operation.</t>
@@ -710,9 +714,9 @@ and they can be queued (and jittered) freely?
             </artwork>
           </figure>
 
-          <t>This TLV is used to request response with a <xref
-          target="node-state">Node State TLV</xref> for the node with
-          matching node identifier which also includes the node data.</t>
+          <t>This TLV is used to request a <xref target="node-state">
+          Node State TLV</xref> (including node data) for the node
+          with matching node identifier.</t>
 
         </section>
 
@@ -741,7 +745,7 @@ and they can be queued (and jittered) freely?
           sent in every message if bidirectional peer relationship is
           desired with remote nodes on that endpoint. Bidirectional peer
           relationship is not necessary for read-only access to the DNCP
-          state, but it is required to be able to publish something.</t>
+          state, but it is required to be able to publish data.</t>
 
         </section>
         <section anchor="net-state" title="Network State TLV">
@@ -764,7 +768,7 @@ and they can be queued (and jittered) freely?
           <t>This TLV contains the current locally calculated network state
           hash. It is calculated over each reachable nodes' update number
           concatenated with the hash value of its node data in ascending
-          order of the respective node identifier.</t>
+          order of the respective node identifiers.</t>
 
         </section>
         <section anchor="node-state" title="Node State TLV">
@@ -798,8 +802,8 @@ and they can be queued (and jittered) freely?
           published state of a node in the DNCP network identified by the
           node identifier field in the TLV.</t>
 
-          <t>The whole network should have roughly same idea about the time
-          since origination of any particular published state. Therefore
+          <t>The whole network should have roughly the same idea about the
+          time since origination of any particular published state. Therefore
           every node, including the originating one, MUST increment the
           time whenever it needs to send a Node State TLV for already
           published node data.</t>
@@ -875,7 +879,7 @@ and they can be queued (and jittered) freely?
           higher than the current one MUST be considered reachable and part
           of the same logical set of node data that this TLV is within. The
           fragment portion of the Node Identifier of the Node State TLV
-          this is TLV appears in MUST be zeros.</t>
+          this TLV appears in MUST be zero.</t>
 
         </section>
 
@@ -889,7 +893,7 @@ and they can be queued (and jittered) freely?
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |       Type: NEIGHBOR (8)      |          Length: > 8          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                    neighbor node identifier                   |
+|                    Neighbor Node Identifier                   |
 |                  (length fixed in DNCP profile)               |
 ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1199,7 +1203,7 @@ and they can be queued (and jittered) freely?
     <section anchor="profile-bits" title="DNCP Profile-Specific Definitions">
       <!-- TBD - Pierre has a point - should define guidance on these,
            perhaps -->
-      <t>Each DNCP profile MUST define following:
+      <t>Each DNCP profile MUST specify the following aspects:
       <list style="symbols">
 
         <t>How the transport is secured: Not at all, optionally or always
@@ -1210,7 +1214,7 @@ and they can be queued (and jittered) freely?
         encryption.</t>
 
         <t>Unicast and optionally multicast transport protocol(s) to be
-        used. If TLS scheme within this document is to be used security,
+        used. If a TLS scheme within this document is to be used,
         TLS or DTLS support for at least the unicast transport protocol is
         mandatory.</t>
 
@@ -1228,10 +1232,10 @@ and they can be queued (and jittered) freely?
 
         <t>Imin, Imax and k ranges to be suggested for implementations to
         be used in the Trickle algorithm. The Trickle algorithm does not
-        require these to be same across all implementations for it to work,
-        but similar orders of magnitude helps implementations of a DNCP
+        require these to be the same across all implementations for it to
+        work, but similar orders of magnitude helps implementations of a DNCP
         profile to behave more consistently and to facilitate estimation of
-        lower and upper bounds for behavior of the network.</t>
+        lower and upper bounds for convergence behavior of the network.</t>
 
         <t>Hash function H(x) to be used, and how many bits of the input
         are actually used. The chosen hash function is used to handle both
