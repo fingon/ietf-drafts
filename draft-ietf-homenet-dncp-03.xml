@@ -303,7 +303,13 @@ and they can be queued (and jittered) freely?
         also included, unless it is defined as undesirable for some reason by
         the DNCP profile. Avoiding sending some or all Node State TLVs may
         make sense to avoid fragmenting packets to multicast destinations,
-        or for security reasons.</t>
+        or for security reasons.
+
+        If the DNCP profile supports <xref target="broadcast">dense
+        broadcast link optimization</xref>, and if a node does not have the
+        highest node identifier on a link, the endpoint may be in a unicast
+        mode which only listens to multicasts. In that mode, multicast
+        updates MUST NOT be sent.</t>
 
         <t>A Trickle state MUST be maintained separately for each
         endpoint which employs unreliable transport. The Trickle state
@@ -453,9 +459,11 @@ and they can be queued (and jittered) freely?
 
         <t>If the DNCP profile supports <xref target="broadcast">dense
         broadcast link optimization</xref>, and if a node does not have the
-        highest node identifier on a link, the endpoint may be in a mostly
-        unicast mode. In that mode all other peers than the node with the
-        highest node identifier MUST NOT be added as peers.</t>
+        highest node identifier on a link, the endpoint may be in a unicast
+        mode which only listens to multicasts. In that mode, all peers
+        except the one with the highest node identifier MUST NOT have <xref
+        target="neighbor">Neighbor TLV</xref> published nor any local
+        state.</t>
 
       </section>
 
