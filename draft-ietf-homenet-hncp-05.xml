@@ -7,8 +7,6 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
 TBD:
 
-[SB] make (some?) DNCP references into actual <xrefs>
-
 - A lot of RFCs seem to assume DHCP = DHCPv4. Perhaps define the fact
 somewhere that DHCP = DHCPv4+DHCPv6 here?
 [SB] should be unambiguous now, if not please mark single occurences where it isn't
@@ -38,7 +36,7 @@ I writing an essay on this. :-p)
 
 <rfc
     ipr='trust200902'
-    docName='draft-ietf-homenet-hncp-04'
+    docName='draft-ietf-homenet-hncp-05'
     category='std'
     >
   <front>
@@ -78,7 +76,7 @@ I writing an essay on this. :-p)
             <email>pierre.pfister@darou.fr</email>
         </address>
     </author>
-    <date month="May" year="2015" />
+    <date month="June" year="2015" />
 
     <area>Internet</area>
     <workgroup>Homenet Working Group</workgroup>
@@ -1387,7 +1385,7 @@ I writing an essay on this. :-p)
   </middle>
   <back>
     <references title="Normative references">
-      <?rfc include="reference.I-D.draft-ietf-homenet-dncp-03"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-dncp-04"?>
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6347.xml"?>
       <?rfc include="reference.RFC.6603.xml"?>
@@ -1417,6 +1415,15 @@ I writing an essay on this. :-p)
     </references>
 
     <section title="Changelog [RFC Editor: please remove]">
+
+      <t>draft-ietf-homenet-hncp-05: Renamed "Adjacent Link" to "Common Link".
+      Changed single IPv4 uplink election from MUST to MAY. Added explicit
+      indication to distinguish (IPv4)-PDs for local connectivity and ones
+      with uplink connectivity allowing e.g. better local-only
+      IPv4-connectivity.</t>
+
+      <t>draft-ietf-homenet-hncp-04: Change the responsibility for sending
+      RAs to the router assigning the prefix.</t>
 
       <t>draft-ietf-homenet-hncp-03: Split to DNCP (generic protocol) and
       HNCP (homenet profile).</t>
