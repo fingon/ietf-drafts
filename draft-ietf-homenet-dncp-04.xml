@@ -673,7 +673,7 @@ and they can be queued (and jittered) freely?
         unless explicitly stated otherwise - are represented in network
         byte order. Padding bytes with value zero MUST be added up to the
         next 4 byte boundary if the length is not divisible by 4.  These
-        padding bytes MUST NOT be included the value stored in the length
+        padding bytes MUST NOT be included in the number stored in the length
         field.
       </t>
 
@@ -746,7 +746,7 @@ and they can be queued (and jittered) freely?
 
           <t>This TLV is used to request a <xref target="node-state">
           Node State TLV</xref> (including node data) for the node
-          matching node identifier.</t>
+          matching the node identifier.</t>
 
         </section>
 
