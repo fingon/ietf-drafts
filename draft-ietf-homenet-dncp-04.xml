@@ -209,27 +209,27 @@ and they can be queued (and jittered) freely?
 
       <list style="symbols">
 
-        <t>Node identifier, which uniquely identifies the node.</t>
+        <t>Node identifier.</t>
 
-        <t>Node data, an ordered set of TLV tuples published by that
+        <t>Node data: an ordered set of TLV tuples published by that
         particular node. This set of TLVs MUST be strictly ordered
         based on ascending binary content (including TLV type and
         length). This facilitates linear time state delta processing. </t>
 
-        <t>Latest update sequence number, a 32 bit number that is
+        <t>Latest update sequence number: a 32 bit number that is
         incremented any time the TLV set is published. For comparison
         purposes, a looping comparison should be used to avoid problems in
         case of overflow. An example would be: a &lt; b &lt;=&gt; (a - b)
         % 2^32 &amp; 2^31 != 0.</t>
 
-        <t>Relative time (in milliseconds), time since the current TLV data
+        <t>Relative time delta: the time (in milliseconds) since the current TLV data
         set with the current update sequence number was published. It is
         also a 32 bit number on the wire.  If this number is close to
         overflow (greater than 2^32-2^16), a node MUST re-publish its TLVs
         even if there is no change. In other words, absent any other changes,
         the TLV set MUST be re-published roughly every 49 days.</t>
 
-        <t>Timestamp, the time it was last reachable based on
+        <t>Timestamp: the time it was last reachable based on
         neighbor graph traversal described in <xref target="purge" />.</t>
 
       </list>
@@ -239,14 +239,14 @@ and they can be queued (and jittered) freely?
       is configured to be used. For each such endpoint, a node has:
 
       <list style="symbols">
-        <t>An endpoint identifier, a 32-bit opaque value.</t>
+        <t>Endpoint identifier (a 32-bit opaque value).</t>
 
-        <t>An interface, a unicast address of a DNCP node it should connect
-        with, or a range of addresses from which DNCP nodes are allowed to
-        connect.</t>
+        <t>Interface or unicast address (of a DNCP node it should connect with)
+        or range of addresses (from which DNCP nodes are allowed to connect).
+        </t>
 
-        <t>A <xref target="RFC6206">Trickle</xref> instance with parameters
-        I, T, and c.</t>
+        <t><xref target="RFC6206">Trickle</xref> instance (with parameters
+        I, T, and c).</t>
       </list>
       </t>
 
@@ -255,12 +255,12 @@ and they can be queued (and jittered) freely?
 
       <list style="symbols">
 
-        <t>The node identifier of the peer.</t>
+        <t>Peer node identifier.</t>
 
-        <t>The endpoint identifier of the peer.</t>
+        <t>Peer endpoint identifier.</t>
 
-        <t>The most recent address used by the peer (authenticated and
-        authorized, if security is enabled).</t>
+        <t>Peer address: the most recently used address of the peer
+        (authenticated and authorized, if security is enabled).</t>
 
       </list>
       </t>
