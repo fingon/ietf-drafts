@@ -13,7 +13,7 @@ DRAFTS=\
   draft-stenberg-homenet-minimalist-pcp-proxy-01.txt \
   draft-stenberg-anima-adncp-00.txt \
   draft-ietf-homenet-dncp-04.txt \
-  draft-ietf-homenet-hncp-04.txt \
+  draft-ietf-homenet-hncp-05.txt \
 
 ifndef XML_LIBRARY
 XML_LIBRARY=$(HOME)/share/1/ietf-bib/bibxml:$(HOME)/share/1/ietf-bib/bibxml2:$(HOME)/share/1/ietf-bib/bibxml3:$(HOME)/share/1/ietf-bib/bibxml4:$(HOME)/share/1/ietf-bib/bibxml5

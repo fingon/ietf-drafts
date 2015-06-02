@@ -7,8 +7,6 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
 TBD:
 
-[SB] make (some?) DNCP references into actual <xrefs>
-
 - A lot of RFCs seem to assume DHCP = DHCPv4. Perhaps define the fact
 somewhere that DHCP = DHCPv4+DHCPv6 here?
 [SB] should be unambiguous now, if not please mark single occurences where it isn't
@@ -38,7 +36,7 @@ I writing an essay on this. :-p)
 
 <rfc
     ipr='trust200902'
-    docName='draft-ietf-homenet-hncp-04'
+    docName='draft-ietf-homenet-hncp-05'
     category='std'
     >
   <front>
@@ -78,7 +76,7 @@ I writing an essay on this. :-p)
             <email>pierre.pfister@darou.fr</email>
         </address>
     </author>
-    <date month="March" year="2015" />
+    <date month="June" year="2015" />
 
     <area>Internet</area>
     <workgroup>Homenet Working Group</workgroup>
@@ -131,21 +129,22 @@ I writing an essay on this. :-p)
         over link-local scoped IPv6, using unicast and multicast (group
         All-Homenet-Routers).  Received datagrams with an IPv6 source or
         destination address which is not link-local scoped MUST be
-        ignored. IPv6 fragmentation and reassembly up to TBD bytes MUST be
-        supported by the stack of the node.</t>
+        ignored. Each node MUST be able to receive (and potentially reassemble)
+	UDP datagrams with a payload of at least 4000 bytes.</t>
 
         <t>HNCP operates on multicast-capable interfaces only, thus every DNCP
-        Connection Identifier MUST refer to one, except for the value 0 which
-        is reserved for internal purposes and MUST NOT be used for connection
+        Endpoint Identifier MUST refer to one, except for the value 0 which
+        is reserved for internal purposes and MUST NOT be used for endpoint
         enumeration. Implementations MAY use a value equivalent to the
         sin6_scope_id for the given interface.</t>
 
-        <t>HNCP unicast messages SHOULD be secured using <xref
+        <t>HNCP unicast traffic SHOULD be secured using <xref
         target="RFC6347">DTLS</xref> as described in DNCP if exchanged over
         unsecured links. UDP on port HNCP-DTLS-PORT is used for this
         purpose.  A node implementing the security mechanism MUST support
         the DNCP Pre-Shared Key method, SHOULD support the DNCP Certificate
-        Based Trust Consensus and MAY support the PKI-based trust method.</t>
+        Based Trust Consensus and MAY support the PKI-based trust
+        method.</t>
 
         <t>HNCP uses opaque 32-bit node identifiers
         (DNCP_NODE_IDENTIFIER_LENGTH = 32). A node implementing HNCP SHOULD
@@ -154,10 +153,8 @@ I writing an essay on this. :-p)
         it MUST immediately generate and use a new random node identifier which
         is not used by any other node.</t>
 
-        <t>HNCP nodes MUST treat all Long Network State Update messages
-        received via multicast on a link which has DNCP security enabled as if
-        they were Short Network State Update messages, i.e. they MUST ignore
-        all contained Node State TLVs.</t>
+        <t>HNCP nodes MUST ignore all Node State TLVs received via
+        multicast on a link which has DNCP security enabled.</t>
 
         <t>HNCP nodes use the following Trickle parameters:
         <list style="symbols">
@@ -176,7 +173,7 @@ I writing an essay on this. :-p)
         target="RFC1321">MD5</xref> as DNCP non-cryptographic hash function
         H(x).</t>
 
-        <t>HNCP nodes MUST use the keep-alive extension on all connections.
+        <t>HNCP nodes MUST use the keep-alive extension on all endpoints.
         The default keep-alive interval (DNCP_KEEPALIVE_INTERVAL) is 20
         seconds, the multiplier (DNCP_KEEPALIVE_MULTIPLIER) MUST be 2.1,
         the grace-interval (DNCP_GRACE_INTERVAL) SHOULD be equal to
@@ -186,22 +183,22 @@ I writing an essay on this. :-p)
       </t>
     </section>
 
-    <section title="Adjacent Links" anchor="links">
-      <t>HNCP uses the concept of Adjacent Links for some of its
+    <section title="Common Links" anchor="links">
+      <t>HNCP uses the concept of Common Links for some of its
       applications. This term is defined as follows:</t>
 
-      <t>If the connection of a node is detected or configured to be an ad-hoc
-      interface the Adjacent Link only consists of said interface.</t>
+      <t>If the endpoint of a node is detected or configured to be an ad-hoc
+      interface the Common Link only consists of said interface.</t>
 
-      <t>Otherwise the Adjacent Link contains all interfaces bidirectionally
+      <t>Otherwise the Common Link contains all interfaces bidirectionally
       reachable from a given local interface. An interface X of a node A and
       an interface Y of a node B are bidirectionally reachable if and only if
       node A publishes a Neighbor TLV with the Neighbor Node Identifier B,
-      the Neighbor Connection Identifier Y and the Local Connection Identifier
+      the Neighbor Endpoint Identifier Y and the Local Endpoint Identifier
       X and node B publishes a Neighbor TLV with the Neighbor Node Identifier
-      A, a Neighbor Connection Identifier X and the Local Connection
+      A, a Neighbor Endpoint Identifier X and the Local Endpoint
       Identifier Y. In addition a node MUST be able to detect whether two of
-      its local interfaces belong to the same Adjacent Link either by local
+      its local interfaces belong to the same Common Link either by local
       means or by inferring that from the bidirectional reachability between
       two different local interfaces and the same remote interface.</t>
     </section>
@@ -262,7 +259,7 @@ I writing an essay on this. :-p)
       <list style="hanging">
         <t hangText="Leaf category:"> This declares an interface used by
         client devices only. A router MUST consider such interface as
-        internal but MUST NOT send nor receive HNCP messages on such
+        internal but MUST NOT send nor receive HNCP traffic on such
         interface. A router SHOULD implement this category.</t>
 
         <t hangText="Guest category:"> This declares an interface used by
@@ -401,6 +398,10 @@ I writing an essay on this. :-p)
               the end of the encoded prefix.
 
                 <list>
+                  <t>Zero or more Prefix Domain TLVs. In abscence of any such
+                  TLV the prefix is assumed to be generated by an HNCP-router
+                  and for internal use only.</t>
+
                   <t>If the encoded prefix represents an IPv6 prefix, at
                   most one DHCPv6 Data TLV MAY be included.</t>
 
@@ -411,6 +412,46 @@ I writing an essay on this. :-p)
                   <t>It MAY contain other TLVs for future use.</t>
                 </list>
               </t>
+            </list>
+          </t>
+        </section>
+
+		<section title="Prefix Domain TLV">
+          <t>The Prefix Domain TLV contains information about the origin and
+          applicability of a delegated prefix. This information can be used
+          to determine whether prefixes for a certain domain (e.g. local
+          reachability, internet connectivity) do exist or should be acquired
+          and to make decisions about assigning prefixes to certain links or
+          fine-tuning border firewalls.</t>
+
+          <figure>
+            <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|    Type: PREFIX-DOMAIN (43)   |          Length: >= 1         |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  Domain Type  |                                               |
++-+-+-+-+-+-+-+-+                   Domain ID                   +
+|                                                               |
+            </artwork>
+          </figure>
+
+          <t>
+            <list style="hanging">
+              <t hangText="Domain Type: ">The type of the domain identifier.
+                <list style="hanging">
+                      <t hangText="0      :">Internet connectivity
+                      (domain ID is empty)</t>
+                      <t hangText="1-128  :">Explicit destination with given length
+                      (domain ID contains significant bits of the destination prefix
+                      padded with zeroes up to the next byte boundary.)</t>
+                      <t hangText="129    :">Null-terminated UTF-8 String (e.g. FQDN)</t>
+                      <t hangText="130-255:">reserved for future additions</t>
+                  </list></t>
+
+              <t hangText="Domain Identifier: ">A variable length identifier
+              of the given type.</t>
             </list>
           </t>
         </section>
@@ -477,7 +518,7 @@ I writing an essay on this. :-p)
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |  Type: ASSIGNED-PREFIX (35)   |          Length: >= 6         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                     Connection Identifier                     |
+|                      Endpoint Identifier                      |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |  Rsv. | Prty. | Prefix Length |                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            Prefix             +
@@ -486,7 +527,7 @@ I writing an essay on this. :-p)
           </figure>
           <t>
             <list style="hanging">
-              <t hangText="Connection Identifier: ">The DNCP Connection
+              <t hangText="Endpoint Identifier: ">The DNCP Endpoint
               Identifier of the link the prefix is assigned to, or 0 if the
               link is a Private Link.</t>
 
@@ -555,7 +596,7 @@ I writing an essay on this. :-p)
                   is not assigned on a Shared Link.</t>
 
                   <t>If the Link Identifier is not zero the Shared Link is
-                  equal to the <xref target="links">Adjacent Link</xref>.
+                  equal to the <xref target="links">Common Link</xref>.
                   Advertised Prefixes as well as their associated priorities
                   and associated Shared Links MUST be updated as Assigned
                   Prefix TLVs or Neighbor TLVs are added, removed or updated.</t>
@@ -583,7 +624,7 @@ I writing an essay on this. :-p)
 
           <section title="Making New Assignments">
             <t>Whenever the Prefix Assignment Algorithm routine is run on an
-            Adjacent Link and whenever a new prefix may be assigned (case 1
+            Common Link and whenever a new prefix may be assigned (case 1
             of the routine), the decision of whether the assignment of a new
             prefix is desired MUST follow these rules:
 
@@ -625,7 +666,7 @@ I writing an essay on this. :-p)
 
           <section title="Applying Assignments">
             <t>The prefix assignment algorithm indicates when a prefix is
-            applied to the respective Adjacent Link. When that happens
+            applied to the respective Common Link. When that happens
             each router connected to said link:
 
             <list>
@@ -679,27 +720,15 @@ I writing an essay on this. :-p)
           otherwise.</t>
 
           <t>For any IPv6 prefix longer than 64 bits (resp. any IPv4 prefix)
-          assigned to an Adjacent Link, the first quarter of the addresses
+          assigned to a Common Link, the first quarter of the addresses
           are reserved for routers HNCP based assignments, whereas the last
           three quarters are left to the DHCPv6 (resp. DHCPv4) elected router
           (<xref target="version-tlv" /> specifies the DHCP server election process).
           For instance, if the prefix 192.0.2.0/24 is assigned and
-          applied to an Adjacent Link, addresses included in 192.0.2.0/26 are
+          applied to a Common Link, addresses included in 192.0.2.0/26 are
           reserved for HNCP nodes and the remaining addresses are reserved
           for the elected DHCPv4 server.</t>
-          <!-- TBD This seems very v4-centric (see also above comment of no
-               SLAAC for routers). Yet 'using DHCP' and not DHCPv4. Hmm.
-               also, I am not sure why the address range part is inverted -
-               traditionally, routers etc, have smallest #s. -->
-          <!-- [SB] seconded, also IMO it would just make sense to reseve a
-               portion for HNCP allocations and leave the rest at discretion
-               of the router (i.e. not reserve them for DHCP explicitly)
-           -->
-          <!-- [PP] It is very IPv4 centric because some people will just bark
-               if I assume it could be use for something else (which it could).
-               I changed it back to first quarter, and moved the reservation
-               to the elected server.
-           -->
+
           <t>HNCP routers assign themselves addresses using the Node Address TLV:
             <figure>
               <artwork>
@@ -708,7 +737,7 @@ I writing an essay on this. :-p)
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |    Type: NODE-ADDRESS (36)    |           Length: 20          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                     Connection Identifier                     |
+|                      Endpoint Identifier                      |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
 |                           IP Address                          |
@@ -718,11 +747,11 @@ I writing an essay on this. :-p)
               </artwork>
             </figure>
             <list style="hanging">
-              <t hangText="Connection Identifier: ">The DNCP Connection
+              <t hangText="Endpoint Identifier: ">The DNCP Endpoint
               Identifier of the link the address is assigned to, or 0 if it is
               not assigned on an HNCP enabled link.</t>
 
-              <t hangText="IP Address: ">The IPv6 address, or the IPv4 address
+              <t hangText="IP Address: ">The globally scoped IPv6 address, or the IPv4 address
               encoded as an <xref target="RFC4291">IPv4-mapped IPv6 address</xref>.</t>
             </list>
           </t>
@@ -753,28 +782,29 @@ I writing an essay on this. :-p)
           HNCP as if they were delegated prefixes. The following rules apply:
 
           <list>
-            <t>An HNCP router SHOULD create an ULA prefix
-            if there is no other non-deprecated IPv6 prefix in the network. It MAY also do so
-            if there are other delegated IPv6 prefixes but none of which is a
-            non-deprecated ULA but MUST NOT do so otherwise. Whenever it detects
-            another non-deprecated ULA being advertised it MUST cease to
-            announce its locally generated one. It MAY also do so once it
-            detects a non-deprecated non-ULA IPv6 delegated prefix.</t>
+            <t>An HNCP router SHOULD create an ULA prefix if there is no other
+            non-deprecated IPv6 prefix in the network. It MAY also do so
+            if there are other delegated IPv6 prefixes but none of which is
+            generated by an HNCP router (i.e. not delegated by an external entity)
+            but MUST NOT do so otherwise. Whenever it detects
+            another non-deprecated IPv6 prefix generated by an HNCP router it
+            MUST cease to announce its own locally generated one.</t>
 
-            <t>An HNCP router MUST create a non-deprecated
-            <xref target="RFC1918">private IPv4 prefix</xref>
-            whenever it wishes to provide external IPv4 connectivity to the
-            network and no other non-deprecated private IPv4 prefix currently
-            exists. It MAY also create a deprecated private IPv4 prefix if no
-            IPv4 prefix exists and it wants to enable local IPv4 connectivity
-            but MUST NOT do so otherwise. In case multiple IPv4 prefixes are
-            announced all but one MUST be removed while non-deprecated ones
-            take precedence over deprecated ones and announcements by nodes
+            <t>An HNCP router MUST create a <xref target="RFC1918">
+            private IPv4 prefix</xref> whenever it wishes to provide IPv4 internet
+            connectivity to the network and no other private IPv4 prefix with
+            internet connectivity currently exists. It MAY also enable local IPv4
+            connectivity by creating a private IPv4 prefix if no IPv4 prefix exists
+            but MUST NOT do so otherwise.
+            In case multiple IPv4 prefixes are
+            announced all but one MUST be removed while those with internet
+            connectivity take precedence over those without and announcements by nodes
             with a higher node identifier take precedence over those with a
-            lower one. The router publishing the non-deprecated prefix MUST
-            announce an IPv4 default route using the routing protocol and
+            lower one. The router publishing a prefix with internet connectivity
+            MUST announce an IPv4 default route using the routing protocol and
             perform NAT on behalf of the network as long as it publishes the
-            prefix, other routers in the network MUST NOT.</t>
+            prefix, other routers in the network MAY choose not to.
+            Internet Connectivity is indicated using a Prefix Domain TLV.</t>
           </list>
 
           </t>
@@ -812,7 +842,7 @@ I writing an essay on this. :-p)
         <t>The designated stateful DHCPv6 server for a link is elected
         based on the capabilities described in <xref target="version-tlv"
         />.  The winner is the router connected to the <xref
-        target="links">Adjacent Link</xref> advertising the greatest
+        target="links">Common Link</xref> advertising the greatest
         H-capability. In case of a tie, Capability Values and node
         identifiers are considered (greatest value is elected).  The
         elected router MUST serve stateful DHCPv6 and Router Advertisements
@@ -881,7 +911,7 @@ I writing an essay on this. :-p)
         <t>The designated DHCPv6 server for prefix-delegation on a link is
         elected based on the capabilities described in
         <xref target="version-tlv" />. The winner is the router connected to the
-        <xref target="links">Adjacent Link</xref> advertising the greatest
+        <xref target="links">Common Link</xref> advertising the greatest
         P-capability. In case of a tie, Capability Values and Node
         Identifiers are considered (greatest value is elected).
         The elected router MUST provide
@@ -892,7 +922,7 @@ I writing an essay on this. :-p)
       <section title="DHCPv4 for Adressing and Configuration">
         <t>The designated DHCPv4 server on a link is elected based on the
         capabilities described in <xref target="version-tlv" />.  The
-        winner is the router connected to the <xref target="links">Adjacent
+        winner is the router connected to the <xref target="links">Common
         Link</xref> advertising the greatest L-capability. In case of a
         tie, Capability Values and node identifiers are considered
         (greatest value is elected).  The elected router MUST provide
@@ -932,7 +962,7 @@ I writing an essay on this. :-p)
       multiple HNCP routers.</t>
 
       <t>Each HNCP router SHOULD provide and announce an auto-generated or
-      user-configured name for each internal <xref target="links">Adjacent
+      user-configured name for each internal <xref target="links">Common
       Link</xref> for which it is the designated DHCPv4, stateful
       DHCPv6 server or <xref target="RFC6762">MDNS</xref>-proxy and for
       which it provides DNS-services on behalf of devices on said link.
@@ -1199,9 +1229,10 @@ I writing an essay on this. :-p)
         protocols whenever it uses the security mechanism of HNCP.</t>
         <t>It SHOULD implement support for the Service Discovery and Naming
         TLVs as defined in this document.</t>
-        <t>It MUST implement and run the routing protocol $FOO
+        <t>It MUST implement and run a routing protocol appropriate for the
+        given link type and
         with support for source-specific routes on all of the interfaces it
-        sends and receives HNCP-messages on and MUST resort to announcing
+        sends and receives HNCP traffic on and MUST resort to announcing
         source-specific routes for external destinations appropriately.</t>
         <t>It MUST use adequate security mechanisms for the routing
         protocol on any interface where it also uses the security
@@ -1214,8 +1245,6 @@ I writing an essay on this. :-p)
         election strategy). In general "WAN interface requirements" shall
         apply to external interfaces and "LAN interface requirements"
         to internal interfaces respectively.</t>
-        <!-- [PP] It's probably fine to leave it like that for now. But I guess
-         we will have to provide the list of rules that apply at some point. -->
         <t>It SHOULD be able to provide connectivity to IPv4-devices using
         DHCPv4.</t>
         <t>It SHOULD be able to delegate prefixes to legacy IPv6 routers
@@ -1243,7 +1272,7 @@ I writing an essay on this. :-p)
 
       <list style="symbols">
         <t>Network topology information such as HNCP nodes and their
-        adjacent links</t>
+        common links</t>
 
         <t>Address assignment information such as delegated and assigned
         prefixes for individual links</t>
@@ -1356,12 +1385,12 @@ I writing an essay on this. :-p)
   </middle>
   <back>
     <references title="Normative references">
-      <?rfc include="reference.I-D.draft-ietf-homenet-dncp-01"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-dncp-04"?>
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6347.xml"?>
       <?rfc include="reference.RFC.6603.xml"?>
       <?rfc include="reference.RFC.4191.xml"?>
-      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-03"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-06"?>
     </references>
 
     <references title="Informative references">
@@ -1385,18 +1414,16 @@ I writing an essay on this. :-p)
       <?rfc include="reference.RFC.4193.xml"?>
     </references>
 
-  <section title="Some Outstanding Issues">
+    <section title="Changelog [RFC Editor: please remove]">
 
-    <t>Should we define in-protocol fragmentation scheme or just use IPv6
-    fragmentation with 'big enough' minimum acceptable size allowed for
-    implementations? In the same sense should we use TCP over UDP?</t>
+      <t>draft-ietf-homenet-hncp-05: Renamed "Adjacent Link" to "Common Link".
+      Changed single IPv4 uplink election from MUST to MAY. Added explicit
+      indication to distinguish (IPv4)-PDs for local connectivity and ones
+      with uplink connectivity allowing e.g. better local-only
+      IPv4-connectivity.</t>
 
-    <t>How should we deal with stub-routers requiring reduced complexity
-    versions? Stub IGPs? An HNCP-based solution? Even a stub-HNCP?</t>
-
-  </section>
-
-    <section title="Changelog">
+      <t>draft-ietf-homenet-hncp-04: Change the responsibility for sending
+      RAs to the router assigning the prefix.</t>
 
       <t>draft-ietf-homenet-hncp-03: Split to DNCP (generic protocol) and
       HNCP (homenet profile).</t>
@@ -1420,13 +1447,13 @@ I writing an essay on this. :-p)
 
     </section>
 
-    <section title="Draft source">
+    <section title="Draft source [RFC Editor: please remove]">
       <t>This draft is available at <eref
       target="https://github.com/fingon/ietf-drafts/">https://github.com/fingon/ietf-drafts/</eref>
       in source format. Issues and pull requests are welcome.</t>
     </section>
 
-    <section title="Implementation">
+    <section title="Implementation [RFC Editor: please remove]">
       <t>A GPLv2-licensed implementation of HNCP is currently under
       development at <eref target="https://github.com/sbyx/hnetd/">
       https://github.com/sbyx/hnetd/</eref> and binaries are available in
