@@ -88,7 +88,7 @@ and they can be queued (and jittered) freely?
 
       <t>DNCP has relatively few requirements for the underlying transport;
       it requires some way of transmitting either unicast datagram or
-      stream data to a DNCP peer and, if used in multicast mode, a way of
+      stream data to a peer and, if used in multicast mode, a way of
       sending multicast datagrams. If security is desired and one of the
       built-in security methods is to be used, support for some TLS-derived
       transport scheme - such as <xref target="RFC5246">TLS</xref> on top of
@@ -152,7 +152,7 @@ and they can be queued (and jittered) freely?
       non-zero small positive integers should comfortably fit within 32
       bits.</t>
 
-      <t>(DNCP) peer: another DNCP node with which a DNCP node communicates
+      <t>Peer: another DNCP node with which a DNCP node communicates
       directly using a particular local and remote endpoint pair.</t>
 
       <t>Node data: a set of TLVs published by a node in the DNCP
@@ -250,16 +250,16 @@ and they can be queued (and jittered) freely?
       </list>
       </t>
 
-      <t>For each remote (DNCP node, endpoint) pair detected on a
+      <t>For each remote (peer, endpoint) pair detected on a
       local endpoint, a DNCP node has:
 
       <list style="symbols">
 
-        <t>The node identifier of the DNCP peer.</t>
+        <t>The node identifier of the peer.</t>
 
-        <t>The endpoint identifier of the DNCP peer.</t>
+        <t>The endpoint identifier of the peer.</t>
 
-        <t>The most recent address used by the DNCP peer (authenticated and
+        <t>The most recent address used by the peer (authenticated and
         authorized, if security is enabled).</t>
 
       </list>
@@ -272,7 +272,7 @@ and they can be queued (and jittered) freely?
       <t>The DNCP protocol consists of <xref target="RFC6206">Trickle</xref>
       driven unicast or multicast status payloads which indicate the current
       status of shared TLV data and additional unicast exchanges
-      which ensure DNCP peer reachability and synchronize the data when
+      which ensure peer reachability and synchronize the data when
       necessary. </t>
 
       <t>If DNCP is to be used on a multicast-capable interface, as opposed
@@ -453,8 +453,8 @@ and they can be queued (and jittered) freely?
         <t>If keep-alives specified in <xref target="ka" /> are NOT sent by
         the peer (either the DNCP profile does not specify the use of
         keep-alives or the particular peer chooses not to send
-        keep-alives), some other means MUST be employed to ensure a DNCP
-        peer is present. When the peer is no longer present, the Neighbor
+        keep-alives), some other means MUST be employed to ensure its
+        presence. When the peer is no longer present, the Neighbor
         TLV and the local DNCP peer state MUST be removed.</t>
 
         <t>If the DNCP profile supports <xref target="broadcast">dense
@@ -508,7 +508,7 @@ and they can be queued (and jittered) freely?
         updates</xref> provide a mechanism for handling of new peer
         detection (if applicable) on an endpoint, as well as state change
         notifications. Another mechanism may be needed to get rid of old,
-        no longer valid DNCP peers if the transport or lower layers do not
+        no longer valid peers if the transport or lower layers do not
         provide one.</t>
 
         <t>If keep-alives are not specified in the DNCP profile, the rest
