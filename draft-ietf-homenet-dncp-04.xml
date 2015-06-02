@@ -107,69 +107,68 @@ and they can be queued (and jittered) freely?
     </section>
 
     <section title="Terminology">
-      <t>DNCP profile is a definition of a set of rules and
-      values listed in <xref target="profile-bits"/> specifying the
-      behavior of a DNCP based protocol, such as the used transport
-      method.  For readability, any DNCP profile specific parameters
-      with a profile-specific fixed value are prefixed with DNCP_.</t>
 
-      <t>DNCP node is a single node which runs a protocol
-      based on a DNCP profile.</t>
+      <t>DNCP profile: a definition of set of rules and values listed in
+      <xref target="profile-bits"/> specifying the behavior of a DNCP based
+      protocol, such as the used transport method.  For readability, any
+      DNCP profile specific parameters with a profile-specific fixed value
+      are prefixed with DNCP_.</t>
 
-      <t>DNCP network is a set of DNCP nodes running the same DNCP
-      profile that can reach each other, either via discovered connectivity
-      in the underlying network, or using each other's addresses learned
-      via other means. As DNCP exchanges are bidirectional, DNCP nodes
-      connected via only unidirectional links are not considered
-      connected. </t>
+      <t>DNCP node: a single node which runs a protocol based on a DNCP
+      profile.</t>
 
-      <t>DNCP message is an abstract concept: when using a reliable
-      stream transport, the whole stream of TLVs can be considered
-      a single message, with new TLVs becoming one by one available once
-      they have been fully received. On a datagram transport, each individual
+      <t>DNCP network: a set of DNCP nodes running the same DNCP profile
+      that can reach each other, either via discovered connectivity in the
+      underlying network, or using each other's addresses learned via other
+      means. As DNCP exchanges are bidirectional, DNCP nodes connected via
+      only unidirectional links are not considered connected. </t>
+
+      <t>DNCP message: an abstract concept - when using a reliable stream
+      transport, the whole stream of TLVs can be considered a single
+      message, with new TLVs becoming one by one available once they have
+      been fully received. On a datagram transport, each individual
       datagram is considered a separate message.</t>
 
-      <t>Node identifier is an opaque fixed-length identifier consisting of
+      <t>Node identifier: an opaque fixed-length identifier consisting of
       DNCP_NODE_IDENTIFIER_LENGTH bytes which uniquely identifies a DNCP
       node within a DNCP network. </t>
 
-      <t>Link indicates a link-layer media over which directly connected
-      nodes can communicate.</t>
+      <t>Link: a link-layer media over which directly connected nodes can
+      communicate.</t>
 
-      <t>Interface indicates a port of a node that is connected to a
-      particular link. </t>
+      <t>Interface: a port of a node that is connected to a particular
+      link. </t>
 
-      <t>Endpoint denotes a locally configured use of DNCP on a DNCP
-      node. It is attached either to an interface, a specific remote
-      unicast address to be contacted, or a range of remote unicast
-      addresses that are allowed to contact.</t>
+      <t>Endpoint: a locally configured use of DNCP on a DNCP node. It is
+      attached either to an interface, a specific remote unicast address to
+      be contacted, or a range of remote unicast addresses that are allowed
+      to contact.</t>
 
-      <t>Endpoint identifier is a 32-bit opaque value, which identifies
-      a particular endpoint of that particular DNCP node. The value 0 is
-      reserved for DNCP and sub-protocol purposes and MUST NOT
-      be used to identify an actual endpoint. This definition is in sync
-      with the interface index definition in <xref target="RFC3493"/>, as
-      the non-zero small positive integers should comfortably fit within 32
+      <t>Endpoint identifier: a 32-bit opaque value, which identifies a
+      particular endpoint of that particular DNCP node. The value 0 is
+      reserved for DNCP and sub-protocol purposes and MUST NOT be used to
+      identify an actual endpoint. This definition is in sync with the
+      interface index definition in <xref target="RFC3493"/>, as the
+      non-zero small positive integers should comfortably fit within 32
       bits.</t>
 
-      <t>(DNCP) peer refers to another DNCP node with which a DNCP node
-      communicates directly using a particular local and remote endpoint
-      pair.</t>
+      <t>(DNCP) peer: another DNCP node with which a DNCP node communicates
+      directly using a particular local and remote endpoint pair.</t>
 
-      <t>Node data is a set of TLVs published by a node in the DNCP
-      network. The whole node data is owned by the node that publishes it, and
-      it MUST be passed along as-is, including TLVs unknown to the
+      <t>Node data: a set of TLVs published by a node in the DNCP
+      network. The whole node data is owned by the node that publishes it,
+      and it MUST be passed along as-is, including TLVs unknown to the
       forwarder.</t>
 
-      <t>Node state is a set of metadata attributes for node data.  It
+      <t>Node state: a set of metadata attributes for node data.  It
       includes a sequence number for versioning, a hash value for comparing
       and a timestamp indicating the time passed since its last
       publication. The hash function and the number of bits used are
       defined in the DNCP profile. </t>
 
-      <t>Network state (hash) is a hash value which represents
-      the current state of the network.  The hash function and the number of
-      bits used are defined in the DNCP profile.
+      <t>Network state (hash): a hash value which represents the current
+      state of the network.  The hash function and the number of bits used
+      are defined in the DNCP profile.
 
       Whenever a node is added, removed or updates its published node
       data this hash value changes as well. It is calculated over each
@@ -177,16 +176,16 @@ and they can be queued (and jittered) freely?
       its node data. For calculation these tuples are sorted in
       ascending order of the respective node's node identifier.</t>
 
-      <t>(Trust) verdict is a statement about the trustworthiness of
-      a certificate announced by a node participating in the certificate
+      <t>Trust verdict: a statement about the trustworthiness of a
+      certificate announced by a node participating in the certificate
       based trust consensus mechanism.</t>
 
-      <t>Effective (trust) verdict for a certificate is defined as the
-      verdict with the highest priority within the set of verdicts
-      announced for the certificate in the DNCP network.</t>
+      <t>Effective trust verdict: the trust verdict with the highest
+      priority within the set of trust verdicts announced for the
+      certificate in the DNCP network.</t>
 
-      <t>Neighbor graph is the undirected graph of DNCP nodes produced
-      by retaining only bidirectional peer relationships between nodes.</t>
+      <t>Neighbor graph: the undirected graph of DNCP nodes produced by
+      retaining only bidirectional peer relationships between nodes.</t>
 
     </section>
 
@@ -198,9 +197,10 @@ and they can be queued (and jittered) freely?
         <t>A timestamp indicating the most recent neighbor graph traversal
         described in <xref target="purge" />.</t>
 
-        <t>Something with data about most recent request(s) for network state
-        - simplest one being a timestamp for the most recent request for
-        network state (see <xref target="reception" />).</t>
+        <t>A data structure containing data about most recent sent
+        request(s) for network state. The simplest option is a timestamp
+        for the most recent request for network state (see <xref
+        target="reception" />).</t>
 
       </list>
       </t>
@@ -669,11 +669,12 @@ and they can be queued (and jittered) freely?
         Each TLV is encoded as a 2 byte type field, followed by a 2 byte
         length field (of the value, excluding header; 0 means no value)
         followed by the value itself (if any). Both type and length fields
-        in the header as well as all integer fields inside the value
-        - unless explicitly stated otherwise - are
-        represented in network byte order. Zeroed padding bytes MUST be added
-        up to the next 4 byte boundary if the length is not divisible by 4.
-        These padding bytes MUST NOT be included in the length field.
+        in the header as well as all integer fields inside the value -
+        unless explicitly stated otherwise - are represented in network
+        byte order. Padding bytes with value zero MUST be added up to the
+        next 4 byte boundary if the length is not divisible by 4.  These
+        padding bytes MUST NOT be included the value stored in the length
+        field.
       </t>
 
       <figure>
@@ -745,7 +746,7 @@ and they can be queued (and jittered) freely?
 
           <t>This TLV is used to request a <xref target="node-state">
           Node State TLV</xref> (including node data) for the node
-          with matching node identifier.</t>
+          matching node identifier.</t>
 
         </section>
 
@@ -1015,48 +1016,48 @@ and they can be queued (and jittered) freely?
         <t>The certificate-based consensus model is designed to be a
         compromise between trust management effort and flexibility. It is
         based on X.509-certificates and allows each DNCP node to provide a
-        verdict on any other certificate and a consensus is found to
+        trust verdict on any other certificate and a consensus is found to
         determine whether a node using this certificate or any
         certificate signed by it is to be trusted. </t>
 
         <t>The current effective trust verdict for any certificate is
-        defined as the one with the highest priority from all verdicts
-        announced for said certificate at the time.</t>
+        defined as the one with the highest priority from all trust
+        verdicts announced for said certificate at the time.</t>
 
         <section title="Trust Verdicts">
 
-          <t>Trust Verdicts are statements of DNCP nodes about the
+          <t>Trust verdicts are statements of DNCP nodes about the
           trustworthiness of X.509-certificates.  There are 5 possible
-          verdicts in order of ascending priority:
+          trust verdicts in order of ascending priority:
 
-          <list style="hanging">
+          <list>
 
-            <t hangText="0 Neutral">: no verdict exists but the DNCP
-            network should determine one.</t>
+            <t>0 (Neutral): no trust verdict exists but the DNCP network
+            should determine one.</t>
 
-            <t hangText="1 Cached Trust">: the last known effective verdict
-            was Configured or Cached Trust.</t>
+            <t>1 (Cached Trust): the last known effective trust verdict was
+            Configured or Cached Trust.</t>
 
-            <t hangText="2 Cached Distrust">: the last known effective
-            verdict was Configured or Cached Distrust.</t>
+            <t>2 (Cached Distrust): the last known effective trust verdict
+            was Configured or Cached Distrust.</t>
 
-            <t hangText="3 Configured Trust">: trustworthy based upon an
+            <t>3 (Configured Trust): trustworthy based upon an external
+            ceremony or configuration.</t>
+
+            <t>4 (Configured Distrust): not trustworthy based upon an
             external ceremony or configuration.</t>
-
-            <t hangText="4 Configured Distrust">: not trustworthy based upon
-            an external ceremony or configuration.</t>
 
           </list>
           </t>
 
           <t>
-            Verdicts are differentiated in 3 groups:
+            Trust verdicts are differentiated in 3 groups:
 
             <list style="symbols">
-              <t>Configured verdicts are used to announce explicit verdicts
-              a node has based on any external trust bootstrap or
-              predefined relation a node has formed with a given
-              certificate.</t>
+              <t>Configured verdicts are used to announce explicit
+              trust verdicts a node has based on any external trust
+              bootstrap or predefined relation a node has formed with a
+              given certificate.</t>
 
               <t>Cached verdicts are used to retain the last known trust
               state in case all nodes with configured verdicts about a
@@ -1071,18 +1072,19 @@ and they can be queued (and jittered) freely?
           <t>
             The current effective trust verdict for any certificate is
             defined as the one with the highest priority within the set of
-            verdicts + announced for the certificate in the DNCP network.
+            trust verdicts announced for the certificate in the DNCP
+            network.
 
             A node MUST be trusted for participating in the DNCP network if
-            and only if the current effective verdict for its own
+            and only if the current effective trust verdict for its own
             certificate or any one in its certificate hierarchy is (Cached
             or Configured) Trust and none of the certificates in its
-            hierarchy have an effective verdict of (Cached or Configured)
-            Distrust.
+            hierarchy have an effective trust verdict of (Cached or
+            Configured) Distrust.
 
             In case a node has a configured verdict, which is different
-            from the current effective verdict for a certificate, the
-            current effective verdict takes precedence in deciding
+            from the current effective trust verdict for a certificate, the
+            current effective trust verdict takes precedence in deciding
             trustworthiness. Despite that, the node still retains and
             announces its configured verdict.
           </t>
@@ -1100,7 +1102,7 @@ and they can be queued (and jittered) freely?
 
           <t>Every time a node (re)joins the network or detects the change
           of an effective trust verdict for any certificate, it will
-          synchronize its cache, i.e. store new effective verdicts
+          synchronize its cache, i.e. store new effective trust verdicts
           overwriting any previously cached verdicts. Configured verdicts
           are stored in the cache as their respective cached counterparts.
           Neutral verdicts are never stored and do not override existing
@@ -1112,16 +1114,21 @@ and they can be queued (and jittered) freely?
           <t>A node SHOULD always announce any configured trust verdicts it
           has established by itself, and it MUST do so if announcing the
           configured trust verdict leads to a change in the current
-          effective verdict for the respective certificate.  In absence of
-          configured verdicts, it MUST announce cached trust verdicts it has
-          stored in its trust cache, if one of the following conditions
-          applies:
+          effective trust verdict for the respective certificate.  In
+          absence of configured verdicts, it MUST announce cached trust
+          verdicts it has stored in its trust cache, if one of the
+          following conditions applies:
 
           <list style="symbols">
-            <t>The stored verdict is Cached Trust and the current effective
-            verdict for the certificate is Neutral or does not exist.</t>
-            <t>The stored verdict is Cached Distrust and the current
-            effective verdict for the certificate is Cached Trust.</t>
+
+            <t>The stored trust verdict is Cached Trust and the current
+            effective trust verdict for the certificate is Neutral or does
+            not exist.</t>
+
+            <t>The stored trust verdict is Cached Distrust and the current
+            effective trust verdict for the certificate is Cached
+            Trust.</t>
+
           </list>
 
           A node rechecks these conditions whenever it detects changes of
@@ -1129,14 +1136,14 @@ and they can be queued (and jittered) freely?
           </t>
 
           <t>Upon encountering a node with a hierarchy of certificates for
-          which there is no effective verdict, a node adds a Neutral
+          which there is no effective trust verdict, a node adds a Neutral
           Trust-Verdict-TLV to its node data for all certificates found in
-          the hierarchy, and publishes it until an effective verdict
+          the hierarchy, and publishes it until an effective trust verdict
           different from Neutral can be found for any of the certificates,
           or a reasonable amount of time (10 minutes is suggested) with no
           reaction and no further authentication attempts has passed.  Such
-          verdicts SHOULD also be limited in rate and number to prevent
-          denial-of-service attacks.</t>
+          trust verdicts SHOULD also be limited in rate and number to
+          prevent denial-of-service attacks.</t>
 
           <t>Trust verdicts are announced using Trust-Verdict TLVs:
           <figure>
@@ -1162,7 +1169,8 @@ and they can be queued (and jittered) freely?
           </figure>
 
           <list>
-            <t>Verdict represents the numerical index of the verdict.</t>
+            <t>Verdict represents the numerical index of the trust
+            verdict.</t>
 
             <t>(reserved) is reserved for future additions and MUST be set
             to 0 when creating TLVs and ignored when parsing them.</t>
