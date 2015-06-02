@@ -166,7 +166,7 @@ and they can be queued (and jittered) freely?
       publication. The hash function and the number of bits used are
       defined in the DNCP profile. </t>
 
-      <t>Network state (hash): a hash value which represents the current
+      <t>Network state hash: a hash value which represents the current
       state of the network.  The hash function and the number of bits used
       are defined in the DNCP profile.
 
@@ -197,10 +197,10 @@ and they can be queued (and jittered) freely?
         <t>A timestamp indicating the most recent neighbor graph traversal
         described in <xref target="purge" />.</t>
 
-        <t>A data structure containing data about most recent sent
-        request(s) for network state. The simplest option is a timestamp
-        for the most recent request for network state (see <xref
-        target="reception" />).</t>
+        <t>A data structure containing data about the most recently sent
+        <xref target="req-net-state">Request Network State TLVs</xref>.
+        The simplest option is keeping a timestamp of the most recent request
+        (see <xref target="reception" />).</t>
 
       </list>
       </t>
@@ -374,8 +374,8 @@ and they can be queued (and jittered) freely?
           TLV</xref>. These replies MUST be rate limited to only at most
           one reply per link per unique network state hash within Imin. The
           simplest way to ensure this rate limit is a timestamp indicating
-          requests, and just sending at most one request for network state
-          per Imin.
+          requests, and sending at most one <xref target="req-net-state">
+          Request Network State TLV</xref> per Imin.
 
           To facilitate faster state synchronization, if a Request Network
           State TLV is sent in a reply, a local, current Network State TLV
