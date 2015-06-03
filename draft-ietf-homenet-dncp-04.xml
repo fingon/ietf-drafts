@@ -242,6 +242,7 @@ and they can be queued (and jittered) freely?
     <section anchor="dm" title="Data Model">
 
       <t>A DNCP node has:
+
       <list style="symbols">
 
         <t>A timestamp indicating the most recent neighbor graph traversal
@@ -255,105 +256,73 @@ and they can be queued (and jittered) freely?
       </list>
       </t>
 
-      <t>A DNCP node has for every DNCP node in the DNCP network:</t>
+      <t>A DNCP node has for every DNCP node in the DNCP network:
 
-	<texttable suppress-title="true" style="none" align="left">
-	    <ttcol width="25%" /><ttcol width="75%" />
-
-        <c>Node identifier</c>
-        <c>the unique identifier of the node.</c>
+      <list style="symbols">
+        <t>Node identifier:
+        the unique identifier of the node.</t>
         
-        <c /><c />
+        <t>Node data: the ordered set of TLV tuples published by that
+        particular node. This set of TLVs MUST be strictly ordered based on
+        ascending binary content (including TLV type and length). This
+        facilitates linear time state delta processing.</t>
 
-        <c>Node data</c>
-        <c>the ordered set of TLV tuples published by that
-        particular node. This set of TLVs MUST be strictly ordered
-        based on ascending binary content (including TLV type and
-        length). This facilitates linear time state delta processing.</c>
-        
-        <c /><c />
-
-        <c>Latest update sequence number</c>
-        <c>the 32-bit sequence number that is
-        incremented any time the TLV set is published. For comparison
+        <t>Latest update sequence number: the 32-bit sequence number that
+        is incremented any time the TLV set is published. For comparison
         purposes, a looping comparison should be used to avoid problems in
-        case of overflow. An example would be: a &lt; b &lt;=&gt; (a - b)
-        % 2^32 &amp; 2^31 != 0.</c>
+        case of overflow. An example would be: a &lt; b &lt;=&gt; (a - b) %
+        2^32 &amp; 2^31 != 0.</t>
+
+        <t>Relative time delta: the time (in milliseconds) since the
+        current TLV data set with the current update sequence number was
+        published. It is also a 32 bit number on the wire.  If this number
+        is close to overflow (greater than 2^32-2^16), a node MUST
+        re-publish its TLVs even if there is no change. In other words,
+        absent any other changes, the TLV set MUST be re-published roughly
+        every 49 days.</t>
         
-        <c /><c />
-
-        <c>Relative time delta</c>
-        <c>the time (in milliseconds) since the current TLV data
-        set with the current update sequence number was published. It is
-        also a 32 bit number on the wire.  If this number is close to
-        overflow (greater than 2^32-2^16), a node MUST re-publish its TLVs
-        even if there is no change. In other words, absent any other changes,
-        the TLV set MUST be re-published roughly every 49 days.</c>
-        
-        <c /><c />
-
-        <c>Timestamp</c>
-        <c>the time it was last reachable based on
-        neighbor graph traversal described in <xref target="purge" />.</c>
-
-      </texttable>
+        <t>Timestamp: the time it was last reachable based on
+        neighbor graph traversal described in <xref target="purge" />.</t>
+      </list>
+      </t>
 
       <t>Additionally, a DNCP node has a set of endpoints for which DNCP
-      is configured to be used. For each such endpoint, a node has:</t>
+      is configured to be used. For each such endpoint, a node has:
+      <list style="symbols">
 
-<texttable suppress-title="true" style="none" align="left">
-	    <ttcol width="25%" /><ttcol width="75%" />
-        <c>Endpoint identifier</c>
-        <c>the 32-bit opaque value uniquely identifying it.</c>
+        <t>Endpoint identifier: the 32-bit opaque value uniquely
+        identifying it.</t>
         
-        <c /><c />
+        <t><xref target="RFC6206">Trickle</xref> instance: the endpoint's
+        individual trickle instance with parameters I, T, and c.</t>
         
-        <c><xref target="RFC6206">Trickle</xref> instance</c>
-        <c>the endpoint's individual trickle instance with parameters I, T, and c.</c>
+      </list>
+      </t>
         
-        </texttable>
+      <t>and one (or more) of the following:
+      <list style="symbols">
+	<t>Interface: the assigned local network interface.</t>
         
-    <t>and either one of</t>
+        <t>Unicast address: the DNCP node it should connect with.</t>
         
-	<texttable suppress-title="true" style="none" align="left">
-	    <ttcol width="25%" /><ttcol width="75%" />
-
-        <c>Interface</c>
-        <c>the assigned local network interface.</c>
-        
-        <c /><c />
-        
-        <c>Unicast address</c>
-        <c>the DNCP node it should connect with.</c>
-        
-        <c /><c />
-        
-        <c>Range of addresses</c>
-        <c>the DNCP nodes that are allowed to connect.</c>
-      </texttable>
+        <t>Range of addresses: the DNCP nodes that are allowed to connect.</t>
+      </list>
+      </t>
 
       <t>For each remote (peer, endpoint) pair detected on a
-      local endpoint, a DNCP node has:</t>
+      local endpoint, a DNCP node has:
 
-      <texttable suppress-title="true" style="none" align="left">
-	  <ttcol width="25%" /><ttcol width="75%" />
+      <list style="symbols">
 
-        <c>Node identifier</c>
-        <c>the unique identifier of the peer.</c>
+        <t>Node identifier: the unique identifier of the peer.</t>
         
-        <c /><c />
-
-        <c>Endpoint identifier</c>
-        <c>the unique endpoint identifier used by the peer.</c>
+        <t>Endpoint identifier: the unique endpoint identifier used by the
+        peer.</t>
         
-        <c /><c />
-
-        <c>Peer address</c>
-        <c>the most recently used address of the peer
-        (authenticated and authorized, if security is enabled).</c>
-
-      </texttable>
-
+        <t>Peer address: the most recently used address of the peer
+        (authenticated and authorized, if security is enabled).</t>
+      </list>
+      </t>
     </section>
 
     <section title="Operation">
