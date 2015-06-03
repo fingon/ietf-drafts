@@ -12,7 +12,7 @@ DRAFTS=\
   draft-ietf-homenet-hybrid-proxy-zeroconf-00.txt \
   draft-stenberg-homenet-minimalist-pcp-proxy-01.txt \
   draft-stenberg-anima-adncp-00.txt \
-  draft-ietf-homenet-dncp-04.txt \
+  draft-ietf-homenet-dncp-05.txt \
   draft-ietf-homenet-hncp-05.txt \
 
 ifndef XML_LIBRARY
