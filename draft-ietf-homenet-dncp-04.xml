@@ -108,84 +108,134 @@ and they can be queued (and jittered) freely?
 
     <section title="Terminology">
 
-      <t>DNCP profile: a definition of set of rules and values listed in
+	<texttable suppress-title="true" style="none" align="left">
+	    <ttcol width="25%" /><ttcol width="75%" />
+	  
+	  <c>DNCP profile</c>
+	  <c>a definition of the set of rules and values listed in
       <xref target="profile-bits"/> specifying the behavior of a DNCP based
       protocol, such as the used transport method.  For readability, any
       DNCP profile specific parameters with a profile-specific fixed value
-      are prefixed with DNCP_.</t>
+      are prefixed with DNCP_.</c>
+      
+      <c /><c />
 
-      <t>DNCP node: a single node which runs a protocol based on a DNCP
-      profile.</t>
-
-      <t>DNCP network: a set of DNCP nodes running the same DNCP profile
+      <c>DNCP node</c>
+      <c>a single node which runs a protocol based on a DNCP
+      profile.</c>
+      
+      <c /><c />
+      
+      <c>DNCP network</c>
+      <c>a set of DNCP nodes running the same DNCP profile
       that can reach each other, either via discovered connectivity in the
       underlying network, or using each other's addresses learned via other
       means. As DNCP exchanges are bidirectional, DNCP nodes connected via
-      only unidirectional links are not considered connected. </t>
-
-      <t>DNCP message: an abstract concept - when using a reliable stream
+      only unidirectional links are not considered connected.</c>
+      
+      <c /><c />
+      
+      <c>DNCP message</c>
+      <c>an abstract concept - when using a reliable stream
       transport, the whole stream of TLVs can be considered a single
       message, with new TLVs becoming one by one available once they have
       been fully received. On a datagram transport, each individual
-      datagram is considered a separate message.</t>
-
-      <t>Node identifier: an opaque fixed-length identifier consisting of
+      datagram is considered a separate message.</c>
+      
+      <c /><c />
+      
+      <c>Node identifier</c>
+      <c>an opaque fixed-length identifier consisting of
       DNCP_NODE_IDENTIFIER_LENGTH bytes which uniquely identifies a DNCP
-      node within a DNCP network. </t>
+      node within a DNCP network.</c>
 
-      <t>Link: a link-layer media over which directly connected nodes can
-      communicate.</t>
+      <c /><c />
 
-      <t>Interface: a port of a node that is connected to a particular
-      link. </t>
+      <c>Link</c>
+      <c>a link-layer media over which directly connected nodes can
+      communicate.</c>
+      
+      <c /><c />
 
-      <t>Endpoint: a locally configured use of DNCP on a DNCP node. It is
+      <c>Interface</c>
+      <c>a port of a node that is connected to a particular link.</c>
+
+      <c /><c />
+
+      <c>Endpoint</c>
+      <c>a locally configured use of DNCP on a DNCP node. It is
       attached either to an interface, a specific remote unicast address to
       be contacted, or a range of remote unicast addresses that are allowed
-      to contact.</t>
+      to contact.</c>
+      
+      <c /><c />
 
-      <t>Endpoint identifier: a 32-bit opaque value, which identifies a
+      <c>Endpoint identifier</c>
+      <c>a 32-bit opaque value, which identifies a
       particular endpoint of that particular DNCP node. The value 0 is
       reserved for DNCP and sub-protocol purposes and MUST NOT be used to
       identify an actual endpoint. This definition is in sync with the
       interface index definition in <xref target="RFC3493"/>, as the
       non-zero small positive integers should comfortably fit within 32
-      bits.</t>
+      bits.</c>
+      
+      <c /><c />
 
-      <t>Peer: another DNCP node with which a DNCP node communicates
-      directly using a particular local and remote endpoint pair.</t>
+      <c>Peer</c>
+      <c>another DNCP node with which a DNCP node communicates
+      directly using a particular local and remote endpoint pair.</c>
+      
+      <c /><c />
 
-      <t>Node data: a set of TLVs published by a node in the DNCP
+      <c>Node data</c>
+      <c>a set of TLVs published by a node in the DNCP
       network. The whole node data is owned by the node that publishes it,
       and it MUST be passed along as-is, including TLVs unknown to the
-      forwarder.</t>
+      forwarder.</c>
+      
+      <c /><c />
 
-      <t>Node state: a set of metadata attributes for node data.  It
+      <c>Node state</c>
+      <c>a set of metadata attributes for node data. It
       includes a sequence number for versioning, a hash value for comparing
       and a timestamp indicating the time passed since its last
       publication. The hash function and the number of bits used are
-      defined in the DNCP profile. </t>
+      defined in the DNCP profile. </c>
+      
+      <c /><c />
 
-      <t>Network state hash: a hash value which represents the current
-      state of the network.  The hash function and the number of bits used
-      are defined in the DNCP profile.
+      <c>Network state hash</c>
+      <c>a hash value which represents the current state of the network.
+      The hash function and the number of bits used are defined in
+      the DNCP profile.
 
       Whenever a node is added, removed or updates its published node
       data this hash value changes as well. It is calculated over each
       reachable nodes' update number concatenated with the hash value of
       its node data. For calculation these tuples are sorted in
-      ascending order of the respective node's node identifier.</t>
+      ascending order of the respective node's node identifier.</c>
+      
+      <c /><c />
 
-      <t>Trust verdict: a statement about the trustworthiness of a
+      <c>Trust verdict</c>
+      <c>a statement about the trustworthiness of a
       certificate announced by a node participating in the certificate
-      based trust consensus mechanism.</t>
+      based trust consensus mechanism.</c>
+      
+      <c /><c />
 
-      <t>Effective trust verdict: the trust verdict with the highest
+      <c>Effective trust verdict</c>
+      <c>the trust verdict with the highest
       priority within the set of trust verdicts announced for the
-      certificate in the DNCP network.</t>
+      certificate in the DNCP network.</c>
+      
+      <c /><c />
 
-      <t>Neighbor graph: the undirected graph of DNCP nodes produced by
-      retaining only bidirectional peer relationships between nodes.</t>
+      <c>Neighbor graph</c>
+      <c>the undirected graph of DNCP nodes produced by
+      retaining only bidirectional peer relationships between nodes.</c>
+      
+      </texttable>
 
     </section>
 
@@ -205,65 +255,104 @@ and they can be queued (and jittered) freely?
       </list>
       </t>
 
-      <t>A DNCP node has for every DNCP node in the DNCP network:
+      <t>A DNCP node has for every DNCP node in the DNCP network:</t>
 
-      <list style="symbols">
+	<texttable suppress-title="true" style="none" align="left">
+	    <ttcol width="25%" /><ttcol width="75%" />
 
-        <t>Node identifier.</t>
+        <c>Node identifier</c>
+        <c>the unique identifier of the node.</c>
+        
+        <c /><c />
 
-        <t>Node data: an ordered set of TLV tuples published by that
+        <c>Node data</c>
+        <c>the ordered set of TLV tuples published by that
         particular node. This set of TLVs MUST be strictly ordered
         based on ascending binary content (including TLV type and
-        length). This facilitates linear time state delta processing. </t>
+        length). This facilitates linear time state delta processing.</c>
+        
+        <c /><c />
 
-        <t>Latest update sequence number: a 32 bit number that is
+        <c>Latest update sequence number</c>
+        <c>the 32-bit sequence number that is
         incremented any time the TLV set is published. For comparison
         purposes, a looping comparison should be used to avoid problems in
         case of overflow. An example would be: a &lt; b &lt;=&gt; (a - b)
-        % 2^32 &amp; 2^31 != 0.</t>
+        % 2^32 &amp; 2^31 != 0.</c>
+        
+        <c /><c />
 
-        <t>Relative time delta: the time (in milliseconds) since the current TLV data
+        <c>Relative time delta</c>
+        <c>the time (in milliseconds) since the current TLV data
         set with the current update sequence number was published. It is
         also a 32 bit number on the wire.  If this number is close to
         overflow (greater than 2^32-2^16), a node MUST re-publish its TLVs
         even if there is no change. In other words, absent any other changes,
-        the TLV set MUST be re-published roughly every 49 days.</t>
+        the TLV set MUST be re-published roughly every 49 days.</c>
+        
+        <c /><c />
 
-        <t>Timestamp: the time it was last reachable based on
-        neighbor graph traversal described in <xref target="purge" />.</t>
+        <c>Timestamp</c>
+        <c>the time it was last reachable based on
+        neighbor graph traversal described in <xref target="purge" />.</c>
 
-      </list>
-      </t>
+      </texttable>
 
       <t>Additionally, a DNCP node has a set of endpoints for which DNCP
-      is configured to be used. For each such endpoint, a node has:
+      is configured to be used. For each such endpoint, a node has:</t>
 
-      <list style="symbols">
-        <t>Endpoint identifier (a 32-bit opaque value).</t>
+<texttable suppress-title="true" style="none" align="left">
+	    <ttcol width="25%" /><ttcol width="75%" />
+        <c>Endpoint identifier</c>
+        <c>the 32-bit opaque value uniquely identifying it.</c>
+        
+        <c /><c />
+        
+        <c><xref target="RFC6206">Trickle</xref> instance</c>
+        <c>the endpoint's individual trickle instance with parameters I, T, and c.</c>
+        
+        </texttable>
+        
+    <t>and either one of</t>
+        
+	<texttable suppress-title="true" style="none" align="left">
+	    <ttcol width="25%" /><ttcol width="75%" />
 
-        <t>Interface or unicast address (of a DNCP node it should connect with)
-        or range of addresses (from which DNCP nodes are allowed to connect).
-        </t>
-
-        <t><xref target="RFC6206">Trickle</xref> instance (with parameters
-        I, T, and c).</t>
-      </list>
-      </t>
+        <c>Interface</c>
+        <c>the assigned local network interface.</c>
+        
+        <c /><c />
+        
+        <c>Unicast address</c>
+        <c>the DNCP node it should connect with.</c>
+        
+        <c /><c />
+        
+        <c>Range of addresses</c>
+        <c>the DNCP nodes that are allowed to connect.</c>
+      </texttable>
 
       <t>For each remote (peer, endpoint) pair detected on a
-      local endpoint, a DNCP node has:
+      local endpoint, a DNCP node has:</t>
 
-      <list style="symbols">
+      <texttable suppress-title="true" style="none" align="left">
+	  <ttcol width="25%" /><ttcol width="75%" />
 
-        <t>Peer node identifier.</t>
+        <c>Node identifier</c>
+        <c>the unique identifier of the peer.</c>
+        
+        <c /><c />
 
-        <t>Peer endpoint identifier.</t>
+        <c>Endpoint identifier</c>
+        <c>the unique endpoint identifier used by the peer.</c>
+        
+        <c /><c />
 
-        <t>Peer address: the most recently used address of the peer
-        (authenticated and authorized, if security is enabled).</t>
+        <c>Peer address</c>
+        <c>the most recently used address of the peer
+        (authenticated and authorized, if security is enabled).</c>
 
-      </list>
-      </t>
+      </texttable>
 
     </section>
 
