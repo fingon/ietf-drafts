@@ -848,11 +848,9 @@ I writing an essay on this. :-p)
         elected router MUST serve stateful DHCPv6 and Router Advertisements
         on the given link. Furthermore it MUST provide naming services for
         acquired hostnames as outlined in <xref target="naming-sd" />.
-        Stateful addresses being handed out SHOULD have a low preferred
-        lifetime (e.g. 1s) to not hinder fast renumbering if either the
-        DHCPv6 server or client do not support the DHCPv6 reconfigure
-        mechanism and the address is from a prefix for which stateless
-        autoconfiguration is supported as well.  In case no router was
+        Stateful addresses SHOULD be assigned in a way not hindering
+        fast renumbering even if the DHCPv6 server or client do not support
+        the DHCPv6 reconfigure mechanism. In case no router was
         elected, stateful DHCPv6 is not provided and each router assigning
         IPv6-prefixes on said link MUST provide stateless DHCPv6 service.</t>
       </section>
