@@ -194,7 +194,7 @@ I writing an essay on this. :-p)
     <section title="Common Links" anchor="links">
 
       <t>HNCP uses the concept of Common Links for some of its
-      applications. Common Link is computed separately for each local
+      applications. The Common Link is computed separately for each local
       interface, and it always contains the local interface. Additionally,
       if the local interface is not in ad-hoc mode, it also contains the
       set of interfaces that are bidirectionally reachable from the given
@@ -900,10 +900,10 @@ I writing an essay on this. :-p)
         to e.g. collect hostnames and use them to provide naming services
         or whenever stateless configuration is not applicable.</t>
 
-        <t>The designated stateful DHCPv6 server for a link is elected
+        <t>The designated stateful DHCPv6 server for a <xref
+        target="links">Common Link</xref> is elected
         based on the capabilities described in <xref target="version-tlv"
-        />.  The winner is the router connected to the <xref
-        target="links">Common Link</xref> advertising the greatest
+        />.  The winner is the router (connected to the Common Link) advertising the greatest
         H-capability. In case of a tie, Capability Values and node
         identifiers are considered (greatest value is elected). The
         elected router MUST serve stateful DHCPv6 and MUST provide naming services for
@@ -963,12 +963,11 @@ I writing an essay on this. :-p)
 
       <section title="DHCPv6 for Prefix Delegation">
 
-        <t>The designated DHCPv6 server for prefix-delegation on a link is
+        <t>The designated DHCPv6 server for prefix-delegation on a Common Link is
         elected based on the capabilities described in <xref
         target="version-tlv" />.
 
-        The winner is the router connected to the <xref
-        target="links">Common Link</xref> advertising the greatest
+        The winner is the router (connected to the Common Link) advertising the greatest
         P-capability. In case of a tie, Capability Values are compared, and
         router with the greatest value is elected. In case of another tie,
         the router with the highest node identifier is elected among the
@@ -980,11 +979,11 @@ I writing an essay on this. :-p)
       </section>
 
       <section title="DHCPv4 for Addressing and Configuration">
-        <t>The designated DHCPv4 server on a link is elected based on the
+        <t>The designated DHCPv4 server on a <xref
+        target="links">Common Link</xref> is elected based on the
         capabilities described in <xref target="version-tlv" />.
 
-        The winner is the router connected to the <xref
-        target="links">Common Link</xref> advertising the greatest
+        The winner is the router (connected to the Common Link) advertising the greatest
         L-capability. In case of a tie, Capability Values are compared, and
         router with the greatest value is elected. In case of another tie,
         the router with the highest node identifier is elected among the
@@ -1007,7 +1006,7 @@ I writing an essay on this. :-p)
 
       <section title="Multicast DNS Proxy">
         <t>The designated <xref target="RFC6762">MDNS</xref> proxy on a
-        link is elected based on the capabilities described in <xref
+        Common Link is elected based on the capabilities described in <xref
         target="version-tlv" />.
 
         The winner(s) are the router(s) with the highest node identifier
