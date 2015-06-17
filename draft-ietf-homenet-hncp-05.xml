@@ -134,7 +134,7 @@ I writing an essay on this. :-p)
 	UDP datagrams with a payload of at least 4000 bytes.</t>
 
         <t>HNCP operates on multicast-capable interfaces only. HNCP routers
-        MUST assign a unique non-null 32 bits Endpoint Identifier to each
+        MUST assign a unique 32-bit endpoint identifier to each
         interface for which HNCP is enabled. The value zero is reserved
         for internal purposes.
         Implementations MAY use a value equivalent to the sin6_scope_id for
@@ -148,12 +148,12 @@ I writing an essay on this. :-p)
         Based Trust Consensus and MAY support the PKI-based trust
         method.</t>
 
-        <t>HNCP uses opaque 32-bit Node Identifiers
+        <t>HNCP uses opaque 32-bit node identifiers
         (DNCP_NODE_IDENTIFIER_LENGTH = 32). A node implementing HNCP SHOULD
-        generate and use a random Node Identifier. If it receives a Node State
-        TLV with the same Node Identifier and a greater update sequence number,
-        it MUST immediately generate and use a new random Node Identifier which
-        is not used by any other node.</t>
+        generate and use a random node identifier. If using a random node
+        identifier and there is a node identifier collision, the node MUST
+        immediately generate and use a new random node identifier which is
+        not used by any other node.</t>
 
         <t>HNCP nodes MUST ignore all Node State TLVs received via
         multicast on a link which has DNCP security enabled in order
@@ -192,28 +192,42 @@ I writing an essay on this. :-p)
     </section>
 
     <section title="Common Links" anchor="links">
-      <t>HNCP uses the concept of Common Links for some of its applications.
-          Given a local interface, the Common Link is defined as follows:
-      <list style="symbols">
-          <t>If the interface is detected or configured to be an ad-hoc
-              interface, the Common Link only consists of the local interface.</t>
 
-          <t>Otherwise the Common Link consists of the local interface plus the
-              set of interfaces that are bidirectionnally reachable from the given local interface, i.e.
-              interfaces meeting all of the following requirements:
-              
-              <list style="numbers">
-                  <t>Each interface with identifier Y of a node with identifier B for which the local
-                      node publishes a matching Neighbor TLV, i.e. the Neighbor Node Identifier being B,
-                      the Neighbor Endpoint Identifier being Y and the Local Endpoint Identifier being the
-                      Endpoint Identifier of the Local Interface).</t>
-                  <t>Each interface with identifier Y of a node with identifier B for which said node
-                      publishes a Neighbor TLV matching the local interface, i.e. the
-                      Neighbor Node Identifier being the identifier of the local node,
-                      the Neighbor Endpoint Identifier being the identifier of the local interface
-                      and the Local Endpoint Identifier equaling Y.</t>
-              </list>
-          </t>
+      <t>HNCP uses the concept of Common Links for some of its
+      applications. Common Link is computed separately for each local
+      interface, and it always contains the local interface. Additionally,
+      if the local interface is not in ad-hoc mode, it also contains the
+      set of interfaces that are bidirectionally reachable from the given
+      local interface, i.e. every remote interface of a remote node meeting
+      all of the following requirements:
+
+      <list style="symbols">
+
+        <t>The local node publishes a Neighbor TLV with:
+        <list style="symbols">
+
+          <t>Neighbor Node Identifier = remote node's node identifier</t>
+
+          <t>Neighbor Endpoint Identifier = remote interface's endpoint
+          identifier</t>
+
+          <t>Endpoint Identifier = local interface's endpoint identifier</t>
+
+        </list>
+        </t>
+
+        <t>The remote node publishes a Neighbor TLV with:
+        <list style="symbols">
+
+          <t>Neighbor Node Identifier = local node's node identifier</t>
+
+          <t>Neighbor Endpoint Identifier = local interface's endpoint
+          identifier</t>
+
+          <t>Endpoint Identifier = remote interface's endpoint identifier</t>
+
+        </list>
+        </t>
       </list>
       </t>
 
@@ -332,7 +346,7 @@ I writing an essay on this. :-p)
       routers obtain addresses using a stateless (SLAAC-like) procedure or a
       specific stateful mechanism and hosts and legacy routers are configured
       using SLAAC or DHCP.</t>
-      
+
       <t>In all TLVs specified in this section which include a prefix, IPv4 prefixes
       are encoded using the <xref target="RFC4291">IPv4-mapped IPv6 addresses format</xref>.
       The prefix length of such IPv4 prefix is set to 96 plus the IPv4 prefix length.</t>
@@ -418,7 +432,7 @@ I writing an essay on this. :-p)
               with zeroes up to the next byte boundary.</t>
 
               <t hangText="Nested TLVs:">Other TLVs included in the Delegated
-              Prefix TLV and starting at the next 32 bits boundary following
+              Prefix TLV and starting at the next 32-bit boundary following
               the end of the encoded prefix:
 
                 <list style="symbols">
@@ -540,7 +554,7 @@ I writing an essay on this. :-p)
         the following parameters:
 
         <list style="hanging">
-            <t hangText="Node IDs: ">HNCP Node Identifiers are used. The
+            <t hangText="Node IDs: ">HNCP node identifiers are used. The
                 comparison operation is defined as bit-wise comparison.</t>
 
             <t hangText="Set of Delegated Prefixes: ">The set of prefixes
@@ -625,14 +639,16 @@ I writing an essay on this. :-p)
           </figure>
           <t>
             <list style="hanging">
-              <t hangText="Endpoint Identifier: ">The DNCP Endpoint
-              Identifier of the Common Link the prefix is assigned to, or 0 if the
-              Common Link is a Private Link (e.g., when the prefix is assigned for
-                  downstream prefix delegation).</t>
+              <t hangText="Endpoint Identifier: ">The endpoint identifier
+              of the local interface that belongs to the Common Link the
+              prefix is assigned to, or 0 if the Common Link is a Private
+              Link (e.g., when the prefix is assigned for downstream prefix
+              delegation).</t>
 
-              <t hangText="Rsv.: ">Bits reserved for future use. MUST be set
-              to zero when creating this TLV and ignored when parsing it
-              unless defined in a later specification.</t>
+
+              <t hangText="Rsv.: ">Bits are reserved for future use. They
+              MUST be set to zero when creating this TLV, and their value
+              MUST be ignored when processing the TLV.</t>
 
               <t hangText="Prty: ">The Advertised Prefix Priority from 0 to 15.
                   <list style="hanging">
@@ -788,9 +804,11 @@ I writing an essay on this. :-p)
               </artwork>
             </figure>
             <list style="hanging">
-              <t hangText="Endpoint Identifier: ">The DNCP Endpoint
-              Identifier of the link the address is assigned to, or 0 if it is
-              not assigned on an HNCP enabled link.</t>
+
+              <t hangText="Endpoint Identifier: ">The endpoint identifier
+              of the local interface that belongs to the Common Link the
+              prefix is assigned to, or 0 if it is not assigned on an HNCP
+              enabled link.</t>
 
               <t hangText="IP Address: ">The globally scoped IPv6 address, or the IPv4 address
               encoded as an <xref target="RFC4291">IPv4-mapped IPv6 address</xref>.</t>
@@ -804,7 +822,7 @@ I writing an essay on this. :-p)
 
               <t>An assigned address MUST be in the first quarter of an
               assigned prefix currently applied on a Common Link which includes
-                  the interface specified by the Endpoint Identifier.</t>
+                  the interface specified by the endpoint identifier.</t>
 
               <t>An address MUST NOT be used unless it has been advertised for
               at least ADDRESS_APPLY_DELAY consecutive seconds, and is still
@@ -812,7 +830,7 @@ I writing an essay on this. :-p)
               is 3 seconds.</t>
 
               <t>Whenever the same address is advertised by more than one node,
-              all but the one advertised by the node with the highest Node Identifier
+              all but the one advertised by the node with the highest node identifier
               MUST be removed.</t>
             </list>
           </t>
@@ -842,7 +860,7 @@ I writing an essay on this. :-p)
             In case multiple IPv4 prefixes are announced all but one MUST be removed
             while those associated with a Prefix Domain TLV of type 0
             take precedence over those without and, in case of a tie, announcements by nodes
-            with a greater Node Identifier take precedence over those with a
+            with a greater node identifier take precedence over those with a
             lower one. The router publishing a prefix with internet connectivity
             MUST announce an IPv4 default route using the routing protocol and
             perform NAT on behalf of the network as long as it publishes the
@@ -944,24 +962,35 @@ I writing an essay on this. :-p)
       </section>
 
       <section title="DHCPv6 for Prefix Delegation">
+
         <t>The designated DHCPv6 server for prefix-delegation on a link is
-        elected based on the capabilities described in
-        <xref target="version-tlv" />. The winner is the router connected to the
-        <xref target="links">Common Link</xref> advertising the greatest
-        P-capability. In case of a tie, Capability Values and Node
-        Identifiers are considered (greatest value is elected).
-        The elected router MUST provide
-        <xref target="RFC3633">prefix-delegation services</xref>
-        on the given link and follow the rules in <xref target="pd" />.</t>
+        elected based on the capabilities described in <xref
+        target="version-tlv" />.
+
+        The winner is the router connected to the <xref
+        target="links">Common Link</xref> advertising the greatest
+        P-capability. In case of a tie, Capability Values are compared, and
+        router with the greatest value is elected. In case of another tie,
+        the router with the highest node identifier is elected among the
+        routers with tied Capability Values.
+
+        The elected router MUST provide <xref
+        target="RFC3633">prefix-delegation services</xref> on the given
+        link and follow the rules in <xref target="pd" />.</t>
       </section>
 
       <section title="DHCPv4 for Addressing and Configuration">
         <t>The designated DHCPv4 server on a link is elected based on the
-        capabilities described in <xref target="version-tlv" />.  The
-        winner is the router connected to the <xref target="links">Common
-        Link</xref> advertising the greatest L-capability. In case of a
-        tie, Capability Values and Node Identifiers are considered
-        (greatest value is elected).  The elected router MUST provide
+        capabilities described in <xref target="version-tlv" />.
+
+        The winner is the router connected to the <xref
+        target="links">Common Link</xref> advertising the greatest
+        L-capability. In case of a tie, Capability Values are compared, and
+        router with the greatest value is elected. In case of another tie,
+        the router with the highest node identifier is elected among the
+        routers with tied Capability Values.
+
+        The elected router MUST provide
         DHCPv4 services on the given link.</t>
 
         <t>The DHCPv4 serving router MUST announce itself as
@@ -979,11 +1008,14 @@ I writing an essay on this. :-p)
       <section title="Multicast DNS Proxy">
         <t>The designated <xref target="RFC6762">MDNS</xref> proxy on a
         link is elected based on the capabilities described in <xref
-        target="version-tlv" />. The winner is the router with the highest
-        Node Identifier among those with the highest Capability Value on
-        the link that support the M-capability. The elected router MUST
-        provide an MDNS-proxy on the given link and announce it as
-        described in <xref target="naming-sd" />.</t>
+        target="version-tlv" />.
+
+        The winner(s) are the router(s) with the highest node identifier
+        among those with the highest Capability Value on the link that
+        support the M-capability.
+
+        The elected router MUST provide an MDNS-proxy on the given link and
+        announce it as described in <xref target="naming-sd" />.</t>
       </section>
     </section>
 
@@ -998,7 +1030,7 @@ I writing an essay on this. :-p)
       user-configured name for each internal <xref target="links">Common
       Link</xref> for which it is the designated DHCPv4, stateful
       DHCPv6 server or MDNS proxy and for
-      which it provides DNS-services on behalf of devices on said link.
+      which it provides DNS services on behalf of devices on said link.
       In addition it MAY provide reverse lookup services.</t>
       <t>The following TLVs are defined and MUST be supported by all nodes
       implementing naming and service discovery:</t>
@@ -1010,7 +1042,7 @@ I writing an essay on this. :-p)
         to specifying an NS and A/AAAA record for said zone. There MUST NOT
         be more than one delegation for the same zone in the whole DNCP
         network. In case of a conflict the announcement of the node with
-        the highest Node Identifier takes precedence and all other nodes
+        the highest node identifier takes precedence and all other nodes
         MUST cease to announce the conflicting TLV.</t>
 
         <figure>
@@ -1078,7 +1110,7 @@ I writing an essay on this. :-p)
         <t>This TLV is used to indicate the base domain name for the
         network.  It is the zone used as a base for all non fully-qualified
         delegated zones and node names.  In case of conflicts the announced
-        domain of the node with the greatest Node Identifier takes precedence.
+        domain of the node with the greatest node identifier takes precedence.
         By default, i.e., if no node advertises such a TLV., ".home" is used.</t>
 
         <figure>
@@ -1106,7 +1138,7 @@ I writing an essay on this. :-p)
 
         <t>This TLV is used to assign the name of a node in the network
         to a certain IP address. In case of conflicts the announcement of
-        the node with the greatest Node Identifier for a name takes precedence
+        the node with the greatest node identifier for a name takes precedence
         and all other nodes MUST cease to announce the conflicting TLV.</t>
 
         <figure>
@@ -1148,7 +1180,7 @@ I writing an essay on this. :-p)
         router MUST create one after a random delay of 0 to 10 seconds
         with a 32 bytes long random key and add it to its node data.</t>
         <t>In case multiple routers announce such a TLV at the same time,
-        all but the one with the greatest Node Identifier stop advertising it and
+        all but the one with the greatest node identifier stop advertising it and
         adopt the remaining one.</t>
         <t>The router currently advertising the Managed-PSK-TLV must
         generate and advertise a new random one whenever an unreachable node
@@ -1225,9 +1257,10 @@ I writing an essay on this. :-p)
                   currently in use by this particular node. It MUST be set to 0.
                   Nodes with different versions are considered incompatible.
               </t>
-              <t hangText="Reserved:">Bits reserved for future use. MUST be set
-                  to zero when creating this TLV and ignored when parsing it
-                  unless defined in a later specification.
+
+              <t hangText="Reserved:">Bits are reserved for future use. They
+              MUST be set to zero when creating this TLV, and their value
+              MUST be ignored when processing the TLV.
               </t>
               <t hangText="M-capability:">Priority value used for electing the
                   on-link <xref target="RFC6762">MDNS</xref> proxy. It MUST be
@@ -1275,9 +1308,11 @@ I writing an essay on this. :-p)
         TLVs as defined in this document.</t>
         <t>It MUST implement and run a routing protocol appropriate for the
         given link type on all of the interfaces it sends and receives HNCP
-        traffic on. The protocol MUST support source-specific routes
-        and MUST resort to announcing these for external
-        destinations appropriately.</t>
+        traffic on. The protocol MUST support source-specific routes and
+        MUST correctly propagate those also for the external destinations
+        that may have only implicit source-specific information, such as
+        a combination of a DHCPv6 PD-derived prefix and a non-source-specific
+        default route.</t>
         <t>It MUST use adequate security mechanisms for the routing
         protocol on any interface where it also uses the security
         mechanisms of HNCP. If the security mechanism is based on a PSK it
