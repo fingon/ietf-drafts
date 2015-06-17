@@ -967,11 +967,11 @@ I writing an essay on this. :-p)
         elected based on the capabilities described in <xref
         target="version-tlv" />.
 
-        The winner is the router (connected to the Common Link) advertising the greatest
-        P-capability. In case of a tie, Capability Values are compared, and
-        router with the greatest value is elected. In case of another tie,
-        the router with the highest node identifier is elected among the
-        routers with tied Capability Values.
+        The winner is the router (connected to the Common Link) advertising
+        the greatest P-capability. In case of a tie, Capability Values are
+        compared, and router with the greatest value is elected. In case of
+        another tie, the router with the highest node identifier is elected
+        among the routers with tied Capability Values.
 
         The elected router MUST provide <xref
         target="RFC3633">prefix-delegation services</xref> on the given
@@ -983,11 +983,11 @@ I writing an essay on this. :-p)
         target="links">Common Link</xref> is elected based on the
         capabilities described in <xref target="version-tlv" />.
 
-        The winner is the router (connected to the Common Link) advertising the greatest
-        L-capability. In case of a tie, Capability Values are compared, and
-        router with the greatest value is elected. In case of another tie,
-        the router with the highest node identifier is elected among the
-        routers with tied Capability Values.
+        The winner is the router (connected to the Common Link) advertising
+        the greatest L-capability. In case of a tie, Capability Values are
+        compared, and router with the greatest value is elected. In case of
+        another tie, the router with the highest node identifier is elected
+        among the routers with tied Capability Values.
 
         The elected router MUST provide
         DHCPv4 services on the given link.</t>
@@ -1009,9 +1009,11 @@ I writing an essay on this. :-p)
         Common Link is elected based on the capabilities described in <xref
         target="version-tlv" />.
 
-        The winner(s) are the router(s) with the highest node identifier
-        among those with the highest Capability Value on the link that
-        support the M-capability.
+        The winner is the router (connected to the Common Link) advertising
+        the greatest M-capability. In case of a tie, Capability Values are
+        compared, and router with the greatest value is elected. In case of
+        another tie, the router with the highest node identifier is elected
+        among the routers with tied Capability Values.
 
         The elected router MUST provide an MDNS-proxy on the given link and
         announce it as described in <xref target="naming-sd" />.</t>
