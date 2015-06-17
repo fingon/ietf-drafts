@@ -143,20 +143,21 @@ I writing an essay on this. :-p)
         <t>HNCP unicast traffic SHOULD be secured using <xref
         target="RFC6347">DTLS</xref> as described in DNCP if exchanged over
         unsecured links. UDP on port HNCP-DTLS-PORT is used for this
-        purpose.  A node implementing the security mechanism MUST support
+        purpose.  A node implementing HNCP security MUST support
         the DNCP Pre-Shared Key method, SHOULD support the DNCP Certificate
         Based Trust Consensus and MAY support the PKI-based trust
         method.</t>
 
-        <t>HNCP uses opaque 32-bit node identifiers
+        <t>HNCP uses opaque 32-bit Node Identifiers
         (DNCP_NODE_IDENTIFIER_LENGTH = 32). A node implementing HNCP SHOULD
-        generate and use a random node identifier. If it receives a Node State
-        TLV with the same node identifier and a greater update sequence number,
-        it MUST immediately generate and use a new random node identifier which
+        generate and use a random Node Identifier. If it receives a Node State
+        TLV with the same Node Identifier and a greater update sequence number,
+        it MUST immediately generate and use a new random Node Identifier which
         is not used by any other node.</t>
 
         <t>HNCP nodes MUST ignore all Node State TLVs received via
-        multicast on a link which has DNCP security enabled.</t>
+        multicast on a link which has DNCP security enabled in order
+        to prevent spoofing of node state changes.</t>
 
         <t>HNCP nodes use the following Trickle parameters:
         <list style="symbols">
@@ -447,7 +448,7 @@ I writing an essay on this. :-p)
           to determine whether prefixes for a certain domain (e.g. local
           reachability, internet connectivity) do exist or should be acquired
           and to make decisions about assigning prefixes to certain links or
-          fine-tuning border firewalls.</t>
+          to fine-tune border firewalls.</t>
 
           <figure>
             <artwork>
@@ -472,7 +473,7 @@ I writing an essay on this. :-p)
                           Domain Type being the actual length of the prefix
                       (Domain ID contains significant bits of the destination prefix
                       padded with zeroes up to the next byte boundary).</t>
-                      <t hangText="129    :">Null-terminated UTF-8 String (e.g. FQDN).</t>
+                      <t hangText="129    :">UTF-8 String (e.g. FQDN).</t>
                       <t hangText="130-255:">Reserved for future additions.</t>
                   </list></t>
 
@@ -630,7 +631,8 @@ I writing an essay on this. :-p)
                   downstream prefix delegation).</t>
 
               <t hangText="Rsv.: ">Bits reserved for future use. MUST be set
-              to zero when creating this TLV and ignored when parsing it.</t>
+              to zero when creating this TLV and ignored when parsing it
+              unless defined in a later specification.</t>
 
               <t hangText="Prty: ">The Advertised Prefix Priority from 0 to 15.
                   <list style="hanging">
@@ -810,7 +812,7 @@ I writing an essay on this. :-p)
               is 3 seconds.</t>
 
               <t>Whenever the same address is advertised by more than one node,
-              all but the one advertised by the node with the highest node identifier
+              all but the one advertised by the node with the highest Node Identifier
               MUST be removed.</t>
             </list>
           </t>
@@ -840,7 +842,7 @@ I writing an essay on this. :-p)
             In case multiple IPv4 prefixes are announced all but one MUST be removed
             while those associated with a Prefix Domain TLV of type 0
             take precedence over those without and, in case of a tie, announcements by nodes
-            with a greater node identifier take precedence over those with a
+            with a greater Node Identifier take precedence over those with a
             lower one. The router publishing a prefix with internet connectivity
             MUST announce an IPv4 default route using the routing protocol and
             perform NAT on behalf of the network as long as it publishes the
@@ -874,11 +876,11 @@ I writing an essay on this. :-p)
       election.</t>
 
       <section title="DHCPv6 for Addressing or Configuration">
-        <t>In general Stateless Address Autoconfiguration is preferred whenever
-        possible since it enables fast renumbering and low overhead, however
-        stateful DHCPv6 can be useful in addition to collect hostnames and
-        use them to provide naming services or whenever stateless configuration
-        is not possible for the assigned prefix length.</t>
+        <t>In general Stateless Address Autoconfiguration is used for client
+        configuration for its low overhead and fast renumbering capabilities,
+        however stateful DHCPv6 can be used in addition by administrative choice,
+        to e.g. collect hostnames and use them to provide naming services
+        or whenever stateless configuration is not applicable.</t>
 
         <t>The designated stateful DHCPv6 server for a link is elected
         based on the capabilities described in <xref target="version-tlv"
@@ -958,7 +960,7 @@ I writing an essay on this. :-p)
         capabilities described in <xref target="version-tlv" />.  The
         winner is the router connected to the <xref target="links">Common
         Link</xref> advertising the greatest L-capability. In case of a
-        tie, Capability Values and node identifiers are considered
+        tie, Capability Values and Node Identifiers are considered
         (greatest value is elected).  The elected router MUST provide
         DHCPv4 services on the given link.</t>
 
@@ -975,7 +977,7 @@ I writing an essay on this. :-p)
       </section>
 
       <section title="Multicast DNS Proxy">
-        <t>The designated <xref target="RFC6762">MDNS</xref>-proxy on a
+        <t>The designated <xref target="RFC6762">MDNS</xref> proxy on a
         link is elected based on the capabilities described in <xref
         target="version-tlv" />. The winner is the router with the highest
         Node Identifier among those with the highest Capability Value on
@@ -995,7 +997,7 @@ I writing an essay on this. :-p)
       <t>Each HNCP router SHOULD provide and announce an auto-generated or
       user-configured name for each internal <xref target="links">Common
       Link</xref> for which it is the designated DHCPv4, stateful
-      DHCPv6 server or <xref target="RFC6762">MDNS</xref>-proxy and for
+      DHCPv6 server or MDNS proxy and for
       which it provides DNS-services on behalf of devices on said link.
       In addition it MAY provide reverse lookup services.</t>
       <t>The following TLVs are defined and MUST be supported by all nodes
@@ -1008,7 +1010,7 @@ I writing an essay on this. :-p)
         to specifying an NS and A/AAAA record for said zone. There MUST NOT
         be more than one delegation for the same zone in the whole DNCP
         network. In case of a conflict the announcement of the node with
-        the highest node identifier takes precedence and all other nodes
+        the highest Node Identifier takes precedence and all other nodes
         MUST cease to announce the conflicting TLV.</t>
 
         <figure>
@@ -1038,7 +1040,7 @@ I writing an essay on this. :-p)
             available in the global DNS-hierarchy.</t>
 
             <t hangText="Reserved :">Those bits MUST be set to zero when creating the TLV
-                and ignored when parsing it.</t>
+                and ignored when parsing it unless defined in a later specification.</t>
 
             <t hangText="L-bit :"> <xref target="RFC6763">DNS-SD</xref> Legacy-Browse,
             indicates that this delegated zone should be included in the
@@ -1076,7 +1078,7 @@ I writing an essay on this. :-p)
         <t>This TLV is used to indicate the base domain name for the
         network.  It is the zone used as a base for all non fully-qualified
         delegated zones and node names.  In case of conflicts the announced
-        domain of the node with the greatest node identifier takes precedence.
+        domain of the node with the greatest Node Identifier takes precedence.
         By default, i.e., if no node advertises such a TLV., ".home" is used.</t>
 
         <figure>
@@ -1104,7 +1106,7 @@ I writing an essay on this. :-p)
 
         <t>This TLV is used to assign the name of a node in the network
         to a certain IP address. In case of conflicts the announcement of
-        the node with the greatest node identifier for a name takes precedence
+        the node with the greatest Node Identifier for a name takes precedence
         and all other nodes MUST cease to announce the conflicting TLV.</t>
 
         <figure>
@@ -1127,7 +1129,7 @@ I writing an essay on this. :-p)
         <list style="hanging">
             <t hangText="IP Address: ">The IP address associated with the name. IPv4
             addresses are encoded using IPv4-mapped IPv6 addresses.</t>
-            <t hangText="Name: ">The name of the node.</t>
+            <t hangText="Name: ">The name of the node as a character string.</t>
         </list>
         </t>
       </section>
@@ -1146,7 +1148,7 @@ I writing an essay on this. :-p)
         router MUST create one after a random delay of 0 to 10 seconds
         with a 32 bytes long random key and add it to its node data.</t>
         <t>In case multiple routers announce such a TLV at the same time,
-        all but the one with the greatest node identifier stop advertising it and
+        all but the one with the greatest Node Identifier stop advertising it and
         adopt the remaining one.</t>
         <t>The router currently advertising the Managed-PSK-TLV must
         generate and advertise a new random one whenever an unreachable node
@@ -1191,14 +1193,14 @@ I writing an essay on this. :-p)
     <section anchor="version-tlv" title="HNCP Versioning and Capabilities">
 
       <t>Multiple versions of HNCP based on compatible
-      <xref target="I-D.ietf-homenet-dncp">DNCP</xref> profiles may be
+      DNCP profiles may be
       present in the same network when transitioning between HNCP versions
       and HNCP routers may have different capabilities to support clients.
       The following mechanism describes a way to announce the currently active
       version and User-agent of a node. Each node MUST include an
       HNCP-Version-TLV in its Node Data and MUST ignore (except for DNCP
-      synchronization purposes) any TLVs with a type greater than 32 from nodes
-      not publishing an HNCP-Version TLV or publishing such a TLV with a
+      synchronization purposes) any TLVs with a type greater than 32 published
+      by nodes not also publishing an HNCP-Version TLV or publishing such a TLV with a
       different Version number.</t>
 
       <t>Capabilities are indicated by setting M, P, H and L fields in the TLV. The
@@ -1224,7 +1226,8 @@ I writing an essay on this. :-p)
                   Nodes with different versions are considered incompatible.
               </t>
               <t hangText="Reserved:">Bits reserved for future use. MUST be set
-                  to zero when creating this TLV and ignored when parsing it.
+                  to zero when creating this TLV and ignored when parsing it
+                  unless defined in a later specification.
               </t>
               <t hangText="M-capability:">Priority value used for electing the
                   on-link <xref target="RFC6762">MDNS</xref> proxy. It MUST be
@@ -1250,7 +1253,7 @@ I writing an essay on this. :-p)
                   IPv4 addresses to clients and 0 otherwise.
                   The values 8-15 are reserved for future use.</t>
               <t hangText="User-Agent:">
-                  The user-agent is a null-terminated human-readable UTF-8 string
+                  The user-agent is a human-readable UTF-8 string
                   that describes the name and version of the current HNCP
                   implementation.
               </t>
@@ -1271,10 +1274,10 @@ I writing an essay on this. :-p)
         <t>It SHOULD implement support for the Service Discovery and Naming
         TLVs as defined in this document.</t>
         <t>It MUST implement and run a routing protocol appropriate for the
-        given link type and
-        with support for source-specific routes on all of the interfaces it
-        sends and receives HNCP traffic on and MUST resort to announcing
-        source-specific routes for external destinations appropriately.</t>
+        given link type on all of the interfaces it sends and receives HNCP
+        traffic on. The protocol MUST support source-specific routes
+        and MUST resort to announcing these for external
+        destinations appropriately.</t>
         <t>It MUST use adequate security mechanisms for the routing
         protocol on any interface where it also uses the security
         mechanisms of HNCP. If the security mechanism is based on a PSK it
@@ -1286,7 +1289,7 @@ I writing an essay on this. :-p)
         election strategy). In general "WAN interface requirements" shall
         apply to external interfaces and "LAN interface requirements"
         to internal interfaces respectively.</t>
-        <t>It SHOULD be able to provide connectivity to IPv4-devices using
+        <t>It MAY be able to provide connectivity to IPv4-devices using
         DHCPv4.</t>
         <t>It SHOULD be able to delegate prefixes to legacy IPv6 routers
         using DHCPv6-PD.</t>
@@ -1306,7 +1309,7 @@ I writing an essay on this. :-p)
       within the configuration protocol itself. However these issues are out
       of scope for the security of HNCP itself.</t>
 
-      <t>HNCP is a <xref target="I-D.ietf-homenet-dncp">DNCP</xref>-based
+      <t>HNCP is a DNCP-based
       state synchronization mechanism carrying information with varying
       threat potential. For this consideration the payloads defined in DNCP
       and this document are reviewed:
