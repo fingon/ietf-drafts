@@ -136,7 +136,7 @@ I writing an essay on this. :-p)
         <t>HNCP operates on multicast-capable interfaces only. HNCP routers
         MUST assign a unique non-null 32 bits Endpoint Identifier to each
         interface for which HNCP is enabled. The value zero is reserved
-        for internal purposes and MUST NOT be used for that purpose.
+        for internal purposes.
         Implementations MAY use a value equivalent to the sin6_scope_id for
         the given interface.</t>
 
@@ -192,31 +192,33 @@ I writing an essay on this. :-p)
 
     <section title="Common Links" anchor="links">
       <t>HNCP uses the concept of Common Links for some of its applications.
-          Given a local interface identified by the Endpoint Identifier X, the Common Link
-          is defined as follows:
+          Given a local interface, the Common Link is defined as follows:
       <list style="symbols">
           <t>If the interface is detected or configured to be an ad-hoc
-              interface, the Common Link only consists of the said interface.</t>
+              interface, the Common Link only consists of the local interface.</t>
 
-          <t>Otherwise the Common Link consists of the given interface plus the
-              set of interfaces that are bidirectionnally reachable from the given local interface, i.e.,
-              the set of interfaces identified by Y from node B such that:
+          <t>Otherwise the Common Link consists of the local interface plus the
+              set of interfaces that are bidirectionnally reachable from the given local interface, i.e.
+              interfaces meeting all of the following requirements:
+              
               <list style="numbers">
-                  <t>The set of TLVs published by the local node contains a Neighbor TLV with the
-                      Neighbor Node Identifier equaling the Node Identifier of node B, the Neighbor
-                      Endpoint Identifier equaling Y and the Local Endpoint Identifier equaling X.</t>
-                  <t>The set of TLVs published by B contains a Neighbor TLV with the
-                      Neighbor Node Identifier equaling the local Node Identifier, the Neighbor Endpoint
-                      Identifier equaling X and the Local Endpoint Identifier equaling Y.</t>
+                  <t>Each interface with identifier Y of a node with identifier B for which the local
+                      node publishes a matching Neighbor TLV, i.e. the Neighbor Node Identifier being B,
+                      the Neighbor Endpoint Identifier being Y and the Local Endpoint Identifier being the
+                      Endpoint Identifier of the Local Interface).</t>
+                  <t>Each interface with identifier Y of a node with identifier B for which said node
+                      publishes a Neighbor TLV matching the local interface, i.e. the
+                      Neighbor Node Identifier being the identifier of the local node,
+                      the Neighbor Endpoint Identifier being the identifier of the local interface
+                      and the Local Endpoint Identifier equaling Y.</t>
               </list>
           </t>
       </list>
       </t>
 
-      <t>In addition, a node MUST be able to detect whether two of
-      its local interfaces are connected to the same link, either by
-      local means or by inferring that from the presence of a neighbor
-      interface in the Common Links associated with two different interfaces.</t>
+      <t>A node MUST be able to detect whether two of its local interfaces are
+      connected, e.g. by detecting an identical remote interface
+      being part of the Common Links of both local interfaces.</t>
     </section>
 
     <section title="Border Discovery" anchor="bd">
