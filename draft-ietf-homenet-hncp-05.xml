@@ -1504,6 +1504,9 @@ I writing an essay on this. :-p)
 
     <section title="Changelog [RFC Editor: please remove]">
 
+      <t>draft-ietf-homenet-hncp-06: Various edits based on feedback,
+      hopefully without functional delta.</t>
+
       <t>draft-ietf-homenet-hncp-05: Renamed "Adjacent Link" to "Common Link".
       Changed single IPv4 uplink election from MUST to MAY. Added explicit
       indication to distinguish (IPv4)-PDs for local connectivity and ones
