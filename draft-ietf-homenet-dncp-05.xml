@@ -275,7 +275,7 @@ and they can be queued (and jittered) freely?
 
         <t>Relative time delta: the time (in milliseconds) since the
         current TLV data set with the current update sequence number was
-        published. It is also a 32 bit number on the wire.  If this number
+        published. It is also a 32-bit number on the wire.  If this number
         is close to overflow (greater than 2^32-2^16), a node MUST
         re-publish its TLVs even if there is no change. In other words,
         absent any other changes, the TLV set MUST be re-published roughly
@@ -671,14 +671,14 @@ and they can be queued (and jittered) freely?
         support this, the rest of this subsection MUST be ignored.</t>
 
         <t>If the specified limit is exceeded, nodes without the highest
-        Node Identifier on the link SHOULD treat the endpoint as a unicast
-        endpoint connected to the node that has the highest Node Identifier
+        node identifier on the link SHOULD treat the endpoint as a unicast
+        endpoint connected to the node that has the highest node identifier
         detected on the link. The nodes MUST also keep listening to
         multicast traffic to both detect the presence of that node, and to
-        react to nodes with a higher Node Identifier appearing. If the
-        highest Node Identifier present on the link changes, the remote
-        unicast address of unicast endpoints MUST be changed. If the Node
-        Identifier of the local node is the highest one, the node MUST keep
+        react to nodes with a higher node identifier appearing. If the
+        highest node identifier present on the link changes, the remote
+        unicast address of unicast endpoints MUST be changed. If the node
+        identifier of the local node is the highest one, the node MUST keep
         the endpoint in multicast mode, and the node MUST allow others to
         peer with it over the link via unicast as well.</t>
 
@@ -691,7 +691,7 @@ and they can be queued (and jittered) freely?
         target="node-state">Node State TLV</xref> (roughly 64KB of payload),
         or use a datagram-only transport with a limited MTU and no reliable
         support for fragmentation. To handle such cases, a DNCP profile MAY
-        specify a fixed number of trailing bytes in the Node Identifier to
+        specify a fixed number of trailing bytes in the node identifier to
         represent a fragment number indicating a part of a node's node
         data. The profile MAY also specify an upper bound for the size of a
         single fragment to accommodate limitations of links in the
@@ -705,7 +705,7 @@ and they can be queued (and jittered) freely?
         node data MUST follow the ordering described in <xref target="dm"
         />.</t>
 
-        <t>Any Node Identifiers on the wire used to identify the own or any
+        <t>Any node identifiers on the wire used to identify the own or any
         other node MUST have the fragment number 0. For algorithm purposes,
         the relative time since the most recent fragment change MUST be
         used, regardless of fragment number. Therefore, even if just part
