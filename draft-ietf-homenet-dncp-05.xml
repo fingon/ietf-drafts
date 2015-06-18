@@ -97,17 +97,6 @@ and they can be queued (and jittered) freely?
 
     </section>
 
-    <section anchor="kwd" title='Requirements Language'>
-
-      <t>
-       The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
-       NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT
-       RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to
-       be interpreted as described in <xref target='RFC2119'>RFC 2119</xref>.
-      </t>
-
-    </section>
-
     <section title="Terminology">
 
 	<texttable suppress-title="true" style="none" align="left">
@@ -238,7 +227,18 @@ and they can be queued (and jittered) freely?
       retaining only bidirectional peer relationships between nodes.</c>
 
       </texttable>
+      
+      	
+    <section anchor="kwd" title='Requirements Language'>
 
+      <t>
+       The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+       NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT
+       RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to
+       be interpreted as described in <xref target='RFC2119'>RFC 2119</xref>.
+      </t>
+
+    </section>
     </section>
 
     <section anchor="dm" title="Data Model">
