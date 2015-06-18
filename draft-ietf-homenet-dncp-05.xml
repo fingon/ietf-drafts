@@ -923,9 +923,10 @@ and they can be queued (and jittered) freely?
           </artwork>
         </figure>
 
-        <t>This TLV can be used to contain anything; the URI used should be
-        under control of the author of that specification. The TLV may
-        appear within protocol exchanges, or within <xref
+        <t>This TLV can be used for custom extensions to the protocol.
+        It's payload consists of an identifier - the hash of a URI
+        under control of the user - optionally followed by additional data.
+        The TLV may appear within protocol exchanges, or within <xref
         target="node-state">Node State TLV</xref>. For example:</t>
 
         <t>V = H('http://example.com/author/json-for-dncp') .. '{"cool":
