@@ -163,10 +163,10 @@ and they can be queued (and jittered) freely?
       <c /><c />
 
       <c>Endpoint</c>
-      <c>a locally configured use of DNCP on a DNCP node. It is
-      attached either to an interface, a specific remote unicast address to
-      be contacted, or a range of remote unicast addresses that are allowed
-      to contact.</c>
+      <c>a locally configured communication endpoint of a DNCP node,
+      such as a network socket. It is either bound to an Interface for
+      multicast and unicast communication, or configured for explicit
+      unicast communication with a predefined set of remote addresses.</c>
 
       <c /><c />
 
@@ -188,10 +188,9 @@ and they can be queued (and jittered) freely?
       <c /><c />
 
       <c>Node data</c>
-      <c>a set of TLVs published by a node in the DNCP
-      network. The whole node data is owned by the node that publishes it,
-      and it MUST be passed along as-is, including TLVs unknown to the
-      forwarder.</c>
+      <c>a set of TLVs published and owned by a node in the DNCP
+      network. Other nodes MUST pass it along as-is,
+      even if they cannot fully interpret it.</c>
 
       <c /><c />
 
