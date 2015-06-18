@@ -112,10 +112,12 @@ I writing an essay on this. :-p)
 
     <section anchor="kwd" title='Requirements language'>
 
-      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
-      NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
-      "OPTIONAL" in this document are to be interpreted as described in
-      <xref target='RFC2119'>RFC 2119</xref>.</t>
+      <t>
+       The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+       NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT
+       RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to
+       be interpreted as described in <xref target='RFC2119'>RFC 2119</xref>.
+      </t>
 
     </section>
 

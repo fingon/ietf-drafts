@@ -99,10 +99,12 @@ and they can be queued (and jittered) freely?
 
     <section anchor="kwd" title='Requirements Language'>
 
-      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
-      NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
-      "OPTIONAL" in this document are to be interpreted as described in
-      <xref target='RFC2119'>RFC 2119</xref>.</t>
+      <t>
+       The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+       NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT
+       RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to
+       be interpreted as described in <xref target='RFC2119'>RFC 2119</xref>.
+      </t>
 
     </section>
 
@@ -110,40 +112,40 @@ and they can be queued (and jittered) freely?
 
 	<texttable suppress-title="true" style="none" align="left">
 	    <ttcol width="25%" /><ttcol width="75%" />
-	  
+
 	  <c>DNCP profile</c>
 	  <c>a definition of the set of rules and values listed in
       <xref target="profile-bits"/> specifying the behavior of a DNCP based
       protocol, such as the used transport method.  For readability, any
       DNCP profile specific parameters with a profile-specific fixed value
       are prefixed with DNCP_.</c>
-      
+
       <c /><c />
 
       <c>DNCP node</c>
       <c>a single node which runs a protocol based on a DNCP
       profile.</c>
-      
+
       <c /><c />
-      
+
       <c>DNCP network</c>
       <c>a set of DNCP nodes running the same DNCP profile
       that can reach each other, either via discovered connectivity in the
       underlying network, or using each other's addresses learned via other
       means. As DNCP exchanges are bidirectional, DNCP nodes connected via
       only unidirectional links are not considered connected.</c>
-      
+
       <c /><c />
-      
+
       <c>DNCP message</c>
       <c>an abstract concept - when using a reliable stream
       transport, the whole stream of TLVs can be considered a single
       message, with new TLVs becoming one by one available once they have
       been fully received. On a datagram transport, each individual
       datagram is considered a separate message.</c>
-      
+
       <c /><c />
-      
+
       <c>Node identifier</c>
       <c>an opaque fixed-length identifier consisting of
       DNCP_NODE_IDENTIFIER_LENGTH bytes which uniquely identifies a DNCP
@@ -154,7 +156,7 @@ and they can be queued (and jittered) freely?
       <c>Link</c>
       <c>a link-layer media over which directly connected nodes can
       communicate.</c>
-      
+
       <c /><c />
 
       <c>Interface</c>
@@ -167,7 +169,7 @@ and they can be queued (and jittered) freely?
       attached either to an interface, a specific remote unicast address to
       be contacted, or a range of remote unicast addresses that are allowed
       to contact.</c>
-      
+
       <c /><c />
 
       <c>Endpoint identifier</c>
@@ -178,13 +180,13 @@ and they can be queued (and jittered) freely?
       interface index definition in <xref target="RFC3493"/>, as the
       non-zero small positive integers should comfortably fit within 32
       bits.</c>
-      
+
       <c /><c />
 
       <c>Peer</c>
       <c>another DNCP node with which a DNCP node communicates
       directly using a particular local and remote endpoint pair.</c>
-      
+
       <c /><c />
 
       <c>Node data</c>
@@ -192,7 +194,7 @@ and they can be queued (and jittered) freely?
       network. The whole node data is owned by the node that publishes it,
       and it MUST be passed along as-is, including TLVs unknown to the
       forwarder.</c>
-      
+
       <c /><c />
 
       <c>Node state</c>
@@ -201,7 +203,7 @@ and they can be queued (and jittered) freely?
       and a timestamp indicating the time passed since its last
       publication. The hash function and the number of bits used are
       defined in the DNCP profile. </c>
-      
+
       <c /><c />
 
       <c>Network state hash</c>
@@ -214,27 +216,27 @@ and they can be queued (and jittered) freely?
       reachable nodes' update number concatenated with the hash value of
       its node data. For calculation these tuples are sorted in
       ascending order of the respective node's node identifier.</c>
-      
+
       <c /><c />
 
       <c>Trust verdict</c>
       <c>a statement about the trustworthiness of a
       certificate announced by a node participating in the certificate
       based trust consensus mechanism.</c>
-      
+
       <c /><c />
 
       <c>Effective trust verdict</c>
       <c>the trust verdict with the highest
       priority within the set of trust verdicts announced for the
       certificate in the DNCP network.</c>
-      
+
       <c /><c />
 
       <c>Neighbor graph</c>
       <c>the undirected graph of DNCP nodes produced by
       retaining only bidirectional peer relationships between nodes.</c>
-      
+
       </texttable>
 
     </section>
@@ -261,7 +263,7 @@ and they can be queued (and jittered) freely?
       <list style="symbols">
         <t>Node identifier:
         the unique identifier of the node.</t>
-        
+
         <t>Node data: the ordered set of TLV tuples published by that
         particular node. This set of TLVs MUST be strictly ordered based on
         ascending binary content (including TLV type and length). This
@@ -280,7 +282,7 @@ and they can be queued (and jittered) freely?
         re-publish its TLVs even if there is no change. In other words,
         absent any other changes, the TLV set MUST be re-published roughly
         every 49 days.</t>
-        
+
         <t>Timestamp: the time it was last reachable based on
         neighbor graph traversal described in <xref target="purge" />.</t>
       </list>
@@ -292,19 +294,19 @@ and they can be queued (and jittered) freely?
 
         <t>Endpoint identifier: the 32-bit opaque value uniquely
         identifying it.</t>
-        
+
         <t><xref target="RFC6206">Trickle</xref> instance: the endpoint's
         individual trickle instance with parameters I, T, and c.</t>
-        
+
       </list>
       </t>
-        
+
       <t>and one (or more) of the following:
       <list style="symbols">
 	<t>Interface: the assigned local network interface.</t>
-        
+
         <t>Unicast address: the DNCP node it should connect with.</t>
-        
+
         <t>Range of addresses: the DNCP nodes that are allowed to connect.</t>
       </list>
       </t>
@@ -315,10 +317,10 @@ and they can be queued (and jittered) freely?
       <list style="symbols">
 
         <t>Node identifier: the unique identifier of the peer.</t>
-        
+
         <t>Endpoint identifier: the unique endpoint identifier used by the
         peer.</t>
-        
+
         <t>Peer address: the most recently used address of the peer
         (authenticated and authorized, if security is enabled).</t>
       </list>
