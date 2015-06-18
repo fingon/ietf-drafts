@@ -546,13 +546,11 @@ and they can be queued (and jittered) freely?
         presence. When the peer is no longer present, the Neighbor
         TLV and the local DNCP peer state MUST be removed.</t>
 
-        <t>If the DNCP profile supports <xref target="broadcast">dense
-        broadcast link optimization</xref>, and if a node does not have the
-        highest node identifier on a link, the endpoint may be in a unicast
-        mode in which multicast traffic is only listened to. In that mode,
-        all peers except the one with the highest node identifier MUST NOT
-        have <xref target="neighbor">Neighbor TLV</xref> published nor any
-        local state.</t>
+        <t>If the local endpoint is in the <xref target="broadcast">dense
+        broadcast link optimization</xref> multicast listen-only mode, only
+        the peer the highest node identifier MUST have <xref
+        target="neighbor">Neighbor TLV</xref> published nor any local
+        state; the rest MUST NOT.</t>
 
       </section>
 
