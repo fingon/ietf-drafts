@@ -656,8 +656,9 @@ and they can be queued (and jittered) freely?
           target="ka-interval">Keep-Alive Interval TLVs</xref> published by
           the node, and if none exist, using the default value of
           DNCP_KEEPALIVE_INTERVAL. If the peer's last contact state
-          timestamp has not been updated for at least
-          DNCP_KEEPALIVE_MULTIPLIER times the peer's endpoint-specific
+          timestamp has not been updated for at least locally chosen
+          potentially endpoint-specific keep-alive multiplier (defaults to
+          DNCP_KEEPALIVE_MULTIPLIER) times the peer's endpoint-specific
           keep-alive interval, the Neighbor TLV for that peer and the local
           DNCP peer state MUST be removed.</t>
 
@@ -908,38 +909,6 @@ and they can be queued (and jittered) freely?
           fragments.</t>
 
         </section>
-
-        <section anchor="custom" title="Custom TLV">
-        <figure>
-          <artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: CUSTOM-DATA (6)     |         Length: > 0           |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                            H(URI)                             |
-|                  (length fixed in DNCP profile)               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                          Opaque Data                          |
-          </artwork>
-        </figure>
-
-        <t>This TLV can be used for custom extensions to the protocol.
-        It's payload consists of an identifier - the hash of a URI
-        (under control of the user, in order to avoid collisions) -
-        optionally followed by additional data.
-        The TLV may appear within protocol exchanges, or within <xref
-        target="node-state">Node State TLV</xref>. For example:</t>
-
-        <t>V = H('http://example.com/author/json-for-dncp') .. '{"cool":
-        "json extension!"}'</t>
-
-        <t>or</t>
-
-        <t>V = H('mailto:author@example.com') .. '{"cool": "json
-        extension!"}'</t>
-
-      </section>
 
       </section>
 
@@ -1360,7 +1329,9 @@ and they can be queued (and jittered) freely?
           <t>DNCP_KEEPALIVE_MULTIPLIER: How many times the
           DNCP_KEEPALIVE_INTERVAL (or peer-supplied keep-alive interval
           value) a node may not be heard from to be considered still
-          valid.</t>
+          valid. This is just a default used in absence of any other
+          configuration information, or particular per-endpoint
+          configuration.</t>
         </list>
         </t>
         <t>Whether to support fragmentation, and if so, the number of bytes
@@ -1404,19 +1375,16 @@ and they can be queued (and jittered) freely?
       <t>3: Node endpoint</t>
       <t>4: Network state</t>
       <t>5: Node state</t>
-      <t>6: Custom</t>
       <t>7: Fragment count</t>
       <t>8: Neighbor</t>
       <t>9: Keep-alive interval</t>
       <t>10: Trust-Verdict</t>
       <t>32-191: Reserved for per-DNCP profile use</t>
 
-      <t>192-255: Reserved for per-implementation experimentation. The
-      nodes using TLV types in this range SHOULD use e.g. Custom TLV to
-      identify each other and therefore eliminate potential conflict caused
-      by potential different use of same TLV numbers. </t>
+      <t>192-255: Reserved for per-implementation experimentation. How
+      collision is avoided is out of scope of this document.</t>
 
-      <t>For the rest of the values (11-31, 256-65535), policy of 'standards
+      <t>For the rest of the values (6, 11-31, 256-65535), policy of 'standards
       action' should be used.</t>
 
     </section>
@@ -1450,6 +1418,16 @@ and they can be queued (and jittered) freely?
 
     </section>
     <section title="Changelog [RFC Editor: please remove]">
+      <t>draft-ietf-homenet-dncp-06:
+      <list style="symbols">
+
+        <t>Removed custom TLV.</t>
+
+        <t>Made keep-alive multipliers local implementation choice, profiles
+        just provide guidance on sane default value.</t>
+
+      </list>
+      </t>
       <t>draft-ietf-homenet-dncp-04:
       <list style="symbols">
 
