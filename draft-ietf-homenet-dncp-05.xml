@@ -84,8 +84,15 @@ and they can be queued (and jittered) freely?
 
       <t>The Trickle algorithm is used so that the state of published data,
       i.e. the network state hash, stays consistent among all participating
-      nodes. It makes DNCP very thrifty when there are no updates, as then
-      only occasionally some nodes transmit the network state hash.</t>
+      nodes.  The use of Trickle with only short network state hashes sent
+      infrequently (in steady state) makes DNCP very thrifty when there are
+      no updates. When an update, that is, network state hash difference,
+      is noticed by a node, it triggers a unicast request for a list of
+      state of all nodes the remote node has, and then once nodes with a
+      different update number or hash value are identified, a request for
+      their node data. Once local database is updated, Trickle is reset,
+      and it eventually causes the update to spread to other nodes that do
+      not yet have it.</t>
 
       <t>DNCP discovers the topology of its nodes and maintains the
       liveliness of the published sets of TLVs by ensuring that the
