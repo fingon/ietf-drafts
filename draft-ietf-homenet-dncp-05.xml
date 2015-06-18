@@ -390,8 +390,9 @@ and they can be queued (and jittered) freely?
       <section title="Processing of Received TLVs" anchor="reception">
 
         <t>This section describes how received TLVs are processed. The DNCP
-        profile may specify criteria based on which particular TLVs are
-        ignored. Any 'reply' mentioned in the steps below denotes sending
+        profile may specify additional criteria based on which particular
+        TLVs are ignored, e.g. to modify security properties.
+        Any 'reply' mentioned in the steps below denotes sending
         of the specified TLV(s) via unicast to the originator of the TLV
         being processed. If the TLV being replied to was received via
         multicast and it was sent to a link with shared bandwidth, the
@@ -1317,8 +1318,9 @@ and they can be queued (and jittered) freely?
         or multicast address to be used. Unicast, multicast, and secure
         unicast may each require different parameters, if applicable. </t>
 
-        <t>When receiving messages, what sort of messages are dropped, as
-        specified in <xref target="reception" />.</t>
+        <t>When receiving messages, what sort of messages are ignored in
+        addition - as specified in <xref target="reception" /> -
+        e.g. for security reasons.</t>
 
         <t>How to deal with node identifier collision as described in <xref
         target="reception" />. Main options are either for one or both
