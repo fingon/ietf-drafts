@@ -900,7 +900,7 @@ and they can be queued (and jittered) freely?
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                    Update Sequence Number                     |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                Milliseconds since Origination                 |
+|                Milliseconds Since Origination                 |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                         H(node data)                          |
 |                  (length fixed in DNCP profile)               |
@@ -916,12 +916,14 @@ and they can be queued (and jittered) freely?
           published state of a node in the DNCP network identified by the
           node identifier field in the TLV.</t>
 
-          <t>Every node, including the originating one, MUST increment the
-          time since origination whenever it needs to send a
-          Node State TLV for already published node data.
-          This is e.g. to ensure that any relative timestamps contained
-          within the published node data can be correctly offset and
-          interpreted.</t>
+          <t>Every node, including the originating one, MUST update the
+          Milliseconds Since Origination whenever it sends a Node
+          State TLV based on when the node estimates the data was
+          originally published. This is e.g. to ensure that any relative
+          timestamps contained within the published node data can be
+          correctly offset and interpreted. Ultimately, what is provided is
+          just an approximation, as transmission delays are not accounted
+          for.</t>
 
           <t>The actual node data of the node may be included within the
           TLV as well; see <xref target="reception" /> for the cases where
