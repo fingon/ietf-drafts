@@ -117,15 +117,16 @@ and they can be queued (and jittered) freely?
 
     <section title="Terminology">
 
-	<texttable suppress-title="true" style="none" align="left">
-	    <ttcol width="25%" /><ttcol width="75%" />
+      <texttable suppress-title="true" style="none" align="left">
+	<ttcol width="25%" /><ttcol width="75%" />
 
-	  <c>DNCP profile</c>
-	  <c>a definition of the set of rules and values listed in
-      <xref target="profile-bits"/> specifying the behavior of a DNCP based
-      protocol, such as the used transport method.  For readability, any
-      DNCP profile specific parameters with a profile-specific fixed value
-      are prefixed with DNCP_.</c>
+	<c>DNCP profile</c>
+
+	<c>a definition of the set of rules and values listed in <xref
+	target="profile-bits"/> specifying the behavior of a DNCP based
+	protocol, such as the used transport method.  In this document,
+	any DNCP profile specific parameters with a profile-specific
+	fixed value are prefixed with DNCP_.</c>
 
       <c /><c />
 
@@ -135,12 +136,18 @@ and they can be queued (and jittered) freely?
 
       <c /><c />
 
+      <c>Link</c>
+      <c>a link-layer media over which directly connected nodes can
+      communicate.</c>
+
       <c>DNCP network</c>
-      <c>a set of DNCP nodes running the same DNCP profile
-      that can reach each other, either via discovered connectivity in the
-      underlying network, or using each other's addresses learned via other
-      means. As DNCP exchanges are bidirectional, DNCP nodes connected via
-      only unidirectional links are not considered connected.</c>
+
+      <c>a set of DNCP nodes running the same DNCP profile.
+
+      The set consists of nodes that have discovered each other using the
+      transport method defined DNCP profile, via multicast on local
+      links, and/or by using unicast communication.
+      </c>
 
       <c /><c />
 
@@ -160,14 +167,10 @@ and they can be queued (and jittered) freely?
 
       <c /><c />
 
-      <c>Link</c>
-      <c>a link-layer media over which directly connected nodes can
-      communicate.</c>
-
       <c /><c />
 
       <c>Interface</c>
-      <c>a port of a node that is connected to a particular link.</c>
+      <c>a node's attachment to a particular link.</c>
 
       <c /><c />
 
@@ -191,8 +194,8 @@ and they can be queued (and jittered) freely?
       <c /><c />
 
       <c>Peer</c>
-      <c>another DNCP node with which a DNCP node communicates
-      directly using a particular local and remote endpoint pair.</c>
+      <c>another DNCP node with which a DNCP node communicates using a
+      particular local and remote endpoint pair.</c>
 
       <c /><c />
 
@@ -208,14 +211,14 @@ and they can be queued (and jittered) freely?
       <c>a set of metadata attributes for node data. It
       includes a sequence number for versioning, a hash value for comparing
       and a timestamp indicating the time passed since its last
-      publication. The hash function and the number of bits used are
+      publication. The hash function and the length of the hash value are
       defined in the DNCP profile. </c>
 
       <c /><c />
 
       <c>Network state hash</c>
       <c>a hash value which represents the current state of the network.
-      The hash function and the number of bits used are defined in
+      The hash function and the length of the hash valueare defined in
       the DNCP profile.
 
       Whenever a node is added, removed or updates its published node
@@ -519,12 +522,12 @@ and they can be queued (and jittered) freely?
 
         <list style="symbols">
 
-          <t>If it comes via unicast, the remote node MUST be added as a
+          <t>If received over unicast, the remote node MUST be added as a
           peer on the endpoint and a <xref target="neighbor">Neighbor
           TLV</xref> MUST be created for it.
           </t>
 
-          <t>If it comes via multicast, the node SHOULD be sent a (possibly
+          <t>If received over multicast, the node SHOULD be sent a (possibly
           rate-limited) unicast <xref target="req-net-state">Request
           Network State TLV</xref>.</t>
 
@@ -549,14 +552,6 @@ and they can be queued (and jittered) freely?
       </section>
 
       <section anchor="liveliness" title="Data Liveliness Validation">
-
-        <t>DNCP maintains the liveliness of the data within it by ensuring
-        that it is reachable via nodes that are currently accounted for;
-        therefore, unlike Time-To-Live (TTL) based solutions, it does not
-        require periodic re-publishing of the data by the nodes. On the
-        other hand, it does require the topology to be visible to every
-        node that wants to be able to identify unreachable nodes and
-        therefore remove old, stale data. </t>
 
         <t>When a Neighbor TLV or a whole node is added or removed, the
         topology graph MUST be traversed either immediately or within a
