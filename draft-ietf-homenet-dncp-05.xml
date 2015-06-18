@@ -925,7 +925,8 @@ and they can be queued (and jittered) freely?
 
         <t>This TLV can be used for custom extensions to the protocol.
         It's payload consists of an identifier - the hash of a URI
-        under control of the user - optionally followed by additional data.
+        (under control of the user, in order to avoid collisions) -
+        optionally followed by additional data.
         The TLV may appear within protocol exchanges, or within <xref
         target="node-state">Node State TLV</xref>. For example:</t>
 
