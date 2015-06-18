@@ -70,36 +70,35 @@ and they can be queued (and jittered) freely?
     <section title="Introduction">
 
       <t>DNCP is designed to provide a way for each participating node to
-      publish a set of TLV (Type-Length-Value) tuples, and then to provide
+      publish a set of TLV (Type-Length-Value) tuples, and to provide
       a shared, common view in a network of DNCP nodes about the data
       published by every currently or recently bidirectionally reachable
       node. </t>
 
-      <t>For state synchronization, it uses a Merkle tree is formed by
+      <t>For state synchronization, it uses a Merkle tree that is formed by
       first calculating a hash for each node data published by a node, and
       then calculating another hash over those node data hashes. The
-      single, created hash, called network data hash, is used in <xref
-      target="RFC6206">Trickle algorithm</xref> to ensure that nodes have a
-      same view of the current state of the published data within the
+      single resulting hash, called network data hash, is transmitted using the
+      <xref target="RFC6206">Trickle algorithm</xref> to ensure that all nodes
+      share the same view of the current state of the published data within the
       network. The use of Trickle with only short network state hashes sent
-      infrequently (in steady state) makes DNCP very thrifty when there are
-      no updates. </t>
+      infrequently (in steady state) makes DNCP very thrifty when updates happen
+      rarely.</t>
 
       <t>For maintaining liveliness of the topology and the data within it,
-      combination of Trickled network state messages, keep-alive messages,
+      a combination of Trickled network state messages, keep-alive messages,
       and "other" means of ensuring reachability are used. The core idea is
       that if every node ensures its neighbors are present, transitively,
       the whole network state also stays up-to-date.</t>
 
       <t>DNCP is most suitable for data that changes only gradually to gain
-      the maximum benefit from using Trickle, and if more rapid state
-      exchanges are needed, something point-to-point is recommended and
-      just e.g. publishing of addresses of the services within DNCP. As the
-      network of nodes, or the amount of data changes over fixed time
-      interval within the network grows, eventually Trickle is essentially
-      not used at all and the benefit of using DNCP diminishes as Trickle
-      then just provides extra complexity within the specification, and
-      little added value. </t>
+      the maximum benefit from using Trickle. As the network of
+      nodes, or the amount of data changes grow over a given time interval,
+      Trickle is eventually used less and less and the benefit of using DNCP
+      diminishes. In these cases Trickle just provides extra complexity
+      within the specification and little added value. Therefore if more
+      rapid state exchanges are needed, an additional point-to-point channel,
+      whose address or locator is published using DNCP, can be preferable.</t>
 
     </section>
 
@@ -112,7 +111,7 @@ and they can be queued (and jittered) freely?
 
 	<c>a definition of the set of rules and values listed in <xref
 	target="profile-bits"/> specifying the behavior of a DNCP based
-	protocol, such as the used transport method.  In this document,
+	protocol, such as the transport method used. In this document,
 	any DNCP profile specific parameters with a profile-specific
 	fixed value are prefixed with DNCP_.</c>
 
@@ -211,7 +210,7 @@ and they can be queued (and jittered) freely?
       Whenever a node is added, removed or updates its published node data
       this hash value changes as well.
 
-      For calculating and encoding, please see <xref target="net-state" />.
+      For calculation, please see <xref target="merkel" />.
 
       </c>
 
@@ -260,30 +259,39 @@ and they can be queued (and jittered) freely?
       built-in security methods is to be used, support for some TLS-derived
       transport scheme - such as <xref target="RFC5246">TLS</xref> on top of
       TCP or <xref target="RFC6347">DTLS</xref> on top of UDP - is also
-      required. </t>
-
-      <t>The network state hash is calculated on-demand, and whenever
-      per-node state stored locally changes. It is calculated by first, for
-      each node that publishes data, a hash is calculated over the node
-      data it publishes. Then all (update number, hash value of node data)
-      pairs are concatenated, and finally a hash is calculated over the
-      result to produce a single hash value describing the state of all
-      published data in the DNCP network.</t>
-
-      <t>The Trickle algorithm is used so that the state of published data,
-      i.e. the network state hash, stays consistent among all participating
-      nodes. When an update, that is, network state hash difference, is
-      noticed by a node, it triggers a unicast request for a list of state
-      of all nodes the remote node has, and then once nodes with a
-      different update number or hash value are identified, a request for
-      their node data. Once local database is updated, Trickle is reset,
-      and it eventually causes the update to spread to other nodes that do
-      not yet have it.</t>
-
+      required.</t>
+      
       <t>DNCP discovers the topology of its nodes and maintains the
-      liveliness of the published sets of TLVs by ensuring that the
-      publishing node was at least recently bidirectionally reachable.</t>
+      liveliness of published node data by ensuring that the
+      publishing node was at least recently bidirectionally reachable.
+      This is determined e.g. by a recent and consistent multicast or
+      unicast TLV exchange with its peers. New potential peers can either
+      be discovered autonomously on multicast-enabled links or be manually
+      configured.</t>
 
+      <t>A Merkle tree is maintained by each node to represent the state of all
+      currently reachable nodes and the Trickle algorithm is used to trigger
+      synchronization. The consistency among all participating nodes
+      is thereby determined by comparing the current root of their respective
+      trees, i.e. their individually calculated network state hashes.</t>
+      
+      <t>Before joining a DNCP network a node starts with a Merkle tree
+      (and therefore a calculated network state hash) only considering
+      the node data and state of itself. It then announces said hash
+      by means of the Trickle algorithm on all its configured endpoints.</t>
+      
+      <t>When an update is detected by a node (e.g. by receiving an
+      inconsistent network state hash from a peer) the originator of the event
+      is requested to provide a list of the state of all nodes, i.e. all the
+      information it uses to calculate its own Merkle tree. Upon receiving
+      said list, it determines whether its own information is outdated
+      and - if necessary - requests additional information such as the
+      node data that has changed.</t>
+      
+      <t>Whenever a node's local database and Merkle tree are updated (e.g. due
+      to its own or another node's node state changing or due to a peer being
+      added or removed) its Trickle instances are reset which eventually causes any
+      update to be propagated to all of its peers.</t> 
     </section>
 
     <section anchor="dm" title="Data Model">
@@ -322,8 +330,8 @@ and they can be queued (and jittered) freely?
 
         <t>Relative time delta: the time (in milliseconds) since the
         current TLV data set with the current update sequence number was
-        published. It transmitted as a 32-bit number.  If this number
-        is close to overflow (greater than 2^32-2^16), a node MUST
+        published. It is transmitted as a 32-bit number. If it is close
+        to overflow (greater than 2^32-2^16), a node MUST
         re-publish its TLVs even if there is no change. In other words,
         absent any other changes, the TLV set MUST be re-published roughly
         every 49 days.</t>
@@ -386,11 +394,32 @@ and they can be queued (and jittered) freely?
       of the endpoints used for communication. A DNCP node therefore MUST
       include an <xref target="endpoint">Endpoint TLV</xref> in each message
       intended to maintain a DNCP peer relationship.</t>
+      
+      <section title="The Merkle tree" anchor="merkel">
+      <t>Each DNCP node maintains a Merkle tree of height 1 to manage state
+      updates of individual DNCP nodes, the leafs of the tree, and the
+      network as a whole, the root of the tree.</t>
+      
+      <t>Each leaf represents one recently bidirectionally reachable node
+      (see <xref target="liveliness" />),
+      and is represented by a tuple consisting of the node's update sequence
+      number in network byte order concatenated with the hash-value of the
+      node's node data. These leafs are ordered in ascending order of the
+      respective node identifiers.
+      The root of the tree - the network state hash - is represented by the
+      hash-value calculated over all such leaf tuples concatenated in order.
+      It is used to determine whether the view of the network of two or more
+      nodes is consistent and shared.</t>
+      
+      <t>The tree and the root network state hash are updated on-demand
+      and whenever any locally stored per-node state (including bidirectional
+      reachability) changes.</t>
+      </section>
 
       <section title="Trickle-Driven Status Updates"
                anchor="trickle-updates">
 
-        <t>When using unreliable transport, each node MUST send a <xref
+        <t>When using an unreliable transport, each node MUST send a <xref
         target="net-state">Network State TLV</xref> every time the
         endpoint-specific Trickle algorithm
         instance indicates that an update should be sent. Multicast MUST be
@@ -407,8 +436,8 @@ and they can be queued (and jittered) freely?
 
         </list>
 
-        A (sub)set of <xref target="node-state">Node State TLVs</xref>
-        MAY be also included, unless it is defined as undesirable for
+        A (sub)set of all <xref target="node-state">Node State TLVs</xref>
+        MAY also be included, unless it is defined as undesirable for
         some reason by the DNCP profile, or to avoid exposure of the node
         state TLVs by transmitting them within insecure multicast when
         using also secure unicast.</t>
@@ -442,10 +471,10 @@ and they can be queued (and jittered) freely?
         and it was sent to a link with shared bandwidth, the reply SHOULD
         be delayed by a random timespan in [0, Imin/2], to avoid potential
         simultaneous replies that may cause problems on some links. Sending
-        of replies MAY be also rate-limited by the implementation or
-        omitted for a short period of time by an implementation. However,
-        implementation MUST eventually reply to repeated similar requests
-        as otherwise state synchronization will break.</t>
+        of replies MAY also be rate-limited by the or
+        omitted for a short period of time by an implementation. However, an
+        implementation MUST eventually reply to similar repeated requests
+        as otherwise state synchronization would break.</t>
 
         <t>A DNCP node MUST reply to a request from any valid address, as
         specified by a given DNCP profile and the configuration of a
@@ -486,7 +515,7 @@ and they can be queued (and jittered) freely?
 
           To facilitate faster state synchronization, if a Request Network
           State TLV is sent in a reply, a local, current Network State TLV
-          MAY be also sent.</t>
+          MAY also be sent.</t>
 
           <t><xref target="node-state">Node State TLV</xref>:
 
@@ -569,14 +598,15 @@ and they can be queued (and jittered) freely?
         the peer the highest node identifier MUST have <xref
         target="neighbor">Neighbor TLV</xref> published nor any local
         state; the rest MUST NOT.</t>
+        <!-- SB: TODO: this is broken and needs to be fixed -->
 
       </section>
 
       <section anchor="liveliness" title="Data Liveliness Validation">
 
         <t>When a Neighbor TLV or a whole node is added or removed, the
-        topology graph MUST be traversed either immediately or within a
-        small delay less than the DNCP profile-defined Trickle Imin.</t>
+        topology graph MUST be traversed either immediately or with a
+        small delay shorter than the DNCP profile-defined Trickle Imin.</t>
 
         <t>The topology graph traversal starts with the local node. The
         edges to be traversed are identified by looking for Neighbor TLVs
@@ -588,7 +618,7 @@ and they can be queued (and jittered) freely?
         <t>DNCP nodes that have not been reachable in the most recent
         topology graph traversal MUST NOT be used for calculation of the
         network state hash, be provided to any applications that need to
-        use the whole TLV graph, or be provided to remote nodes they. They
+        use the whole TLV graph, or be provided to remote nodes. They
         MAY be removed immediately after the topology graph traversal, however
         it is RECOMMENDED to keep them at least briefly to improve the
         speed of DNCP network state convergence and to reduce the number of
@@ -701,6 +731,7 @@ and they can be queued (and jittered) freely?
           DNCP_KEEPALIVE_MULTIPLIER) times the peer's endpoint-specific
           keep-alive interval, the Neighbor TLV for that peer and the local
           DNCP peer state MUST be removed.</t>
+          <!-- SB: TODO: this is the only time a "last contact state timestamp" is mentioned in this document -->
 
         </section>
 
@@ -735,7 +766,7 @@ and they can be queued (and jittered) freely?
 
         <t>If a DNCP profile does not support this extension at all, the
         rest of this subsection MUST be ignored. This is due to the fact
-        that when this extension is employed, the state within DNCP network
+        that when this extension is employed, the state within DNCP the network
         only contains subset of the full topology of the network.</t>
 
         <t>If the specified upper bound is exceeded for some link,
@@ -915,23 +946,16 @@ and they can be queued (and jittered) freely?
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |    Type: NETWORK-STATE (4)    |          Length: > 0          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     H(H(update number of node 1) .. H(node data of node 1) .. |
-|    .. H(update number of node N) .. H(node data of node N))   |
+|      H(update number of node 1 .. H(node data of node 1) ..   |
+|     .. update number of node N .. H(node data of node N))     |
 |                  (length fixed in DNCP profile)               |
 ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
             </artwork>
           </figure>
 
-          <t>This TLV contains the current locally calculated network state
-          hash.
-
-          It is calculated over each reachable node's update number
-          concatenated with the hash value of its node data. For this
-          calculation, the reachable nodes are sorted in ascending order of
-          their node identifiers. A node is considered reachable if it was
-          reachable in the most recent topology traversal defined in <xref
-          target="liveliness" />.
+          <t>This TLV contains the current locally calculated
+          network state hash, see <xref target="merkel" />.
           </t>
 
         </section>
