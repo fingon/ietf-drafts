@@ -145,8 +145,8 @@ and they can be queued (and jittered) freely?
       <c>a set of DNCP nodes running the same DNCP profile.
 
       The set consists of nodes that have discovered each other using the
-      transport method defined DNCP profile, via multicast on local
-      links, and/or by using unicast communication.
+      transport method defined DNCP profile, via multicast on
+      local links, and/or by using unicast communication.
       </c>
 
       <c /><c />
@@ -419,7 +419,7 @@ and they can be queued (and jittered) freely?
         what may be safely defined to be ignored in a profile.
 
         Any 'reply' mentioned in the steps below denotes sending of the
-        specified TLV(s) via unicast to the originator of the TLV being
+        specified TLV(s) over unicast to the originator of the TLV being
         processed. If the TLV being replied to was received via multicast
         and it was sent to a link with shared bandwidth, the reply SHOULD
         be delayed by a random timespan in [0, Imin/2], to avoid potential
@@ -515,7 +515,7 @@ and they can be queued (and jittered) freely?
         </t>
 
         <t>If secure unicast transport is configured for an endpoint, any
-        Node State TLVs received via insecure multicast MUST be silently
+        Node State TLVs received over insecure multicast MUST be silently
         ignored.</t>
 
       </section>
@@ -628,8 +628,8 @@ and they can be queued (and jittered) freely?
 
             <t>Last contact timestamp: a timestamp which indicates the last
             time a consistent <xref target="net-state">Network State
-            TLV</xref> was received from the peer via multicast, or anything
-            was received via unicast. When adding a new peer, it is
+            TLV</xref> was received from the peer over multicast, or anything
+            was received over unicast. When adding a new peer, it is
             initialized to the current time.</t>
 
           </list>
@@ -664,7 +664,7 @@ and they can be queued (and jittered) freely?
 
         <section title="Received TLV Processing Additions">
 
-          <t>If a TLV is received via unicast from the peer, the Last
+          <t>If a TLV is received over unicast from the peer, the Last
           contact timestamp for the peer MUST be updated.</t>
 
           <t>On receipt of a <xref target="net-state">Network State TLV</xref>
@@ -1357,13 +1357,13 @@ and they can be queued (and jittered) freely?
 
         <list style="symbols">
 
-          <t>Anything received via multicast, except <xref
+          <t>Anything received over multicast, except <xref
           target="endpoint">Node Endpoint TLV</xref> and <xref
           target="net-state">Network State TLV</xref>.
           </t>
 
-          <t>Any TLVs received via uni- or multicast at too high rate;
-          Trickle will ensure eventual convergence.</t>
+          <t>Any TLVs received over unreliable unicast or multicast at too
+          high rate; Trickle will ensure eventual convergence.</t>
 
         </list>
         </t>
