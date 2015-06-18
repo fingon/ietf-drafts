@@ -358,13 +358,12 @@ and they can be queued (and jittered) freely?
       which ensure peer reachability and synchronize the data when
       necessary. </t>
 
-      <t>If DNCP is to be used on a multicast-capable interface, as opposed
-      to only point-to-point using unicast, a datagram-based transport
-      which supports multicast SHOULD be defined in the DNCP profile to be
-      used for the TLVs to be sent to the whole link. As this is used
-      only to identify potential new DNCP nodes and to notify that a
-      unicast exchange should be triggered, the multicast transport does
-      not have to be particularly secure.</t>
+      <t>If multicast-based node and status discovery is desiread,
+      a datagram-based transport supporting multicast MUST be defined
+      in the DNCP profile to be used for the TLVs to be sent to the
+      whole link. As this is used only to identify potential new DNCP
+      nodes and to notify that a unicast exchange should be triggered,
+      the multicast transport does not have to be particularly secure.</t>
 
       <t>To form bidirectional peer relationships DNCP requires identification
       of the endpoints used for communication. A DNCP node therefore MUST
@@ -381,10 +380,11 @@ and they can be queued (and jittered) freely?
         employed on a multicast-capable interface; otherwise, unicast can
         be used as well.
 
-        If possible, most recent, recently changed, or best of all, all
-        known <xref target="node-state">Node State TLVs</xref> SHOULD be
-        also included, unless it is defined as undesirable for some reason by
-        the DNCP profile. Avoiding sending some or all Node State TLVs may
+        Most recent, recently changed, or best of all, all
+        known <xref target="node-state">Node State TLVs</xref> MAY be
+        included, in order to avoid additional unicast requests,
+        unless otherwise stated by the DNCP profile.
+        Avoiding sending some or all Node State TLVs may
         make sense to avoid fragmenting packets to multicast destinations,
         or for security reasons.
 
@@ -439,8 +439,8 @@ and they can be queued (and jittered) freely?
           The receiver MUST reply with a <xref target="net-state">Network
           State TLV</xref> and a <xref target="node-state">Node State
           TLV</xref> for each node data used to calculate the network state
-          hash. The Node State TLVs SHOULD NOT contain the optional node
-          data part.</t>
+          hash. The Node State TLVs MUST NOT contain the optional node
+          data part unless explicitly specified in the DNCP profile.</t>
 
           <t><xref target="req-node-state">Request Node State TLV</xref>:
 
@@ -463,7 +463,7 @@ and they can be queued (and jittered) freely?
 
           To facilitate faster state synchronization, if a Request Network
           State TLV is sent in a reply, a local, current Network State TLV
-          SHOULD be also sent.</t>
+          MAY be also sent.</t>
 
           <t><xref target="node-state">Node State TLV</xref>:
 
@@ -476,7 +476,7 @@ and they can be queued (and jittered) freely?
             sequence number 1000 higher than the received one. This may occur
             normally once due to the local node restarting and not storing
             the most recently used update sequence number. If this occurs
-            more than once, the DNCP profile should provide guidance on how
+            more than once, the DNCP profile provides guidance on how
             to handle these situations as it indicates the existence of
             another active node with the same node identifier.</t>
 
@@ -527,7 +527,7 @@ and they can be queued (and jittered) freely?
           TLV</xref> MUST be created for it.
           </t>
 
-          <t>If received over multicast, the node SHOULD be sent a (possibly
+          <t>If received over multicast, the node MAY be sent a (possibly
           rate-limited) unicast <xref target="req-net-state">Request
           Network State TLV</xref>.</t>
 
@@ -561,19 +561,17 @@ and they can be queued (and jittered) freely?
         edges to be traversed are identified by looking for Neighbor TLVs
         on both nodes, that have the other node's node identifier in the
         Neighbor Node Identifier, and local and neighbor endpoint
-        identifiers swapped. Each node reached should be marked currently
+        identifiers swapped. Each node reached is marked currently
         reachable.</t>
 
         <t>DNCP nodes that have not been reachable in the most recent
         topology graph traversal MUST NOT be used for calculation of the
         network state hash, be provided to any applications that need to
-        use the whole TLV graph, or be provided to remote nodes they. While
-        they MAY be removed immediately after the topology graph traversal,
+        use the whole TLV graph, or be provided to remote nodes they. They
+        MAY be removed immediately after the topology graph traversal, however
         it is RECOMMENDED to keep them at least briefly to improve the
         speed of DNCP network state convergence and to reduce the number of
-        redundant state transmissions between nodes. To ensure that local
-        state does not grow indefinitely, they SHOULD be removed
-        eventually. </t>
+        redundant state transmissions between nodes.</t>
 
       </section>
 
@@ -603,7 +601,7 @@ and they can be queued (and jittered) freely?
         DNCP profile, the endpoint-specific keep-alive interval MUST be
         maintained. By default, it is DNCP_KEEPALIVE_INTERVAL. If there is a
         local value that is preferred for that for any reason (configuration,
-        energy conservation, media type, ..), it should be substituted
+        energy conservation, media type, ..), it can be substituted
         instead. If a non-default keep-alive interval is used on any
         endpoint, a DNCP node MUST publish appropriate <xref
         target="ka-interval">Keep-Alive Interval TLV(s)</xref> within its
@@ -626,7 +624,7 @@ and they can be queued (and jittered) freely?
             <t>Last contact timestamp: a timestamp which indicates the last
             time a consistent <xref target="net-state">Network State
             TLV</xref> was received from the peer via multicast, or anything
-            was received via unicast. When adding a new peer, it should be
+            was received via unicast. When adding a new peer, it is
             initialized to the current time.</t>
 
           </list>
@@ -704,13 +702,13 @@ and they can be queued (and jittered) freely?
 
         <t>An upper bound for the number of neighbors that are allowed for
         a particular type of link that a multicast-enabled endpoint
-        transmits data on SHOULD be provided by a DNCP profile, user
-        configuration, or some hardcoded default in the
-        implementation. Main consideration when selecting a bound (if any)
+        transmits data on SHOULD be provided by a DNCP profile, but MAY
+        also be chosen at runtime.
+        Main consideration when selecting a bound (if any)
         for a particular type of link should be whether it supports
         broadcast traffic, and whether too large a number of neighbors case
         is likely to happen during the use of that particular DNCP profile
-        on that particular type of link. If neither is likely, there little
+        on that particular type of link. If neither is likely, there is little
         point specifying support for this for that particular link
         type.</t>
 
@@ -1023,7 +1021,7 @@ and they can be queued (and jittered) freely?
           The presence of this TLV at least guarantees that the node
           publishing it has received traffic from the neighbor
           recently. For guaranteed up-to-date bidirectional reachability,
-          the existence of both nodes' matching Neighbor TLVs should be
+          the existence of both nodes' matching Neighbor TLVs needs to be
           checked. </t>
         </section>
 
