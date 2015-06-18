@@ -542,7 +542,7 @@ and they can be queued (and jittered) freely?
         <t>If keep-alives specified in <xref target="ka" /> are NOT sent by
         the peer (either the DNCP profile does not specify the use of
         keep-alives or the particular peer chooses not to send
-        keep-alives), some other means MUST be employed to ensure its
+        keep-alives), some other local means MUST be employed to ensure its
         presence. When the peer is no longer present, the Neighbor
         TLV and the local DNCP peer state MUST be removed.</t>
 
