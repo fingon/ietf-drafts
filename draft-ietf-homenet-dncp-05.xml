@@ -693,35 +693,47 @@ and they can be queued (and jittered) freely?
       <section anchor="broadcast" title="Support For Dense Broadcast Links">
 
         <t>This optimization is needed to avoid a state space explosion.
-        Given a large set of DNCP nodes which publish data on a shared
-        link, every one of of them will add a <xref
-        target="neighbor">Neighbor TLV</xref> to each other. While Trickle
-        limits the amount of traffic on the link in stable state to some
-        extent (normal network state message occassionally), the total
-        amount of data that is added to and maintained in the DNCP network
-        given N nodes on a link is O(N^2). Additionally, there will be
-        O(N^2) keep-alives running on the link if liveliness of peers is
-        not ensured using some other way (e.g. TCP connection liveliness,
-        layer 2 notification). </t>
+        Given a large set of DNCP nodes which publish data on an endpoint
+        that actually uses multicast on a link, every one of of them
+        will add a <xref target="neighbor">Neighbor TLV</xref> to each
+        other. While Trickle limits the amount of traffic on the link in
+        stable state to some extent, the total amount of data that is added
+        to and maintained in the DNCP network given N nodes on a
+        multicast-enabled link is O(N^2). Additionally if per-peer
+        keep-alives are employed, there will be O(N^2) keep-alives running
+        on the link if liveliness of peers is not ensured using some other
+        way (e.g. TCP connection lifetime, layer 2 notification,
+        per-endpoint keep-alive). </t>
 
         <t>An upper bound for the number of neighbors that are allowed for
-        a (particular type of) link that an endpoint runs on SHOULD be
-        provided by a DNCP profile, user configuration, or some hardcoded
-        default in the implementation. If a DNCP profile or an
-        implementation does not support this, the rest of this subsection
-        MUST be ignored.</t>
+        a particular type of link that a multicast-enabled endpoint
+        transmits data on SHOULD be provided by a DNCP profile, user
+        configuration, or some hardcoded default in the
+        implementation. Main consideration when selecting a bound (if any)
+        for a particular type of link should be whether it supports
+        broadcast traffic, and whether too large a number of neighbors case
+        is likely to happen during the use of that particular DNCP profile
+        on that particular type of link. If neither is likely, there little
+        point specifying support for this for that particular link
+        type.</t>
 
-        <t>If the specified limit is exceeded, nodes without the highest
-        node identifier on the link SHOULD treat the endpoint as a unicast
-        endpoint connected to the node that has the highest node identifier
-        detected on the link. The nodes MUST also keep listening to
-        multicast traffic to both detect the presence of that node, and to
-        react to nodes with a higher node identifier appearing. If the
-        highest node identifier present on the link changes, the remote
-        unicast address of unicast endpoints MUST be changed. If the node
-        identifier of the local node is the highest one, the node MUST keep
-        the endpoint in multicast mode, and the node MUST allow others to
-        peer with it over the link via unicast as well.</t>
+        <t>If a DNCP profile does not support this extension at all, the
+        rest of this subsection MUST be ignored. This is due to the fact
+        that when this extension is employed, the state within DNCP network
+        only contains subset of the full topology of the network.</t>
+
+        <t>If the specified upper bound is exceeded for some link,
+        nodes without the highest node identifier on the link SHOULD treat
+        the endpoint as a unicast endpoint connected to the node that has
+        the highest node identifier detected on the link. The nodes MUST
+        also keep listening to multicast traffic to both detect the
+        presence of that node, and to react to nodes with a higher node
+        identifier appearing. If the highest node identifier present on the
+        link changes, the remote unicast address of unicast endpoints MUST
+        be changed. If the node identifier of the local node is the highest
+        one, the node MUST keep the endpoint in multicast mode, and the
+        node MUST allow others to peer with it over the link via unicast as
+        well.</t>
 
       </section>
 
