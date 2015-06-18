@@ -210,7 +210,7 @@ and they can be queued (and jittered) freely?
       Whenever a node is added, removed or updates its published node data
       this hash value changes as well.
 
-      For calculation, please see <xref target="merkel" />.
+      For calculation, please see <xref target="merkle" />.
 
       </c>
 
@@ -395,7 +395,7 @@ and they can be queued (and jittered) freely?
       include an <xref target="endpoint">Endpoint TLV</xref> in each message
       intended to maintain a DNCP peer relationship.</t>
       
-      <section title="The Merkle tree" anchor="merkel">
+      <section title="The Merkle tree" anchor="merkle">
       <t>Each DNCP node maintains a Merkle tree of height 1 to manage state
       updates of individual DNCP nodes, the leafs of the tree, and the
       network as a whole, the root of the tree.</t>
@@ -955,7 +955,7 @@ and they can be queued (and jittered) freely?
           </figure>
 
           <t>This TLV contains the current locally calculated
-          network state hash, see <xref target="merkel" />.
+          network state hash, see <xref target="merkle" />.
           </t>
 
         </section>
