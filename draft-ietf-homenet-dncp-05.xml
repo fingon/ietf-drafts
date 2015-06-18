@@ -70,17 +70,17 @@ and they can be queued (and jittered) freely?
     <section title="Introduction">
 
       <t>DNCP is designed to provide a way for each participating node to
-      publish a versioned and ordered set of TLV (Type-Length-Value)
-      tuples, and then to provide a shared, common view in a network of
-      DNCP nodes about the data published by every currently or recently
-      bidirectionally reachable node.</t>
+      publish a versioned and ordered set of TLV (Type-Length-Value) tuples
+      called node data, and then to provide a shared, common view in a
+      network of DNCP nodes about the data published by every currently or
+      recently bidirectionally reachable node.</t>
 
       <t>For each node that publishes data, a hash is calculated over the
-      set of TLVs - the node data - it publishes. All of those node data
-      hashes and the update numbers of the corresponding data are
-      concatenated, and hashed, to produce a single hash describing the
-      state of all published data in the DNCP network, called the
-      network state hash.</t>
+      node data it publishes. Then all (update number, hash value of node
+      data) pairs are concatenated, and a hash is calculated over the
+      result to produce a single hash value describing the state of all
+      published data in the DNCP network, called the network state
+      hash.</t>
 
       <t>The Trickle algorithm is used so that the state of published data,
       i.e. the network state hash, stays consistent among all participating
