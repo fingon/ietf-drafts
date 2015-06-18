@@ -226,7 +226,9 @@ and they can be queued (and jittered) freely?
       data this hash value changes as well. It is calculated over each
       reachable nodes' update number concatenated with the hash value of
       its node data. For calculation these tuples are sorted in
-      ascending order of the respective node's node identifier.</c>
+      ascending order of the respective node's node identifier.
+
+      </c>
 
       <c /><c />
 
@@ -690,11 +692,24 @@ and they can be queued (and jittered) freely?
 
       <section anchor="broadcast" title="Support For Dense Broadcast Links">
 
+        <t>This optimization is needed to avoid a state space explosion.
+        Given a large set of DNCP nodes which publish data on a shared
+        link, every one of of them will add a <xref
+        target="neighbor">Neighbor TLV</xref> to each other. While Trickle
+        limits the amount of traffic on the link in stable state to some
+        extent (normal network state message occassionally), the total
+        amount of data that is added to and maintained in the DNCP network
+        given N nodes on a link is O(N^2). Additionally, there will be
+        O(N^2) keep-alives running on the link if liveliness of peers is
+        not ensured using some other way (e.g. TCP connection liveliness,
+        layer 2 notification). </t>
+
         <t>An upper bound for the number of neighbors that are allowed for
         a (particular type of) link that an endpoint runs on SHOULD be
         provided by a DNCP profile, user configuration, or some hardcoded
-        default in the implementation. If an implementation does not
-        support this, the rest of this subsection MUST be ignored.</t>
+        default in the implementation. If a DNCP profile or an
+        implementation does not support this, the rest of this subsection
+        MUST be ignored.</t>
 
         <t>If the specified limit is exceeded, nodes without the highest
         node identifier on the link SHOULD treat the endpoint as a unicast
