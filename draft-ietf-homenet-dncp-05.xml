@@ -59,10 +59,10 @@ and they can be queued (and jittered) freely?
 
       <t>This document describes the Distributed Node Consensus Protocol
       (DNCP), a generic state synchronization protocol which uses Trickle
-      and Merkle trees. DNCP itself leaves some things undefined or
-      provides options for them, and therefore only profiles, which specify
+      and Merkle trees. DNCP leaves some details unspecified or
+      provides alternative options, and therefore only profiles, which specify
       those missing parts, define actual implementable DNCP based
-      protocols. </t>
+      protocols.</t>
 
     </abstract>
   </front>
@@ -76,27 +76,23 @@ and they can be queued (and jittered) freely?
       bidirectionally reachable node.</t>
 
       <t>For each node that publishes data, a hash is calculated over the
-      set of TLVs it publishes. That is called node data hash. Then, all of
-      those hashes and the update numbers of the corresponding data are
+      set of TLVs - the node data - it publishes. All of those node data
+      hashes and the update numbers of the corresponding data are
       concatenated, and hashed, to produce a single hash describing the
-      state of all published data in DNCP network, called network state
-      hash.</t>
+      state of all published data in the DNCP network, called the
+      network state hash.</t>
 
-      <t>Trickle algorithm is used that the state of published data, that
-      is, network state hash, stays consistent among all participating
+      <t>The Trickle algorithm is used so that the state of published data,
+      i.e. the network state hash, stays consistent among all participating
       nodes. It makes DNCP very thrifty when there are no updates, as then
       only occassionally some nodes transmit the network state hash.</t>
 
-
-      <t>DNCP maintains the liveliness of the published sets of TLVs by
-      ensuring that the each set is kept only as long as a bidirectional,
-      at least recently valid path exists within the set of nodes to the
-      publishing node.  Therefore, unlike Time-To-Live (TTL) based
+      <t>DNCP discovers the topology of its nodes and maintains the
+      liveliness of the published sets of TLVs by ensuring that the
+      publishing node was at least recently bidirectionally reachable.
+      Therefore, unlike Time-To-Live (TTL) based
       solutions, it does not require periodic re-publishing of the data by
-      the nodes absent any changes. On the other hand, it does require the
-      topology to be visible to every node that wants to be able to
-      identify unreachable nodes and therefore remove old, stale
-      data. </t>
+      the nodes absent any changes.</t>
 
       <t>DNCP is most suitable for data that changes only gradually to gain
       the maximum benefit from using Trickle, and if more rapid state
