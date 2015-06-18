@@ -85,7 +85,7 @@ and they can be queued (and jittered) freely?
       <t>The Trickle algorithm is used so that the state of published data,
       i.e. the network state hash, stays consistent among all participating
       nodes. It makes DNCP very thrifty when there are no updates, as then
-      only occassionally some nodes transmit the network state hash.</t>
+      only occasionally some nodes transmit the network state hash.</t>
 
       <t>DNCP discovers the topology of its nodes and maintains the
       liveliness of the published sets of TLVs by ensuring that the
@@ -432,7 +432,7 @@ and they can be queued (and jittered) freely?
         <t>A DNCP node MUST reply to a request from any valid address, as
         specified by a given DNCP profile and the configuration of a
         particular endpoint, whether this address is known to be the
-        address of a neighbour or not. This provision satisfies the needs
+        address of a neighbor or not. This provision satisfies the needs
         of monitoring or other host software that needs to discover the
         DNCP topology without adding to the state in the network.</t>
 
