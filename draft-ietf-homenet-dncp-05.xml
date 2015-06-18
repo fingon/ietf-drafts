@@ -218,14 +218,13 @@ and they can be queued (and jittered) freely?
 
       <c>Network state hash</c>
       <c>a hash value which represents the current state of the network.
-      The hash function and the length of the hash valueare defined in
+      The hash function and the length of the hash value are defined in
       the DNCP profile.
 
-      Whenever a node is added, removed or updates its published node
-      data this hash value changes as well. It is calculated over each
-      reachable nodes' update number concatenated with the hash value of
-      its node data. For calculation these tuples are sorted in
-      ascending order of the respective node's node identifier.
+      Whenever a node is added, removed or updates its published node data
+      this hash value changes as well.
+
+      For calculating and encoding, please see <xref target="net-state" />.
 
       </c>
 
@@ -909,10 +908,16 @@ and they can be queued (and jittered) freely?
           </figure>
 
           <t>This TLV contains the current locally calculated network state
-          hash. It is calculated over each reachable nodes' update number
-          concatenated with the hash value of its node data in ascending
-          order of the respective node identifiers.</t>
+          hash.
 
+          It is calculated over each reachable node's update number
+          concatenated with the hash value of its node data. For this
+          calculation, the reachable nodes are sorted in ascending order of
+          their node identifiers. A node is considered reachable if it was
+          reachable in the most recent topology traversal defined in <xref
+          target="liveliness" />.
+          </t>
+          
         </section>
         <section anchor="node-state" title="Node State TLV">
 
