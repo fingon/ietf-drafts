@@ -272,7 +272,7 @@ and they can be queued (and jittered) freely?
       <list style="symbols">
 
         <t>A timestamp indicating the most recent neighbor graph traversal
-        described in <xref target="purge" />.</t>
+        described in <xref target="liveliness" />.</t>
 
         <t>A data structure containing data about the most recently sent
         <xref target="req-net-state">Request Network State TLVs</xref>.
@@ -308,7 +308,7 @@ and they can be queued (and jittered) freely?
         every 49 days.</t>
 
         <t>Timestamp: the time it was last reachable based on
-        neighbor graph traversal described in <xref target="purge" />.</t>
+        neighbor graph traversal described in <xref target="liveliness" />.</t>
       </list>
       </t>
 
@@ -552,31 +552,37 @@ and they can be queued (and jittered) freely?
 
       </section>
 
-      <section anchor="purge" title="Purging Unreachable Nodes">
+      <section anchor="liveliness" title="Data Liveliness Validation">
 
-        <t>DNCP validates the set of data within it by ensuring that it is
-        reachable via nodes that are currently accounted for; therefore,
-        unlike Time-To-Live (TTL) based solutions, it does not require
-        periodic re-publishing of the data by the nodes. On the other hand,
-        it does require the topology to be visible to every node that wants
-        to be able to identify unreachable nodes and therefore remove old,
-        stale data. </t>
+        <t>DNCP maintains the liveliness of the data within it by ensuring
+        that it is reachable via nodes that are currently accounted for;
+        therefore, unlike Time-To-Live (TTL) based solutions, it does not
+        require periodic re-publishing of the data by the nodes. On the
+        other hand, it does require the topology to be visible to every
+        node that wants to be able to identify unreachable nodes and
+        therefore remove old, stale data. </t>
 
         <t>When a Neighbor TLV or a whole node is added or removed, the
-        neighbor graph SHOULD be traversed, starting from the local
-        node. The edges to be traversed are identified by looking for
-        Neighbor TLVs on both nodes, that have the other node's identifier
-        in the neighbor node identifier, and local and neighbor endpoint
+        neighbor graph MUST be traversed either immediately or within a
+        small delay less than the DNCP profile-defined Trickle Imin.</t>
+
+        <t>The neighbor graph traversal starts with the local node. The
+        edges to be traversed are identified by looking for Neighbor TLVs
+        on both nodes, that have the other node's node identifier in the
+        Neighbor Node Identifier, and local and neighbor endpoint
         identifiers swapped. Each node reached should be marked currently
         reachable.</t>
 
-        <t>DNCP nodes MUST be either purged immediately when not marked
-        reachable in a particular graph traversal, or eventually after they
-        have not been marked reachable within DNCP_GRACE_INTERVAL. During
-        the grace period, the nodes that were not marked reachable in the
-        most recent graph traversal MUST NOT be used for calculation of the
+        <t>DNCP nodes that have not been reachable in the most recent
+        neighbor graph traversal MUST NOT be used for calculation of the
         network state hash, be provided to any applications that need to
-        use the whole TLV graph, or be provided to remote nodes. </t>
+        use the whole TLV graph, or be provided to remote nodes they. While
+        they MAY be removed immediately after the neighbor graph traversal,
+        it is RECOMMENDED to keep them at least briefly to improve the
+        speed of DNCP network state convergence and to reduce the number of
+        redundant state transmissions between nodes. To ensure that local
+        state does not grow indefinitely, they SHOULD be removed
+        eventually. </t>
 
       </section>
 
@@ -591,7 +597,7 @@ and they can be queued (and jittered) freely?
 
         <t><xref target="trickle-updates">Trickle-driven status
         updates</xref> provide a mechanism for handling of new peer
-        detection (if applicable) on an endpoint, as well as state change
+        detection on an endpoint, as well as state change
         notifications. Another mechanism may be needed to get rid of old,
         no longer valid peers if the transport or lower layers do not
         provide one.</t>
@@ -765,12 +771,13 @@ and they can be queued (and jittered) freely?
         of the node data fragments change, they all are considered
         refreshed if one of them is.</t>
 
-        <t>If using fragmentation, the unreachable node purging defined in
-        <xref target="purge" /> is extended so that if a <xref
+        <t>If using fragmentation, the data liveliness validation defined
+        in <xref target="liveliness" /> is extended so that if a <xref
         target="fragment-count">Fragment Count TLV</xref> is present within
         the fragment number 0, all fragments up to fragment number
         specified in the Count field are also considered reachable if the
-        fragment number 0 itself is reachable based on graph traversal. </t>
+        fragment number 0 itself is reachable based on graph
+        traversal. </t>
 
       </section>
     </section>
@@ -1366,9 +1373,6 @@ and they can be queued (and jittered) freely?
         <t>DNCP_NODE_IDENTIFIER_LENGTH: The fixed length of a node
         identifier (in bytes).</t>
 
-        <t>DNCP_GRACE_INTERVAL: How long node data for unreachable nodes is
-        kept.</t>
-
         <t>Whether to send keep-alives, and if so, on an interface, using
         multicast, or directly using unicast to peers. Keep-alive has also
         associated parameters:
@@ -1476,6 +1480,9 @@ and they can be queued (and jittered) freely?
 
         <t>Made keep-alive multipliers local implementation choice, profiles
         just provide guidance on sane default value.</t>
+
+        <t>Removed the DNCP_GRACE_INTERVAL as it is really
+        implementation choice.</t>
 
       </list>
       </t>
