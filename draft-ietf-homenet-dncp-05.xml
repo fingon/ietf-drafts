@@ -59,32 +59,54 @@ and they can be queued (and jittered) freely?
 
       <t>This document describes the Distributed Node Consensus Protocol
       (DNCP), a generic state synchronization protocol which uses Trickle
-      and Merkle trees. DNCP is transport agnostic and leaves some of the
-      details to be specified in profiles, which define actual
-      implementable DNCP based protocols. </t>
+      and Merkle trees. DNCP itself leaves some things undefined or
+      provides options for them, and therefore only profiles, which specify
+      those missing parts, define actual implementable DNCP based
+      protocols. </t>
 
     </abstract>
   </front>
   <middle>
     <section title="Introduction">
 
-      <t>DNCP is designed to provide a way for nodes to publish data
-      consisting of an ordered set of TLV (Type-Length-Value) tuples and to
-      receive the data published by all other reachable DNCP nodes.</t>
+      <t>DNCP is designed to provide a way for each participating node to
+      publish a versioned and ordered set of TLV (Type-Length-Value)
+      tuples, and then to provide a shared, common view in a network of
+      DNCP nodes about the data published by every currently or recently
+      bidirectionally reachable node.</t>
 
-      <t>DNCP validates the set of data within it by ensuring that it is
-      reachable via nodes that are currently accounted for; therefore,
-      unlike Time-To-Live (TTL) based solutions, it does not require
-      periodic re-publishing of the data by the nodes. On the other hand,
-      it does require the topology to be visible to every node that wants
-      to be able to identify unreachable nodes and therefore remove old,
-      stale data. Another notable feature is the use of Trickle to send
-      status updates as it makes the DNCP network very thrifty when there
-      are no updates. DNCP is most suitable for data that changes only
-      gradually to gain the maximum benefit from using Trickle, and if more
-      rapid state exchanges are needed, something point-to-point is
-      recommended and just e.g. publishing of addresses of the services
-      within DNCP. </t>
+      <t>For each node that publishes data, a hash is calculated over the
+      set of TLVs it publishes. That is called node data hash. Then, all of
+      those hashes and the update numbers of the corresponding data are
+      concatenated, and hashed, to produce a single hash describing the
+      state of all published data in DNCP network, called network state
+      hash.</t>
+
+      <t>Trickle algorithm is used that the state of published data, that
+      is, network state hash, stays consistent among all participating
+      nodes. It makes DNCP very thrifty when there are no updates, as then
+      only occassionally some nodes transmit the network state hash.</t>
+
+
+      <t>DNCP maintains the liveliness of the published sets of TLVs by
+      ensuring that the each set is kept only as long as a bidirectional,
+      at least recently valid path exists within the set of nodes to the
+      publishing node.  Therefore, unlike Time-To-Live (TTL) based
+      solutions, it does not require periodic re-publishing of the data by
+      the nodes absent any changes. On the other hand, it does require the
+      topology to be visible to every node that wants to be able to
+      identify unreachable nodes and therefore remove old, stale
+      data. </t>
+
+      <t>DNCP is most suitable for data that changes only gradually to gain
+      the maximum benefit from using Trickle, and if more rapid state
+      exchanges are needed, something point-to-point is recommended and
+      just e.g. publishing of addresses of the services within DNCP. As the
+      network of nodes, or the amount of data changes over fixed time
+      interval within the network grows, eventually Trickle is essentially
+      not used at all and the benefit of using DNCP diminishes as Trickle
+      then just provides extra complexity within the specification, and
+      little added value. </t>
 
       <t>DNCP has relatively few requirements for the underlying transport;
       it requires some way of transmitting either unicast datagram or
@@ -162,13 +184,13 @@ and they can be queued (and jittered) freely?
       <c /><c />
 
       <c>Endpoint identifier</c>
-      <c>a 32-bit opaque value, which identifies a
-      particular endpoint of that particular DNCP node. The value 0 is
-      reserved for DNCP and sub-protocol purposes and MUST NOT be used to
-      identify an actual endpoint. This definition is in sync with the
-      interface index definition in <xref target="RFC3493"/>, as the
-      non-zero small positive integers should comfortably fit within 32
-      bits.</c>
+
+      <c>a 32-bit opaque value, which identifies a particular endpoint of
+      that particular DNCP node. The value 0 is reserved for DNCP and DNCP
+      profile purposes and MUST NOT be used to identify an actual
+      endpoint. This definition is in sync with the interface index
+      definition in <xref target="RFC3493"/>, as the non-zero small
+      positive integers should comfortably fit within 32 bits.</c>
 
       <c /><c />
 
@@ -227,8 +249,8 @@ and they can be queued (and jittered) freely?
       retaining only bidirectional peer relationships between nodes.</c>
 
       </texttable>
-      
-      	
+
+
     <section anchor="kwd" title='Requirements Language'>
 
       <t>
@@ -329,7 +351,7 @@ and they can be queued (and jittered) freely?
 
     <section title="Operation">
 
-      <t>The DNCP protocol consists of <xref target="RFC6206">Trickle</xref>
+      <t>The DNCP consists of <xref target="RFC6206">Trickle</xref>
       driven unicast or multicast status payloads which indicate the current
       status of shared TLV data and additional unicast exchanges
       which ensure peer reachability and synchronize the data when
