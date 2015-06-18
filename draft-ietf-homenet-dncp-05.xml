@@ -893,11 +893,12 @@ and they can be queued (and jittered) freely?
           published state of a node in the DNCP network identified by the
           node identifier field in the TLV.</t>
 
-          <t>The whole network should have roughly the same idea about the
-          time since origination of any particular published state. Therefore
-          every node, including the originating one, MUST increment the
-          time whenever it needs to send a Node State TLV for already
-          published node data.</t>
+          <t>Every node, including the originating one, MUST increment the
+          time since origination whenever it needs to send a
+          Node State TLV for already published node data.
+          This is e.g. to ensure that any relative timestamps contained
+          within the published node data can be correctly offset and
+          interpreted.</t>
 
           <t>The actual node data of the node may be included within the
           TLV as well; see <xref target="reception" /> for the cases where
