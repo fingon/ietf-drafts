@@ -246,7 +246,7 @@ and they can be queued (and jittered) freely?
 
       <c /><c />
 
-      <c>Neighbor graph</c>
+      <c>Topology graph</c>
       <c>the undirected graph of DNCP nodes produced by
       retaining only bidirectional peer relationships between nodes.</c>
 
@@ -271,7 +271,7 @@ and they can be queued (and jittered) freely?
 
       <list style="symbols">
 
-        <t>A timestamp indicating the most recent neighbor graph traversal
+        <t>A timestamp indicating the most recent topology graph traversal
         described in <xref target="liveliness" />.</t>
 
         <t>A data structure containing data about the most recently sent
@@ -308,7 +308,7 @@ and they can be queued (and jittered) freely?
         every 49 days.</t>
 
         <t>Timestamp: the time it was last reachable based on
-        neighbor graph traversal described in <xref target="liveliness" />.</t>
+        topology graph traversal described in <xref target="liveliness" />.</t>
       </list>
       </t>
 
@@ -563,10 +563,10 @@ and they can be queued (and jittered) freely?
         therefore remove old, stale data. </t>
 
         <t>When a Neighbor TLV or a whole node is added or removed, the
-        neighbor graph MUST be traversed either immediately or within a
+        topology graph MUST be traversed either immediately or within a
         small delay less than the DNCP profile-defined Trickle Imin.</t>
 
-        <t>The neighbor graph traversal starts with the local node. The
+        <t>The topology graph traversal starts with the local node. The
         edges to be traversed are identified by looking for Neighbor TLVs
         on both nodes, that have the other node's node identifier in the
         Neighbor Node Identifier, and local and neighbor endpoint
@@ -574,10 +574,10 @@ and they can be queued (and jittered) freely?
         reachable.</t>
 
         <t>DNCP nodes that have not been reachable in the most recent
-        neighbor graph traversal MUST NOT be used for calculation of the
+        topology graph traversal MUST NOT be used for calculation of the
         network state hash, be provided to any applications that need to
         use the whole TLV graph, or be provided to remote nodes they. While
-        they MAY be removed immediately after the neighbor graph traversal,
+        they MAY be removed immediately after the topology graph traversal,
         it is RECOMMENDED to keep them at least briefly to improve the
         speed of DNCP network state convergence and to reduce the number of
         redundant state transmissions between nodes. To ensure that local
