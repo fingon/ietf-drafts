@@ -300,7 +300,7 @@ and they can be queued (and jittered) freely?
 
         <t>Relative time delta: the time (in milliseconds) since the
         current TLV data set with the current update sequence number was
-        published. It is also a 32-bit number on the wire.  If this number
+        published. It transmitted as a 32-bit number.  If this number
         is close to overflow (greater than 2^32-2^16), a node MUST
         re-publish its TLVs even if there is no change. In other words,
         absent any other changes, the TLV set MUST be re-published roughly
@@ -358,12 +358,12 @@ and they can be queued (and jittered) freely?
       which ensure peer reachability and synchronize the data when
       necessary. </t>
 
-      <t>If multicast-based node and status discovery is desiread,
+      <t>If multicast-based node and status discovery is desired,
       a datagram-based transport supporting multicast MUST be defined
       in the DNCP profile to be used for the TLVs to be sent to the
       whole link. As this is used only to identify potential new DNCP
       nodes and to notify that a unicast exchange should be triggered,
-      the multicast transport does not have to be particularly secure.</t>
+      the multicast transport does not have to be secured.</t>
 
       <t>To form bidirectional peer relationships DNCP requires identification
       of the endpoints used for communication. A DNCP node therefore MUST
@@ -373,26 +373,28 @@ and they can be queued (and jittered) freely?
       <section title="Trickle-Driven Status Updates"
                anchor="trickle-updates">
 
-        <t>When employing unreliable transport, each node MUST send a <xref
+        <t>When using unreliable transport, each node MUST send a <xref
         target="net-state">Network State TLV</xref> every time the
         endpoint-specific <xref target="RFC6206">Trickle algorithm</xref>
         instance indicates that an update should be sent. Multicast MUST be
-        employed on a multicast-capable interface; otherwise, unicast can
-        be used as well.
+        used if and only if all of the following criteria are met:
+        <list style="symbols">
 
-        Most recent, recently changed, or best of all, all
-        known <xref target="node-state">Node State TLVs</xref> MAY be
-        included, in order to avoid additional unicast requests,
-        unless otherwise stated by the DNCP profile.
-        Avoiding sending some or all Node State TLVs may
-        make sense to avoid fragmenting packets to multicast destinations,
-        or for security reasons.
+          <t>The endpoint is configured to use a local multicast-capable
+          link.</t>
 
-        If the DNCP profile supports <xref target="broadcast">dense
-        broadcast link optimization</xref>, and if a node does not have the
-        highest node identifier on a link, the endpoint may be in a unicast
-        mode in which multicast traffic is only listened to. In that mode,
-        multicast updates MUST NOT be sent.</t>
+          <t>The endpoint itself is not in unicast-only mode.</t>
+
+          <t>The endpoint is not in the <xref target="broadcast">dense
+          broadcast link optimization</xref> multicast listen-only mode</t>
+
+        </list>
+
+        A (sub)set of <xref target="node-state">Node State TLVs</xref>
+        MAY be also included, unless it is defined as undesirable for
+        some reason by the DNCP profile, or to avoid exposure of the node
+        state TLVs by transmitting them within insecure multicast when
+        using also secure unicast.</t>
 
         <t>A Trickle state MUST be maintained separately for each
         endpoint which employs unreliable transport. The Trickle state
@@ -413,23 +415,27 @@ and they can be queued (and jittered) freely?
       <section title="Processing of Received TLVs" anchor="reception">
 
         <t>This section describes how received TLVs are processed. The DNCP
-        profile may specify additional criteria based on which particular
-        TLVs are ignored, e.g. to modify security properties.
-        Any 'reply' mentioned in the steps below denotes sending
-        of the specified TLV(s) via unicast to the originator of the TLV
-        being processed. If the TLV being replied to was received via
-        multicast and it was sent to a link with shared bandwidth, the
-        reply SHOULD be delayed by a random timespan in [0,
-        Imin/2]. Sending of replies SHOULD be rate-limited by the
-        implementation, and in case of excess load (or some other reason),
-        a reply MAY be omitted altogether. </t>
+        profile may specify when to ignore particular TLVs, e.g. to modify
+        security properties - see <xref target="profile-bits" /> for
+        what may be safely defined to be ignored in a profile.
+
+        Any 'reply' mentioned in the steps below denotes sending of the
+        specified TLV(s) via unicast to the originator of the TLV being
+        processed. If the TLV being replied to was received via multicast
+        and it was sent to a link with shared bandwidth, the reply SHOULD
+        be delayed by a random timespan in [0, Imin/2], to avoid potential
+        simultaneous replies that may cause problems on some links. Sending
+        of replies MAY be also rate-limited by the implementation or
+        omitted for a short period of time by an implementation. However,
+        implementation MUST eventually reply to repeated similar requests
+        as otherwise state synchronization will break.</t>
 
         <t>A DNCP node MUST reply to a request from any valid address, as
-        specified by a given DNCP profile, whether this address is known to
-        be the address of a neighbour or not. (This provision satisfies
-        the needs of monitoring or other host software that needs to
-        discover the DNCP topology without adding to the state in the
-        network.)</t>
+        specified by a given DNCP profile and the configuration of a
+        particular endpoint, whether this address is known to be the
+        address of a neighbour or not. This provision satisfies the needs
+        of monitoring or other host software that needs to discover the
+        DNCP topology without adding to the state in the network.</t>
 
         <t>Upon receipt of:
         <list style="symbols">
@@ -753,7 +759,7 @@ and they can be queued (and jittered) freely?
         node data MUST follow the ordering described in <xref target="dm"
         />.</t>
 
-        <t>Any node identifiers on the wire used to identify the own or any
+        <t>Any transmitted node identifiers used to identify the own or any
         other node MUST have the fragment number 0. For algorithm purposes,
         the relative time since the most recent fragment change MUST be
         used, regardless of fragment number. Therefore, even if just part
@@ -1339,7 +1345,23 @@ and they can be queued (and jittered) freely?
 
         <t>When receiving messages, what sort of messages are ignored in
         addition - as specified in <xref target="reception" /> -
-        e.g. for security reasons.</t>
+        e.g. for security reasons.
+
+        A DNCP profile may safely define following DNCP TLVs be safely
+        ignored:
+
+        <list style="symbols">
+
+          <t>Anything received via multicast, except <xref
+          target="endpoint">Node Endpoint TLV</xref> and <xref
+          target="net-state">Network State TLV</xref>.
+          </t>
+
+          <t>Any TLVs received via uni- or multicast at too high rate;
+          Trickle will ensure eventual convergence.</t>
+
+        </list>
+        </t>
 
         <t>How to deal with node identifier collision as described in <xref
         target="reception" />. Main options are either for one or both
