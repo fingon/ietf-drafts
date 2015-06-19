@@ -86,10 +86,10 @@ and they can be queued (and jittered) freely?
       rarely.</t>
 
       <t>For maintaining liveliness of the topology and the data within it,
-      a combination of Trickled network state messages, keep-alive messages,
-      and "other" means of ensuring reachability are used. The core idea is
-      that if every node ensures its neighbors are present, transitively,
-      the whole network state also stays up-to-date.</t>
+      a combination of Trickled network state, keep-alives, and "other"
+      means of ensuring reachability are used. The core idea is that if
+      every node ensures its neighbors are present, transitively, the whole
+      network state also stays up-to-date.</t>
 
       <t>DNCP is most suitable for data that changes only gradually to gain
       the maximum benefit from using Trickle. As the network of nodes, or
@@ -139,15 +139,6 @@ and they can be queued (and jittered) freely?
 
       <c /><c />
 
-      <c>DNCP message</c>
-      <c>an abstract concept - when using a reliable stream
-      transport, the whole stream of TLVs can be considered a single
-      message, with new TLVs becoming one by one available once they have
-      been fully received. On a datagram transport, each individual
-      datagram is considered a separate message.</c>
-
-      <c /><c />
-
       <c>Node identifier</c>
       <c>an opaque fixed-length identifier consisting of
       DNCP_NODE_IDENTIFIER_LENGTH bytes which uniquely identifies a DNCP
@@ -163,10 +154,13 @@ and they can be queued (and jittered) freely?
       <c /><c />
 
       <c>Endpoint</c>
-      <c>a locally configured communication endpoint of a DNCP node,
-      such as a network socket. It is either bound to an Interface for
-      multicast and unicast communication, or configured for explicit
-      unicast communication with a predefined set of remote addresses.</c>
+
+      <c>a locally configured communication endpoint of a DNCP node, such
+      as a network socket. It is either bound to an Interface for multicast
+      and unicast communication, or configured for explicit unicast
+      communication with a predefined set of remote addresses. Endpoints
+      are usually in one of the transport modes specified in <xref
+      target="dt" />. </c>
 
       <c /><c />
 
@@ -293,124 +287,7 @@ and they can be queued (and jittered) freely?
       peers.</t>
     </section>
 
-    <section anchor="dm" title="Core Data Model">
-
-      <t>This section describes the local data structures a minimal
-      implementation might want to use. This section is provided only as a
-      convenience for the implementor. Some of the <xref
-      target="ext">optional extensions</xref> describe additional data
-      requirements, and some optional parts of the core protocol may also
-      require more.</t>
-
-      <t>A DNCP node has:
-
-      <list style="symbols">
-
-        <t>A data structure containing data about the most recently sent
-        <xref target="req-net-state">Request Network State TLVs</xref>.
-        The simplest option is keeping a timestamp of the most recent request
-        (required to fullfill reply rate limiting specified in <xref target="reception" />).</t>
-
-      </list>
-      </t>
-
-      <t>A DNCP node has for every DNCP node in the DNCP network:
-
-      <list style="symbols">
-
-        <t>Node identifier: the unique identifier of the node. The length,
-        how it is produced, and how collisions are handled, is up to the
-        particular DNCP profile.</t>
-
-        <t>Node data: the set of TLV tuples published by that particular
-        node. As they are transmitted ordered (see <xref
-        target="node-state">Node State TLV</xref> for details), maintaining
-        the order within the data structure here may be reasonable. </t>
-
-        <t>Latest update sequence number: the 32-bit sequence number that
-        is incremented any time the TLV set is published. The comparison
-        function used to compare them is described in <xref
-        target="reception" />.</t>
-
-        <t>Origination time: the (estimated) time when the
-        current TLV set with the current update sequence number was
-        published.
-
-        It is used to populate the Milliseconds Since Origination field in
-        a <xref target="node-state">Node State TLV</xref>. Ideally it also
-        has millisecond accuracy.
-        </t>
-
-      </list>
-      </t>
-
-      <t>Additionally, a DNCP node has a set of endpoints for which DNCP
-      is configured to be used. For each such endpoint, a node has:
-      <list style="symbols">
-
-        <t>Endpoint identifier: the 32-bit opaque value uniquely
-        identifying it within the local node.</t>
-
-        <t>Trickle instance: the endpoint's Trickle instance with
-        parameters I, T, and c (only on an endpoint that uses a
-        multicast-capable link).</t>
-
-      </list>
-      </t>
-
-      <t>and one (or more) of the following:
-      <list style="symbols">
-	<t>Interface: the assigned local network interface.</t>
-
-        <t>Unicast address: the DNCP node it should connect with.</t>
-
-        <t>Range of addresses: the DNCP nodes that are allowed to connect.</t>
-      </list>
-      </t>
-
-      <t>For each remote (peer, endpoint) pair detected on a
-      local endpoint, a DNCP node has:
-
-      <list style="symbols">
-
-        <t>Node identifier: the unique identifier of the peer.</t>
-
-        <t>Endpoint identifier: the unique endpoint identifier used by the
-        peer.</t>
-
-        <t>Peer address: the most recently used address of the peer
-        (authenticated and authorized, if security is enabled).</t>
-
-        <t>Trickle instance: the particular peer's Trickle instance with
-        parameters I, T, and c (only on a unicast-only endpoint with
-        unreliable unicast transport) .</t>
-
-      </list>
-      </t>
-    </section>
-
     <section title="Operation">
-
-      <t>DNCP has relatively few requirements for the underlying transport;
-      it requires some way of transmitting either unicast datagram or
-      stream data to a peer and, if used in multicast mode, a way of
-      sending multicast datagrams. If security is desired and one of the
-      built-in security methods is to be used, support for some TLS-derived
-      transport scheme - such as <xref target="RFC5246">TLS</xref> on top of
-      TCP or <xref target="RFC6347">DTLS</xref> on top of UDP - is also
-      required.</t>
-
-      <t>If multicast-based node and status discovery is desired,
-      a datagram-based transport supporting multicast MUST be defined
-      in the DNCP profile to be used for the TLVs to be sent to the
-      whole link. As this is used only to identify potential new DNCP
-      nodes and to notify that a unicast exchange should be triggered,
-      the multicast transport does not have to be secured.</t>
-
-      <t>To form bidirectional peer relationships DNCP requires identification
-      of the endpoints used for communication. A DNCP node therefore MUST
-      include an <xref target="endpoint">Endpoint TLV</xref> in each message
-      intended to maintain a DNCP peer relationship.</t>
 
       <section title="The Merkle tree" anchor="merkle">
 
@@ -437,38 +314,89 @@ and they can be queued (and jittered) freely?
 
       </section>
 
-      <section title="Trickle-Driven Status Updates"
-               anchor="trickle-updates">
+      <section anchor="dt" title="Data Transport">
 
-        <t>When using an unreliable transport, each node MUST send a <xref
-        target="net-state">Network State TLV</xref> every time the
-        endpoint-specific Trickle algorithm
-        instance indicates that an update should be sent. Multicast MUST be
-        used if and only if all of the following criteria are met:
+        <t>DNCP has relatively few requirements for the underlying
+        transport; it requires some way of transmitting either unicast
+        datagram or stream data to a peer and, if used in multicast mode, a
+        way of sending multicast datagrams.
+
+        As multicast is used only to identify potential new DNCP nodes and
+        to send status messages which essentially just notify that a
+        unicast exchange should be triggered, the multicast transport does
+        not have to be secured.
+
+        If unicast security is desired and one of the built-in security
+        methods is to be used, support for some TLS-derived transport
+        scheme - such as <xref target="RFC5246">TLS</xref> on top of TCP or
+        <xref target="RFC6347">DTLS</xref> on top of UDP - is also
+        required.</t>
+
+        <t>Given the assorted transport options as well as potential
+        endpoint configuration, a DNCP endpoint may be used in various
+        transport modes:
+
+        <list style="hanging">
+
+          <t hangText="Unicast:">
+            <list style="symbols">
+
+              <t>If only reliable unicast transport is employed, Trickle is
+              not used at all. Where Trickle reset occurs, a just single
+              <xref target="net-state">Network State TLV</xref> is sent
+              instead to every unicast peer. Additionally, recently changed
+              <xref target="node-state">Node State TLV</xref>s MAY be also
+              included. </t>
+
+              <t>If only unreliable unicast transport is employed, Trickle
+              state kept is per each peer and it is used to send Network
+              State TLVs every now and then, as specified in <xref
+              target="trickle-updates" />.</t>
+            </list>
+          </t>
+
+          <t hangText="Multicast+Unicast:"> If multicast datagram transport
+          is available on an endpoint, Trickle state kept is only for the
+          whole endpoint, and it is used to send Network State TLVs every
+          now and then, as specified in <xref target="trickle-updates"
+          />. Per-endpoint keep-alives are then also possible, if specified
+          in the DNCP profile, as specified in <xref target="pe-ka" />.</t>
+
+          <t hangText="MulticastListen+Unicast:">
+            Just like Unicast, except also listen to multicasts
+            for the highest node identifier changes. Required only if
+            DNCP profile supports <xref target="broadcast">dense
+          broadcast link optimization</xref>.</t>
+        </list>
+        </t>
+
+        <t>TLVs are sent across the transport as is, and they SHOULD be
+        sent together where e.g. MTU considerations do not recommend
+        sending them in multiple batches. TLVs in general are handled
+        individually and statelessly, with one exception. To form
+        bidirectional peer relationships DNCP requires identification of
+        the endpoints used for communication. A DNCP node desiring bidirectional
+        peer relationship therefore MUST
+        send an <xref target="endpoint">Endpoint TLV</xref>.
+
         <list style="symbols">
 
-          <t>The endpoint is configured to use a local multicast-capable
-          link.</t>
+          <t>If using a stream transport, the TLV SHOULD be sent only once
+          within the stream. </t>
 
-          <t>The endpoint itself is not in unicast-only mode.</t>
-
-          <t>The endpoint is not in the <xref target="broadcast">dense
-          broadcast link optimization</xref> multicast listen-only mode</t>
-
+          <t>If using datagram transport, it MUST be included in every
+          datagram.</t>
         </list>
 
-        A (sub)set of all <xref target="node-state">Node State TLVs</xref>
-        MAY also be included, unless it is defined as undesirable for
-        some reason by the DNCP profile, or to avoid exposure of the node
-        state TLVs by transmitting them within insecure multicast when
-        using also secure unicast.</t>
+        Bidirectional peer
+        relationship is not necessary for read-only access to the DNCP
+        state, but it is required to be able to publish data.
+        </t>
 
-        <t>A Trickle state MUST be maintained separately for each
-        endpoint which employs unreliable transport. The Trickle state
-        for all endpoints is considered inconsistent and reset if and
-        only if the locally calculated network state hash changes. This
-        occurs either due to a change in the local node's own node data, or
-        due to receipt of more recent data from another node.</t>
+      </section>
+
+      <section title="Trickle-Driven Status Updates"
+               anchor="trickle-updates">
 
         <t>The Trickle algorithm has 3 parameters: Imin, Imax and k. Imin
         and Imax represent the minimum and maximum values for I, which is
@@ -476,6 +404,33 @@ and they can be queued (and jittered) freely?
         seen on an endpoint to prevent local state transmission.  The
         actual suggested Trickle algorithm parameters are DNCP profile
         specific, as described in <xref target="profile-bits"/>.</t>
+
+        <t>The Trickle state for all Trickle instances is considered
+        inconsistent and reset if and only if the locally calculated
+        network state hash changes. This occurs either due to a change in
+        the local node's own node data, or due to receipt of more recent
+        data from another node.</t>
+
+        <t>Every time a particular Trickle instance indicates that an
+        update should be sent, the node MUST send a <xref
+        target="net-state">Network State TLV</xref> if and only if:
+        <list style="symbols">
+
+          <t>Endpoint is in Multicast+Unicast transport mode. The TLV MUST
+          be sent via multicast.</t>
+
+          <t>Endpoint is NOT in Multicast+Unicast transport mode, and the
+          unicast transport is unreliable. The TLV MUST be sent via
+          unicast.</t>
+
+        </list>
+        </t>
+
+        <t>A (sub)set of all <xref target="node-state">Node State
+        TLVs</xref> MAY also be included, unless it is defined as
+        undesirable for some reason by the DNCP profile, or to avoid
+        exposure of the node state TLVs by transmitting them within
+        insecure multicast when using also secure unicast.</t>
 
       </section>
 
@@ -658,6 +613,104 @@ and they can be queued (and jittered) freely?
 
     </section>
 
+    <section anchor="dm" title="Core Data Model">
+
+      <t>This section describes the local data structures a minimal
+      implementation might want to use. This section is provided only as a
+      convenience for the implementor. Some of the <xref
+      target="ext">optional extensions</xref> describe additional data
+      requirements, and some optional parts of the core protocol may also
+      require more.</t>
+
+      <t>A DNCP node has:
+
+      <list style="symbols">
+
+        <t>A data structure containing data about the most recently sent
+        <xref target="req-net-state">Request Network State TLVs</xref>.
+        The simplest option is keeping a timestamp of the most recent request
+        (required to fullfill reply rate limiting specified in <xref target="reception" />).</t>
+
+      </list>
+      </t>
+
+      <t>A DNCP node has for every DNCP node in the DNCP network:
+
+      <list style="symbols">
+
+        <t>Node identifier: the unique identifier of the node. The length,
+        how it is produced, and how collisions are handled, is up to the
+        particular DNCP profile.</t>
+
+        <t>Node data: the set of TLV tuples published by that particular
+        node. As they are transmitted ordered (see <xref
+        target="node-state">Node State TLV</xref> for details), maintaining
+        the order within the data structure here may be reasonable. </t>
+
+        <t>Latest update sequence number: the 32-bit sequence number that
+        is incremented any time the TLV set is published. The comparison
+        function used to compare them is described in <xref
+        target="reception" />.</t>
+
+        <t>Origination time: the (estimated) time when the
+        current TLV set with the current update sequence number was
+        published.
+
+        It is used to populate the Milliseconds Since Origination field in
+        a <xref target="node-state">Node State TLV</xref>. Ideally it also
+        has millisecond accuracy.
+        </t>
+
+      </list>
+      </t>
+
+      <t>Additionally, a DNCP node has a set of endpoints for which DNCP
+      is configured to be used. For each such endpoint, a node has:
+      <list style="symbols">
+
+        <t>Endpoint identifier: the 32-bit opaque value uniquely
+        identifying it within the local node.</t>
+
+        <t>Trickle instance: the endpoint's Trickle instance with
+        parameters I, T, and c (only on an endpoint in Multicast+Unicast
+        transport mode).</t>
+
+      </list>
+      </t>
+
+      <t>and one (or more) of the following:
+      <list style="symbols">
+	<t>Interface: the assigned local network interface.</t>
+
+        <t>Unicast address: the DNCP node it should connect with.</t>
+
+        <t>Range of addresses: the DNCP nodes that are allowed to connect.</t>
+      </list>
+      </t>
+
+      <t>For each remote (peer, endpoint) pair detected on a
+      local endpoint, a DNCP node has:
+
+      <list style="symbols">
+
+        <t>Node identifier: the unique identifier of the peer.</t>
+
+        <t>Endpoint identifier: the unique endpoint identifier used by the
+        peer.</t>
+
+        <t>Peer address: the most recently used address of the peer
+        (authenticated and authorized, if security is enabled).</t>
+
+        <t>Trickle instance: the particular peer's Trickle instance with
+        parameters I, T, and c (only on a unicast-only endpoint with
+        unreliable unicast transport) .</t>
+
+      </list>
+      </t>
+    </section>
+
+
+
     <section anchor="ext" title="Optional Extensions">
 
       <t>This section specifies extensions to the core protocol that a DNCP
@@ -726,7 +779,7 @@ and they can be queued (and jittered) freely?
 
         </section>
 
-        <section title="Per-Endpoint Periodic Keep-Alives">
+        <section anchor="pe-ka" title="Per-Endpoint Periodic Keep-Alives">
 
           <t>If per-endpoint keep-alives are enabled on an endpoint with
           a multicast-enabled link, and if no traffic containing a <xref
@@ -973,11 +1026,7 @@ and they can be queued (and jittered) freely?
           </figure>
 
           <t>This TLV identifies both the local node's node identifier, as
-          well as the particular endpoint's endpoint identifier. It MUST be
-          sent in every message if bidirectional peer relationship is
-          desired with remote nodes on that endpoint. Bidirectional peer
-          relationship is not necessary for read-only access to the DNCP
-          state, but it is required to be able to publish data.</t>
+          well as the particular endpoint's endpoint identifier. </t>
 
         </section>
         <section anchor="net-state" title="Network State TLV">
@@ -1434,7 +1483,9 @@ and they can be queued (and jittered) freely?
       <list style="symbols">
 
         <t>Unicast and optionally multicast transport protocol(s) to be
-        used.</t>
+        used. If multicast-based node and status discovery is desired, a
+        datagram-based transport supporting multicast has to be available.
+        </t>
 
         <t>How the chosen transport(s) are secured: Not at all, optionally
         or always with the TLS scheme defined here using one or more of the
@@ -1447,9 +1498,9 @@ and they can be queued (and jittered) freely?
         or multicast address to be used. Unicast, multicast, and secure
         unicast may each require different parameters, if applicable. </t>
 
-        <t>When receiving messages, what sort of messages are ignored in
-        addition - as specified in <xref target="reception" /> -
-        e.g. for security reasons.
+        <t>When receiving TLVs, what sort of TLVs are ignored in addition -
+        as specified in <xref target="reception" /> - e.g. for security
+        reasons.
 
         A DNCP profile may safely define following DNCP TLVs be safely
         ignored:
