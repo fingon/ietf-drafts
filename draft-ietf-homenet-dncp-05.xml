@@ -326,9 +326,9 @@ and they can be queued (and jittered) freely?
         way of sending multicast datagrams.
 
         As multicast is used only to identify potential new DNCP nodes and
-        to send status messages which essentially just notify that a
-        unicast exchange should be triggered, the multicast transport does
-        not have to be secured.
+        to send status messages which just notify that a unicast exchange
+        should be triggered, the multicast transport does not have to be
+        secured.
 
         If unicast security is desired and one of the built-in security
         methods is to be used, support for some TLS-derived transport
@@ -803,14 +803,15 @@ and they can be queued (and jittered) freely?
 
         <section anchor="pe-ka" title="Per-Endpoint Periodic Keep-Alives">
 
-          <t>If per-endpoint keep-alives are enabled on an endpoint with
-          a multicast-enabled link, and if no traffic containing a <xref
-          target="net-state">Network State TLV</xref> has been sent to a
-          particular endpoint within the endpoint-specific keep-alive
-          interval, a <xref target="net-state">Network State TLV</xref> MUST
-          be sent on that endpoint, and a new Trickle transmission time 't'
-          in [I/2, I] MUST be randomly chosen. The actual sending time SHOULD
-          be further delayed by a random timespan in [0, Imin/2].</t>
+          <t>If per-endpoint keep-alives are enabled on an endpoint in
+          Multicast+Unicast transport mode, and if no traffic containing a
+          <xref target="net-state">Network State TLV</xref> has been sent
+          to a particular endpoint within the endpoint-specific keep-alive
+          interval, a <xref target="net-state">Network State TLV</xref>
+          MUST be sent on that endpoint, and a new Trickle transmission
+          time 't' in [I/2, I] MUST be randomly chosen. The actual sending
+          time SHOULD be further delayed by a random timespan in [0,
+          Imin/2].</t>
 
         </section>
 
@@ -870,9 +871,10 @@ and they can be queued (and jittered) freely?
         per-endpoint keep-alive). </t>
 
         <t>An upper bound for the number of neighbors that are allowed for
-        a particular type of link that a multicast-enabled endpoint
-        transmits data on SHOULD be provided by a DNCP profile, but MAY
-        also be chosen at runtime.
+        a particular type of link that a endpoint in Multicast+Unicast
+        transport mode is used on SHOULD be provided by a DNCP profile, but
+        MAY also be chosen at runtime.
+
         Main consideration when selecting a bound (if any)
         for a particular type of link should be whether it supports
         broadcast traffic, and whether too large a number of neighbors case
@@ -882,22 +884,26 @@ and they can be queued (and jittered) freely?
         type.</t>
 
         <t>If a DNCP profile does not support this extension at all, the
-        rest of this subsection MUST be ignored. This is due to the fact
-        that when this extension is employed, the state within DNCP the network
-        only contains subset of the full topology of the network.</t>
+        rest of this subsection MUST be ignored. This is because when this
+        extension is employed, the state within DNCP the network only
+        contains subset of the full topology of the network. Therefore
+        every node must be aware of potential of it being used in a
+        particular DNCP profile.</t>
 
-        <t>If the specified upper bound is exceeded for some link,
-        nodes without the highest node identifier on the link SHOULD treat
-        the endpoint as a unicast endpoint connected to the node that has
-        the highest node identifier detected on the link. The nodes MUST
-        also keep listening to multicast traffic to both detect the
-        presence of that node, and to react to nodes with a greater node
-        identifier appearing. If the highest node identifier present on the
-        link changes, the remote unicast address of unicast endpoints MUST
-        be changed. If the node identifier of the local node is the highest
-        one, the node MUST keep the endpoint in multicast mode, and the
-        node MUST allow others to peer with it over the link via unicast as
-        well.</t>
+        <t>If the specified upper bound is exceeded for some endpoint in
+        Multicast+Unicast transport mode and if the node does not have the
+        highest node identifier on the link, it SHOULD treat the endpoint
+        as a unicast endpoint connected to the node that has the highest
+        node identifier detected on the link, therefore transitioning to
+        Multicast-listen+Unicast transport mode. The nodes in
+        Multicast-listen+Unicast transport mode MUST keep listening to
+        multicast traffic to both receive messages from the node(s) still
+        in Multicast+Unicast mode, and as well to react to nodes with a
+        greater node identifier appearing. If the highest node identifier
+        present on the link changes, the remote unicast address of unicast
+        endpoints MUST be changed. If the node identifier of the local node
+        is the highest one, the node MUST switch back to, or stay in
+        Multicast+Unicast mode.</t>
 
       </section>
 
