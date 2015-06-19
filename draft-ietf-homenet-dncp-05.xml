@@ -193,7 +193,7 @@ and they can be queued (and jittered) freely?
       number for versioning, a hash value for comparing equality of stored
       node data, and a timestamp indicating the time passed since its last
       publication. The hash function and the length of the hash value are
-      defined in the DNCP profile. </c>
+      defined in the DNCP profile.</c>
 
       <c /><c />
 
@@ -510,10 +510,12 @@ and they can be queued (and jittered) freely?
             local value, or the same update sequence number and a different
             hash, the node SHOULD re-publish its own node data with an
             update sequence number significantly (e.g. 1000) greater than
-            the received one. This may occur normally once due to the local
+            the received one, to reclaim the node identifier.
+            This may occur normally once due to the local
             node restarting and not storing the most recently used update
-            sequence number. If this occurs more than once, the DNCP
-            profile provides guidance on how to handle these situations as
+            sequence number. If this occurs more than once or for nodes
+            not re-publishing their own node data, the DNCP profile
+            MUST provide guidance on how to handle these situations as
             it indicates the existence of another active node with the same
             node identifier.</t>
 
