@@ -460,12 +460,12 @@ and they can be queued (and jittered) freely?
         implementation MUST eventually reply to similar repeated requests
         as otherwise state synchronization would break.</t>
 
-        <t>A DNCP node MUST reply to a request from any valid address, as
-        specified by a given DNCP profile and the configuration of a
+        <t>A DNCP node MUST process TLVs received from any valid address,
+        as specified by a given DNCP profile and the configuration of a
         particular endpoint, whether this address is known to be the
-        address of a neighbor or not. This provision satisfies the needs
-        of monitoring or other host software that needs to discover the
-        DNCP topology without adding to the state in the network.</t>
+        address of a neighbor or not. This provision satisfies the needs of
+        monitoring or other host software that needs to discover the DNCP
+        topology without adding to the state in the network.</t>
 
         <t>Upon receipt of:
         <list style="symbols">
@@ -508,20 +508,33 @@ and they can be queued (and jittered) freely?
             <t>If the node identifier matches the local node identifier and
             the TLV has a greater update sequence number than its current
             local value, or the same update sequence number and a different
-            hash, the node SHOULD re-publish its own node data with an update
-            sequence number 1000 greater than the received one. This may occur
-            normally once due to the local node restarting and not storing
-            the most recently used update sequence number. If this occurs
-            more than once, the DNCP profile provides guidance on how
-            to handle these situations as it indicates the existence of
-            another active node with the same node identifier.</t>
+            hash, the node SHOULD re-publish its own node data with an
+            update sequence number significantly (e.g. 1000) greater than
+            the received one. This may occur normally once due to the local
+            node restarting and not storing the most recently used update
+            sequence number. If this occurs more than once, the DNCP
+            profile provides guidance on how to handle these situations as
+            it indicates the existence of another active node with the same
+            node identifier.</t>
 
-            <t>If the node identifier does not match the local node identifier,
-            and the local information is outdated for the corresponding node
-            (local update sequence number is lower than that within the TLV),
-            potentially incorrect (local update sequence number matches but
-            the node data hash differs), or the data is altogether
-            missing:
+            <t>If the node identifier does not match the local node
+            identifier, and one or more of the following conditions are
+            true:
+
+            <list style="symbols">
+
+              <t>The local information is outdated for the corresponding node
+              (local update sequence number is less than that within the
+              TLV).</t>
+
+              <t>The local information is potentially incorrect (local update
+              sequence number matches but the node data hash differs).</t>
+
+              <t>There is no data for that node altogether.</t>
+
+            </list>
+
+            Then:
 
             <list style="symbols">
 
@@ -536,13 +549,16 @@ and they can be queued (and jittered) freely?
             </list>
             </t>
 
-            <t>For comparison purposes of the update sequence number,
-            a looping comparison function MUST be used to avoid problems in
-            case of overflow. An example of such a comparison function
-            would be: a &lt; b &lt;=&gt; (a - b) % 2^32 &amp; 2^31 !=
-            0.</t>
 
           </list>
+
+
+          For comparison purposes of the update sequence number,
+          a looping comparison function MUST be used to avoid problems in
+          case of overflow. An example of such a comparison function
+          would be: a &lt; b &lt;=&gt; (a - b) % 2^32 &amp; 2^31 !=
+          0.
+
           </t>
 
           <t>Any other TLV:
@@ -586,12 +602,13 @@ and they can be queued (and jittered) freely?
         When the peer is no longer present, the Neighbor
         TLV and the local DNCP peer state MUST be removed.</t>
 
-        <t>If the local endpoint is in the <xref target="broadcast">dense
-        broadcast link optimization</xref> multicast listen-only mode, only
-        the peer the highest node identifier MUST have <xref
-        target="neighbor">Neighbor TLV</xref> published nor any local
-        state; the rest MUST NOT.</t>
+        <t>If the local endpoint is in the Multicast-Listen+Unicast
+        transport mode, <xref target="neighbor">Neighbor TLV</xref> MUST
+        NOT be publishedd for the peers without highest node
+        identifier. </t>
+
         <!-- SB: TODO: this is broken and needs to be fixed -->
+        <!-- MSt: Is it still? -->
 
       </section>
 
