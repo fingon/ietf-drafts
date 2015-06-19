@@ -604,7 +604,7 @@ and they can be queued (and jittered) freely?
 
         <t>If the local endpoint is in the Multicast-Listen+Unicast
         transport mode, <xref target="neighbor">Neighbor TLV</xref> MUST
-        NOT be publishedd for the peers without highest node
+        NOT be published for the peers without highest node
         identifier. </t>
 
         <!-- SB: TODO: this is broken and needs to be fixed -->
@@ -654,7 +654,7 @@ and they can be queued (and jittered) freely?
         <t>A data structure containing data about the most recently sent
         <xref target="req-net-state">Request Network State TLVs</xref>.
         The simplest option is keeping a timestamp of the most recent request
-        (required to fullfill reply rate limiting specified in <xref target="reception" />).</t>
+        (required to fulfill reply rate limiting specified in <xref target="reception" />).</t>
 
       </list>
       </t>
@@ -793,7 +793,7 @@ and they can be queued (and jittered) freely?
             was received over unicast. When adding a new peer, it is
             initialized to the current time.</t>
 
-            <t>Last sent: If per-peer keepalives are enabled, a timestamp
+            <t>Last sent: If per-peer keep-alives are enabled, a timestamp
             which indicates the last time a <xref
             target="net-state">Network State TLV</xref> was sent to to that
             point-to-point peer. When adding a new peer, it is initialized
