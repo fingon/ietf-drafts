@@ -339,8 +339,8 @@ and they can be queued (and jittered) freely?
         current TLV set with the current update sequence number was
         published.
 
-        It is used to populate Milliseconds Since Origination field in
-        <xref target="node-state">Node State TLV</xref>. Ideally it also
+        It is used to populate the Milliseconds Since Origination field in
+        a <xref target="node-state">Node State TLV</xref>. Ideally it also
         has millisecond accuracy.
         </t>
 
@@ -352,7 +352,7 @@ and they can be queued (and jittered) freely?
       <list style="symbols">
 
         <t>Endpoint identifier: the 32-bit opaque value uniquely
-        identifying within to the local node. I</t>
+        identifying it within the local node.</t>
 
         <t>Trickle instance: the endpoint's Trickle instance with
         parameters I, T, and c (only on an endpoint that uses a
@@ -416,7 +416,7 @@ and they can be queued (and jittered) freely?
         (see <xref target="liveliness" />), and is represented by a tuple
         consisting of the node's update sequence number in network byte
         order concatenated with the hash-value of the node's ordered node
-        data published in <xref target="node-state">Node State
+        data published in the <xref target="node-state">Node State
         TLV</xref>. These leaves are ordered in ascending order of the
         respective node identifiers.
 
