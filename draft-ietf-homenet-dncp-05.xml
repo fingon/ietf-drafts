@@ -245,7 +245,7 @@ and they can be queued (and jittered) freely?
     </section>
 
 
-    <section title="Protocol Overview">
+    <section title="Overview">
 
       <t>DNCP operates primarily using unicast exchanges between nodes, and
       may use multicast for Trickle-based shared state dissemination and
@@ -289,7 +289,7 @@ and they can be queued (and jittered) freely?
 
     <section title="Operation">
 
-      <section title="The Merkle tree" anchor="merkle">
+      <section title="Merkle Tree" anchor="merkle">
 
         <t>Each DNCP node maintains a Merkle tree of height 1 to manage
         state updates of individual DNCP nodes, the leaves of the tree, and
@@ -613,7 +613,7 @@ and they can be queued (and jittered) freely?
 
     </section>
 
-    <section anchor="dm" title="Core Data Model">
+    <section anchor="dm" title="Data Model">
 
       <t>This section describes the local data structures a minimal
       implementation might want to use. This section is provided only as a
@@ -743,7 +743,7 @@ and they can be queued (and jittered) freely?
 
         <section title="Data Model Additions">
 
-          <t>The following additions to the <xref target="dm">Core Data
+          <t>The following additions to the <xref target="dm">Data
           Model</xref> are needed to support keep-alive:</t>
 
           <t>For each configured endpoint that has per-endpoint keep-alives
