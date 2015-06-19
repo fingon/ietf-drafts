@@ -900,10 +900,11 @@ and they can be queued (and jittered) freely?
         multicast traffic to both receive messages from the node(s) still
         in Multicast+Unicast mode, and as well to react to nodes with a
         greater node identifier appearing. If the highest node identifier
-        present on the link changes, the remote unicast address of unicast
-        endpoints MUST be changed. If the node identifier of the local node
-        is the highest one, the node MUST switch back to, or stay in
-        Multicast+Unicast mode.</t>
+        present on the link changes, the remote unicast address of the
+        endpoints in Multicast-Listen+Unicast transport mode MUST be
+        changed. If the node identifier of the local node is the highest
+        one, the node MUST switch back to, or stay in Multicast+Unicast
+        mode, and normally form peer relationships with all peers.</t>
 
       </section>
 
@@ -922,16 +923,16 @@ and they can be queued (and jittered) freely?
         of a single TLV published by a node. </t>
 
         <t>The data within Node State TLVs of all fragments MUST be valid,
-        as specified in <xref target="node-state" />. The node data for a
-        particular node MUST be produced by concatenating all node data for
-        each fragment, in ascending fragment number order. The concatenated
-        node data MUST still follow the ordering described in <xref
-        target="node-state" />.</t>
+        as specified in <xref target="node-state" />. The locally used node
+        data for a particular node MUST be produced by concatenating node
+        data in each fragment, in ascending fragment number order. The
+        locally used concatenated node data MUST still follow the ordering
+        described in <xref target="node-state" />.</t>
 
         <t>Any transmitted node identifiers used to identify the own or any
         other node MUST have the fragment number 0. For algorithm purposes,
         the relative time since the most recent fragment change MUST be
-        used, regardless of fragment number. Therefore, even if just part
+        used, regardless of fragment number. Therefore, even if just some
         of the node data fragments change, they all are considered
         refreshed if one of them is.</t>
 
@@ -950,7 +951,7 @@ and they can be queued (and jittered) freely?
       <t>
         Each TLV is encoded as a 2 byte type field, followed by a 2 byte
         length field (of the value, excluding header; 0 means no value)
-        followed by the value itself (if any). Both type and length fields
+        followed by the value itself, if any. Both type and length fields
         in the header as well as all integer fields inside the value -
         unless explicitly stated otherwise - are represented in network
         byte order. Padding bytes with value zero MUST be added up to the
@@ -1005,7 +1006,8 @@ and they can be queued (and jittered) freely?
 
           <t>This TLV is used to request response with a <xref
           target="net-state">Network State TLV</xref> and all <xref
-          target="node-state">Node State TLVs</xref>.</t>
+          target="node-state">Node State TLVs</xref> (without node
+          data).</t>
 
         </section>
         <section anchor="req-node-state" title="Request Node State TLV">
@@ -1028,7 +1030,7 @@ and they can be queued (and jittered) freely?
 
           <t>This TLV is used to request a <xref target="node-state">
           Node State TLV</xref> (including node data) for the node
-          matching the node identifier.</t>
+          with the matching node identifier.</t>
 
         </section>
 
@@ -1053,7 +1055,9 @@ and they can be queued (and jittered) freely?
           </figure>
 
           <t>This TLV identifies both the local node's node identifier, as
-          well as the particular endpoint's endpoint identifier. </t>
+          well as the particular endpoint's endpoint identifier. It is used
+          when bidirectional peering is desired, as described in the <xref
+          target="dt" />. </t>
 
         </section>
         <section anchor="net-state" title="Network State TLV">
@@ -1073,9 +1077,8 @@ and they can be queued (and jittered) freely?
             </artwork>
           </figure>
 
-          <t>This TLV contains the current locally calculated
-          network state hash, see <xref target="merkle" />.
-          </t>
+          <t>This TLV contains the current locally calculated network state
+          hash, see <xref target="merkle" /> for how it is calculated.</t>
 
         </section>
         <section anchor="node-state" title="Node State TLV">
@@ -1107,7 +1110,7 @@ and they can be queued (and jittered) freely?
 
           <t>This TLV represents the local node's knowledge about the
           published state of a node in the DNCP network identified by the
-          node identifier field in the TLV.</t>
+          Node Identifier field in the TLV.</t>
 
           <t>Every node, including the originating one, MUST update the
           Milliseconds Since Origination whenever it sends a Node
@@ -1124,13 +1127,12 @@ and they can be queued (and jittered) freely?
           TLVs even if there is no change. In other words, absent any other
           changes, the TLV set MUST be re-published roughly every 48
           days.</t>
+          <!-- TODO: (MSt) ^ is there better place for this paragraph? -->
 
           <t>The actual node data of the node may be included within the
-          TLV as well; see <xref target="reception" /> for the cases where
-          it MUST or MUST NOT be included. In a DNCP profile which supports
-          fragmentation, described in <xref target="fragmentation" />, the
-          TLV data may be only partial and not really usable without other
-          fragments.
+          TLV as well. In a DNCP profile which supports fragmentation,
+          described in <xref target="fragmentation" />, the TLV data may be
+          only partial but it MUST contain full individual TLVs.
 
           This set of TLVs MUST be strictly ordered based on ascending
           binary content (including TLV type and length). This enables
@@ -1144,9 +1146,9 @@ and they can be queued (and jittered) freely?
 
       <section title="Data TLVs within Node State TLV">
 
-        <t>These TLVs are DNCP-specific parts of node-specific node data,
-        and are encoded within the Node State TLVs. If encountered outside
-        Node State TLV, they MUST be silently ignored.</t>
+        <t>These TLVs are published by the DNCP nodes, and therefore only
+        encoded within the Node State TLVs. If encountered outside Node
+        State TLV, they MUST be silently ignored.</t>
 
         <section anchor="fragment-count"
                  title="Fragment Count TLV">
@@ -1251,7 +1253,6 @@ and they can be queued (and jittered) freely?
       methods for establishing trust are defined, but it is up to the DNCP
       profile to specify which ones may, should or must be supported.</t>
 
-
       <section title="Pre-Shared Key Based Trust Method">
 
         <t>A PSK-based trust model is a simple security management
@@ -1282,9 +1283,10 @@ and they can be queued (and jittered) freely?
         determine whether a node using this certificate or any
         certificate signed by it is to be trusted. </t>
 
-        <t>A node not participating in this security method MUST ignore all
+        <t>A DNCP node not using in this security method MUST ignore all
         announced trust verdicts and MUST NOT announce any such verdicts
-        by itself.</t>
+        by itself. Any other normative language in this subsection MUST be
+        also ignored. </t>
 
         <t>The current effective trust verdict for any certificate is
         defined as the one with the highest priority from all trust
@@ -1529,7 +1531,7 @@ and they can be queued (and jittered) freely?
         as specified in <xref target="reception" /> - e.g. for security
         reasons.
 
-        A DNCP profile may safely define following DNCP TLVs be safely
+        A DNCP profile may safely define following DNCP TLVs to be safely
         ignored:
 
         <list style="symbols">
@@ -1540,7 +1542,8 @@ and they can be queued (and jittered) freely?
           </t>
 
           <t>Any TLVs received over unreliable unicast or multicast at too
-          high rate; Trickle will ensure eventual convergence.</t>
+          high rate; Trickle will ensure eventual convergence given the
+          rate slows down at some point.</t>
 
         </list>
         </t>
@@ -1566,8 +1569,8 @@ and they can be queued (and jittered) freely?
         <t>DNCP_NODE_IDENTIFIER_LENGTH: The fixed length of a node
         identifier (in bytes).</t>
 
-        <t>Whether to send keep-alives, and if so, on an interface, using
-        multicast, or directly using unicast to peers. Keep-alive has also
+        <t>Whether to send keep-alives, and if so, whether per-endpoint
+        (requires multicast transport), or per-peer. Keep-alive has also
         associated parameters:
 
         <list style="symbols">
@@ -1591,12 +1594,12 @@ and they can be queued (and jittered) freely?
     <section title="Security Considerations">
 
       <t>DNCP profiles may use multicast to indicate DNCP state changes and
-      for keep-alive purposes. However, no actual data TLVs will be sent
-      across that channel. Therefore an attacker may only learn hash values
-      of the state within DNCP and may be able to trigger unicast
-      synchronization attempts between nodes on a local link this way. A DNCP
-      node should therefore rate-limit its reactions to multicast
-      packets.</t>
+      for keep-alive purposes. However, no actual published data TLVs will
+      be sent across that channel. Therefore an attacker may only learn
+      hash values of the state within DNCP and may be able to trigger
+      unicast synchronization attempts between nodes on a local link this
+      way. A DNCP node should therefore rate-limit its reactions to
+      multicast packets.</t>
 
       <t>When using DNCP to bootstrap a network, PKI based solutions may have
       issues when validating certificates due to potentially unavailable
@@ -1617,12 +1620,13 @@ and they can be queued (and jittered) freely?
       <t>IANA should set up a registry for DNCP TLV types,
       with the following initial contents:</t>
 
-      <t>0: Reserved (should not happen on wire)</t>
+      <t>0: Reserved</t>
       <t>1: Request network state</t>
       <t>2: Request node state</t>
       <t>3: Node endpoint</t>
       <t>4: Network state</t>
       <t>5: Node state</t>
+      <t>6: Reserved (was: Custom)</t>
       <t>7: Fragment count</t>
       <t>8: Neighbor</t>
       <t>9: Keep-alive interval</t>
@@ -1632,7 +1636,7 @@ and they can be queued (and jittered) freely?
       <t>192-255: Reserved for per-implementation experimentation. How
       collision is avoided is out of scope of this document.</t>
 
-      <t>For the rest of the values (6, 11-31, 256-65535), policy of 'standards
+      <t>For the rest of the values (11-31, 256-65535), policy of 'standards
       action' should be used.</t>
 
     </section>
