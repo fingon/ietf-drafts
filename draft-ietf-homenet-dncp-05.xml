@@ -253,14 +253,10 @@ and they can be queued (and jittered) freely?
 
     <section title="Protocol Overview">
 
-      <t>DNCP has relatively few requirements for the underlying transport;
-      it requires some way of transmitting either unicast datagram or
-      stream data to a peer and, if used in multicast mode, a way of
-      sending multicast datagrams. If security is desired and one of the
-      built-in security methods is to be used, support for some TLS-derived
-      transport scheme - such as <xref target="RFC5246">TLS</xref> on top of
-      TCP or <xref target="RFC6347">DTLS</xref> on top of UDP - is also
-      required.</t>
+      <t>DNCP operates primarily using unicast exchanges between nodes, and
+      may use multicast for Trickle-based shared state dissemination and
+      topology discovery. If used in pure unicast mode with unreliable
+      transport, Trickle is also used between peers.</t>
 
       <t>DNCP discovers the topology of its nodes and maintains the
       liveliness of published node data by ensuring that the publishing
@@ -290,10 +286,11 @@ and they can be queued (and jittered) freely?
       and - if necessary - requests additional information such as the
       node data that has changed.</t>
 
-      <t>Whenever a node's local database and Merkle tree are updated (e.g. due
-      to its own or another node's node state changing or due to a peer being
-      added or removed) its Trickle instances are reset which eventually causes any
-      update to be propagated to all of its peers.</t>
+      <t>Whenever a node's local database and Merkle tree are updated
+      (e.g. due to its own or another node's node state changing or due to
+      a peer being added or removed) its Trickle instances are reset which
+      eventually causes any update to be propagated to all of its
+      peers.</t>
     </section>
 
     <section anchor="dm" title="Core Data Model">
@@ -393,6 +390,15 @@ and they can be queued (and jittered) freely?
     </section>
 
     <section title="Operation">
+
+      <t>DNCP has relatively few requirements for the underlying transport;
+      it requires some way of transmitting either unicast datagram or
+      stream data to a peer and, if used in multicast mode, a way of
+      sending multicast datagrams. If security is desired and one of the
+      built-in security methods is to be used, support for some TLS-derived
+      transport scheme - such as <xref target="RFC5246">TLS</xref> on top of
+      TCP or <xref target="RFC6347">DTLS</xref> on top of UDP - is also
+      required.</t>
 
       <t>If multicast-based node and status discovery is desired,
       a datagram-based transport supporting multicast MUST be defined
