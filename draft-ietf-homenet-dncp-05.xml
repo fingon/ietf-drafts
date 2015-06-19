@@ -60,8 +60,8 @@ and they can be queued (and jittered) freely?
       <t>This document describes the Distributed Node Consensus Protocol
       (DNCP), a generic state synchronization protocol which uses Trickle
       and Merkle trees. DNCP leaves some details unspecified or
-      provides alternative options, and therefore only profiles, which specify
-      those missing parts, define actual implementable DNCP based
+      provides alternative options. Therefore, only profiles which specify
+      those missing parts define actual implementable DNCP based
       protocols.</t>
 
     </abstract>
@@ -71,14 +71,13 @@ and they can be queued (and jittered) freely?
 
       <t>DNCP is designed to provide a way for each participating node to
       publish a set of TLV (Type-Length-Value) tuples, and to provide
-      a shared, common view in a network of DNCP nodes about the data
-      published by every currently or recently bidirectionally reachable
-      node. </t>
+      a shared and common view about the data published by every currently
+      or recently bidirectionally reachable DNCP node in a network.</t>
 
       <t>For state synchronization, it uses a Merkle tree that is formed by
-      first calculating a hash for each node data published by a node, and
-      then calculating another hash over those node data hashes. The
-      single resulting hash, called network data hash, is transmitted using the
+      first calculating a hash for each dataset, called node data, published
+      by a node, and then calculating another hash over those node data hashes.
+      The single resulting hash, called network state hash, is transmitted using the
       <xref target="RFC6206">Trickle algorithm</xref> to ensure that all nodes
       share the same view of the current state of the published data within the
       network. The use of Trickle with only short network state hashes sent
@@ -93,7 +92,7 @@ and they can be queued (and jittered) freely?
 
       <t>DNCP is most suitable for data that changes only gradually to gain
       the maximum benefit from using Trickle. As the network of nodes, or
-      the amount of data changes grow over a given time interval, Trickle
+      the rate of data changes grows over a given time interval, Trickle
       is eventually used less and less and the benefit of using DNCP
       diminishes. In these cases Trickle just provides extra complexity
       within the specification and little added value. If constant rapid
@@ -112,9 +111,9 @@ and they can be queued (and jittered) freely?
 
 	<c>a definition of the set of rules and values listed in <xref
 	target="profile-bits"/> specifying the behavior of a DNCP based
-	protocol, such as the transport method used. In this document,
-	any DNCP profile specific parameters with a profile-specific
-	fixed value are prefixed with DNCP_.</c>
+	protocol, such as the transport method in use. In this document,
+	any DNCP profile specific parameter with a profile-specific
+	fixed value is prefixed with DNCP_.</c>
 
       <c /><c />
 
@@ -167,8 +166,8 @@ and they can be queued (and jittered) freely?
       <c>Endpoint identifier</c>
 
       <c>a 32-bit opaque value, which identifies a particular endpoint of
-      that particular DNCP node. The value 0 is reserved for DNCP and DNCP
-      profile purposes and MUST NOT be used to identify an actual
+      a particular DNCP node. The value 0 is reserved for DNCP and DNCP
+      profile purposes and not used to identify an actual
       endpoint. This definition is in sync with the interface index
       definition in <xref target="RFC3493"/>, as the non-zero small
       positive integers should comfortably fit within 32 bits.</c>
@@ -183,7 +182,7 @@ and they can be queued (and jittered) freely?
 
       <c>Node data</c>
       <c>a set of TLVs published and owned by a node in the DNCP
-      network. Other nodes MUST pass it along as-is, even if they cannot
+      network. Other nodes pass it along as-is, even if they cannot
       fully interpret it.</c>
 
       <c /><c />
@@ -254,8 +253,8 @@ and they can be queued (and jittered) freely?
 
       <t>DNCP discovers the topology of its nodes and maintains the
       liveliness of published node data by ensuring that the publishing
-      node was at least recently bidirectionally reachable.  This is
-      determined e.g. by a recent and consistent multicast or unicast TLV
+      node was - at least recently - bidirectionally reachable.  This is
+      determined, e.g., by a recent and consistent multicast or unicast TLV
       exchange with its peers. New potential peers can be discovered
       autonomously on multicast-enabled links, their addresses may be
       manually configured or they may be found by some other means defined
@@ -263,27 +262,27 @@ and they can be queued (and jittered) freely?
 
       <t>A Merkle tree is maintained by each node to represent the state of all
       currently reachable nodes and the Trickle algorithm is used to trigger
-      synchronization. The consistency among all participating nodes
+      synchronization. Consistency among neighboring nodes
       is thereby determined by comparing the current root of their respective
-      trees, i.e. their individually calculated network state hashes.</t>
+      trees, i.e., their individually calculated network state hashes.</t>
 
-      <t>Before joining a DNCP network a node starts with a Merkle tree
+      <t>Before joining a DNCP network, a node starts with a Merkle tree
       (and therefore a calculated network state hash) only consisting of
       the node itself. It then announces said hash by means of the Trickle
       algorithm on all its configured endpoints.</t>
 
-      <t>When an update is detected by a node (e.g. by receiving an
+      <t>When an update is detected by a node (e.g., by receiving an
       inconsistent network state hash from a peer) the originator of the
       event is requested to provide a list of the state of all nodes,
-      i.e. all the information it uses to calculate its own Merkle
+      i.e., all the information it uses to calculate its own Merkle
       tree. The node uses the list to determine whether its own information
-      is outdated and - if necessary - requests additional information such
-      as the actual node data that has changed.</t>
+      is outdated and - if necessary - requests the actual node data that
+      has changed.</t>
 
-      <t>Whenever a node's local database and Merkle tree are updated
-      (e.g. due to its own or another node's node state changing or due to
-      a peer being added or removed) its Trickle instances are reset which
-      eventually causes any update to be propagated to all of its
+      <t>Whenever a node's local copy of any node data and its Merkle tree are
+      updated (e.g., due to its own or another node's node state changing or
+      due to a peer being added or removed) its Trickle instances are reset
+      which eventually causes any update to be propagated to all of its
       peers.</t>
 
     </section>
@@ -309,11 +308,11 @@ and they can be queued (and jittered) freely?
         order.  It is used to determine whether the view of the network of
         two or more nodes is consistent and shared.</t>
 
-        <t>The tree and the root network state hash are updated on-demand
+        <t>The leaves and the root network state hash are updated on-demand
         and whenever any locally stored per-node state changes. This
         includes local unidirectional reachability encoded in the published
-        <xref target="neighbor">Neighbor TLV</xref>s, and when combined
-        with remote data, results in awareness of bidirectional
+        <xref target="neighbor">Neighbor TLV</xref>s and - when combined
+        with remote data - results in awareness of bidirectional
         reachability changes.</t>
 
       </section>
@@ -326,7 +325,7 @@ and they can be queued (and jittered) freely?
         way of sending multicast datagrams.
 
         As multicast is used only to identify potential new DNCP nodes and
-        to send status messages which just notify that a unicast exchange
+        to send status messages which merely notify that a unicast exchange
         should be triggered, the multicast transport does not have to be
         secured.
 
@@ -340,14 +339,14 @@ and they can be queued (and jittered) freely?
         MUST be defined in the DNCP profile.</t>
 
         <t>TLVs are sent across the transport as is, and they SHOULD be
-        sent together where e.g. MTU considerations do not recommend
+        sent together where, e.g., MTU considerations do not recommend
         sending them in multiple batches. TLVs in general are handled
         individually and statelessly, with one exception. To form
         bidirectional peer relationships DNCP requires identification of
         the endpoints used for communication. A DNCP node desiring
         bidirectional peer relationship therefore MUST send an <xref
-        target="endpoint">Endpoint TLV</xref>. When it is sent varies by
-        the underlying transport:
+        target="endpoint">Endpoint TLV</xref>. When it is sent varies,
+        depending on the underlying transport:
 
         <list style="symbols">
 
@@ -373,10 +372,10 @@ and they can be queued (and jittered) freely?
             <list style="symbols">
 
               <t>If only reliable unicast transport is employed, Trickle is
-              not used at all. Where Trickle reset occurs, a just single
+              not used at all. Where Trickle reset occurs, a single
               <xref target="net-state">Network State TLV</xref> is sent
               instead to every unicast peer. Additionally, recently changed
-              <xref target="node-state">Node State TLV</xref>s MAY be also
+              <xref target="node-state">Node State TLV</xref>s MAY be
               included. </t>
 
               <t>If only unreliable unicast transport is employed, Trickle
@@ -387,17 +386,17 @@ and they can be queued (and jittered) freely?
           </t>
 
           <t hangText="Multicast+Unicast:"> If multicast datagram transport
-          is available on an endpoint, Trickle state kept is only for the
-          whole endpoint, and it is used to send Network State TLVs every
+          is available on an endpoint, Trickle state is only maintained for the
+          endpoint as a whole. It is used to send Network State TLVs every
           now and then, as specified in <xref target="trickle-updates"
-          />. Per-endpoint keep-alives are then also possible, if specified
+          />. Additionally, per-endpoint keep-alives MAY be defined
           in the DNCP profile, as specified in <xref target="pe-ka" />.</t>
 
           <t hangText="MulticastListen+Unicast:">
-            Just like Unicast, except also listen to multicasts
-            for the highest node identifier changes. Required only if
-            DNCP profile supports <xref target="broadcast">dense
-          broadcast link optimization</xref>.</t>
+            Just like Unicast, except multicast transmissions are listened to
+            in order to detect changes of the highest node identifier.
+            This mode is used only if the DNCP profile supports <xref
+            target="broadcast">dense broadcast link optimization</xref>.</t>
         </list>
         </t>
 
@@ -424,12 +423,12 @@ and they can be queued (and jittered) freely?
         target="net-state">Network State TLV</xref> if and only if:
         <list style="symbols">
 
-          <t>Endpoint is in Multicast+Unicast transport mode. The TLV MUST
-          be sent via multicast.</t>
+          <t>the endpoint is in Multicast+Unicast transport mode, in which
+          case the TLV MUST be sent over multicast.</t>
 
-          <t>Endpoint is NOT in Multicast+Unicast transport mode, and the
-          unicast transport is unreliable. The TLV MUST be sent via
-          unicast.</t>
+          <t>the endpoint is NOT in Multicast+Unicast transport mode, and the
+          unicast transport is unreliable, in which case the TLV MUST be sent
+          over unicast.</t>
 
         </list>
         </t>
@@ -445,7 +444,7 @@ and they can be queued (and jittered) freely?
       <section title="Processing of Received TLVs" anchor="reception">
 
         <t>This section describes how received TLVs are processed. The DNCP
-        profile may specify when to ignore particular TLVs, e.g. to modify
+        profile may specify when to ignore particular TLVs, e.g., to modify
         security properties - see <xref target="profile-bits" /> for
         what may be safely defined to be ignored in a profile.
 
@@ -455,9 +454,9 @@ and they can be queued (and jittered) freely?
         and it was sent to a link with shared bandwidth, the reply SHOULD
         be delayed by a random timespan in [0, Imin/2], to avoid potential
         simultaneous replies that may cause problems on some links. Sending
-        of replies MAY also be rate-limited by the or
+        of replies MAY also be rate-limited or
         omitted for a short period of time by an implementation. However, an
-        implementation MUST eventually reply to similar repeated requests
+        implementation MUST eventually reply to similar repeated requests,
         as otherwise state synchronization would break.</t>
 
         <t>A DNCP node MUST process TLVs received from any valid address,
@@ -509,7 +508,7 @@ and they can be queued (and jittered) freely?
             the TLV has a greater update sequence number than its current
             local value, or the same update sequence number and a different
             hash, the node SHOULD re-publish its own node data with an
-            update sequence number significantly (e.g. 1000) greater than
+            update sequence number significantly (e.g., 1000) greater than
             the received one, to reclaim the node identifier.
             This may occur normally once due to the local
             node restarting and not storing the most recently used update
@@ -606,8 +605,8 @@ and they can be queued (and jittered) freely?
 
         <t>If the local endpoint is in the Multicast-Listen+Unicast
         transport mode, a <xref target="neighbor">Neighbor TLV</xref> MUST
-        NOT be published for the peers without highest node
-        identifier. </t>
+        NOT be published for the peers not having the highest node
+        identifier.</t>
 
       </section>
 
@@ -640,7 +639,7 @@ and they can be queued (and jittered) freely?
     <section anchor="dm" title="Data Model">
 
       <t>This section describes the local data structures a minimal
-      implementation might want to use. This section is provided only as a
+      implementation might use. This section is provided only as a
       convenience for the implementor. Some of the <xref
       target="ext">optional extensions</xref> describe additional data
       requirements, and some optional parts of the core protocol may also
@@ -738,7 +737,7 @@ and they can be queued (and jittered) freely?
     <section anchor="ext" title="Optional Extensions">
 
       <t>This section specifies extensions to the core protocol that a DNCP
-      profile may want to use.</t>
+      profile may use.</t>
 
       <section anchor="ka" title="Keep-Alives">
 
@@ -768,7 +767,7 @@ and they can be queued (and jittered) freely?
         <section title="Data Model Additions">
 
           <t>The following additions to the <xref target="dm">Data
-          Model</xref> are needed to support keep-alive:</t>
+          Model</xref> are needed to support keep-alives:</t>
 
           <t>For each configured endpoint that has per-endpoint keep-alives
           enabled:
@@ -860,26 +859,26 @@ and they can be queued (and jittered) freely?
       <section anchor="broadcast" title="Support For Dense Broadcast Links">
 
         <t>This optimization is needed to avoid a state space explosion.
-        Given a large set of DNCP nodes which publish data on an endpoint
-        that actually uses multicast on a link, every one of of them
-        will add a <xref target="neighbor">Neighbor TLV</xref> to each
-        other. While Trickle limits the amount of traffic on the link in
+        Given a large set of DNCP nodes publishing data on an endpoint
+        that actually uses multicast on a link, every node will add a
+        <xref target="neighbor">Neighbor TLV</xref> for each other one.
+        While Trickle limits the amount of traffic on the link in
         stable state to some extent, the total amount of data that is added
         to and maintained in the DNCP network given N nodes on a
         multicast-enabled link is O(N^2). Additionally if per-peer
         keep-alives are employed, there will be O(N^2) keep-alives running
         on the link if liveliness of peers is not ensured using some other
-        way (e.g. TCP connection lifetime, layer 2 notification,
+        way (e.g., TCP connection lifetime, layer 2 notification,
         per-endpoint keep-alive). </t>
 
         <t>An upper bound for the number of neighbors that are allowed for
-        a particular type of link that a endpoint in Multicast+Unicast
+        a particular type of link that an endpoint in Multicast+Unicast
         transport mode is used on SHOULD be provided by a DNCP profile, but
         MAY also be chosen at runtime.
 
         Main consideration when selecting a bound (if any)
         for a particular type of link should be whether it supports
-        broadcast traffic, and whether too large a number of neighbors case
+        broadcast traffic, and whether a too large number of neighbors case
         is likely to happen during the use of that particular DNCP profile
         on that particular type of link. If neither is likely, there is little
         point specifying support for this for that particular link
@@ -887,9 +886,9 @@ and they can be queued (and jittered) freely?
 
         <t>If a DNCP profile does not support this extension at all, the
         rest of this subsection MUST be ignored. This is because when this
-        extension is employed, the state within DNCP the network only
-        contains subset of the full topology of the network. Therefore
-        every node must be aware of potential of it being used in a
+        extension is employed, the state within the DNCP network only
+        contains a subset of the full topology of the network. Therefore
+        every node must be aware of the potential of it being used in a
         particular DNCP profile.</t>
 
         <t>If the specified upper bound is exceeded for some endpoint in
@@ -952,7 +951,7 @@ and they can be queued (and jittered) freely?
     <section anchor="tlvs" title="Type-Length-Value Objects">
       <t>
         Each TLV is encoded as a 2 byte type field, followed by a 2 byte
-        length field (of the value, excluding header; 0 means no value)
+        length field (of the value in bytes, excluding header; 0 means no value)
         followed by the value itself, if any. Both type and length fields
         in the header as well as all integer fields inside the value -
         unless explicitly stated otherwise - are represented in network
@@ -1117,7 +1116,7 @@ and they can be queued (and jittered) freely?
           <t>Every node, including the originating one, MUST update the
           Milliseconds Since Origination whenever it sends a Node
           State TLV based on when the node estimates the data was
-          originally published. This is e.g. to ensure that any relative
+          originally published. This is, e.g., to ensure that any relative
           timestamps contained within the published node data can be
           correctly offset and interpreted. Ultimately, what is provided is
           just an approximation, as transmission delays are not accounted
@@ -1137,8 +1136,8 @@ and they can be queued (and jittered) freely?
           only partial but it MUST contain full individual TLVs.
 
           This set of TLVs MUST be strictly ordered based on ascending
-          binary content (including TLV type and length). This enables
-          e.g. efficient state delta processing and no-copy indexing by TLV
+          binary content (including TLV type and length). This enables,
+          e.g., efficient state delta processing and no-copy indexing by TLV
           type by the recipient.</t>
 
         </section>
@@ -1287,8 +1286,8 @@ and they can be queued (and jittered) freely?
 
         <t>A DNCP node not using this security method MUST ignore all
         announced trust verdicts and MUST NOT announce any such verdicts
-        by itself. Any other normative language in this subsection MUST also
-        be ignored. </t>
+        by itself, i.e., any other normative language in this subsection
+        does not apply to it.</t>
 
         <t>The current effective trust verdict for any certificate is
         defined as the one with the highest priority from all trust
@@ -1372,7 +1371,7 @@ and they can be queued (and jittered) freely?
 
           <t>Every time a node (re)joins the network or detects the change
           of an effective trust verdict for any certificate, it will
-          synchronize its cache, i.e. store new effective trust verdicts
+          synchronize its cache, i.e., store new effective trust verdicts
           overwriting any previously cached verdicts. Configured verdicts
           are stored in the cache as their respective cached counterparts.
           Neutral verdicts are never stored and do not override existing
@@ -1484,7 +1483,7 @@ and they can be queued (and jittered) freely?
             <t>A node MAY be preconfigured to trust a certain set of
             node or CA certificates.  However such trust relationships
             MUST NOT result in unwanted or unrelated trust for nodes not
-            intended to be run inside the same network (e.g. all other
+            intended to be run inside the same network (e.g., all other
             devices by the same manufacturer).</t>
           </section>
 
@@ -1530,10 +1529,10 @@ and they can be queued (and jittered) freely?
         unicast may each require different parameters, if applicable. </t>
 
         <t>When receiving TLVs, what sort of TLVs are ignored in addition -
-        as specified in <xref target="reception" /> - e.g. for security
+        as specified in <xref target="reception" /> - e.g., for security
         reasons.
 
-        A DNCP profile may safely define following DNCP TLVs to be safely
+        A DNCP profile may safely define the following DNCP TLVs to be safely
         ignored:
 
         <list style="symbols">
@@ -1562,11 +1561,12 @@ and they can be queued (and jittered) freely?
         profile to behave more consistently and to facilitate estimation of
         lower and upper bounds for convergence behavior of the network.</t>
 
-        <t>Hash function H(x) to be used, and how many bits of the input
+        <t>Hash function H(x) to be used, and how many bits of the output
         are actually used. The chosen hash function is used to handle both
         hashing of node specific data, and network state hash, which is a
         hash of node specific data hashes. SHA-256 defined in <xref
-        target="RFC6234" /> is the recommended default choice.</t>
+        target="RFC6234" /> is the recommended default choice, but a
+        non-cryptographic hash function could be used as well.</t>
 
         <t>DNCP_NODE_IDENTIFIER_LENGTH: The fixed length of a node
         identifier (in bytes).</t>
@@ -1667,7 +1667,7 @@ and they can be queued (and jittered) freely?
 
       <t>Q: Why have topology information at all?</t>
       <t>A: It is an alternative to the more traditional seq#/TTL-based flooding
-      schemes. In steady state, there is no need to e.g. re-publish every now
+      schemes. In steady state, there is no need to, e.g., re-publish every now
       and then.</t>
 
     </section>
@@ -1746,14 +1746,14 @@ and they can be queued (and jittered) freely?
 
         <t>TLVs were renumbered.</t>
 
-        <t>TLV length does not include header (=-4). This facilitates
-        e.g. use of DHCPv6 option parsing libraries (same encoding), and
+        <t>TLV length does not include header (=-4). This facilitates,
+        e.g., use of DHCPv6 option parsing libraries (same encoding), and
         reduces complexity (no need to handle error values of length less
         than 4).</t>
 
         <t>Trickle is reset only when locally calculated network state hash
         is changes, not as remote different network state hash is seen. This
-        prevents e.g. attacks by multicast with one multicast packet to force
+        prevents, e.g., attacks by multicast with one multicast packet to force
         Trickle reset on every interface of every node on a link.</t>
 
         <t>Instead of 'ping', use 'keep-alive' (optional) for dead peer
