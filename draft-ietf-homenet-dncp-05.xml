@@ -846,13 +846,12 @@ and they can be queued (and jittered) freely?
           keep-alive interval must be calculated by looking for <xref
           target="ka-interval">Keep-Alive Interval TLVs</xref> published by
           the node, and if none exist, using the default value of
-          DNCP_KEEPALIVE_INTERVAL. If the peer's last contact state
+          DNCP_KEEPALIVE_INTERVAL. If the peer's last contact
           timestamp has not been updated for at least locally chosen
           potentially endpoint-specific keep-alive multiplier (defaults to
           DNCP_KEEPALIVE_MULTIPLIER) times the peer's endpoint-specific
           keep-alive interval, the Neighbor TLV for that peer and the local
           DNCP peer state MUST be removed.</t>
-          <!-- SB: TODO: this is the only time a "last contact state timestamp" is mentioned in this document -->
 
         </section>
 
