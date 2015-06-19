@@ -330,7 +330,10 @@ and they can be queued (and jittered) freely?
         methods is to be used, support for some TLS-derived transport
         scheme - such as <xref target="RFC5246">TLS</xref> on top of TCP or
         <xref target="RFC6347">DTLS</xref> on top of UDP - is also
-        required.</t>
+        required.
+
+        A specific definition of the transport(s) in use and their parameters
+        MUST be defined in the DNCP profile.</t>
 
         <t>Given the assorted transport options as well as potential
         endpoint configuration, a DNCP endpoint may be used in various
