@@ -1677,6 +1677,10 @@ and they can be queued (and jittered) freely?
         <t>Removed the DNCP_GRACE_INTERVAL as it is really
         implementation choice.</t>
 
+        <t>Simplified the suggested structures in data model.</t>
+
+        <t>Reorganized the document and provided an overview section.</t>
+
       </list>
       </t>
       <t>draft-ietf-homenet-dncp-04:
