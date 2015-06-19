@@ -1283,10 +1283,10 @@ and they can be queued (and jittered) freely?
         determine whether a node using this certificate or any
         certificate signed by it is to be trusted. </t>
 
-        <t>A DNCP node not using in this security method MUST ignore all
+        <t>A DNCP node not using this security method MUST ignore all
         announced trust verdicts and MUST NOT announce any such verdicts
-        by itself. Any other normative language in this subsection MUST be
-        also ignored. </t>
+        by itself. Any other normative language in this subsection MUST also
+        be ignored. </t>
 
         <t>The current effective trust verdict for any certificate is
         defined as the one with the highest priority from all trust
