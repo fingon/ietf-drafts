@@ -603,12 +603,9 @@ and they can be queued (and jittered) freely?
         TLV and the local DNCP peer state MUST be removed.</t>
 
         <t>If the local endpoint is in the Multicast-Listen+Unicast
-        transport mode, <xref target="neighbor">Neighbor TLV</xref> MUST
+        transport mode, a <xref target="neighbor">Neighbor TLV</xref> MUST
         NOT be published for the peers without highest node
         identifier. </t>
-
-        <!-- SB: TODO: this is broken and needs to be fixed -->
-        <!-- MSt: Is it still? -->
 
       </section>
 
