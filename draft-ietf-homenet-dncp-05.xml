@@ -92,13 +92,14 @@ and they can be queued (and jittered) freely?
       the whole network state also stays up-to-date.</t>
 
       <t>DNCP is most suitable for data that changes only gradually to gain
-      the maximum benefit from using Trickle. As the network of
-      nodes, or the amount of data changes grow over a given time interval,
-      Trickle is eventually used less and less and the benefit of using DNCP
+      the maximum benefit from using Trickle. As the network of nodes, or
+      the amount of data changes grow over a given time interval, Trickle
+      is eventually used less and less and the benefit of using DNCP
       diminishes. In these cases Trickle just provides extra complexity
-      within the specification and little added value. Therefore if more
-      rapid state exchanges are needed, an additional point-to-point channel,
-      whose address or locator is published using DNCP, can be preferable.</t>
+      within the specification and little added value. If constant rapid
+      state changes are needed, the preferable choice is to use an
+      additional point-to-point channel whose address or locator is
+      published using DNCP.</t>
 
     </section>
 
@@ -132,8 +133,8 @@ and they can be queued (and jittered) freely?
       <c>a set of DNCP nodes running the same DNCP profile.
 
       The set consists of nodes that have discovered each other using the
-      transport method defined DNCP profile, via multicast on
-      local links, and/or by using unicast communication.
+      transport method defined in the DNCP profile, via multicast on local
+      links, and/or by using unicast communication.
       </c>
 
       <c /><c />
@@ -188,15 +189,15 @@ and they can be queued (and jittered) freely?
 
       <c>Node data</c>
       <c>a set of TLVs published and owned by a node in the DNCP
-      network. Other nodes MUST pass it along as-is,
-      even if they cannot fully interpret it.</c>
+      network. Other nodes MUST pass it along as-is, even if they cannot
+      fully interpret it.</c>
 
       <c /><c />
 
       <c>Node state</c>
-      <c>a set of metadata attributes for node data. It
-      includes a sequence number for versioning, a hash value for comparing
-      and a timestamp indicating the time passed since its last
+      <c>a set of metadata attributes for node data. It includes a sequence
+      number for versioning, a hash value for comparing equality of stored
+      node data, and a timestamp indicating the time passed since its last
       publication. The hash function and the length of the hash value are
       defined in the DNCP profile. </c>
 
@@ -224,9 +225,9 @@ and they can be queued (and jittered) freely?
       <c /><c />
 
       <c>Effective trust verdict</c>
-      <c>the trust verdict with the highest
-      priority within the set of trust verdicts announced for the
-      certificate in the DNCP network.</c>
+
+      <c>the trust verdict with the highest priority within the set of
+      trust verdicts announced for the certificate in the DNCP network.</c>
 
       <c /><c />
 
@@ -260,26 +261,27 @@ and they can be queued (and jittered) freely?
       transport scheme - such as <xref target="RFC5246">TLS</xref> on top of
       TCP or <xref target="RFC6347">DTLS</xref> on top of UDP - is also
       required.</t>
-      
+
       <t>DNCP discovers the topology of its nodes and maintains the
-      liveliness of published node data by ensuring that the
-      publishing node was at least recently bidirectionally reachable.
-      This is determined e.g. by a recent and consistent multicast or
-      unicast TLV exchange with its peers. New potential peers can either
-      be discovered autonomously on multicast-enabled links or be manually
-      configured.</t>
+      liveliness of published node data by ensuring that the publishing
+      node was at least recently bidirectionally reachable.  This is
+      determined e.g. by a recent and consistent multicast or unicast TLV
+      exchange with its peers. New potential peers can be discovered
+      autonomously on multicast-enabled links, their addresses may be
+      manually configured or by some other means defined in a later
+      specification.</t>
 
       <t>A Merkle tree is maintained by each node to represent the state of all
       currently reachable nodes and the Trickle algorithm is used to trigger
       synchronization. The consistency among all participating nodes
       is thereby determined by comparing the current root of their respective
       trees, i.e. their individually calculated network state hashes.</t>
-      
+
       <t>Before joining a DNCP network a node starts with a Merkle tree
       (and therefore a calculated network state hash) only considering
       the node data and state of itself. It then announces said hash
       by means of the Trickle algorithm on all its configured endpoints.</t>
-      
+
       <t>When an update is detected by a node (e.g. by receiving an
       inconsistent network state hash from a peer) the originator of the event
       is requested to provide a list of the state of all nodes, i.e. all the
@@ -287,26 +289,30 @@ and they can be queued (and jittered) freely?
       said list, it determines whether its own information is outdated
       and - if necessary - requests additional information such as the
       node data that has changed.</t>
-      
+
       <t>Whenever a node's local database and Merkle tree are updated (e.g. due
       to its own or another node's node state changing or due to a peer being
       added or removed) its Trickle instances are reset which eventually causes any
-      update to be propagated to all of its peers.</t> 
+      update to be propagated to all of its peers.</t>
     </section>
 
-    <section anchor="dm" title="Data Model">
+    <section anchor="dm" title="Core Data Model">
+
+      <t>This section describes the local data structures a minimal
+      implementation might want to use. This section is provided only as a
+      convenience for the implementor. Some of the <xref
+      target="ext">optional extensions</xref> describe additional data
+      requirements, and some optional parts of the core protocol may also
+      require more.</t>
 
       <t>A DNCP node has:
 
       <list style="symbols">
 
-        <t>A timestamp indicating the most recent topology graph traversal
-        described in <xref target="liveliness" />.</t>
-
         <t>A data structure containing data about the most recently sent
         <xref target="req-net-state">Request Network State TLVs</xref>.
         The simplest option is keeping a timestamp of the most recent request
-        (see <xref target="reception" />).</t>
+        (required to fullfill reply rate limiting specified in <xref target="reception" />).</t>
 
       </list>
       </t>
@@ -314,31 +320,30 @@ and they can be queued (and jittered) freely?
       <t>A DNCP node has for every DNCP node in the DNCP network:
 
       <list style="symbols">
-        <t>Node identifier:
-        the unique identifier of the node.</t>
 
-        <t>Node data: the ordered set of TLV tuples published by that
-        particular node. This set of TLVs MUST be strictly ordered based on
-        ascending binary content (including TLV type and length). This
-        facilitates linear time state delta processing.</t>
+        <t>Node identifier: the unique identifier of the node. The length,
+        how it is produced, and how collisions are handled, is up to the
+        particular DNCP profile.</t>
+
+        <t>Node data: the set of TLV tuples published by that particular
+        node. As they are transmitted ordered (see <xref
+        target="node-state">Node State TLV</xref> for details), maintaining
+        the order within the data structure here may be reasonable. </t>
 
         <t>Latest update sequence number: the 32-bit sequence number that
-        is incremented any time the TLV set is published. For comparison
-        purposes, a looping comparison should be used to avoid problems in
-        case of overflow. An example would be: a &lt; b &lt;=&gt; (a - b) %
-        2^32 &amp; 2^31 != 0.</t>
+        is incremented any time the TLV set is published. The comparison
+        function used to compare them is described in <xref
+        target="reception" />.</t>
 
-        <t>Relative time delta: the time (in milliseconds) since the
-        current TLV data set with the current update sequence number was
-        published. It is transmitted as a 32-bit number. If it is close
-        to overflow (greater than 2^32-2^16), a node MUST
-        re-publish its TLVs even if there is no change. In other words,
-        absent any other changes, the TLV set MUST be re-published roughly
-        every 49 days.</t>
+        <t>Origination time: the (estimated) time when the
+        current TLV set with the current update sequence number was
+        published.
 
-        <t>Reachable: a flag indicating it was reachable during the most
-        recent topology graph traversal described in <xref
-        target="liveliness" />.</t>
+        It is used to populate Milliseconds Since Origination field in
+        <xref target="node-state">Node State TLV</xref>. Ideally it also
+        has millisecond accuracy.
+        </t>
+
       </list>
       </t>
 
@@ -347,10 +352,11 @@ and they can be queued (and jittered) freely?
       <list style="symbols">
 
         <t>Endpoint identifier: the 32-bit opaque value uniquely
-        identifying it.</t>
+        identifying within to the local node. I</t>
 
-        <t>Trickle instance: the endpoint's
-        individual trickle instance with parameters I, T, and c.</t>
+        <t>Trickle instance: the endpoint's Trickle instance with
+        parameters I, T, and c (only on an endpoint that uses a
+        multicast-capable link).</t>
 
       </list>
       </t>
@@ -377,6 +383,11 @@ and they can be queued (and jittered) freely?
 
         <t>Peer address: the most recently used address of the peer
         (authenticated and authorized, if security is enabled).</t>
+
+        <t>Trickle instance: the particular peer's Trickle instance with
+        parameters I, T, and c (only on a unicast-only endpoint with
+        unreliable unicast transport) .</t>
+
       </list>
       </t>
     </section>
@@ -394,26 +405,30 @@ and they can be queued (and jittered) freely?
       of the endpoints used for communication. A DNCP node therefore MUST
       include an <xref target="endpoint">Endpoint TLV</xref> in each message
       intended to maintain a DNCP peer relationship.</t>
-      
+
       <section title="The Merkle tree" anchor="merkle">
-      <t>Each DNCP node maintains a Merkle tree of height 1 to manage state
-      updates of individual DNCP nodes, the leafs of the tree, and the
-      network as a whole, the root of the tree.</t>
-      
-      <t>Each leaf represents one recently bidirectionally reachable node
-      (see <xref target="liveliness" />),
-      and is represented by a tuple consisting of the node's update sequence
-      number in network byte order concatenated with the hash-value of the
-      node's node data. These leafs are ordered in ascending order of the
-      respective node identifiers.
-      The root of the tree - the network state hash - is represented by the
-      hash-value calculated over all such leaf tuples concatenated in order.
-      It is used to determine whether the view of the network of two or more
-      nodes is consistent and shared.</t>
-      
-      <t>The tree and the root network state hash are updated on-demand
-      and whenever any locally stored per-node state (including bidirectional
-      reachability) changes.</t>
+
+        <t>Each DNCP node maintains a Merkle tree of height 1 to manage
+        state updates of individual DNCP nodes, the leaves of the tree, and
+        the network as a whole, the root of the tree.</t>
+
+        <t>Each leaf represents one recently bidirectionally reachable node
+        (see <xref target="liveliness" />), and is represented by a tuple
+        consisting of the node's update sequence number in network byte
+        order concatenated with the hash-value of the node's ordered node
+        data published in <xref target="node-state">Node State
+        TLV</xref>. These leaves are ordered in ascending order of the
+        respective node identifiers.
+
+        The root of the tree - the network state hash - is represented by
+        the hash-value calculated over all such leaf tuples concatenated in
+        order.  It is used to determine whether the view of the network of
+        two or more nodes is consistent and shared.</t>
+
+        <t>The tree and the root network state hash are updated on-demand
+        and whenever any locally stored per-node state (including
+        bidirectional reachability) changes.</t>
+
       </section>
 
       <section title="Trickle-Driven Status Updates"
@@ -522,10 +537,10 @@ and they can be queued (and jittered) freely?
           <list style="symbols">
 
             <t>If the node identifier matches the local node identifier and
-            the TLV has a higher update sequence number than its current
+            the TLV has a greater update sequence number than its current
             local value, or the same update sequence number and a different
             hash, the node SHOULD re-publish its own node data with an update
-            sequence number 1000 higher than the received one. This may occur
+            sequence number 1000 greater than the received one. This may occur
             normally once due to the local node restarting and not storing
             the most recently used update sequence number. If this occurs
             more than once, the DNCP profile provides guidance on how
@@ -551,6 +566,13 @@ and they can be queued (and jittered) freely?
               number, relative time) to match the received TLV.</t>
             </list>
             </t>
+
+            <t>For comparison purposes of the update sequence number,
+            a looping comparison function MUST be used to avoid problems in
+            case of overflow. An example of such a comparison function
+            would be: a &lt; b &lt;=&gt; (a - b) % 2^32 &amp; 2^31 !=
+            0.</t>
+
           </list>
           </t>
 
@@ -660,15 +682,22 @@ and they can be queued (and jittered) freely?
 
         <section title="Data Model Additions">
 
-          <t>The following additions to the <xref target="dm">Data
+          <t>The following additions to the <xref target="dm">Core Data
           Model</xref> are needed to support keep-alive:</t>
 
-          <t>Each node MUST have a timestamp which indicates the last time a
-          <xref target="net-state">Network State TLV</xref> was sent for each
-          endpoint, i.e. on an interface or to the point-to-point
-          peer(s).</t>
+          <t>For each configured endpoint that has per-endpoint keep-alives
+          enabled:
 
-          <t>Each node MUST have for each peer:
+          <list style="symbols">
+            <t>Last sent: If a timestamp which indicates the last time a
+            <xref target="net-state">Network State TLV</xref> was sent over
+            that interface.</t>
+          </list>
+          </t>
+
+          <t>For each remote (peer, endpoint) pair detected on a
+          local endpoint, a DNCP node has:
+
 
           <list style="symbols">
 
@@ -677,6 +706,12 @@ and they can be queued (and jittered) freely?
             TLV</xref> was received from the peer over multicast, or anything
             was received over unicast. When adding a new peer, it is
             initialized to the current time.</t>
+
+            <t>Last sent: If per-peer keepalives are enabled, a timestamp
+            which indicates the last time a <xref
+            target="net-state">Network State TLV</xref> was sent to to that
+            point-to-point peer. When adding a new peer, it is initialized
+            to the current time.</t>
 
           </list>
           </t>
@@ -774,7 +809,7 @@ and they can be queued (and jittered) freely?
         the endpoint as a unicast endpoint connected to the node that has
         the highest node identifier detected on the link. The nodes MUST
         also keep listening to multicast traffic to both detect the
-        presence of that node, and to react to nodes with a higher node
+        presence of that node, and to react to nodes with a greater node
         identifier appearing. If the highest node identifier present on the
         link changes, the remote unicast address of unicast endpoints MUST
         be changed. If the node identifier of the local node is the highest
@@ -786,24 +821,24 @@ and they can be queued (and jittered) freely?
 
       <section anchor="fragmentation" title="Node Data Fragmentation">
 
-        <t>A DNCP profile may be required to support node data which
-        would not fit the maximum size of a single <xref
-        target="node-state">Node State TLV</xref> (roughly 64KB of payload),
-        or use a datagram-only transport with a limited MTU and no reliable
-        support for fragmentation. To handle such cases, a DNCP profile MAY
-        specify a fixed number of trailing bytes in the node identifier to
-        represent a fragment number indicating a part of a node's node
-        data. The profile MAY also specify an upper bound for the size of a
-        single fragment to accommodate limitations of links in the
-        network.</t>
+        <t>A DNCP profile may be required to support node data which would
+        not fit the maximum size of a single <xref target="node-state">Node
+        State TLV</xref> (roughly 64KB of payload), or use a datagram-only
+        transport with a limited MTU and no reliable support for
+        fragmentation. To handle such cases, a DNCP profile MAY specify a
+        fixed number of trailing bytes in the node identifier to represent
+        a fragment number indicating a part of a node's node data. The
+        profile MAY also specify an upper bound for the size of a single
+        fragment to accommodate limitations of links in the network. Note
+        that the maximum size of fragment also constrains the maximum size
+        of a single TLV published by a node. </t>
 
-        <t>The data within Node State TLVs of fragments with non-zero
-        fragment number must be treated as opaque (as they may not contain
-        even a single full TLV). However, the concatenated node data for a
+        <t>The data within Node State TLVs of all fragments MUST be valid,
+        as specified in <xref target="node-state" />. The node data for a
         particular node MUST be produced by concatenating all node data for
         each fragment, in ascending fragment number order. The concatenated
-        node data MUST follow the ordering described in <xref target="dm"
-        />.</t>
+        node data MUST still follow the ordering described in <xref
+        target="node-state" />.</t>
 
         <t>Any transmitted node identifiers used to identify the own or any
         other node MUST have the fragment number 0. For algorithm purposes,
@@ -997,14 +1032,26 @@ and they can be queued (and jittered) freely?
           timestamps contained within the published node data can be
           correctly offset and interpreted. Ultimately, what is provided is
           just an approximation, as transmission delays are not accounted
-          for.</t>
+          for. </t>
+
+          <t>Absent any changes, if the originating node notices that the
+          32-bit milliseconds since origination value would be close to
+          overflow (greater than 2^32-2^16), the node MUST re-publish its
+          TLVs even if there is no change. In other words, absent any other
+          changes, the TLV set MUST be re-published roughly every 48
+          days.</t>
 
           <t>The actual node data of the node may be included within the
           TLV as well; see <xref target="reception" /> for the cases where
           it MUST or MUST NOT be included. In a DNCP profile which supports
           fragmentation, described in <xref target="fragmentation" />, the
           TLV data may be only partial and not really usable without other
-          fragments.</t>
+          fragments.
+
+          This set of TLVs MUST be strictly ordered based on ascending
+          binary content (including TLV type and length). This enables
+          e.g. efficient state delta processing and no-copy indexing by TLV
+          type by the recipient.</t>
 
         </section>
 
@@ -1037,7 +1084,7 @@ and they can be queued (and jittered) freely?
           specified in <xref target="fragmentation" />, this TLV indicates
           that the node data is encoded as a sequence of Node State
           TLVs. Following Node State TLVs with Node Identifiers up to Count
-          higher than the current one MUST be considered reachable and part
+          greater than the current one MUST be considered reachable and part
           of the same logical set of node data that this TLV is within. The
           fragment portion of the Node Identifier of the Node State TLV
           this TLV appears in MUST be zero.</t>
