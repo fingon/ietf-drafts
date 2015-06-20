@@ -861,7 +861,7 @@ and they can be queued (and jittered) freely?
         <t>This optimization is needed to avoid a state space explosion.
         Given a large set of DNCP nodes publishing data on an endpoint
         that actually uses multicast on a link, every node will add a
-        <xref target="neighbor">Neighbor TLV</xref> for each other one.
+        <xref target="neighbor">Neighbor TLV</xref> for each peer.
         While Trickle limits the amount of traffic on the link in
         stable state to some extent, the total amount of data that is added
         to and maintained in the DNCP network given N nodes on a
@@ -951,7 +951,7 @@ and they can be queued (and jittered) freely?
     <section anchor="tlvs" title="Type-Length-Value Objects">
       <t>
         Each TLV is encoded as a 2 byte type field, followed by a 2 byte
-        length field (of the value in bytes, excluding header; 0 means no value)
+        length field (of the value excluding header, in bytes, 0 meaning no value)
         followed by the value itself, if any. Both type and length fields
         in the header as well as all integer fields inside the value -
         unless explicitly stated otherwise - are represented in network
