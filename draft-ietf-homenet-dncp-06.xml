@@ -75,8 +75,8 @@ and they can be queued (and jittered) freely?
       or recently bidirectionally reachable DNCP node in a network.</t>
 
       <t>For state synchronization, it uses a Merkle tree that is formed by
-      first calculating a hash for each dataset, called node data, published
-      by a node, and then calculating another hash over those node data hashes.
+      first calculating a hash for the dataset, called node data, published
+      by each node, and then calculating another hash over those node data hashes.
       The single resulting hash, called network state hash, is transmitted using the
       <xref target="RFC6206">Trickle algorithm</xref> to ensure that all nodes
       share the same view of the current state of the published data within the
