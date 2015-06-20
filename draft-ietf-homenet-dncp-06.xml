@@ -74,7 +74,7 @@ and they can be queued (and jittered) freely?
       a shared and common view about the data published by every currently
       or recently bidirectionally reachable DNCP node in a network.</t>
 
-      <t>For state synchronization, it uses a Merkle tree that is formed by
+      <t>For state synchronization a Merkle tree is used. It is formed by
       first calculating a hash for the dataset, called node data, published
       by each node, and then calculating another hash over those node data hashes.
       The single resulting hash, called network state hash, is transmitted using the
@@ -336,7 +336,7 @@ and they can be queued (and jittered) freely?
         required.
 
         A specific definition of the transport(s) in use and their parameters
-        MUST be defined in the DNCP profile.</t>
+        MUST be provided by the DNCP profile.</t>
 
         <t>TLVs are sent across the transport as is, and they SHOULD be
         sent together where, e.g., MTU considerations do not recommend
@@ -379,7 +379,7 @@ and they can be queued (and jittered) freely?
               included. </t>
 
               <t>If only unreliable unicast transport is employed, Trickle
-              state kept is per each peer and it is used to send Network
+              state is kept per each peer and it is used to send Network
               State TLVs every now and then, as specified in <xref
               target="trickle-updates" />.</t>
             </list>
