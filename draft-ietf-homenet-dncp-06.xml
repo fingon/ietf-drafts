@@ -90,7 +90,7 @@ and they can be queued (and jittered) freely?
       every node ensures its neighbors are present, transitively, the whole
       network state also stays up-to-date.</t>
 
-      <t>DNCP is most suitable for data that changes only gradually to gain
+      <t>DNCP is most suitable for data that changes only infrequently to gain
       the maximum benefit from using Trickle. As the network of nodes, or
       the rate of data changes grows over a given time interval, Trickle
       is eventually used less and less and the benefit of using DNCP
