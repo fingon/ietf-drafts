@@ -178,14 +178,11 @@ I writing an essay on this. :-p)
         target="RFC1321">MD5</xref> as DNCP non-cryptographic hash function
         H(x).</t>
 
-        <t>HNCP nodes MUST use DNCP's keep-alive extension on all endpoints
-        with the following parameters:
+        <t>HNCP nodes MUST use DNCP's keep-alive extension on all endpoints.
+        The following parameters are suggested:
         <list style="symbols">
-            <t>The default keep-alive interval (DNCP_KEEPALIVE_INTERVAL) is 20
-                seconds.</t>
-            <t>The multiplier (DNCP_KEEPALIVE_MULTIPLIER) MUST be 2.1.</t>
-            <t>The grace-interval (DNCP_GRACE_INTERVAL) SHOULD be equal to
-            DNCP_KEEPALIVE_MULTIPLIER times DNCP_KEEPALIVE_INTERVAL.</t>
+            <t>Default keep-alive interval (DNCP_KEEPALIVE_INTERVAL): 20 seconds.</t>
+            <t>Multiplier (DNCP_KEEPALIVE_MULTIPLIER): 2.1.</t>
         </list>
         </t>
 
@@ -1475,7 +1472,7 @@ I writing an essay on this. :-p)
   </middle>
   <back>
     <references title="Normative references">
-      <?rfc include="reference.I-D.draft-ietf-homenet-dncp-05"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-dncp-06"?>
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6347.xml"?>
       <?rfc include="reference.RFC.6603.xml"?>
