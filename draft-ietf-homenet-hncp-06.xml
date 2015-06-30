@@ -193,7 +193,11 @@ I writing an essay on this. :-p)
     <section title="Common Links" anchor="links">
 
       <t>HNCP uses the concept of Common Links for some of its
-      applications. The Common Link is computed separately for each local
+      applications. A Common Link usually refers to a link layer broadcast
+      domain with certain properties and is used, e.g., to determine where
+      address prefixes should be assigned or which neighboring nodes
+      participate in the election of a DHCP(v6) server.
+      The Common Link is computed separately for each local
       interface, and it always contains the local interface. Additionally,
       if the local interface is not in ad-hoc mode, it also contains the
       set of interfaces that are bidirectionally reachable from the given
@@ -725,14 +729,16 @@ I writing an essay on this. :-p)
             each router connected to said link:
 
             <list>
-              <t>MUST create an appropriate on-link route for said prefix
-              and advertise it using the chosen routing protocol.</t>
+              <t>MUST create an appropriate route for said prefix, indicating
+              it is directly reachable on the respective link
+              and advertise said route using the chosen routing protocol.</t>
 
               <t>MUST participate in the client configuration election as
               described in <xref target="client-config" />.</t>
 
               <t>MAY add an address from said prefix to the respective
-              network interface as described in <xref target="node-addr" />.
+              network interface as described in <xref target="node-addr" />,
+              if it is to be used as source for locally originating traffic.
               </t>
             </list>
 
@@ -751,12 +757,13 @@ I writing an essay on this. :-p)
 
           <section title="Downstream Prefix Delegation Support" anchor="pd">
             <t>When an HNCP router receives a request for prefix delegation,
-            it SHOULD assign one prefix per delegated prefix, wait for them to be applied,
-            and delegate them to the client. Such assignment MUST be done in
-            accordance with the Prefix Assignment Algorithm. Each client
-            MUST be considered as an independent Private Link and delegation
-            MUST be based on the same set of Delegated Prefixes as the one
-            used for Common Links prefixes assignment.</t>
+            it SHOULD assign one prefix per delegated prefix in the network.
+            This set of assigned prefix is then delegated to the client,
+            after it has been applied by means of the Prefix Assignment
+            Algorithm. Each client MUST be considered as an independent
+            Private Link and delegation MUST be based on the same set of
+            Delegated Prefixes as the one used for Common Link prefix
+            assignments.</t>
 
             <t>The assigned prefixes MUST NOT be given to clients before
             they are applied, and MUST be withdrawn whenever they are
@@ -1322,17 +1329,30 @@ I writing an essay on this. :-p)
         protocol on any interface where it also uses the security
         mechanisms of HNCP. If the security mechanism is based on a PSK it
         MUST use a PSK derived from the Managed-PSK to secure the IGP.</t>
-        <t>It MUST comply with the <xref target="RFC7084">Basic
-        Requirements for IPv6 Customer Edge Routers</xref> unless it would
-        otherwise conflict with any requirements in this document (e.g. prefix
-        assignment mandating a different prefix delegation and DHCP server
-        election strategy). In general "WAN interface requirements" shall
-        apply to external interfaces and "LAN interface requirements"
-        to internal interfaces respectively.</t>
         <t>It MAY be able to provide connectivity to IPv4-devices using
         DHCPv4.</t>
         <t>It SHOULD be able to delegate prefixes to legacy IPv6 routers
         using DHCPv6-PD.</t>
+        <t>In addition, normative language of <xref target="RFC7084">Basic
+        Requirements for IPv6 Customer Edge Routers</xref> applies with the
+        following adjustments:
+        <list>
+        	<t>The section "WAN-Side Configuration" applies to HNCP interfaces
+        	classified as external.</t>
+        	<t>Any size-hint as described in requirement WPD-2 MUST be large
+        	enough to assign at least one /64 for each unique Common Link
+        	in the HNCP network, unless explicitly configured otherwise.</t>
+        	<t>The dropping of packets with a destination address belonging to
+        	a delegated prefix mandated in WPD-5 MUST NOT be applied to
+        	destinations that are part of any prefix announced using an
+        	ASSIGNED-PREFIX TLV by any HNCP router in the network.</t>
+        	<t>The section "LAN-Side Configuration" applies to HNCP interfaces
+        	classified as internal.</t>
+        	<t>The requirement to assign a separate /64 to each LAN interface
+        	"L-2" is replaced by the participation in the <xref target="pa">
+        	prefix assignment mechanism</xref> for each such interface.</t>
+        </list>
+        </t>
       </list></t>
     </section>
 
