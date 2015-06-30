@@ -1349,7 +1349,7 @@ I writing an essay on this. :-p)
         	<t>The section "LAN-Side Configuration" applies to HNCP interfaces
         	classified as internal.</t>
         	<t>The requirement to assign a separate /64 to each LAN interface
-        	"L-2" is replaced by the participation in the <xref target="pa">
+        	L-2 is replaced by the participation in the <xref target="pa">
         	prefix assignment mechanism</xref> for each such interface.</t>
         </list>
         </t>
