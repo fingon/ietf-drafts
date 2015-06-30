@@ -195,7 +195,7 @@ I writing an essay on this. :-p)
       <t>HNCP uses the concept of Common Links for some of its
       applications. A Common Link usually refers to a link layer broadcast
       domain with certain properties and is used, e.g., to determine where
-      address prefixes should be assigned or which neighboring nodes
+      prefixes should be assigned or which neighboring nodes
       participate in the election of a DHCP(v6) server.
       The Common Link is computed separately for each local
       interface, and it always contains the local interface. Additionally,
