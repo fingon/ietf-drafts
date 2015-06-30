@@ -759,7 +759,7 @@ I writing an essay on this. :-p)
             <t>When an HNCP router receives a request for prefix delegation,
             it SHOULD assign one prefix per delegated prefix in the network.
             This set of assigned prefix is then delegated to the client,
-            after it has been applied by means of the Prefix Assignment
+            after it has been applied as described in the Prefix Assignment
             Algorithm. Each client MUST be considered as an independent
             Private Link and delegation MUST be based on the same set of
             Delegated Prefixes as the one used for Common Link prefix
