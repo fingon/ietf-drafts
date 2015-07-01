@@ -1337,19 +1337,21 @@ I writing an essay on this. :-p)
         Requirements for IPv6 Customer Edge Routers</xref> applies with the
         following adjustments:
         <list>
-        	<t>The section "WAN-Side Configuration" applies to HNCP interfaces
+        	<t>The sethe sizction "WAN-Side Configuration" applies to HNCP interfaces
         	classified as external.</t>
-        	<t>Any size-hint as described in requirement WPD-2 MUST be large
-        	enough to assign at least one /64 for each unique Common Link
-        	in the HNCP network, unless explicitly configured otherwise.</t>
+        	<t>If the CE sends a size-hint as indicated in WPD-2, the hint
+        	MUST NOT be determined by the number of LAN-interfaces of the CE,
+        	but SHOULD instead be large enough to at least accommodate prefix
+        	assignments announced for existing delegated or ULA-prefixes, if
+        	such prefixes exist and unless explicitly configured otherwise.</t>
         	<t>The dropping of packets with a destination address belonging to
         	a delegated prefix mandated in WPD-5 MUST NOT be applied to
         	destinations that are part of any prefix announced using an
         	ASSIGNED-PREFIX TLV by any HNCP router in the network.</t>
         	<t>The section "LAN-Side Configuration" applies to HNCP interfaces
         	classified as internal.</t>
-        	<t>The requirement to assign a separate /64 to each LAN interface
-        	L-2 is replaced by the participation in the <xref target="pa">
+        	<t>The requirement to assign a separate /64 to each LAN interface,
+        	L-2, is replaced by the participation in the <xref target="pa">
         	prefix assignment mechanism</xref> for each such interface.</t>
         </list>
         </t>
