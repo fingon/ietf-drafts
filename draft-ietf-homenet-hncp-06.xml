@@ -1337,7 +1337,7 @@ I writing an essay on this. :-p)
         Requirements for IPv6 Customer Edge Routers</xref> applies with the
         following adjustments:
         <list>
-        	<t>The sethe sizction "WAN-Side Configuration" applies to HNCP interfaces
+            <t>The section "WAN-Side Configuration" applies to HNCP interfaces
         	classified as external.</t>
         	<t>If the CE sends a size-hint as indicated in WPD-2, the hint
         	MUST NOT be determined by the number of LAN-interfaces of the CE,
