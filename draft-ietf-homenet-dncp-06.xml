@@ -612,16 +612,55 @@ and they can be queued (and jittered) freely?
 
       <section anchor="liveliness" title="Data Liveliness Validation">
 
-        <t>When a Neighbor TLV or a whole node is added or removed, the
-        topology graph MUST be traversed either immediately or with a
-        small delay shorter than the DNCP profile-defined Trickle Imin.</t>
+        <t>The topology graph MUST be traversed either immediately or with
+        a small delay shorter than the DNCP profile-defined Trickle
+        Imin, if:
 
-        <t>The topology graph traversal starts with the local node. The
-        edges to be traversed are identified by looking for Neighbor TLVs
-        on both nodes, that have the other node's node identifier in the
-        Neighbor Node Identifier, and local and neighbor endpoint
-        identifiers swapped. Each node reached is marked currently
-        reachable.</t>
+        <list style="symbols">
+          <t>A Neighbor TLV or a whole node is added or removed, or</t>
+
+          <t>the 32-bit milliseconds since origination value for node data
+          of a node overflows.</t>
+        </list>
+        </t>
+
+        <t>The topology graph traversal starts with the local node as
+        reachable. Nodes are then marked iteratively as reachable:
+        Candidate not-yet-reachable node N is marked as reachable if there
+        is a reachable node R, R's endpoint RE and N's endpoint NE that
+        match all of the following criteria:
+
+        <list style="symbols">
+
+          <t>The milliseconds since origination value for N's node data has
+          not overflown.</t>
+          <t>R publishes a Neighbor TLV with:
+          <list style="symbols">
+
+            <t>Neighbor Node Identifier = N's node identifier</t>
+
+            <t>Neighbor Endpoint Identifier = NE's endpoint
+            identifier</t>
+
+            <t>Endpoint Identifier = RE's endpoint identifier</t>
+
+          </list>
+          </t>
+
+          <t>N publishes a Neighbor TLV with:
+          <list style="symbols">
+
+            <t>Neighbor Node Identifier = R's node identifier</t>
+
+            <t>Neighbor Endpoint Identifier = RE's endpoint identifier</t>
+
+            <t>Endpoint Identifier = NE's endpoint identifier</t>
+
+          </list>
+          </t>
+        </list>
+
+        </t>
 
         <t>DNCP nodes that have not been reachable in the most recent
         topology graph traversal MUST NOT be used for calculation of the
@@ -1099,11 +1138,11 @@ and they can be queued (and jittered) freely?
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                Milliseconds Since Origination                 |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                         H(node data)                          |
+|                         H(Node Data)                          |
 |                  (length fixed in DNCP profile)               |
 ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|(optionally) Nested TLVs containing node information           |
+|       (optionally) Node Data (a set of nested TLVs)           |
 ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
             </artwork>
@@ -1111,7 +1150,7 @@ and they can be queued (and jittered) freely?
 
           <t>This TLV represents the local node's knowledge about the
           published state of a node in the DNCP network identified by the
-          Node Identifier field in the TLV.</t>
+          Node Identifier field in the TLV. </t>
 
           <t>Every node, including the originating one, MUST update the
           Milliseconds Since Origination whenever it sends a Node
@@ -1131,14 +1170,20 @@ and they can be queued (and jittered) freely?
           <!-- TODO: (MSt) ^ is there better place for this paragraph? -->
 
           <t>The actual node data of the node may be included within the
-          TLV as well. In a DNCP profile which supports fragmentation,
-          described in <xref target="fragmentation" />, the TLV data may be
-          only partial but it MUST contain full individual TLVs.
+          TLV as well in the optional Node Data field. In a DNCP profile
+          which supports fragmentation, described in <xref
+          target="fragmentation" />, the TLV data may be only partial but
+          it MUST contain full individual TLVs.
 
-          This set of TLVs MUST be strictly ordered based on ascending
+          The set of TLVs MUST be strictly ordered based on ascending
           binary content (including TLV type and length). This enables,
-          e.g., efficient state delta processing and no-copy indexing by TLV
-          type by the recipient.</t>
+          e.g., efficient state delta processing and no-copy indexing by
+          TLV type by the recipient.
+
+          The Node Data content MUST be passed along exactly as it was
+          received. It SHOULD be also verified in receipt that locally
+          calculated H(Node Data) matches the content of the field within
+          the TLV, and if the hash differs, the TLV MUST be ignored.</t>
 
         </section>
 
