@@ -358,7 +358,7 @@ and they can be queued (and jittered) freely?
         individually and statelessly, with one exception: To form
         bidirectional peer relationships DNCP requires identification of
         the endpoints used for communication. As bidirectional peer
-        relationships are required for tracing validity of published node
+        relationships are required for validating liveliness of published node
         data as described in <xref target="liveliness" />, a DNCP node MUST
         send an <xref target="endpoint">Endpoint TLV</xref>. When it is
         sent varies, depending on the underlying transport, but
@@ -562,7 +562,7 @@ and they can be queued (and jittered) freely?
               <t>If the TLV contains Node Data field, it SHOULD be also
               verified by ensuring that the locally calculated H(Node Data)
               matches the content of the H(Node Data) field within the
-              TLV. If they differ, the TLV MUST be ignored and not
+              TLV. If they differ, the TLV SHOULD be ignored and not
               processed further.</t>
 
               <t>If the TLV does not contain Node Data field, and the
@@ -647,8 +647,9 @@ and they can be queued (and jittered) freely?
         <list style="symbols">
           <t>A Neighbor TLV or a whole node is added or removed, or</t>
 
-          <t>the 32-bit milliseconds since origination value for node data
-          of a node overflows.</t>
+          <t>the origination time (in milliseconds) of some node's node
+          data is lesser than current time - 2^32 + 2^15.</t>
+
         </list>
         </t>
 
@@ -660,8 +661,9 @@ and they can be queued (and jittered) freely?
 
         <list style="symbols">
 
-          <t>The milliseconds since origination value for N's node data has
-          not overflown.</t>
+          <t>The origination time (in milliseconds) of R's node data is greater than current
+          time in - 2^32 + 2^15.</t>
+
           <t>R publishes a Neighbor TLV with:
           <list style="symbols">
 
