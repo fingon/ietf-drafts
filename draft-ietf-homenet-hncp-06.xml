@@ -705,8 +705,8 @@ I writing an essay on this. :-p)
             <t>If the considered delegated prefix is an IPv6 prefix, and
             whenever there is at least one available prefix of length 64, a
             prefix of length 64 MUST be selected unless configured
-            otherwise by an administrator. In case no prefix of length 64
-            would be available, a longer prefix MAY be selected.</t>
+            otherwise. In case no prefix of length 64 would be available, a
+            longer prefix MAY be selected even without configuration.</t>
 
             <t>If the considered delegated prefix is an IPv4 prefix (<xref
             target="ula" /> details how IPv4 delegated prefixes are
