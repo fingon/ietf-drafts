@@ -165,6 +165,15 @@ and they can be queued (and jittered) freely?
 
       <c /><c />
 
+      <c>Address</c>
+
+      <c>As DNCP itself is relatively transport agnostic, an address in
+      this specification denotes just something that identifies an endpoint
+      used by the transport protocol employed by a DNCP-based protocol. For
+      example, in case of IPv6 UDP transport, an address in this
+      specification actually means (IPv6, UDP port) tuple.
+      </c>
+
       <c>Endpoint</c>
 
       <c>a locally configured communication endpoint of a DNCP node, such
