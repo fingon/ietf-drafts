@@ -348,16 +348,20 @@ and they can be queued (and jittered) freely?
         data as described in <xref target="liveliness" />, a DNCP node that
         wishes to publish it's own node data or use more than one endpoint
         MUST send an <xref target="endpoint">Endpoint TLV</xref>. When it
-        is sent varies, depending on the underlying transport:
+        is sent varies, depending on the underlying transport, but
+        conceptually it should be available whenever processing a
+        Network State TLV:
 
         <list style="symbols">
 
           <t>If using a stream transport, the TLV MUST be sent at least
           once, and it SHOULD be sent only once. </t>
 
-          <t>If using a datagram transport, it MUST be included in every
-          datagram with a Network State TLV, and it SHOULD be included
-          otherwise as well.</t>
+          <t>If using a datagram transport,it MUST be included in every
+          datagram with a Network State TLV, it MUST be also before any
+          Network State TLV in the datagram, and it SHOULD be included
+          otherwise as well even if datagram contains no Network State
+          TLV as it speeds up initial peer detection.</t>
         </list>
         </t>
 
