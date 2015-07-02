@@ -4,7 +4,7 @@
 # Author: Markus Stenberg <markus stenberg@iki.fi>
 #
 # Created:       Mon Jun 17 04:40:32 2013 mstenber
-# Last modified: Wed Jun 17 19:35:05 2015 mstenber
+# Last modified: Thu Jul  2 10:26:42 2015 mstenber
 # Edit time:     26 min
 #
 
@@ -39,4 +39,4 @@ push: all
 	rsync -a draft*.txt employees.org:WWW
 
 clean:
-	rm -f *.txt *.html
+	rm -f *.txt *.html *~
