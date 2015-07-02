@@ -311,7 +311,7 @@ and they can be queued (and jittered) freely?
         <t>The leaves and the root network state hash are updated on-demand
         and whenever any locally stored per-node state changes. This
         includes local unidirectional reachability encoded in the published
-        <xref target="neighbor">Neighbor TLV</xref>s and - when combined
+        <xref target="neighbor">Neighbor TLVs</xref> and - when combined
         with remote data - results in awareness of bidirectional
         reachability changes.</t>
 
@@ -341,25 +341,24 @@ and they can be queued (and jittered) freely?
         <t>TLVs are sent across the transport as is, and they SHOULD be
         sent together where, e.g., MTU considerations do not recommend
         sending them in multiple batches. TLVs in general are handled
-        individually and statelessly, with one exception. To form
+        individually and statelessly, with one exception: To form
         bidirectional peer relationships DNCP requires identification of
-        the endpoints used for communication. A DNCP node desiring
-        bidirectional peer relationship therefore MUST send an <xref
-        target="endpoint">Endpoint TLV</xref>. When it is sent varies,
-        depending on the underlying transport:
+        the endpoints used for communication. As bidirectional peer
+        relationships are required for tracing validity of published node
+        data as described in <xref target="liveliness" />, a DNCP node that
+        wishes to publish it's own node data or use more than one endpoint
+        MUST send an <xref target="endpoint">Endpoint TLV</xref>. When it
+        is sent varies, depending on the underlying transport:
 
         <list style="symbols">
 
-          <t>If using a stream transport, the TLV SHOULD be sent only once
-          within the stream. </t>
+          <t>If using a stream transport, the TLV MUST be sent at least
+          once, and it SHOULD be sent only once. </t>
 
-          <t>If using datagram transport, it MUST be included in every
-          datagram.</t>
+          <t>If using a datagram transport, it MUST be included in every
+          datagram with a Network State TLV, and it SHOULD be included
+          otherwise as well.</t>
         </list>
-
-        Bidirectional peer
-        relationship is not necessary for read-only access to the DNCP
-        state, but it is required to be able to publish data.
         </t>
 
         <t>Given the assorted transport options as well as potential
@@ -375,7 +374,7 @@ and they can be queued (and jittered) freely?
               not used at all. Where Trickle reset occurs, a single
               <xref target="net-state">Network State TLV</xref> is sent
               instead to every unicast peer. Additionally, recently changed
-              <xref target="node-state">Node State TLV</xref>s MAY be
+              <xref target="node-state">Node State TLVs</xref> MAY be
               included. </t>
 
               <t>If only unreliable unicast transport is employed, Trickle
