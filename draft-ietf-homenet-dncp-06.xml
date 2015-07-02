@@ -273,19 +273,20 @@ and they can be queued (and jittered) freely?
       manually configured or they may be found by some other means defined
       in a later specification.</t>
 
-      <t>A Merkle tree is maintained by each node to represent the state of all
-      currently reachable nodes and the Trickle algorithm is used to trigger
-      synchronization. Consistency among neighboring nodes
-      is thereby determined by comparing the current root of their respective
-      trees, i.e., their individually calculated network state hashes.</t>
+      <t>A Merkle tree is maintained by each node to represent the state of
+      all currently reachable nodes and the Trickle algorithm is used to
+      trigger synchronization. The need to check each other for state
+      changes among neighboring nodes is thereby determined by comparing
+      the current root of their respective trees, i.e., their individually
+      calculated network state hashes.</t>
 
       <t>Before joining a DNCP network, a node starts with a Merkle tree
       (and therefore a calculated network state hash) only consisting of
       the node itself. It then announces said hash by means of the Trickle
       algorithm on all its configured endpoints.</t>
 
-      <t>When an update is detected by a node (e.g., by receiving an
-      inconsistent network state hash from a peer) the originator of the
+      <t>When an update is detected by a node (e.g., by receiving a
+      different network state hash from a peer) the originator of the
       event is requested to provide a list of the state of all nodes,
       i.e., all the information it uses to calculate its own Merkle
       tree. The node uses the list to determine whether its own information
@@ -370,11 +371,12 @@ and they can be queued (and jittered) freely?
           <t>If using a stream transport, the TLV MUST be sent at least
           once, and it SHOULD be sent only once. </t>
 
-          <t>If using a datagram transport,it MUST be included in every
-          datagram with a Network State TLV, it MUST be also before any
-          Network State TLV in the datagram, and it SHOULD be included
-          otherwise as well even if datagram contains no Network State
-          TLV as it speeds up initial peer detection.</t>
+          <t>If using a datagram transport, it MUST be included in every
+          datagram with a <xref target="net-state">Network State
+          TLV</xref>, it MUST be also before any Network State TLV in the
+          datagram, and it SHOULD be included otherwise as well even if
+          datagram contains no Network State TLV as it speeds up initial
+          peer detection.</t>
         </list>
         </t>
 
@@ -388,11 +390,11 @@ and they can be queued (and jittered) freely?
             <list style="symbols">
 
               <t>If only reliable unicast transport is employed, Trickle is
-              not used at all. Where Trickle reset occurs, a single
-              <xref target="net-state">Network State TLV</xref> is sent
-              instead to every unicast peer. Additionally, recently changed
-              <xref target="node-state">Node State TLVs</xref> MAY be
-              included. </t>
+              not used at all. Where Trickle reset has been specified, a
+              single <xref target="net-state">Network State TLV</xref> is
+              sent instead to every unicast peer. Additionally, recently
+              changed <xref target="node-state">Node State TLVs</xref> MAY
+              be included. </t>
 
               <t>If only unreliable unicast transport is employed, Trickle
               state is kept per each peer and it is used to send Network
@@ -432,7 +434,10 @@ and they can be queued (and jittered) freely?
         inconsistent and reset if and only if the locally calculated
         network state hash changes. This occurs either due to a change in
         the local node's own node data, or due to receipt of more recent
-        data from another node.</t>
+        data from another node. A node MUST NOT reset it's Trickle state
+        based on just receiving a <xref target="net-state">Network State
+        TLV</xref> with different network state hash than the locally
+        calculated one.</t>
 
         <t>Every time a particular Trickle instance indicates that an
         update should be sent, the node MUST send a <xref
@@ -473,7 +478,7 @@ and they can be queued (and jittered) freely?
         of replies MAY also be rate-limited or
         omitted for a short period of time by an implementation. However, an
         implementation MUST eventually reply to similar repeated requests,
-        as otherwise state synchronization would break.</t>
+        as otherwise state synchronization breaks.</t>
 
         <t>A DNCP node MUST process TLVs received from any valid address,
         as specified by the DNCP profile and the configuration of a
@@ -544,7 +549,7 @@ and they can be queued (and jittered) freely?
               (local sequence number is less than that within the
               TLV).</t>
 
-              <t>The local information is potentially incorrect (local 
+              <t>The local information is potentially incorrect (local
               sequence number matches but the node data hash differs).</t>
 
               <t>There is no data for that node altogether.</t>
@@ -555,14 +560,22 @@ and they can be queued (and jittered) freely?
 
             <list style="symbols">
 
-              <t>If the TLV does not contain node data, and the hash of the
-              node data differs, the receiver MUST reply with a <xref
-              target="req-node-state">Request Node State TLV</xref> for the
-              corresponding node.</t>
+              <t>If the TLV contains Node Data field, it SHOULD be also
+              verified by ensuring that the locally calculated H(Node Data)
+              matches the content of the H(Node Data) field within the
+              TLV. If they differ, the TLV MUST be ignored and not
+              processed further.</t>
+
+              <t>If the TLV does not contain Node Data field, and the
+              H(Node Data) field within the TLV differs from the local node
+              data hash for that node (or there is none), the receiver MUST
+              reply with a <xref target="req-node-state">Request Node State
+              TLV</xref> for the corresponding node.</t>
 
               <t>Otherwise the receiver MUST update its locally stored
-              state for that node (node data if present, sequence
-              number, relative time) to match the received TLV.</t>
+              state for that node (node data based on Node Data field if
+              present, sequence number, relative time) to match the
+              received TLV.</t>
             </list>
             </t>
 
@@ -780,8 +793,8 @@ and they can be queued (and jittered) freely?
         (authenticated and authorized, if security is enabled).</t>
 
         <t>Trickle instance: the particular peer's Trickle instance with
-        parameters I, T, and c (only on a unicast-only endpoint with
-        unreliable unicast transport) .</t>
+        parameters I, T, and c (only on an endpoint in Unicast mode, when
+        using unreliable unicast transport) .</t>
 
       </list>
       </t>
@@ -966,17 +979,18 @@ and they can be queued (and jittered) freely?
 
       <section anchor="fragmentation" title="Node Data Fragmentation">
 
-        <t>A DNCP profile may be required to support node data which would
-        not fit the maximum size of a single <xref target="node-state">Node
-        State TLV</xref> (roughly 64KB of payload), or use a datagram-only
-        transport with a limited MTU and no reliable support for
-        fragmentation. To handle such cases, a DNCP profile MAY specify a
-        fixed number of trailing bytes in the node identifier to represent
-        a fragment number indicating a part of a node's node data. The
-        profile MAY also specify an upper bound for the size of a single
-        fragment to accommodate limitations of links in the network. Note
-        that the maximum size of fragment also constrains the maximum size
-        of a single TLV published by a node. </t>
+        <t>A DNCP-based protocol may be required to support node data which
+        would not fit the maximum size of a single <xref
+        target="node-state">Node State TLV</xref> (roughly 64KB of
+        payload), or use a datagram-only transport with a limited MTU and
+        no reliable support for fragmentation. To handle such cases, a DNCP
+        profile MAY specify a fixed number of trailing bytes in the node
+        identifier to represent a fragment number indicating a part of a
+        node's node data. The profile MAY also specify an upper bound for
+        the size of a single fragment to accommodate limitations of links
+        in the network. Note that the maximum size of fragment also
+        constrains the maximum size of a single TLV published by a
+        node. </t>
 
         <t>The data within Node State TLVs of all fragments MUST be valid,
         as specified in <xref target="node-state" />. The locally used node
