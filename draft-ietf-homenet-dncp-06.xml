@@ -309,9 +309,9 @@ and they can be queued (and jittered) freely?
         state updates of individual DNCP nodes, the leaves of the tree, and
         the network as a whole, the root of the tree.</t>
 
-        <t>Each leaf represents one recently bidirectionally reachable node
-        (see <xref target="liveliness" />), and is represented by a tuple
-        consisting of the node's sequence number in network byte
+        <t>Each leaf represents one recently bidirectionally reachable DNCP
+        node (see <xref target="liveliness" />), and is represented by a
+        tuple consisting of the node's sequence number in network byte
         order concatenated with the hash-value of the node's ordered node
         data published in the <xref target="node-state">Node State
         TLV</xref>. These leaves are ordered in ascending order of the
@@ -359,12 +359,11 @@ and they can be queued (and jittered) freely?
         bidirectional peer relationships DNCP requires identification of
         the endpoints used for communication. As bidirectional peer
         relationships are required for tracing validity of published node
-        data as described in <xref target="liveliness" />, a DNCP node that
-        wishes to publish it's own node data or use more than one endpoint
-        MUST send an <xref target="endpoint">Endpoint TLV</xref>. When it
-        is sent varies, depending on the underlying transport, but
-        conceptually it should be available whenever processing a
-        Network State TLV:
+        data as described in <xref target="liveliness" />, a DNCP node MUST
+        send an <xref target="endpoint">Endpoint TLV</xref>. When it is
+        sent varies, depending on the underlying transport, but
+        conceptually it should be available whenever processing a Network
+        State TLV:
 
         <list style="symbols">
 
@@ -1125,9 +1124,7 @@ and they can be queued (and jittered) freely?
           </figure>
 
           <t>This TLV identifies both the local node's node identifier, as
-          well as the particular endpoint's endpoint identifier. It is used
-          when bidirectional peering is desired, as described in the <xref
-          target="dt" />. </t>
+          well as the particular endpoint's endpoint identifier.</t>
 
         </section>
         <section anchor="net-state" title="Network State TLV">
@@ -1730,6 +1727,43 @@ and they can be queued (and jittered) freely?
       <?rfc include="reference.RFC.3493.xml"?>
       <?rfc include="reference.RFC.6234.xml"?>
     </references>
+
+    <section title="Alternative Modes of Operation">
+
+      <t>Beyond what is described in the main text, the protocol allows for
+      other uses. These are provided as examples.</t>
+
+      <section title="Read-only Operation">
+
+        <t>If a node uses just a single endpoint and does not need to
+        publish any TLVs, full DNCP node functionality is not
+        required. Such limited node can acquire and maintain view of the
+        TLV space by implementing the processing logic as as specified in
+        <xref target="reception" />. Such node would not need Trickle,
+        peer-maintenance or even keep-alives at all, as the DNCP nodes' use
+        of it would guarantee eventual receipt network state hashes, and
+        synchronization of node data, even in presence of unreliable
+        transport.</t>
+
+      </section>
+
+      <section title="Forwarding Operation">
+
+        <t>If a node with a pair of endpoints does not need to publish any
+        TLVs, it can detect (for example) highest node identifier nodes on
+        each of the endpoints (if any). Any TLVs received from one of them
+        would be forwarded verbatim as unicast to the other highest
+        identifier node.</t>
+
+        <t>Any tinkering with the TLVs would remove guarantees of this
+        scheme working; passive monitoring would be obviously fine. This
+        type of simple forwarding cannot be chained, as it does not send
+        anything proactively. </t>
+
+      </section>
+
+    </section>
+
 
     <section title="Some Questions and Answers [RFC Editor: please remove]">
 
