@@ -1266,7 +1266,7 @@ I writing an essay on this. :-p)
       <t>
           <list style="hanging">
               <t hangText="Version:">Indicates which version of HNCP is
-                  currently in use by this particular node. It MUST be set to 0.
+                  currently in use by this particular node. It MUST be set to 1.
                   Nodes with different versions are considered incompatible.
               </t>
 
@@ -1524,6 +1524,9 @@ I writing an essay on this. :-p)
     </references>
 
     <section title="Changelog [RFC Editor: please remove]">
+
+      <t>draft-ietf-homenet-hncp-07: Using version 1 instead of version 0,
+      as existing implementations already use it.</t>
 
       <t>draft-ietf-homenet-hncp-06: Various edits based on feedback,
       hopefully without functional delta.</t>
