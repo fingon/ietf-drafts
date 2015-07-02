@@ -61,7 +61,7 @@ and they can be queued (and jittered) freely?
       (DNCP), a generic state synchronization protocol which uses Trickle
       and Merkle trees. DNCP leaves some details unspecified or
       provides alternative options. Therefore, only profiles which specify
-      those missing parts define actual implementable DNCP based
+      those missing parts define actual implementable DNCP-based
       protocols.</t>
 
     </abstract>
@@ -109,17 +109,30 @@ and they can be queued (and jittered) freely?
 
 	<c>DNCP profile</c>
 
-	<c>a definition of the set of rules and values listed in <xref
-	target="profile-bits"/> specifying the behavior of a DNCP based
-	protocol, such as the transport method in use. In this document,
-	any DNCP profile specific parameter with a profile-specific
-	fixed value is prefixed with DNCP_.</c>
+	<c>a definition of the set of rules and values specifying the
+	behavior of a fully specified, implementable protocol which uses
+	DNCP.
+
+        The DNCP profile specifies transport method to be used, which
+        optional parts of the DNCP specification are required by that
+        particular protocol, and various parameters and optional behaviors.
+
+        In this document, any parameters that a DNCP profile specifies are
+        prefixed with DNCP_.
+
+        Contents of a DNCP profile are specified in
+        <xref target="profile-bits"/>. </c>
 
       <c /><c />
 
+      <c>DNCP-based protocol</c>
+
+      <c>a protocol which provides a DNCP profile, and potentially much
+      more - for example, protocol-specific TLVs and guidance on how they
+      should be used. </c>
+
       <c>DNCP node</c>
-      <c>a single node which runs a protocol based on a DNCP
-      profile.</c>
+      <c>a single node which runs a DNCP-based protocol.</c>
 
       <c /><c />
 
@@ -129,11 +142,11 @@ and they can be queued (and jittered) freely?
 
       <c>DNCP network</c>
 
-      <c>a set of DNCP nodes running the same DNCP profile.
+      <c>a set of DNCP nodes running the same DNCP-based protocol.
 
       The set consists of nodes that have discovered each other using the
-      transport method defined in the DNCP profile, via multicast on local
-      links, and/or by using unicast communication.
+      transport method defined in the DNCP profile, via multicast
+      on local links, and/or by using unicast communication.
       </c>
 
       <c /><c />
@@ -166,8 +179,8 @@ and they can be queued (and jittered) freely?
       <c>Endpoint identifier</c>
 
       <c>a 32-bit opaque value, which identifies a particular endpoint of
-      a particular DNCP node. The value 0 is reserved for DNCP and DNCP
-      profile purposes and not used to identify an actual
+      a particular DNCP node. The value 0 is reserved for DNCP and DNCP-based
+      protocol purposes and not used to identify an actual
       endpoint. This definition is in sync with the interface index
       definition in <xref target="RFC3493"/>, as the non-zero small
       positive integers should comfortably fit within 32 bits.</c>
@@ -297,7 +310,7 @@ and they can be queued (and jittered) freely?
 
         <t>Each leaf represents one recently bidirectionally reachable node
         (see <xref target="liveliness" />), and is represented by a tuple
-        consisting of the node's update sequence number in network byte
+        consisting of the node's sequence number in network byte
         order concatenated with the hash-value of the node's ordered node
         data published in the <xref target="node-state">Node State
         TLV</xref>. These leaves are ordered in ascending order of the
@@ -463,7 +476,7 @@ and they can be queued (and jittered) freely?
         as otherwise state synchronization would break.</t>
 
         <t>A DNCP node MUST process TLVs received from any valid address,
-        as specified by a given DNCP profile and the configuration of a
+        as specified by the DNCP profile and the configuration of a
         particular endpoint, whether this address is known to be the
         address of a neighbor or not. This provision satisfies the needs of
         monitoring or other host software that needs to discover the DNCP
@@ -508,13 +521,13 @@ and they can be queued (and jittered) freely?
           <list style="symbols">
 
             <t>If the node identifier matches the local node identifier and
-            the TLV has a greater update sequence number than its current
-            local value, or the same update sequence number and a different
+            the TLV has a greater sequence number than its current
+            local value, or the same sequence number and a different
             hash, the node SHOULD re-publish its own node data with an
-            update sequence number significantly (e.g., 1000) greater than
+            sequence number significantly (e.g., 1000) greater than
             the received one, to reclaim the node identifier.
             This may occur normally once due to the local
-            node restarting and not storing the most recently used update
+            node restarting and not storing the most recently used
             sequence number. If this occurs more than once or for nodes
             not re-publishing their own node data, the DNCP profile
             MUST provide guidance on how to handle these situations as
@@ -528,10 +541,10 @@ and they can be queued (and jittered) freely?
             <list style="symbols">
 
               <t>The local information is outdated for the corresponding node
-              (local update sequence number is less than that within the
+              (local sequence number is less than that within the
               TLV).</t>
 
-              <t>The local information is potentially incorrect (local update
+              <t>The local information is potentially incorrect (local 
               sequence number matches but the node data hash differs).</t>
 
               <t>There is no data for that node altogether.</t>
@@ -548,7 +561,7 @@ and they can be queued (and jittered) freely?
               corresponding node.</t>
 
               <t>Otherwise the receiver MUST update its locally stored
-              state for that node (node data if present, update sequence
+              state for that node (node data if present, sequence
               number, relative time) to match the received TLV.</t>
             </list>
             </t>
@@ -557,7 +570,7 @@ and they can be queued (and jittered) freely?
           </list>
 
 
-          For comparison purposes of the update sequence number,
+          For comparison purposes of the sequence number,
           a looping comparison function MUST be used to avoid problems in
           case of overflow. The comparison function
           a &lt; b &lt;=&gt; (a - b) % 2^32 &amp; 2^31 != 0
@@ -705,20 +718,20 @@ and they can be queued (and jittered) freely?
 
         <t>Node identifier: the unique identifier of the node. The length,
         how it is produced, and how collisions are handled, is up to the
-        particular DNCP profile.</t>
+        DNCP profile.</t>
 
         <t>Node data: the set of TLV tuples published by that particular
         node. As they are transmitted ordered (see <xref
         target="node-state">Node State TLV</xref> for details), maintaining
         the order within the data structure here may be reasonable. </t>
 
-        <t>Latest update sequence number: the 32-bit sequence number that
+        <t>Latest sequence number: the 32-bit sequence number that
         is incremented any time the TLV set is published. The comparison
         function used to compare them is described in <xref
         target="reception" />.</t>
 
         <t>Origination time: the (estimated) time when the
-        current TLV set with the current update sequence number was
+        current TLV set with the current sequence number was
         published.
 
         It is used to populate the Milliseconds Since Origination field in
@@ -779,7 +792,7 @@ and they can be queued (and jittered) freely?
     <section anchor="ext" title="Optional Extensions">
 
       <t>This section specifies extensions to the core protocol that a DNCP
-      profile may use.</t>
+      profile may specify to be used.</t>
 
       <section anchor="ka" title="Keep-Alives">
 
@@ -921,7 +934,7 @@ and they can be queued (and jittered) freely?
         Main consideration when selecting a bound (if any)
         for a particular type of link should be whether it supports
         broadcast traffic, and whether a too large number of neighbors case
-        is likely to happen during the use of that particular DNCP profile
+        is likely to happen during the use of that DNCP profile
         on that particular type of link. If neither is likely, there is little
         point specifying support for this for that particular link
         type.</t>
@@ -1112,8 +1125,8 @@ and they can be queued (and jittered) freely?
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |    Type: NETWORK-STATE (4)    |          Length: > 0          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|      H(update number of node 1 .. H(node data of node 1) ..   |
-|     .. update number of node N .. H(node data of node N))     |
+|     H(sequence number of node 1 .. H(node data of node 1) ..  |
+|    .. sequence number of node N .. H(node data of node N))    |
 |                  (length fixed in DNCP profile)               |
 ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1137,7 +1150,7 @@ and they can be queued (and jittered) freely?
 |                  (length fixed in DNCP profile)               |
 ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                    Update Sequence Number                     |
+|                       Sequence Number                         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                Milliseconds Since Origination                 |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1643,13 +1656,13 @@ and they can be queued (and jittered) freely?
 
     <section title="Security Considerations">
 
-      <t>DNCP profiles may use multicast to indicate DNCP state changes and
-      for keep-alive purposes. However, no actual published data TLVs will
-      be sent across that channel. Therefore an attacker may only learn
-      hash values of the state within DNCP and may be able to trigger
-      unicast synchronization attempts between nodes on a local link this
-      way. A DNCP node should therefore rate-limit its reactions to
-      multicast packets.</t>
+      <t>DNCP-based protocols may use multicast to indicate DNCP state
+      changes and for keep-alive purposes. However, no actual published
+      data TLVs will be sent across that channel. Therefore an attacker may
+      only learn hash values of the state within DNCP and may be able to
+      trigger unicast synchronization attempts between nodes on a local
+      link this way. A DNCP node should therefore rate-limit its reactions
+      to multicast packets.</t>
 
       <t>When using DNCP to bootstrap a network, PKI based solutions may have
       issues when validating certificates due to potentially unavailable
@@ -1823,8 +1836,8 @@ and they can be queued (and jittered) freely?
     <section title="Acknowledgements">
 
       <t>Thanks to Ole Troan, Pierre Pfister, Mark Baugher, Mark Townsley,
-      Juliusz Chroboczek, Jiazi Yi, Mikael Abrahamsson, Brian Carpenter and
-      Thomas Clausen for their contributions to the draft.</t>
+      Juliusz Chroboczek, Jiazi Yi, Mikael Abrahamsson, Brian Carpenter,
+      Thomas Clausen and DENG Hui for their contributions to the draft.</t>
 
     </section>
 
