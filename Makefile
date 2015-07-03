@@ -4,14 +4,15 @@
 # Author: Markus Stenberg <markus stenberg@iki.fi>
 #
 # Created:       Mon Jun 17 04:40:32 2013 mstenber
-# Last modified: Thu Jul  2 10:26:42 2015 mstenber
-# Edit time:     26 min
+# Last modified: Fri Jul  3 09:28:48 2015 mstenber
+# Edit time:     27 min
 #
 
 DRAFTS=\
-  draft-ietf-homenet-hybrid-proxy-zeroconf-00.txt \
   draft-stenberg-homenet-minimalist-pcp-proxy-01.txt \
+  draft-stenberg-shsp-00.txt \
   draft-stenberg-anima-adncp-00.txt \
+  draft-ietf-homenet-hybrid-proxy-zeroconf-00.txt \
   draft-ietf-homenet-dncp-06.txt \
   draft-ietf-homenet-hncp-06.txt \
 

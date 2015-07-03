@@ -1,0 +1,251 @@
+<?xml version='1.0' ?>
+<!--
+Created:       Fri Jul  3 08:40:24 2015 mstenber
+Last modified: Fri Jul  3 09:32:32 2015 mstenber
+Edit time:     48 min
+-->
+
+<!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
+
+<?rfc autobreaks="yes"?>
+<?rfc compact="yes"?>
+<?rfc strict='yes'?>
+<?rfc subcompact="no"?>
+<?rfc symrefs="yes"?>
+<?rfc toc="yes"?>
+<?rfc tocindent="yes"?>
+
+<rfc
+    ipr='trust200902'
+    docName='draft-stenberg-shsp-00'
+    category='exp'
+    >
+  <front>
+    <title abbrev="Simple Home Status Protocol">
+      Simple Home Status Protocol
+    </title>
+    <author initials="M" surname="Stenberg" fullname="Markus Stenberg">
+      <address>
+        <postal>
+          <street/>
+          <city>Helsinki</city>
+          <code>00930</code>
+          <country>Finland</country>
+        </postal>
+        <email>markus.stenberg@iki.fi</email>
+      </address>
+    </author>
+    <date month="Jul" year="2015" />
+    <keyword>Homenet(??)</keyword>
+    <abstract>
+
+      <t>This document describes yet another DNCP-based protocol, which
+      uses HNCP-style transport, yet intentionally is incompatible with it
+      so that TLVs of SHSP and HNCP can be handled using same transport
+      channel and de/encoders, but individual implementations of the
+      different protocols can ignore each other unless they support both
+      protocols.
+
+      </t>
+
+    </abstract>
+  </front>
+  <middle>
+    <section title="Introduction">
+
+      <t>In spirit of House Arkko Toaster/Laundry/et al, House Stenberg
+      also has needs, although they are mostly related to various sensors,
+      control of lights and various appliances.
+
+      This leads to a a number of devices that need to discover each other,
+      and share state and code (ideally) without central authorities, in fault
+      tolerant fashion. And obviously it is also nice to have a log of what
+      has occurred, and maintain software state in a distributed
+      fashion. There are also some security needs; control of appliances
+      can be a serious hazard if security is not addressed appropriately.
+
+      SHSP is an attempt to produce a solution to address these needs.</t>
+
+
+      <t>TBD: The long form of the acronym is actually misleading, as it is
+      more about independent agents rampaging in home network, sharing
+      state as they go. Figure a better name?</t>
+
+    </section>
+    <section anchor="kwd" title='Requirements language'>
+
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+      NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
+      "OPTIONAL" in this document are to be interpreted as described in
+      <xref target='RFC2119'>RFC 2119</xref>.</t>
+
+    </section>
+
+
+    <section title="DNCP Profile">
+
+      <t>The core of how TLVs are synchronized in SHSP is <xref
+      target="I-D.ietf-homenet-dncp"> DNCP</xref>; due to laziness, DNCP
+      profile of <xref target="I-D.ietf-homenet-hncp">HNCP</xref> is used
+      as is. Despite the reuse of the transport and DNCP core logic, NONE
+      of the HNCP TLVs are part of SHSP.</t>
+
+      <t>Only difference from HNCP transport is the security methods; SHSP
+      MUST NOT be used in insecure mode.</t>
+
+      <t>TBD: This may change to 'lite' version, with it's own non-TLS/DTLS
+      transport if some small devices will not live with DTLS footprint as
+      House Stenberg can deal with simple PSKs + sha256 authentication or
+      something, confidentiality is not a requirement here.</t>
+    </section>
+
+    <section title="Overview">
+
+      <t>At it's core, SHSP provides a distributed key-value store, with
+      each node having consistent view of the whole database. Essentially,
+      the database provides view of ((int) node identifier, (string) key,
+      (json-encodable) value, (UTC second)last changed) pairs for
+      any participant interested in viewing it.</t>
+
+      <t>Based on the key-value store, SHSP protocol implementations can
+      e.g. maintain a shared set of Python based agents as described in
+      <xref target="pa" />, or do more or less any other arbitrary thing
+      they care about, within limits; as HNCP transport is reused, the
+      total amount of node data published by a node SHOULD NOT exceed 4000
+      bytes, and MUST NOT (obviously) exceed ~64k limit set by UDP.</t>
+      
+    </section>
+
+    <section anchor="pa" title="Python Agents">
+
+        <t>Within SHSP key-value store, there are some specific keys that
+        are reserved for specific things. One of them are Python-based
+        agents, which compromise of a fully self-contained Python set of
+        modules that can be run as a daemon (and also access SHSP state):
+
+        <list style="symbols">
+
+          <t>system-information: JSON dictionary with human readable
+          content about the node.</t>
+
+          <t>power: An integer value which roughly expresses the
+          computation power of the device. It is used as tie-breaker if
+          only single instance of an agent is desired.</t>
+          
+          <t>python-agent: JSON dictionary containing name, url and hash keys,
+          which describe the logical name (which includes version) url
+          where the package can be found, and finally hash used to verify
+          the download.</t>
+
+          <t>run-python-agent: JSON dictionary containing:
+          <list style="symbols">
+            <t>name: specifies a name of the python-agent to be run</t>
+
+            <t>node-specification: a dictionary which specifies which nodes
+            should run the agent. A node MUST run an instance of the agent
+            if and only if the intersection of node-specification and
+            published system-information equals node-specification.</t>
+
+            <t>(optional) copies: number of copies to run at most; if more are
+            available than required, 'power' (and then node identifier) are
+            used as tie breakers; greater power wins, and then greater node
+            identifier. If a node determines it is not within the
+            top-copies of nodes that match, it MUST NOT run the agent.</t>
+
+          </list>
+          </t>
+
+        </list>
+          
+        </t>
+    </section>
+
+    <section title="Sensor Data">
+
+      <t>TBD: Describe how sensors publish their data (format is still in
+      flux)</t>
+      
+    </section>
+
+    <section anchor="tlvs" title="Type-Length-Value Objects">
+      <t>
+        SHSP defines following TLVs for it's own use.
+      </t>
+      <section title="SHSP Version TLV">
+        <t>
+          TBD: ASCII art
+          <list style="symbols">
+            <t>T=100</t>
+            <t>V=reserved for now; MUST be empty when sent, MUST accept
+            anything</t>
+          </list>
+          This TLV is used to identify other speakers of SHSP that talk
+          the version of the protocol that is compatible with this
+          specification.
+        </t>
+        
+        </section>
+
+      <section title="SHSP Key-Value State TLV">
+        <t>
+          TBD: ASCII art
+          <list style="symbols">
+            <t>T=101</t>
+            <t>V=
+            JSON-encoded string, containing a dictionary with:
+            <list style="symbols">
+
+              <t>timestamp: when was the value most recently changed;
+              number, expressed in seconds, UTC since UNIX epoch</t>
+
+              <t>key: name of the key</t>
+
+              <t>value: the value of the key (any acceptable Json)</t>
+            </list>
+            TBD: Encode using non-JSON?
+            </t>
+          </list>
+        </t>
+        </section>
+
+    </section>
+    
+    <section title="Security Considerations">
+
+      <t>As SHSP can only be used with DTLS-secured transport, same caveats
+      apply. Even then, care should be taken with e.g.  management of the
+      PSKs as insecure access to devices that control light and power is a
+      bad idea.</t>
+
+    </section>
+    <section title="IANA Considerations">
+      <t>This document has no actions for IANA.</t>
+      <t>TBD: Steal chunk of HNCP option space for SHSP</t>
+    </section>
+    
+  </middle>
+  <back>
+    <references title="Normative references">
+      <?rfc include="reference.RFC.2119.xml"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-dncp-06.xml"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-hncp-06.xml"?>
+    </references>
+    <!-- <references title="Informative references"> -->
+    <!-- </references> -->
+    <section title="Changelog">
+      <t>First version!</t>
+    </section>
+
+    <section title="Draft source">
+      <t>As usual, this draft is available at <eref
+      target="https://github.com/fingon/ietf-drafts/">https://github.com/fingon/ietf-drafts/</eref>
+      in source format (with nice Makefile too). Feel free to send comments
+      and/or pull requests if and when you have changes to it! </t>
+    </section>
+
+    <section title="Acknowledgements">
+      <t>None yet, want to be the first?</t>
+    </section>
+
+  </back>
+</rfc>
