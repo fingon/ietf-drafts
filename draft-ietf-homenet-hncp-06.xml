@@ -461,13 +461,14 @@ I writing an essay on this. :-p)
           </t>
         </section>
 
-		<section title="Prefix Domain TLV">
+		<section anchor="prefixdomain" title="Prefix Domain TLV">
           <t>The Prefix Domain TLV contains information about the origin and
           applicability of a delegated prefix. This information can be used
           to determine whether prefixes for a certain domain (e.g. local
           reachability, internet connectivity) do exist or should be acquired
           and to make decisions about assigning prefixes to certain links or
-          to fine-tune border firewalls.</t>
+          to fine-tune border firewalls. See <xref target="specialpurpose"/>
+          for a more in-depth discussion.</t>
 
           <figure>
             <artwork>
@@ -477,7 +478,7 @@ I writing an essay on this. :-p)
 |    Type: PREFIX-DOMAIN (43)   |          Length: >= 1         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |  Domain Type  |                                               |
-+-+-+-+-+-+-+-+-+                   Domain ID                   +
++-+-+-+-+-+-+-+-+                    Value                      +
 |                                                               |
             </artwork>
           </figure>
@@ -487,16 +488,18 @@ I writing an essay on this. :-p)
               <t hangText="Domain Type: ">The type of the domain identifier.
                 <list style="hanging">
                       <t hangText="0      :">Internet connectivity
-                      (domain ID is empty).</t>
+                      (no Value).</t>
                       <t hangText="1-128  :">Explicit destination prefix with the
                           Domain Type being the actual length of the prefix
-                      (Domain ID contains significant bits of the destination prefix
+                      (Value contains significant bits of the destination prefix
                       padded with zeroes up to the next byte boundary).</t>
-                      <t hangText="129    :">UTF-8 String (e.g. FQDN).</t>
-                      <t hangText="130-255:">Reserved for future additions.</t>
+                      <t hangText="129    :">DNS Zone (Value contains an <xref
+            target="RFC1035">RFC 1035</xref> encoded DNS label sequence).</t>
+                      <t hangText="130    :">Opaque UTF-8 string (e.g. for administrative purposes).</t>
+                      <t hangText="131-255:">Reserved for future additions.</t>
                   </list></t>
 
-              <t hangText="Domain Identifier: ">A variable length identifier
+              <t hangText="Value: ">A variable length identifier
               of the given type.</t>
             </list>
           </t>
@@ -683,7 +686,7 @@ I writing an essay on this. :-p)
 
 
 
-          <section title="Making New Assignments">
+          <section anchor="assign" title="Making New Assignments">
             <t>Whenever the Prefix Assignment Algorithm subroutine is run on a
             Common Link and whenever a new prefix may be assigned (case 1
             of the subroutine), the decision of whether the assignment of a new
@@ -791,11 +794,20 @@ I writing an essay on this. :-p)
         <section title="Node Address Assignment" anchor="node-addr">
           <t>This section specifies how HNCP nodes reserve addresses for their
           own use. Nodes MAY, at any time, try to reserve a new address from any
-          applied Assigned Prefix. SLAAC SHOULD be used whenever possible.
-          The following method MUST be used otherwise.</t>
-
-          <t>For any IPv6 prefix for which SLAAC cannot be used (resp. any IPv4 prefix)
-          assigned to a Common Link, the first quarter of the addresses
+          applied Assigned Prefix.
+          
+          Each HNCP router MUST announce at least one IPv6 address and - if it
+          supports IPv4 - at least one IPv4 address, whenever matching prefixes
+          are assigned to at least one if its Common Links and announce those
+          addreses using Node Address TLVs. Nodes SHOULD NOT create and
+          announce more than one assignment per IP version to avoid cluttering
+          the node data with redundant information unless a special use case
+          requires it.</t>
+          
+          <t>SLAAC SHOULD be used for address assignment whenever possible,
+          otherwise (e.g., for IPv4) the following method MUST be used instead:
+          For any assigned prefix for which SLAAC cannot be used, the first
+          quarter of the addresses
           are reserved for routers HNCP based address assignments, whereas the last
           three quarters are left to the DHCPv6 (resp. DHCPv4) elected router
           (<xref target="version-tlv" /> specifies the DHCP server election process).
@@ -896,6 +908,43 @@ I writing an essay on this. :-p)
           <t>When a new ULA prefix is created, the prefix is selected based
           on the configuration, using the last non-deprecated ULA prefix,
           or generated based on <xref target="RFC4193"/>.</t>
+        </section>
+        
+        <section anchor="specialpurpose" title="Special Purpose Prefixes">
+        	<t>Some prefixes may have a special meaning and are not regularly
+        	used for internal or internet connectivity, instead they may
+        	provide access to special services like VPNs, sensor networks,
+        	VoIP, IPTV, etc. Care must be taken that these prefixes are
+        	properly integrated and dealt with in the network, in order to
+        	avoid breaking connectivity for devices who are not aware of their
+        	special characteristics.</t>
+        	
+        	<t>Special purpose prefixes are distinguished using
+        	<xref target="prefixdomain">Prefix Domain TLVs</xref>. Their
+        	contents MAY be partly opaque to HNCP nodes, and their
+        	identification and usage depends on local policy. However the
+        	following general rules MUST be adhered to:
+        	<list>
+        		<t>Special rules apply when making address assignments for
+        		prefixes with Prefix Domain TLVs other than type 0, as
+        		described in <xref target="assign"/></t>
+        	
+        		<t>In presence of any type 1 to 128 Prefix Domain TLV the
+        		prefix is specialized to reach destinations denoted by any
+        		such Prefix Domain TLV, i.e. in abscence of a type 0 Prefix
+        		Domain TLV it is not usable for general internet connectivity.
+        		An HNCP router MAY enforce this restriction with appropriate
+        		packet filtering rules to provide increased security.</t>
+        		
+        		<t>The presence of a type 129 (DNS zone) Prefix Domain TLV
+        		indicates that the delegated prefix or its associated external
+        		connection is specialized to reach destinations within the
+        		given DNS zone. An HNCP router providing name resolving
+        		services SHOULD prefer DNS servers listed in the associated
+        		external connection's DHCPv4 or DHCPv6 Data TLVs when
+        		resolving domains from that zone.</t>        		 
+        	</list>
+        	</t>
         </section>
 
     </section>
@@ -1525,7 +1574,7 @@ I writing an essay on this. :-p)
   </middle>
   <back>
     <references title="Normative references">
-      <?rfc include="reference.I-D.draft-ietf-homenet-dncp-06"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-dncp-07"?>
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6347.xml"?>
       <?rfc include="reference.RFC.6603.xml"?>
