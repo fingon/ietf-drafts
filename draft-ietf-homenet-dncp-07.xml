@@ -21,7 +21,7 @@ and they can be queued (and jittered) freely?
 
 <rfc
     ipr='trust200902'
-    docName='draft-ietf-homenet-dncp-06'
+    docName='draft-ietf-homenet-dncp-07'
     category='std'
     >
   <front>
@@ -50,7 +50,7 @@ and they can be queued (and jittered) freely?
         <email>cyrus@openwrt.org</email>
       </address>
     </author>
-    <date month="June" year="2015" />
+    <date month="July" year="2015" />
 
     <area>Internet</area>
     <workgroup>Homenet Working Group</workgroup>
