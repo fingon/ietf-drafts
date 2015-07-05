@@ -799,7 +799,7 @@ I writing an essay on this. :-p)
           Each HNCP router MUST announce at least one IPv6 address and - if it
           supports IPv4 - at least one IPv4 address, whenever matching prefixes
           are assigned to at least one if its Common Links. These addresses are
-          published using Node Address TLVs and used to globally reach HNCP
+          published using Node Address TLVs and used to locally reach HNCP
           nodes for other services. Nodes SHOULD NOT create and
           announce more than one assignment per IP version to avoid cluttering
           the node data with redundant information unless a special use case
