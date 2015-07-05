@@ -348,10 +348,7 @@ I writing an essay on this. :-p)
       service providers or local configuration by publishing one or more
       External Connection TLVs. These contain other TLVs such as Delegated
       Prefix TLVs which are then used for prefix assignment. Finally, HNCP
-      routers obtain addresses using a stateless (SLAAC-like) procedure or a
-      <!-- SLAAC-like = ?. Should have reference to SLAAC, and define
-           SLAAC-like better. IPv6 core specs say specifically that SLAAC
-           is not routers and instead refer to crap like RFC2894 :p -MSt -->
+      routers obtain addresses either statelessly or using a
       specific stateful mechanism and hosts and legacy routers are configured
       using SLAAC or DHCP.</t>
 
@@ -801,17 +798,16 @@ I writing an essay on this. :-p)
           
           Each HNCP router MUST announce at least one IPv6 address and - if it
           supports IPv4 - at least one IPv4 address, whenever matching prefixes
-          are assigned to at least one if its Common Links and announce those
-          addreses using Node Address TLVs. Nodes SHOULD NOT create and
+          are assigned to at least one if its Common Links. These addresses are
+          published using Node Address TLVs and used to globally reach HNCP
+          nodes for other services. Nodes SHOULD NOT create and
           announce more than one assignment per IP version to avoid cluttering
           the node data with redundant information unless a special use case
           requires it.</t>
-          <!-- Based on further thought, I do not think this is actually
-               needed (the MUST). As SD TLVs contain IP addresses already,
-               node specific addresses as such are only management
-               convenience. So this is more like MAY/SHOULD I think. -MSt -->
-
-          <t>SLAAC SHOULD be used for address assignment whenever possible,
+          
+          <t>Stateless assignment based on Modified EUI64 interface identifiers
+          <xref target="RFC4291" />
+          SHOULD be used for address assignment whenever possible,
           otherwise (e.g., for IPv4) the following method MUST be used instead:
           For any assigned prefix for which SLAAC cannot be used, the first
           quarter of the addresses
@@ -885,18 +881,9 @@ I writing an essay on this. :-p)
             but none of which is locally generated (i.e., without any Prefix
             Domain TLV) and has a preferred time greater than 0. However, it
             MUST NOT do so otherwise. In case multiple locally generated
-            ULA prefixes are present, all but one MUST be removed, while
-            those with a preferred time greater than 0 are preferred, and
-            in case there are multiple, those published by nodes with
-            a greater node identifier take precedence.</t>
-            <!-- I am slightly confused by this; 'those published ..',
-                 while in truth you want just to specify 'keep the one
-                 published by the node with the highest node identifier
-                 that has non-zero preferred time, and if none available,
-                 keep the one by the node with the highest node identifier.'
-                 Preferably rephrase, although I can live with this
-                 too. Too drunk to correct correctly. -MSt
-            -->
+            ULA prefixes are present, only the one published by the node with
+            the highest node identifier is kept among those with a preferred
+            time greater than 0 - if there is any.</t>
 
             <t>An HNCP router MUST create a <xref target="RFC1918">
             private IPv4 prefix</xref> whenever it wishes to provide IPv4 internet
@@ -904,17 +891,13 @@ I writing an essay on this. :-p)
             internet connectivity currently exists. It MAY also enable local IPv4
             connectivity by creating a private IPv4 prefix if no IPv4 prefix exists
             but MUST NOT do so otherwise. In case multiple IPv4 prefixes are
-            announced all but one MUST be removed while those associated with
-            a Prefix Domain TLV of type 0 (internet connectivity) take
-            precedence over those without and, in case of a tie, announcements
-            from nodes with a greater node identifier take precedence.
+            announced, only the one published by the node with the highest node
+            identifier is kept among those with a Prefix Domain of type 0 -
+            if there is any.
             The router publishing a prefix with internet connectivity
             MUST announce an IPv4 default route using the routing protocol and
             perform NAT on behalf of the network as long as it publishes the
             prefix, other routers in the network MAY choose not to.</t>
-
-            <!-- I would here also rather just see 'keep one' syntax. Can
-                 live with this too. -MSt -->
           </list>
 
           </t>
@@ -1260,11 +1243,7 @@ I writing an essay on this. :-p)
             addresses are encoded using IPv4-mapped IPv6 addresses.</t>
 
             <t hangText="Name: ">The name of the node as a single DNS label
-            (without leading length byte).</t>
-
-            <!-- The length byte is part only of DNS _domain_ encoding,
-                 where you have <len>+data+<len>+<data>+<0>, IIRC. I do not
-                 mind this though. -MSt -->
+            (up to 63 characters, no leading length byte).</t>
         </list>
         </t>
       </section>
@@ -1446,20 +1425,16 @@ I writing an essay on this. :-p)
         	prefix assignment mechanism</xref> for each such interface.</t>
         	<t>The requirement L-12 to make DHCPv6 options available is
         	adapted, in that a CER SHOULD publish the subset of options using
-        	the DHCPV6-DATA TLV in the HNCP network. Similarly HNCP routers
-        	SHOULD make all such relevant DHCPv6 options available to clients,
-        	i.e. DHCPv6 options contained in EXTERNAL-CONNECTION TLVs having
-        	delegated prefixes from which a portion is assigned to the
-                respective interface. DHCPv4 options and per-delegated prefix
-        	DHCPv6 options SHOULD be treated similarly, except that the
-        	latter MUST be published using HNCP, since they are relevant
-        	for prefix assignment.</t>
-
-                <!-- This is rather complex sentence (compounded by the the
-                     last MUST). I would rather just see SHOULD publish X,
-                     Y in HNCP, MUST publish Z in HNCP, and SHOULD(?)
-                     provide all them to the clients. -MSt -->
-
+        	the DHCPv6 Data TLV in an External Connection TLV. Similarly it
+        	SHOULD do the same for DHCPv4 options in a DHCPv4 Data TLV.
+        	DHCPv6 options received inside an OPTION_IAPREFIX
+        	<xref target="RFC3633" /> MUST be published using a DHCPv6 Data TLV
+        	inside the respective Delegated Prefix TLV. 
+        	
+        	HNCP routers SHOULD make relevant DHCPv6 and DHCPv4 options available
+        	to clients, i.e. options contained in EXTERNAL-CONNECTION TLVs that
+        	also include delegated prefixes from which a subset is assigned to        	
+        	the respective link.</t>
         </list>
         </t>
       </list></t>
