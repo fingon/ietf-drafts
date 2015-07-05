@@ -1432,7 +1432,7 @@ I writing an essay on this. :-p)
         	inside the respective Delegated Prefix TLV. 
         	
         	HNCP routers SHOULD make relevant DHCPv6 and DHCPv4 options available
-        	to clients, i.e. options contained in EXTERNAL-CONNECTION TLVs that
+        	to clients, i.e. options contained in External Connection TLVs that
         	also include delegated prefixes from which a subset is assigned to        	
         	the respective link.</t>
         </list>
