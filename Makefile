@@ -14,7 +14,7 @@ DRAFTS=\
   draft-stenberg-anima-adncp-00.txt \
   draft-ietf-homenet-hybrid-proxy-zeroconf-00.txt \
   draft-ietf-homenet-dncp-07.txt \
-  draft-ietf-homenet-hncp-06.txt \
+  draft-ietf-homenet-hncp-07.txt \
 
 ifndef XML_LIBRARY
 XML_LIBRARY=$(HOME)/share/1/ietf-bib/bibxml:$(HOME)/share/1/ietf-bib/bibxml2:$(HOME)/share/1/ietf-bib/bibxml3:$(HOME)/share/1/ietf-bib/bibxml4:$(HOME)/share/1/ietf-bib/bibxml5

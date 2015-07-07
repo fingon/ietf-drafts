@@ -36,7 +36,7 @@ I writing an essay on this. :-p)
 
 <rfc
     ipr='trust200902'
-    docName='draft-ietf-homenet-hncp-06'
+    docName='draft-ietf-homenet-hncp-07'
     category='std'
     >
   <front>
@@ -76,7 +76,7 @@ I writing an essay on this. :-p)
             <email>pierre.pfister@darou.fr</email>
         </address>
     </author>
-    <date month="June" year="2015" />
+    <date month="July" year="2015" />
 
     <area>Internet</area>
     <workgroup>Homenet Working Group</workgroup>
