@@ -29,6 +29,7 @@ and they can be queued (and jittered) freely?
       Distributed Node Consensus Protocol
     </title>
     <author initials="M" surname="Stenberg" fullname="Markus Stenberg">
+      <organization>Independent</organization>
       <address>
         <postal>
           <street/>
@@ -40,6 +41,7 @@ and they can be queued (and jittered) freely?
       </address>
     </author>
     <author initials="S" surname="Barth" fullname="Steven Barth">
+      <organization>Independent</organization>
       <address>
         <postal>
           <street/>
@@ -57,12 +59,11 @@ and they can be queued (and jittered) freely?
     <keyword>Homenet</keyword>
     <abstract>
 
-      <t>This document describes the Distributed Node Consensus Protocol
-      (DNCP), a generic state synchronization protocol which uses Trickle
-      and Merkle trees. DNCP leaves some details unspecified or
-      provides alternative options. Therefore, only profiles which specify
-      those missing parts define actual implementable DNCP-based
-      protocols.</t>
+    <t>This document describes the Distributed Node Consensus Protocol
+    (DNCP), a generic state synchronization protocol that uses Trickle
+    and Merkle trees. DNCP is an abstract protocol, that must be
+    combined with a specific profile to make a complete implementable
+    protocol.</t>
 
     </abstract>
   </front>
@@ -169,7 +170,7 @@ and they can be queued (and jittered) freely?
 
       <c>As DNCP itself is relatively transport agnostic, an address in
       this specification denotes just something that identifies an endpoint
-      used by the transport protocol employed by a DNCP-based protocol. In
+      used by the transport protocol that is used by a DNCP-based protocol. In
       case of an IPv6 UDP transport, an address in this specification refers
       to a tuple (IPv6 address, UDP port).
       </c>
@@ -377,7 +378,7 @@ and they can be queued (and jittered) freely?
         <list style="symbols">
 
           <t>If using a stream transport, the TLV MUST be sent at least
-          once, and it SHOULD be sent only once. </t>
+          once per connection, but SHOULD NOT be sent more than once.</t>
 
           <t>If using a datagram transport, it MUST be included in every
           datagram that also contains a <xref target="net-state">Network
@@ -396,17 +397,17 @@ and they can be queued (and jittered) freely?
           <t hangText="Unicast:">
             <list style="symbols">
 
-              <t>If only reliable unicast transport is employed, Trickle is
+              <t>If only reliable unicast transport is used, Trickle is
               not used at all. Where Trickle reset has been specified, a
               single <xref target="net-state">Network State TLV</xref> is
               sent instead to every unicast peer. Additionally, recently
               changed <xref target="node-state">Node State TLVs</xref> MAY
               be included. </t>
 
-              <t>If only unreliable unicast transport is employed, Trickle
-              state is kept per each peer and it is used to send Network
-              State TLVs every now and then, as specified in <xref
-              target="trickle-updates" />.</t>
+              <t>If only unreliable unicast transport is used, Trickle state
+   	          is kept per peer and it is used to send Network State TLVs
+              intermittently, as specified in
+              <xref target="trickle-updates" />.</t>
             </list>
           </t>
 
@@ -430,7 +431,8 @@ and they can be queued (and jittered) freely?
       <section title="Trickle-Driven Status Updates"
                anchor="trickle-updates">
 
-        <t>The Trickle algorithm has 3 parameters: Imin, Imax and k. Imin
+        <t>The <xref target="RFC6206">Trickle algorithm</xref> has
+        3 parameters: Imin, Imax and k. Imin
         and Imax represent the minimum and maximum values for I, which is
         the time interval during which at least k Trickle updates must be
         seen on an endpoint to prevent local state transmission.  The
@@ -465,7 +467,7 @@ and they can be queued (and jittered) freely?
         TLVs</xref> MAY also be included, unless it is defined as
         undesirable for some reason by the DNCP profile, or to avoid
         exposure of the node state TLVs by transmitting them within
-        insecure multicast when using also secure unicast.</t>
+        insecure multicast when using secure unicast.</t>
 
       </section>
 
@@ -479,7 +481,7 @@ and they can be queued (and jittered) freely?
         Any 'reply' mentioned in the steps below denotes sending of the
         specified TLV(s) over unicast to the originator of the TLV being
         processed. If the TLV being replied to was received via multicast
-        and it was sent to a link with shared bandwidth, the reply SHOULD
+        and it was sent to a multiple access link, the reply SHOULD
         be delayed by a random timespan in [0, Imin/2], to avoid potential
         simultaneous replies that may cause problems on some links. Sending
         of replies MAY also be rate-limited or
@@ -599,8 +601,10 @@ and they can be queued (and jittered) freely?
           </t>
 
           <t>Any other TLV:
-
-          TLVs not recognized by the receiver MUST be silently ignored.</t>
+          TLVs not recognized by the receiver MUST be silently ignored
+          unless they are sent as part of the payload of one of the TLVs
+          above (such as TLVs in the Node Data field of a Node State TLV).
+          </t>
 
         </list>
         </t>
@@ -635,7 +639,7 @@ and they can be queued (and jittered) freely?
         keep-alives or the particular peer chooses not to send
         keep-alives), some other existing local transport-specific
         means (such as Ethernet carrier-detection or TCP keep-alive)
-        MUST be employed to ensure its presence.
+        MUST be used to ensure its presence.
         When the peer is no longer present, the Neighbor
         TLV and the local DNCP peer state MUST be removed.</t>
 
@@ -772,7 +776,7 @@ and they can be queued (and jittered) freely?
       <list style="symbols">
 
         <t>Endpoint identifier: the 32-bit opaque value uniquely
-        identifying it within the local node.</t>
+        identifying the endpoint within the local node.</t>
 
         <t>Trickle instance: the endpoint's Trickle instance with
         parameters I, T, and c (only on an endpoint in Multicast+Unicast
@@ -787,7 +791,8 @@ and they can be queued (and jittered) freely?
 
         <t>Unicast address: the DNCP node it should connect with.</t>
 
-        <t>Range of addresses: the DNCP nodes that are allowed to connect.</t>
+        <t>Range of addresses: the DNCP nodes frpm which connections
+        are accepted.</t>
       </list>
       </t>
 
@@ -940,13 +945,13 @@ and they can be queued (and jittered) freely?
 
         <t>This optimization is needed to avoid a state space explosion.
         Given a large set of DNCP nodes publishing data on an endpoint
-        that actually uses multicast on a link, every node will add a
+        that uses multicast on a link, every node will add a
         <xref target="neighbor">Neighbor TLV</xref> for each peer.
         While Trickle limits the amount of traffic on the link in
         stable state to some extent, the total amount of data that is added
         to and maintained in the DNCP network given N nodes on a
         multicast-enabled link is O(N^2). Additionally if per-peer
-        keep-alives are employed, there will be O(N^2) keep-alives running
+        keep-alives are used, there will be O(N^2) keep-alives running
         on the link if liveliness of peers is not ensured using some other
         way (e.g., TCP connection lifetime, layer 2 notification,
         per-endpoint keep-alive). </t>
@@ -966,7 +971,7 @@ and they can be queued (and jittered) freely?
 
         <t>If a DNCP profile does not support this extension at all, the
         rest of this subsection MUST be ignored. This is because when this
-        extension is employed, the state within the DNCP network only
+        extension is used, the state within the DNCP network only
         contains a subset of the full topology of the network. Therefore
         every node must be aware of the potential of it being used in a
         particular DNCP profile.</t>
