@@ -1063,11 +1063,12 @@ I writing an essay on this. :-p)
 
         <t>The DHCPv4 serving router MUST announce itself as
         <xref target="RFC2132">router</xref> to clients if and only if there
-        is an IPv4 default route known in the network. In addition, the router
-        SHOULD announce a
-        <xref target="RFC3442">Classless Static Route Option</xref>
-        for each non-default IPv4 route advertised in the routing protocol
-        with an external destination.</t>
+        is an IPv4 default route known in the network. If there is no default
+        route, the router MUST announce a <xref target="RFC3442">Classless
+        Static Route Option</xref> for the IPv4 prefix announced in the
+        Delegated Prefix TLV. In addition, the router SHOULD announce such an
+        option for each non-default IPv4 route advertised in the routing
+        protocol with an external destination.</t>
 
         <t>DHCPv4 lease times SHOULD be short (i.e. not longer than 5 minutes)
         in order to provide reasonable response times to changes.</t>
