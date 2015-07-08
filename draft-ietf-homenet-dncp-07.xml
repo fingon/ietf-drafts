@@ -797,7 +797,7 @@ and they can be queued (and jittered) freely?
 
         <t>Unicast address: the DNCP node it should connect with.</t>
 
-        <t>Range of addresses: the DNCP nodes frpm which connections
+        <t>Set of addresses: the DNCP nodes from which connections
         are accepted.</t>
       </list>
       </t>
