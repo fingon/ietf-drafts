@@ -1001,45 +1001,6 @@ and they can be queued (and jittered) freely?
         mode, and normally form peer relationships with all peers.</t>
 
       </section>
-
-      <section anchor="fragmentation" title="Node Data Fragmentation">
-
-        <t>A DNCP-based protocol may be required to support node data which
-        would not fit the maximum size of a single <xref
-        target="node-state">Node State TLV</xref> (roughly 64KB of
-        payload), or use a datagram-only transport with a limited MTU and
-        no reliable support for fragmentation. To handle such cases, a DNCP
-        profile MAY specify a fixed number of trailing bytes in the node
-        identifier to represent a fragment number indicating a part of a
-        node's node data. The profile MAY also specify an upper bound for
-        the size of a single fragment to accommodate limitations of links
-        in the network. Note that the maximum size of fragment also
-        constrains the maximum size of a single TLV published by a
-        node. </t>
-
-        <t>The data within Node State TLVs of all fragments MUST be valid,
-        as specified in <xref target="node-state" />. The locally used node
-        data for a particular node MUST be produced by concatenating node
-        data in each fragment, in ascending fragment number order. The
-        locally used concatenated node data MUST still follow the ordering
-        described in <xref target="node-state" />.</t>
-
-        <t>Any transmitted node identifiers used to identify the own or any
-        other node MUST have the fragment number 0. For algorithm purposes,
-        the relative time since the most recent fragment change MUST be
-        used, regardless of fragment number. Therefore, even if just some
-        of the node data fragments change, they all are considered
-        refreshed if one of them is.</t>
-
-        <t>If using fragmentation, the data liveliness validation defined
-        in <xref target="liveliness" /> is extended so that if a <xref
-        target="fragment-count">Fragment Count TLV</xref> is present within
-        the fragment number 0, all fragments up to fragment number
-        specified in the Count field are also considered reachable if the
-        fragment number 0 itself is reachable based on graph
-        traversal. </t>
-
-      </section>
     </section>
 
     <section anchor="tlvs" title="Type-Length-Value Objects">
@@ -1224,10 +1185,7 @@ and they can be queued (and jittered) freely?
           <!-- TODO: (MSt) ^ is there better place for this paragraph? -->
 
           <t>The actual node data of the node may be included within the
-          TLV as well in the optional Node Data field. In a DNCP profile
-          which supports fragmentation, described in <xref
-          target="fragmentation" />, the TLV data may be only partial but
-          it MUST contain full individual TLVs.
+          TLV as well in the optional Node Data field.
 
           The set of TLVs MUST be strictly ordered based on ascending
           binary content (including TLV type and length). This enables,
@@ -1252,34 +1210,6 @@ and they can be queued (and jittered) freely?
         <t>These TLVs are published by the DNCP nodes, and therefore only
         encoded within the Node State TLVs. If encountered outside Node
         State TLV, they MUST be silently ignored.</t>
-
-        <section anchor="fragment-count"
-                 title="Fragment Count TLV">
-          <figure>
-            <artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Type: FRAGMENT-COUNT (7)     |         Length: > 0           |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                             Count                             |
-|                  (length fixed in DNCP profile)               |
-...
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-            </artwork>
-          </figure>
-
-          <t>If the DNCP profile supports node data fragmentation as
-          specified in <xref target="fragmentation" />, this TLV indicates
-          that the node data is encoded as a sequence of Node State
-          TLVs. Following Node State TLVs with Node Identifiers up to Count
-          greater than the current one MUST be considered reachable and part
-          of the same logical set of node data that this TLV is within. The
-          fragment portion of the Node Identifier of the Node State TLV
-          this TLV appears in MUST be zero.</t>
-
-        </section>
-
 
         <section anchor="neighbor"
                  title="Neighbor TLV">
@@ -1689,8 +1619,6 @@ and they can be queued (and jittered) freely?
           configuration.</t>
         </list>
         </t>
-        <t>Whether to support fragmentation, and if so, the number of bytes
-        reserved for fragment count in the node identifier.</t>
       </list>
       </t>
     </section>
@@ -1731,7 +1659,7 @@ and they can be queued (and jittered) freely?
       <t>4: Network state</t>
       <t>5: Node state</t>
       <t>6: Reserved (was: Custom)</t>
-      <t>7: Fragment count</t>
+      <t>7: Reserved (was: Fragment count)</t>
       <t>8: Neighbor</t>
       <t>9: Keep-alive interval</t>
       <t>10: Trust-Verdict</t>
