@@ -510,8 +510,9 @@ and they can be queued (and jittered) freely?
           The receiver MUST reply with a <xref target="net-state">Network
           State TLV</xref> and a <xref target="node-state">Node State
           TLV</xref> for each node data used to calculate the network state
-          hash. The Node State TLVs MUST NOT contain the optional node
-          data part unless explicitly specified in the DNCP profile.</t>
+          hash. The Node State TLVs SHOULD NOT contain the optional node
+          data part to avoid redundant transmission of node data,
+          unless explicitly specified in the DNCP profile.</t>
 
           <t><xref target="req-node-state">Request Node State TLV</xref>:
 
@@ -543,9 +544,11 @@ and they can be queued (and jittered) freely?
             <t>If the node identifier matches the local node identifier and
             the TLV has a greater sequence number than its current
             local value, or the same sequence number and a different
-            hash, the node SHOULD re-publish its own node data with an
+            hash, the node SHOULD re-publish its own node data with a
             sequence number significantly (e.g., 1000) greater than
-            the received one, to reclaim the node identifier.
+            the received one, to reclaim the node identifier. This difference
+            is needed in order to ensure that it is higher then any potentially
+            lingering copies of the node state in the network.
             This may occur normally once due to the local
             node restarting and not storing the most recently used
             sequence number. If this occurs more than once or for nodes
@@ -603,7 +606,7 @@ and they can be queued (and jittered) freely?
           case of overflow. The comparison function
           a &lt; b &lt;=&gt; (a - b) % 2^32 &amp; 2^31 != 0
           is RECOMMENDED unless the DNCP profile defines another.
-
+          <!-- TODO: clarify the formula? -->
           </t>
 
           <t>Any other TLV:
