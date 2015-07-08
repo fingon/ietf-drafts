@@ -203,7 +203,7 @@ and they can be queued (and jittered) freely?
 
       <c /><c />
 
-      <c>Peer</c>
+      <c>Peer / Neighbor</c>
       <c>another DNCP node with which a DNCP node communicates using a
       particular local and remote endpoint pair.</c>
 
@@ -376,7 +376,7 @@ and they can be queued (and jittered) freely?
         the endpoints used for communication. As bidirectional peer
         relationships are required for validating liveliness of published node
         data as described in <xref target="liveliness" />, a DNCP node MUST
-        send an <xref target="endpoint">Endpoint TLV</xref>. When it is
+        send a <xref target="endpoint">Node Endpoint TLV</xref>. When it is
         sent varies, depending on the underlying transport, but
         conceptually it should be available whenever processing a Network
         State TLV:
@@ -845,6 +845,7 @@ and they can be queued (and jittered) freely?
         <t>A DNCP profile MAY specify either per-endpoint (sent using multicast
         to all DNCP nodes connected therewith) or per-peer (sent using unicast
         to each peer individually) keep-alive support. </t>
+        <!-- TODO: is this accurate? -->
 
         <t>For every endpoint that a keep-alive is specified for in the
         DNCP profile, the endpoint-specific keep-alive interval MUST be
@@ -1149,7 +1150,8 @@ and they can be queued (and jittered) freely?
           </figure>
 
           <t>This TLV identifies both the local node's node identifier, as
-          well as the particular endpoint's endpoint identifier.</t>
+          well as the particular endpoint's endpoint identifier.
+          <xref target="dt" /> specifies when it is sent.</t>
 
         </section>
         <section anchor="net-state" title="Network State TLV">
