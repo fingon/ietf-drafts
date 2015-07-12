@@ -983,52 +983,6 @@ I writing an essay on this. :-p)
         IPv6-prefixes on said link MUST provide stateless DHCPv6 service.</t>
       </section>
 
-      <section title="Sending Router Advertisements">
-          <t>All HNCP routers MUST send Router Advertisements periodically via multicast and via unicast in
-              response to Router Solicitations.
-
-        <list style="symbols">
-          <t>The "Managed address configuration" flag MUST be set whenever
-          a router connected to the link is advertising a non-null
-          H-capability and MUST NOT be set otherwise. The "Other configuration"
-          flag MUST always be set.</t>
-
-          <t>The default Router Lifetime MUST be set to an appropriate non-null value
-          whenever an IPv6 default route is known in the HNCP network and
-          MUST be set to zero otherwise.</t>
-
-          <t>A Prefix Information Option MUST be added for each assigned and applied IPv6
-          prefix on the given link. The autonomous address-configuration flag
-          MUST be set whenever the prefix is suitable for stateless
-          configuration. The preferred and valid lifetimes MUST be
-          smaller than the preferred and valid lifetimes of the
-          delegated prefix the prefix is from. When a prefix is removed,
-          it MUST be deprecated as specified in <xref target="RFC7084"/>.</t>
-
-          <t>A <xref target="RFC4191">Route Information Option</xref> MUST be
-          added for each delegated IPv6 prefix known in the HNCP network.
-          Additional ones SHOULD be added for each non-default IPv6 route
-          with an external destination prefix advertised by the routing protocol.</t>
-
-          <t>A Recursive DNS Server Option and a DNS Search List Option MUST
-          be included with appropriate contents.</t>
-
-          <t>To allow for optimized routing decisions for clients on the local
-          link routers SHOULD adjust their <xref target="RFC4191">Default
-          Router Preference and Route Preferences</xref> so that the priority
-          is set to low if the next hop of the default or more specific route
-          is on the same interface as the Route Advertisement being sent on.
-          Similarly the router MAY use the high priority if it is certain it
-          has the best metric of all routers on the link for all routes known
-          in the network with the respective destination.</t>
-        </list>
-
-        Every router sending Router Advertisements MUST immediately send an
-        updated Router Advertisement via multicast as soon as it notices a
-        condition resulting in a change of any advertised information.
-        </t>
-      </section>
-
       <section title="DHCPv6 for Prefix Delegation">
 
         <t>The designated DHCPv6 server for prefix-delegation on a Common Link is
@@ -1407,6 +1361,10 @@ I writing an essay on this. :-p)
         Requirements for IPv6 Customer Edge Routers</xref> applies with the
         following adjustments:
         <list>
+        	<t>The generic requirements G-4 and G-5 are relaxed such that any
+        	known default router on any interface is sufficient for a router
+        	to announce itself as default router, similary only the loss of
+        	all such default routers results in self-invalidation.</t>
             <t>The section "WAN-Side Configuration" applies to HNCP interfaces
         	classified as external.</t>
         	<t>If the CE sends a size-hint as indicated in WPD-2, the hint
@@ -1423,6 +1381,9 @@ I writing an essay on this. :-p)
         	<t>The requirement L-2 to assign a separate /64 to each LAN interface
         	is replaced by the participation in the <xref target="pa">
         	prefix assignment mechanism</xref> for each such interface.</t>
+        	<t>The requirement L-9 is modified, in that the M flag MUST be set
+        	whenever a router connected to the respective link is advertising
+        	a non-null H-capability and MUST NOT be set otherwise.</t>
         	<t>The requirement L-12 to make DHCPv6 options available is
         	adapted, in that a CER SHOULD publish the subset of options using
         	the DHCPv6 Data TLV in an External Connection TLV. Similarly it
