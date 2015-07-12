@@ -461,7 +461,7 @@ I writing an essay on this. :-p)
           </t>
         </section>
 
-		<section anchor="prefixpolicy" title="Prefix Policy TLV">
+		<section anchor="prefixpolicytlv" title="Prefix Policy TLV">
           <t>The Prefix Policy TLV contains information about the policy or
           applicability of a delegated prefix. This information can be used
           to determine whether prefixes for a certain usecase (e.g. local
@@ -794,8 +794,8 @@ I writing an essay on this. :-p)
           own use. Nodes MAY, at any time, try to reserve a new address from any
           applied Assigned Prefix.
           
-          Each HNCP router MUST announce at least one IPv6 address and - if it
-          supports IPv4 - at least one IPv4 address, whenever matching prefixes
+          Each HNCP router MAY announce an IPv6 address and - if it supports
+          IPv4 - MUST announce an IPv4 address, whenever matching prefixes
           are assigned to at least one if its Common Links. These addresses are
           published using Node Address TLVs and used to locally reach HNCP
           nodes for other services. Nodes SHOULD NOT create and
@@ -803,9 +803,9 @@ I writing an essay on this. :-p)
           the node data with redundant information unless a special use case
           requires it.</t>
           
-          <t>Stateless assignment based on Modified EUI64 interface identifiers
-          <xref target="RFC4291" />
-          SHOULD be used for address assignment whenever possible,
+          <t>Stateless assignment based on Semantically Opaque Interface
+          Identifiers <xref target="RFC7217" /> SHOULD be used for address
+          assignment whenever possible (e.g., the prefix-length is /64),
           otherwise (e.g., for IPv4) the following method MUST be used instead:
           For any assigned prefix for which SLAAC cannot be used, the first
           quarter of the addresses
@@ -916,10 +916,11 @@ I writing an essay on this. :-p)
         	VoIP, IPTV, etc. Care must be taken that these prefixes are
         	properly integrated and dealt with in the network, in order to
         	avoid breaking connectivity for devices who are not aware of their
-        	special characteristics.</t>
+        	special characteristics or to only selectively allow certain
+        	devices to use them.</t>
         	
         	<t>Special purpose prefixes are distinguished using
-        	<xref target="prefixpolicy">Prefix Policy TLVs</xref>. Their
+        	<xref target="prefixpolicytlv">Prefix Policy TLVs</xref>. Their
         	contents MAY be partly opaque to HNCP nodes, and their
         	identification and usage depends on local policy. However the
         	following general rules MUST be adhered to:
@@ -1603,6 +1604,7 @@ I writing an essay on this. :-p)
       <?rfc include="reference.RFC.2132.xml"?>
       <?rfc include="reference.RFC.3442.xml"?>
       <?rfc include="reference.RFC.4193.xml"?>
+      <?rfc include="reference.RFC.7217.xml"?>
     </references>
 
     <section title="Changelog [RFC Editor: please remove]">
