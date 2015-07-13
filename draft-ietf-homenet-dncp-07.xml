@@ -785,7 +785,8 @@ and they can be queued (and jittered) freely?
       <list style="symbols">
 
         <t>Endpoint identifier: the 32-bit opaque value uniquely
-        identifying the endpoint within the local node.</t>
+        identifying the endpoint within the local node. It SHOULD
+        NOT be reused immediately after an endpoint is disabled.</t>
 
         <t>Trickle instance: the endpoint's Trickle instance with
         parameters I, T, and c (only on an endpoint in Multicast+Unicast
