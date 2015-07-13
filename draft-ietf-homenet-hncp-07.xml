@@ -1542,7 +1542,6 @@ I writing an essay on this. :-p)
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6347.xml"?>
       <?rfc include="reference.RFC.6603.xml"?>
-      <?rfc include="reference.RFC.4191.xml"?>
       <?rfc include="reference.RFC.7084.xml"?>
       <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-07"?>
     </references>
