@@ -931,7 +931,7 @@ I writing an essay on this. :-p)
         	
         		<t>In presence of any type 1 to 128 Prefix Policy TLV the
         		prefix is specialized to reach destinations denoted by any
-        		such Prefix Policy TLV, i.e. in abscence of a type 0 Prefix
+        		such Prefix Policy TLV, i.e. in absence of a type 0 Prefix
         		Policy TLV it is not usable for general internet connectivity.
         		An HNCP router MAY enforce this restriction with appropriate
         		packet filtering rules to provide increased security.</t>
@@ -1363,7 +1363,7 @@ I writing an essay on this. :-p)
         <list>
         	<t>The generic requirements G-4 and G-5 are relaxed such that any
         	known default router on any interface is sufficient for a router
-        	to announce itself as default router, similary only the loss of
+        	to announce itself as default router, similarly only the loss of
         	all such default routers results in self-invalidation.</t>
             <t>The section "WAN-Side Configuration" applies to HNCP interfaces
         	classified as external.</t>
