@@ -1022,7 +1022,13 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         byte order. Padding bytes with value zero MUST be added up to the
         next 4 byte boundary if the length is not divisible by 4.  These
         padding bytes MUST NOT be included in the number stored in the length
-        field.
+        field. Each TLV which does not define optional fields MAY be sent with
+        additional nested TLVs appended after the required TLV fields -
+        and padding (if applicable) to allow for extensibility. In this case
+        the length field includes the length of the original TLV,
+        the length of the padding up to the embedded TLVs and the length of the
+        added TLVs. Therefore, each node MUST accept received TLVs that are longer
+        than the fields specified and ignore embedded TLVs it does not understand.
       </t>
 
       <figure>
@@ -1064,7 +1070,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Type: REQ-NETWORK-STATE (1)  |           Length: 0           |
+|  Type: REQ-NETWORK-STATE (1)  |           Length: > 0         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
             </artwork>
           </figure>
@@ -1258,7 +1264,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Type: KEEP-ALIVE-INTERVAL (9) |          Length: 8            |
+| Type: KEEP-ALIVE-INTERVAL (9) |          Length: > 8          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                      Endpoint Identifier                      |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1460,7 +1466,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|   Type: Trust-Verdict (10)    |        Length: 37-100         |
+|   Type: Trust-Verdict (10)    |        Length: > 37           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |    Verdict    |                 (reserved)                    |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
