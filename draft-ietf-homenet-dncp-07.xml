@@ -64,7 +64,6 @@ and they can be queued (and jittered) freely?
     and Merkle trees. DNCP is an abstract protocol, that must be
     combined with a specific profile to make a complete implementable
     protocol.</t>
-
     </abstract>
   </front>
   <middle>
@@ -84,6 +83,7 @@ and they can be queued (and jittered) freely?
       network. The use of Trickle with only short network state hashes sent
       infrequently (in steady state) makes DNCP very thrifty when updates happen
       rarely.</t>
+<!-- TBD Merkle reference -->
 
       <t>For maintaining liveliness of the topology and the data within it,
       a combination of Trickled network state, keep-alives, and "other"
@@ -1637,7 +1637,7 @@ and they can be queued (and jittered) freely?
       data TLVs will be sent across that channel. Therefore an attacker may
       only learn hash values of the state within DNCP and may be able to
       trigger unicast synchronization attempts between nodes on a local
-      link this way. A DNCP node should therefore rate-limit its reactions
+      link this way. A DNCP node MUST therefore rate-limit its reactions
       to multicast packets.</t>
 
       <t>When using DNCP to bootstrap a network, PKI based solutions may have
@@ -1687,10 +1687,10 @@ and they can be queued (and jittered) freely?
       <?rfc include="reference.RFC.6206.xml"?>
       <?rfc include="reference.RFC.6347.xml"?>
       <?rfc include="reference.RFC.5246.xml"?>
+      <?rfc include="reference.RFC.6234.xml"?>
     </references>
     <references title="Informative references">
       <?rfc include="reference.RFC.3493.xml"?>
-      <?rfc include="reference.RFC.6234.xml"?>
     </references>
 
     <section title="Alternative Modes of Operation">
@@ -1857,7 +1857,8 @@ and they can be queued (and jittered) freely?
 
       <t>Thanks to Ole Troan, Pierre Pfister, Mark Baugher, Mark Townsley,
       Juliusz Chroboczek, Jiazi Yi, Mikael Abrahamsson, Brian Carpenter,
-      Thomas Clausen and DENG Hui for their contributions to the draft.</t>
+      Thomas Clausen, DENG Hui and Margaret Cullen for their contributions
+      to the draft.</t>
 
     </section>
 
