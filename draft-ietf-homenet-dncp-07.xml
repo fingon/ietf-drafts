@@ -4,9 +4,6 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
 split from draft-ietf-homenet-hncp-03-pre - generic parts
 
-TBD: Where should we note that DNCP is fundamentally about individual TLVs,
-and they can be queued (and jittered) freely?
-
 -->
 
 <!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
@@ -61,7 +58,7 @@ and they can be queued (and jittered) freely?
 
     <t>This document describes the Distributed Node Consensus Protocol
     (DNCP), a generic state synchronization protocol that uses Trickle
-    and Merkle trees. DNCP is an abstract protocol, that must be
+    and hash trees. DNCP is an abstract protocol, that must be
     combined with a specific profile to make a complete implementable
     protocol.</t>
     </abstract>
@@ -74,16 +71,15 @@ and they can be queued (and jittered) freely?
       a shared and common view about the data published by every currently
       or recently bidirectionally reachable DNCP node in a network.</t>
 
-      <t>For state synchronization a Merkle tree is used. It is formed by
-      first calculating a hash for the dataset, called node data, published
-      by each node, and then calculating another hash over those node data hashes.
-      The single resulting hash, called network state hash, is transmitted using the
-      <xref target="RFC6206">Trickle algorithm</xref> to ensure that all nodes
-      share the same view of the current state of the published data within the
-      network. The use of Trickle with only short network state hashes sent
-      infrequently (in steady state) makes DNCP very thrifty when updates happen
-      rarely.</t>
-<!-- TBD Merkle reference -->
+      <t>For state synchronization a hash tree is used. It is formed by
+      first calculating a hash for the dataset published by each node,
+      called node data, and then calculating another hash over those node
+      data hashes.  The single resulting hash, called network state hash,
+      is transmitted using the <xref target="RFC6206">Trickle
+      algorithm</xref> to ensure that all nodes share the same view of the
+      current state of the published data within the network. The use of
+      Trickle with only short network state hashes sent infrequently (in
+      steady state) makes DNCP very thrifty when updates happen rarely.</t>
 
       <t>For maintaining liveliness of the topology and the data within it,
       a combination of Trickled network state, keep-alives, and "other"
@@ -233,7 +229,7 @@ and they can be queued (and jittered) freely?
       Whenever a node is added, removed or updates its published node data
       this hash value changes as well.
 
-      For calculation, please see <xref target="merkle" />.
+      For calculation, please see <xref target="hash-tree" />.
 
       </c>
 
@@ -289,14 +285,14 @@ and they can be queued (and jittered) freely?
       manually configured or they may be found by some other means defined
       in a later specification.</t>
 
-      <t>A Merkle tree is maintained by each node to represent the state of
+      <t>A hash tree is maintained by each node to represent the state of
       all currently reachable nodes and the Trickle algorithm is used to
       trigger synchronization. The need to check peer nodes for state
       changes is thereby determined by comparing the current root of their
       respective trees, i.e., their individually calculated network state
       hashes.</t>
 
-      <t>Before joining a DNCP network, a node starts with a Merkle tree
+      <t>Before joining a DNCP network, a node starts with a hash tree
       (and therefore a calculated network state hash) only consisting of
       the node itself. It then announces said hash by means of the Trickle
       algorithm on all its configured endpoints.</t>
@@ -304,12 +300,12 @@ and they can be queued (and jittered) freely?
       <t>When an update is detected by a node (e.g., by receiving a
       different network state hash from a peer) the originator of the
       event is requested to provide a list of the state of all nodes,
-      i.e., all the information it uses to calculate its own Merkle
+      i.e., all the information it uses to calculate its own hash
       tree. The node uses the list to determine whether its own information
       is outdated and - if necessary - requests the actual node data that
       has changed.</t>
 
-      <t>Whenever a node's local copy of any node data and its Merkle tree are
+      <t>Whenever a node's local copy of any node data and its hash tree are
       updated (e.g., due to its own or another node's node state changing or
       due to a peer being added or removed) its Trickle instances are reset
       which eventually causes any update to be propagated to all of its
@@ -319,13 +315,12 @@ and they can be queued (and jittered) freely?
 
     <section title="Operation">
 
-      <section title="Merkle Tree" anchor="merkle">
+      <section title="Hash Tree" anchor="hash-tree">
 
-        <t>Each DNCP node maintains a Merkle tree of height 1 to manage
-        state updates of individual DNCP nodes, the leaves of the tree, and
-        the network as a whole, the root of the tree.</t>
+        <t>Each DNCP node maintains an arbitrary width hash tree of height
+        1.
 
-        <t>Each leaf represents one recently bidirectionally reachable DNCP
+        Each leaf represents one recently bidirectionally reachable DNCP
         node (see <xref target="liveliness" />), and is represented by a
         tuple consisting of the node's sequence number in network byte
         order concatenated with the hash-value of the node's ordered node
@@ -338,12 +333,12 @@ and they can be queued (and jittered) freely?
         order.  It is used to determine whether the view of the network of
         two or more nodes is consistent and shared.</t>
 
-        <t>The leaves and the root network state hash are updated on-demand
-        and whenever any locally stored per-node state changes. This
-        includes local unidirectional reachability encoded in the published
-        <xref target="peer">Peer TLVs</xref> and - when combined
-        with remote data - results in awareness of bidirectional
-        reachability changes.</t>
+        <t>The node data hashes in the leaves and the root network state
+        hash are updated on-demand and whenever any locally stored per-node
+        state changes. This includes local unidirectional reachability
+        encoded in the published <xref target="peer">Peer TLVs</xref> and -
+        when combined with remote data - results in awareness of
+        bidirectional reachability changes.</t>
 
       </section>
 
@@ -410,10 +405,10 @@ and they can be queued (and jittered) freely?
               changed <xref target="node-state">Node State TLVs</xref> MAY
               be included. </t>
 
-              <t>If only unreliable unicast transport is used, Trickle state
-   	          is kept per peer and it is used to send Network State TLVs
-              intermittently, as specified in
-              <xref target="trickle-updates" />.</t>
+              <t>If only unreliable unicast transport is used, Trickle
+              state is kept per peer and it is used to send Network State
+              TLVs intermittently, as specified in <xref
+              target="trickle-updates" />.</t>
             </list>
           </t>
 
@@ -715,7 +710,7 @@ and they can be queued (and jittered) freely?
         </list>
 
 		The algorithm terminates, when no more candidate nodes
-		fulfilling these criteria can be found. 
+		fulfilling these criteria can be found.
         </t>
 
         <t>DNCP nodes that have not been reachable in the most recent
@@ -1147,7 +1142,7 @@ and they can be queued (and jittered) freely?
           </figure>
 
           <t>This TLV contains the current locally calculated network state
-          hash, see <xref target="merkle" /> for how it is calculated.</t>
+          hash, see <xref target="hash-tree" /> for how it is calculated.</t>
 
         </section>
         <section anchor="node-state" title="Node State TLV">
@@ -1196,7 +1191,6 @@ and they can be queued (and jittered) freely?
           TLVs even if there is no change. In other words, absent any other
           changes, the TLV set MUST be re-published roughly every 48
           days.</t>
-          <!-- TODO: (MSt) ^ is there better place for this paragraph? -->
 
           <t>The actual node data of the node may be included within the
           TLV as well in the optional Node Data field.
@@ -1210,7 +1204,7 @@ and they can be queued (and jittered) freely?
           received. It SHOULD be also verified on receipt that the locally
           calculated H(Node Data) matches the content of the field within
           the TLV, and if the hash differs, the TLV SHOULD be ignored.</t>
-          
+
           <!-- SB: this paragraph is essentially duplicate with L 570ff, so
           normative language should match. or maybe change this to xref? -->
 
@@ -1553,8 +1547,6 @@ and they can be queued (and jittered) freely?
     </section>
 
     <section anchor="profile-bits" title="DNCP Profile-Specific Definitions">
-      <!-- TBD - Pierre has a point - should define guidance on these,
-           perhaps -->
       <t>Each DNCP profile MUST specify the following aspects:
       <list style="symbols">
 
