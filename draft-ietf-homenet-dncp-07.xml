@@ -203,9 +203,6 @@ and they can be queued (and jittered) freely?
 
       <c /><c />
 
-      <!-- TBD: Should we rename neighbor -> peer? Because in case of DNCP
-           with global addressing, a neighbor _may not_ be locally adjacent
-           which is implied by a neighbor. -MSt -->
       <c>Peer</c>
       <c>another DNCP node with which a DNCP node communicates using a
       particular local and remote endpoint pair.</c>
@@ -344,7 +341,7 @@ and they can be queued (and jittered) freely?
         <t>The leaves and the root network state hash are updated on-demand
         and whenever any locally stored per-node state changes. This
         includes local unidirectional reachability encoded in the published
-        <xref target="neighbor">Neighbor TLVs</xref> and - when combined
+        <xref target="peer">Peer TLVs</xref> and - when combined
         with remote data - results in awareness of bidirectional
         reachability changes.</t>
 
@@ -501,7 +498,7 @@ and they can be queued (and jittered) freely?
         <t>A DNCP node MUST process TLVs received from any valid address,
         as specified by the DNCP profile and the configuration of a
         particular endpoint, whether this address is known to be the
-        address of a neighbor or not. This provision satisfies the needs of
+        address of a peer or not. This provision satisfies the needs of
         monitoring or other host software that needs to discover the DNCP
         topology without adding to the state in the network.</t>
 
@@ -637,7 +634,7 @@ and they can be queued (and jittered) freely?
         <list style="symbols">
 
           <t>If received over unicast, the remote node MUST be added as a
-          peer on the endpoint and a <xref target="neighbor">Neighbor
+          peer on the endpoint and a <xref target="peer">Peer
           TLV</xref> MUST be created for it.
           </t>
 
@@ -654,11 +651,11 @@ and they can be queued (and jittered) freely?
         keep-alives), some other existing local transport-specific
         means (such as Ethernet carrier-detection or TCP keep-alive)
         MUST be used to ensure its presence.
-        When the peer is no longer present, the Neighbor
+        When the peer is no longer present, the Peer
         TLV and the local DNCP peer state MUST be removed.</t>
 
         <t>If the local endpoint is in the Multicast-Listen+Unicast
-        transport mode, a <xref target="neighbor">Neighbor TLV</xref> MUST
+        transport mode, a <xref target="peer">Peer TLV</xref> MUST
         NOT be published for the peers not having the highest node
         identifier.</t>
 
@@ -671,7 +668,7 @@ and they can be queued (and jittered) freely?
         Imin, whenever:
 
         <list style="symbols">
-          <t>A Neighbor TLV or a whole node is added or removed, or</t>
+          <t>A Peer TLV or a whole node is added or removed, or</t>
 
           <t>the origination time (in milliseconds) of some node's node
           data is less than current time - 2^32 + 2^15.</t>
@@ -691,12 +688,12 @@ and they can be queued (and jittered) freely?
           <t>The origination time (in milliseconds) of R's node data is
           greater than current time in - 2^32 + 2^15.</t>
 
-          <t>R publishes a Neighbor TLV with:
+          <t>R publishes a Peer TLV with:
           <list style="symbols">
 
-            <t>Neighbor Node Identifier = N's node identifier</t>
+            <t>Peer Node Identifier = N's node identifier</t>
 
-            <t>Neighbor Endpoint Identifier = NE's endpoint
+            <t>Peer Endpoint Identifier = NE's endpoint
             identifier</t>
 
             <t>Endpoint Identifier = RE's endpoint identifier</t>
@@ -704,12 +701,12 @@ and they can be queued (and jittered) freely?
           </list>
           </t>
 
-          <t>N publishes a Neighbor TLV with:
+          <t>N publishes a Peer TLV with:
           <list style="symbols">
 
-            <t>Neighbor Node Identifier = R's node identifier</t>
+            <t>Peer Node Identifier = R's node identifier</t>
 
-            <t>Neighbor Endpoint Identifier = RE's endpoint identifier</t>
+            <t>Peer Endpoint Identifier = RE's endpoint identifier</t>
 
             <t>Endpoint Identifier = NE's endpoint identifier</t>
 
@@ -949,7 +946,7 @@ and they can be queued (and jittered) freely?
 
         </section>
 
-        <section title="Neighbor Removal">
+        <section title="Peer Removal">
 
           <t>For every peer on every endpoint, the endpoint-specific
           keep-alive interval must be calculated by looking for <xref
@@ -959,7 +956,7 @@ and they can be queued (and jittered) freely?
           timestamp has not been updated for at least locally chosen
           potentially endpoint-specific keep-alive multiplier (defaults to
           DNCP_KEEPALIVE_MULTIPLIER) times the peer's endpoint-specific
-          keep-alive interval, the Neighbor TLV for that peer and the local
+          keep-alive interval, the Peer TLV for that peer and the local
           DNCP peer state MUST be removed.</t>
 
         </section>
@@ -971,7 +968,7 @@ and they can be queued (and jittered) freely?
         <t>This optimization is needed to avoid a state space explosion.
         Given a large set of DNCP nodes publishing data on an endpoint
         that uses multicast on a link, every node will add a
-        <xref target="neighbor">Neighbor TLV</xref> for each peer.
+        <xref target="peer">Peer TLV</xref> for each peer.
         While Trickle limits the amount of traffic on the link in
         stable state to some extent, the total amount of data that is added
         to and maintained in the DNCP network given N nodes on a
@@ -1228,20 +1225,20 @@ and they can be queued (and jittered) freely?
         encoded within the Node State TLVs. If encountered outside Node
         State TLV, they MUST be silently ignored.</t>
 
-        <section anchor="neighbor"
-                 title="Neighbor TLV">
+        <section anchor="peer"
+                 title="Peer TLV">
           <figure>
             <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|       Type: NEIGHBOR (8)      |          Length: > 8          |
+|       Type: PEER (8)          |          Length: > 8          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                    Neighbor Node Identifier                   |
+|                      Peer Node Identifier                     |
 |                  (length fixed in DNCP profile)               |
 ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                  Neighbor Endpoint Identifier                 |
+|                    Peer Endpoint Identifier                   |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                    Local Endpoint Identifier                  |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1249,13 +1246,13 @@ and they can be queued (and jittered) freely?
           </figure>
 
           <t>This TLV indicates that the node in question vouches that the
-          specified neighbor is reachable by it on the specified local
+          specified peer is reachable by it on the specified local
           endpoint.
 
           The presence of this TLV at least guarantees that the node
-          publishing it has received traffic from the neighbor
+          publishing it has received traffic from the peer
           recently. For guaranteed up-to-date bidirectional reachability,
-          the existence of both nodes' matching Neighbor TLVs needs to be
+          the existence of both nodes' matching Peer TLVs needs to be
           checked. </t>
         </section>
 
@@ -1677,7 +1674,7 @@ and they can be queued (and jittered) freely?
       <t>5: Node state</t>
       <t>6: Reserved (was: Custom)</t>
       <t>7: Reserved (was: Fragment count)</t>
-      <t>8: Neighbor</t>
+      <t>8: Peer</t>
       <t>9: Keep-alive interval</t>
       <t>10: Trust-Verdict</t>
       <t>32-191: Reserved for per-DNCP profile use</t>
@@ -1743,7 +1740,7 @@ and they can be queued (and jittered) freely?
     <section title="Some Questions and Answers [RFC Editor: please remove]">
 
       <t>Q: 32-bit endpoint id?</t>
-      <t>A: Here, it would save 32 bits per neighbor if it was 16 bits (and
+      <t>A: Here, it would save 32 bits per peer if it was 16 bits (and
       less is not realistic). However, TLVs defined elsewhere would not
       seem to even gain that much on average.  32 bits is also used for
       ifindex in various operating systems, making for simpler
