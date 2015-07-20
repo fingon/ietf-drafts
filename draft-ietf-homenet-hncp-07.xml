@@ -131,7 +131,7 @@ I writing an essay on this. :-p)
         over link-local scoped IPv6, using unicast and multicast
         (All-Homenet-Routers is the HNCP group address).
         Received datagrams with an IPv6 source or destination address
-        which is not link-local scoped MUST be ignored. Unicast replies
+        which is not link-local scoped MUST be ignored. Replies
         to multicast and unicast messages MUST be sent to the IPv6 source
         address and port of the original message. Each node MUST be able to
         receive (and potentially reassemble) UDP datagrams with a payload of
