@@ -911,8 +911,12 @@ and they can be queued (and jittered) freely?
           <xref target="net-state">Network State TLV</xref> has been sent
           to a particular endpoint within the endpoint-specific keep-alive
           interval, a <xref target="net-state">Network State TLV</xref>
-          MUST be sent on that endpoint, and a new Trickle transmission
-          time 't' in [I/2, I] MUST be randomly chosen. The actual sending
+          MUST be sent on that endpoint,
+
+          and a new Trickle interval started, as specified in the
+          step 2 of Section 4.2 of <xref target="RFC6206" />.
+
+          The actual sending
           time SHOULD be further delayed by a random timespan in [0,
           Imin/2].</t>
 
@@ -925,8 +929,12 @@ and they can be queued (and jittered) freely?
           target="net-state">Network State TLV</xref> has been sent to a
           particular peer within the endpoint-specific keep-alive interval,
           a <xref target="net-state">Network State TLV</xref> MUST be sent to
-          the peer and a new Trickle transmission time 't' in [I/2, I] MUST
-          be randomly chosen.</t>
+          the peer,
+
+          and a new Trickle interval started, as specified in the
+          step 2 of Section 4.2 of <xref target="RFC6206" />.
+
+          </t>
 
         </section>
 
