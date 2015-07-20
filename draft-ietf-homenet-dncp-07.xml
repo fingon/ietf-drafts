@@ -203,6 +203,9 @@ and they can be queued (and jittered) freely?
 
       <c /><c />
 
+      <!-- TBD: Should we rename neighbor -> peer? Because in case of DNCP
+           with global addressing, a neighbor _may not_ be locally adjacent
+           which is implied by a neighbor. -MSt -->
       <c>Peer / Neighbor</c>
       <c>another DNCP node with which a DNCP node communicates using a
       particular local and remote endpoint pair.</c>
@@ -846,10 +849,10 @@ and they can be queued (and jittered) freely?
         <t>If keep-alives are not specified in the DNCP profile, the rest
         of this subsection MUST be ignored.</t>
 
-        <t>A DNCP profile MAY specify either per-endpoint (sent using multicast
-        to all DNCP nodes connected therewith) or per-peer (sent using unicast
-        to each peer individually) keep-alive support. </t>
-        <!-- TODO: is this accurate? -->
+        <t>A DNCP profile MAY specify either per-endpoint (sent using
+        multicast to all DNCP nodes connected to a multiple access link)
+        or per-peer (sent using unicast to each peer individually)
+        keep-alive support. </t>
 
         <t>For every endpoint that a keep-alive is specified for in the
         DNCP profile, the endpoint-specific keep-alive interval MUST be
@@ -1743,6 +1746,13 @@ and they can be queued (and jittered) freely?
 
     </section>
     <section title="Changelog [RFC Editor: please remove]">
+      <t>draft-ietf-homenet-dncp-08:
+      <list style="symbols">
+        <t>Removed fragmentation as it is somewhat underspecified and
+        unimplemented. It may be specified in some future extension draft
+        or new version of DNCP.</t>
+      </list>
+      </t>
       <t>draft-ietf-homenet-dncp-06:
       <list style="symbols">
 
