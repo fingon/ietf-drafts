@@ -606,10 +606,12 @@ and they can be queued (and jittered) freely?
 
           For comparison purposes of the sequence number,
           a looping comparison function MUST be used to avoid problems in
-          case of overflow. The comparison function
-          a &lt; b &lt;=&gt; (a - b) % 2^32 &amp; 2^31 != 0
-          is RECOMMENDED unless the DNCP profile defines another.
-          <!-- TODO: clarify the formula? -->
+          case of overflow.
+
+          The comparison function a &lt; b &lt;=&gt; ((a - b) % (2^32))
+          &amp; (2^31) != 0 where (a % b) represents the remainder of a
+          modulo b and (a &amp; b) represents bitwise conjunction of a and
+          b is RECOMMENDED unless the DNCP profile defines another.
           </t>
 
           <t>Any other TLV:
