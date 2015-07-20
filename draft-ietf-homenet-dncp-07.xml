@@ -88,7 +88,7 @@ and they can be queued (and jittered) freely?
       <t>For maintaining liveliness of the topology and the data within it,
       a combination of Trickled network state, keep-alives, and "other"
       means of ensuring reachability are used. The core idea is that if
-      every node ensures its neighbors are present, transitively, the whole
+      every node ensures its peers are present, transitively, the whole
       network state also stays up-to-date.</t>
 
       <t>DNCP is most suitable for data that changes only infrequently to gain
@@ -206,7 +206,7 @@ and they can be queued (and jittered) freely?
       <!-- TBD: Should we rename neighbor -> peer? Because in case of DNCP
            with global addressing, a neighbor _may not_ be locally adjacent
            which is implied by a neighbor. -MSt -->
-      <c>Peer / Neighbor</c>
+      <c>Peer</c>
       <c>another DNCP node with which a DNCP node communicates using a
       particular local and remote endpoint pair.</c>
 
@@ -294,7 +294,7 @@ and they can be queued (and jittered) freely?
 
       <t>A Merkle tree is maintained by each node to represent the state of
       all currently reachable nodes and the Trickle algorithm is used to
-      trigger synchronization. The need to check neighboring nodes for state
+      trigger synchronization. The need to check peer nodes for state
       changes is thereby determined by comparing the current root of their
       respective trees, i.e., their individually calculated network state
       hashes.</t>
@@ -981,14 +981,14 @@ and they can be queued (and jittered) freely?
         way (e.g., TCP connection lifetime, layer 2 notification,
         per-endpoint keep-alive). </t>
 
-        <t>An upper bound for the number of neighbors that are allowed for
+        <t>An upper bound for the number of peers that are allowed for
         a particular type of link that an endpoint in Multicast+Unicast
         transport mode is used on SHOULD be provided by a DNCP profile, but
         MAY also be chosen at runtime.
 
         Main consideration when selecting a bound (if any)
         for a particular type of link should be whether it supports
-        broadcast traffic, and whether a too large number of neighbors case
+        broadcast traffic, and whether a too large number of peers case
         is likely to happen during the use of that DNCP profile
         on that particular type of link. If neither is likely, there is little
         point specifying support for this for that particular link
@@ -1509,7 +1509,7 @@ and they can be queued (and jittered) freely?
           DNCP nodes and node certificates. Trust establishment is a
           two-way process in which the existing network must trust the
           newly added node and the newly added node must trust at least
-          one of its neighboring nodes.
+          one of its peer nodes.
 
           It is therefore necessary that both the newly added node and an
           already trusted node perform such a ceremony to successfully
