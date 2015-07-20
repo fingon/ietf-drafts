@@ -1015,20 +1015,22 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
     <section anchor="tlvs" title="Type-Length-Value Objects">
       <t>
         Each TLV is encoded as a 2 byte type field, followed by a 2 byte
-        length field (of the value excluding header, in bytes, 0 meaning no value)
-        followed by the value itself, if any. Both type and length fields
-        in the header as well as all integer fields inside the value -
-        unless explicitly stated otherwise - are represented in network
+        length field (of the value excluding header, in bytes, 0 meaning no
+        value) followed by the value itself, if any. Both type and length
+        fields in the header as well as all integer fields inside the value
+        - unless explicitly stated otherwise - are represented in network
         byte order. Padding bytes with value zero MUST be added up to the
         next 4 byte boundary if the length is not divisible by 4.  These
-        padding bytes MUST NOT be included in the number stored in the length
-        field. Each TLV which does not define optional fields MAY be sent with
-        additional nested TLVs appended after the required TLV fields -
-        and padding (if applicable) to allow for extensibility. In this case
-        the length field includes the length of the original TLV,
-        the length of the padding up to the embedded TLVs and the length of the
-        added TLVs. Therefore, each node MUST accept received TLVs that are longer
-        than the fields specified and ignore embedded TLVs it does not understand.
+        padding bytes MUST NOT be included in the number stored in the
+        length field. Each TLV which does not define optional fields or
+        variable-length content MAY be sent with additional nested TLVs
+        appended after the required TLV fields - and padding (if
+        applicable) to allow for extensibility. In this case the length
+        field includes the length of the original TLV, the length of the
+        padding that are inserted before the embedded TLVs and the length
+        of the added TLVs. Therefore, each node MUST accept received TLVs
+        that are longer than the fixed fields specified and ignore embedded
+        TLVs it does not understand.
       </t>
 
       <figure>
@@ -1039,14 +1041,19 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 |            Type               |           Length              |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                             Value                             |
+..
 |                     (variable # of bytes)                     |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                     (Optional nested TLVs)                    |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
         </artwork>
       </figure>
 
       <t>
         For example, type=123 (0x7b) TLV with value 'x' (120 =
-        0x78) is encoded as: 007B 0001 7800 0000.
+        0x78) is encoded as: 007B 0001 7800 0000. If it were to have
+        sub-TLV of type=124 (0x7c) with value 'y', it would be encoded as
+        007B 0009 7800 0000 007C 0001 7900 0000.
       </t>
 
       <t>In this section, the following special notation is used:
@@ -1756,6 +1763,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         <t>Removed fragmentation as it is somewhat underspecified and
         unimplemented. It may be specified in some future extension draft
         or new version of DNCP.</t>
+        <t>Added generic sub-TLV extensibility mechanism.</t>
       </list>
       </t>
       <t>draft-ietf-homenet-dncp-06:
