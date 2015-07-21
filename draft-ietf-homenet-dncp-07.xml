@@ -1502,7 +1502,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
             in DER-format.</t>
 
             <t>Common Name contains the variable-length (1-64 bytes) common
-            name of the certificate. Final byte MUST have value of 0.</t>
+            name of the certificate.</t>
           </list>
           </t>
         </section>
