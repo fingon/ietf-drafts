@@ -607,9 +607,10 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
           </t>
 
           <t>Any other TLV:
+
           TLVs not recognized by the receiver MUST be silently ignored
-          unless they are sent as part of the payload of one of the TLVs
-          above (such as TLVs in the Node Data field of a Node State TLV).
+          unless they are sent within another TLV (for example, TLVs within
+          the Node Data field of a Node State TLV).
           </t>
 
         </list>
