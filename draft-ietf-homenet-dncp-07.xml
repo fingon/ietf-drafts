@@ -998,7 +998,8 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         highest node identifier on the link, it SHOULD treat the endpoint
         as a unicast endpoint connected to the node that has the highest
         node identifier detected on the link, therefore transitioning to
-        Multicast-listen+Unicast transport mode. The nodes in
+        Multicast-listen+Unicast transport mode. See <xref target="dt" />
+        for implications on the specific endpoint behavior. The nodes in
         Multicast-listen+Unicast transport mode MUST keep listening to
         multicast traffic to both receive messages from the node(s) still
         in Multicast+Unicast mode, and as well to react to nodes with a
