@@ -254,18 +254,17 @@ I writing an essay on this. :-p)
               Routers</xref>.  This algorithm
           MUST be implemented by any router implementing HNCP.</t>
 
-    <t>The border discovery auto-detection algorithm works as follows,
-    with evaluation stopping at first match:
+    <t>If a fixed category is configured for an interface, it MUST be
+    used. Otherwise, the following border discovery auto-detection
+    algorithm SHOULD be used, with evaluation stopping at first match:
     <list style="numbers">
-        <t>If a fixed category is configured for the interface, it MUST be used.</t>
-
         <t>If a delegated prefix could be acquired by running a DHCPv6
-            client on the interface, it MUST be considered external.</t>
+            client on the interface, it is considered external.</t>
 
         <t>If an IPv4 address could be acquired by running a DHCPv4 client
-            on the interface it MUST be considered external.</t>
+            on the interface it is considered external.</t>
 
-        <t>Otherwise the interface MUST be considered internal.</t>
+        <t>Otherwise the interface is considered internal.</t>
     </list>
     </t>
 
@@ -289,7 +288,7 @@ I writing an essay on this. :-p)
       </list>
       </t>
 
-      <t>A router MUST allow setting a category of either auto-detected,
+      <t>A router SHOULD allow setting a category of either auto-detected,
       internal or external for each interface which is suitable for both
       internal and external connections. In addition the following
       specializations of the internal category are defined to modify the
@@ -323,7 +322,7 @@ I writing an essay on this. :-p)
       </list>
       </t>
 
-      <t>Each router MUST continuously scan each active interface that does
+      <t>Each router SHOULD continuously scan each active interface that does
       not have a fixed category in order to dynamically reclassify it if
       necessary.  The router therefore runs an appropriately configured
       DHCPv4 and DHCPv6 client as long as the interface is active including
