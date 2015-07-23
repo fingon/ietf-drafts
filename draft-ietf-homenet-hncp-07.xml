@@ -1503,15 +1503,13 @@ I writing an essay on this. :-p)
 
     <section anchor="iana" title="IANA Considerations">
 
-      <t>IANA is requested to maintain a registry for HNCP TLV-Types.
-      This registry inherits TLV-Types and allocation policy defined in
-      <xref target="I-D.ietf-homenet-dncp">DNCP</xref>, but is independent
-      with regard to all TLV-Types not specified or reserved by DNCP. Particularly,
-      other DNCP profile may have there own registries, using same TLV numbers.</t>
-
-      <t>The following TLV-Types are defined in this document:
+      <t>IANA should set up a registry for HNCP TLV types,
+      with the following initial contents:</t>
 
       <list>
+
+        <t>0-31: Reserverd - specified in the DNCP registry</t>
+
         <t>32: HNCP-Version</t>
         <t>33: External-Connection</t>
         <t>34: Delegated-Prefix</t>
@@ -1524,9 +1522,17 @@ I writing an essay on this. :-p)
         <t>41: Node-Name</t>
         <t>42: Managed-PSK</t>
         <t>43: Prefix-Policy</t>
-      </list>
 
-      </t>
+        <t>44-191: Free - policy of 'standards action' should be used.</t>
+
+        <t>192-255: Reserved - to be used for per-implementation
+        experimentation. How collision is avoided is out of scope of this
+        document.</t>
+
+        <t>256-65535: Free (but also reserved for future DNCP extensions) - 
+        policy of 'standards action' should be used</t>
+
+      </list>
 
       <t>HNCP requires allocation of UDP port numbers
       HNCP-UDP-PORT and HNCP-DTLS-PORT, as well as an IPv6 link-local

@@ -1,8 +1,8 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Fri Jul  3 08:40:24 2015 mstenber
-Last modified: Fri Jul  3 09:32:32 2015 mstenber
-Edit time:     48 min
+Last modified: Thu Jul 23 11:34:42 2015 mstenber
+Edit time:     51 min
 -->
 
 <!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
@@ -84,8 +84,8 @@ Edit time:     48 min
 
     <section title="DNCP Profile">
 
-      <t>The core of how TLVs are synchronized in SHSP is <xref
-      target="I-D.ietf-homenet-dncp"> DNCP</xref>; due to laziness, DNCP
+      <t>Hard work of SHSP is handled by <xref
+      target="I-D.ietf-homenet-dncp">DNCP</xref>; due to laziness, DNCP
       profile of <xref target="I-D.ietf-homenet-hncp">HNCP</xref> is used
       as is. Despite the reuse of the transport and DNCP core logic, NONE
       of the HNCP TLVs are part of SHSP.</t>
@@ -169,28 +169,18 @@ Edit time:     48 min
 
     <section anchor="tlvs" title="Type-Length-Value Objects">
       <t>
-        SHSP defines following TLVs for it's own use.
+        SHSP requires only one TLV for it's own use:
       </t>
-      <section title="SHSP Version TLV">
-        <t>
-          TBD: ASCII art
-          <list style="symbols">
-            <t>T=100</t>
-            <t>V=reserved for now; MUST be empty when sent, MUST accept
-            anything</t>
-          </list>
-          This TLV is used to identify other speakers of SHSP that talk
-          the version of the protocol that is compatible with this
-          specification.
-        </t>
-        
-        </section>
 
       <section title="SHSP Key-Value State TLV">
         <t>
           TBD: ASCII art
+
+          TBD: Move to CBOR encoding? Unfortunately not e.g. part of base
+          Python 2, so I guess not.
+          
           <list style="symbols">
-            <t>T=101</t>
+            <t>T=100 (TBD)</t>
             <t>V=
             JSON-encoded string, containing a dictionary with:
             <list style="symbols">
