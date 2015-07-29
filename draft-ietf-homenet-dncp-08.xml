@@ -87,15 +87,49 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       every node ensures its peers are present, transitively, the whole
       network state also stays up-to-date.</t>
 
-      <t>DNCP is most suitable for data that changes only infrequently to gain
-      the maximum benefit from using Trickle. As the network of nodes, or
-      the rate of data changes grows over a given time interval, Trickle
-      is eventually used less and less and the benefit of using DNCP
-      diminishes. In these cases Trickle just provides extra complexity
-      within the specification and little added value. If constant rapid
-      state changes are needed, the preferable choice is to use an
-      additional point-to-point channel whose address or locator is
-      published using DNCP.</t>
+      <section title="Applicability">
+
+        <t>DNCP is most suitable for data that changes only infrequently to
+        gain the maximum benefit from using Trickle. As the network of
+        nodes grows, or the frequency of data changes per node increases,
+        Trickle is eventually used less and less and the benefit of using
+        DNCP diminishes. In these cases Trickle just provides extra
+        complexity within the specification and little added value. </t>
+
+        <t>Suitability of DNCP for a particular application can be roughly
+        evaluated by considering the expected average network-wide state
+        change interval A_NC_I; it is computed by dividing the mean
+        interval at which a node originates a new TLV set with the number
+        of participating nodes. If keep-alives are used, A_NC_I is the
+        minimum of the A_NC_I and the keep-alive interval.
+
+        If A_NC_I is less than (application-specific) Trickle minimum
+        interval, DNCP is most likely wrong tool for the application as
+        Trickle will not be used anyway most of the time. </t>
+
+        <t>If constant rapid state changes are needed, the preferable
+        choice is to use an additional point-to-point channel whose address
+        or locator is published using DNCP. Even if that does not raise
+        A_NC_I to a value that is more than the (sensibly chosen) Trickle
+        interval parameters for a particular application, using DNCP is not
+        the correct choice for the application.</t>
+
+        <t>Another consideration is the size of the published TLV set by a
+        node compared to the size of deltas in the TLV set; if the TLV set
+        published by a node is very large, and the TLV set has frequent
+        small changes, DNCP as currently specified is not the correct
+        choice as there is no TLV set delta synchronization scheme
+        specified but the whole TLV sets are transmitted verbatim when
+        change occurs.</t>
+
+        <t>DNCP can be used in networks where unicast transport is
+        available. While DNCP uses least amount of bandwidth given
+        multicast availability, even using pure unicast transport, the use
+        of Trickle (with ideally k less than 2) results in a protocol with
+        an exponential backoff timer and less transmissions than a simpler
+        protocol without Trickle.</t>
+
+      </section>
 
     </section>
 
@@ -106,27 +140,21 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
 	<c>DNCP profile</c>
 
-	<c>a definition of the set of rules and values defining the
-	behavior of a fully specified, implementable protocol which uses
-	DNCP.
+	<c>the values for the set of parameters, given in <xref
+	target="profile-bits"/>. They are prefixed with DNCP_ in this
+	document. It also specifies the set of optional parts of this
+	specification, which are to be used.
+        </c>
 
-        The DNCP profile specifies transport method to be used, which
-        optional parts of the DNCP specification are required by that
-        particular protocol, and various parameters and optional behaviors.
-
-        In this document any parameter that a DNCP profile specifies is
-        prefixed with DNCP_.
-
-        Contents of a DNCP profile are specified in
-        <xref target="profile-bits"/>. </c>
-
-      <c /><c />
+        <c /><c />
 
       <c>DNCP-based protocol</c>
 
-      <c>a protocol which provides a DNCP profile, and potentially much
-      more, e.g., protocol-specific TLVs and guidance on how they
-      should be used.</c>
+      <c>a protocol which provides a DNCP profile, according to <xref
+      target="profile-bits"/>, and zero or more TLV assignments from the
+      DNCP profile-specific TLV registry as well as their processing rules.</c>
+
+      <c /><c />
 
       <c>DNCP node</c>
       <c>a single node which runs a DNCP-based protocol.</c>
@@ -137,9 +165,12 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       <c>a link-layer media over which directly connected nodes can
       communicate.</c>
 
+      <c /><c />
+
       <c>DNCP network</c>
 
-      <c>a set of DNCP nodes running the same DNCP-based protocol.
+      <c>a set of DNCP nodes running DNCP-based protocol(s) that have
+      matching DNCP profile.
 
       The set consists of nodes that have discovered each other using the
       transport method defined in the DNCP profile, via multicast
@@ -155,8 +186,6 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
       <c /><c />
 
-      <c /><c />
-
       <c>Interface</c>
       <c>a node's attachment to a particular link.</c>
 
@@ -164,12 +193,13 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
       <c>Address</c>
 
-      <c>As DNCP itself is relatively transport agnostic, an address in
-      this specification denotes just something that identifies an endpoint
-      used by the transport protocol that is used by a DNCP-based protocol. In
-      case of an IPv6 UDP transport, an address in this specification refers
-      to a tuple (IPv6 address, UDP port).
+      <c>an identifier which specifies how to reach a particular instance
+      of a transport protocol on a particular node. In case of an IPv6 UDP
+      transport, an address in this specification refers to a tuple (IPv6
+      address, UDP port).
       </c>
+
+      <c /><c />
 
       <c>Endpoint</c>
 
@@ -178,6 +208,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       unicast Addresses representing remote DNCP nodes to individually connect
       to or to accept connections from whereby communication with each node is
       separated (e.g., an individual unicast UDP message flow per remote node).
+
       An endpoint may also be bound to a whole network interface, then
       multicast communication is used (in addition to individual unicast flows)
       to send certain messages to all DNCP nodes connected therewith at once
@@ -253,6 +284,25 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       <c>the undirected graph of DNCP nodes produced by
       retaining only bidirectional peer relationships between nodes.</c>
 
+      <c /><c />
+
+      <c>Bidirectionally reachable</c>
+
+      <c>a peer is locally unidirectionally reachable if it has sent a
+      recent and consistent multicast message, or it has recently sent a
+      unicast message to the local node (see <xref target="peers" />).
+
+      If the peer also considers local node unidirectionally reachable, the
+      peer is bidirectionally reachable.
+
+      As this is based on publishing local peer relationships and
+      evaluating the resulting topology graph as described in <xref
+      target="liveliness" />, the information is available to whole DNCP
+      network.
+
+      </c>
+
+
       </texttable>
 
 
@@ -276,34 +326,40 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       topology discovery. If used in pure unicast mode with unreliable
       transport, Trickle is also used between peers.</t>
 
-      <t>DNCP discovers the topology of its nodes and maintains the
-      liveliness of published node data by ensuring that the publishing
-      node was - at least recently - bidirectionally reachable.  This is
-      determined, e.g., by a recent and consistent multicast or unicast TLV
-      exchange with its peers. New potential peers can be discovered
-      autonomously on multicast-enabled links, their addresses may be
-      manually configured or they may be found by some other means defined
-      in a later specification.</t>
+      <t>DNCP discovers the topology of the nodes in the DNCP network and
+      maintains the liveliness of published node data by ensuring that the
+      publishing node was - at least recently - bidirectionally reachable.
+      New potential peers can be
+      discovered autonomously on multicast-enabled links, their addresses
+      may be manually configured or they may be found by some other means
+      defined in a later specification.</t>
 
-      <t>A hash tree is maintained by each node to represent the state of
-      all currently reachable nodes and the Trickle algorithm is used to
-      trigger synchronization. The need to check peer nodes for state
-      changes is thereby determined by comparing the current root of their
-      respective trees, i.e., their individually calculated network state
-      hashes.</t>
+      <t>A hash tree of height 1, rooted in itself, is maintained by each
+      node to represent the state of all currently reachable nodes (see
+      <xref target="hash-tree" />) and the Trickle algorithm is used to
+      trigger synchronization (see <xref target="trickle-updates" />).
 
-      <t>Before joining a DNCP network, a node starts with a hash tree
-      (and therefore a calculated network state hash) only consisting of
-      the node itself. It then announces said hash by means of the Trickle
-      algorithm on all its configured endpoints.</t>
+      The need to check peer nodes for state changes is thereby determined
+      by comparing the current root of their respective hash trees, i.e.,
+      their individually calculated network state hashes.</t>
+
+      <t>Before joining a DNCP network, a node starts with a hash tree that
+      has only one leaf if the node publishes some TLVs, and no leaves
+      otherwise.
+
+      It then announces the network state hash calculated from the hash
+      tree by means of the Trickle algorithm on all its configured
+      endpoints.</t>
 
       <t>When an update is detected by a node (e.g., by receiving a
       different network state hash from a peer) the originator of the
       event is requested to provide a list of the state of all nodes,
       i.e., all the information it uses to calculate its own hash
-      tree. The node uses the list to determine whether its own information
-      is outdated and - if necessary - requests the actual node data that
-      has changed.</t>
+      tree.
+
+      The node uses the list to determine whether its own information is
+      outdated and - if necessary - requests the actual node data that has
+      changed. </t>
 
       <t>Whenever a node's local copy of any node data and its hash tree are
       updated (e.g., due to its own or another node's node state changing or
@@ -344,7 +400,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
       <section anchor="dt" title="Data Transport">
 
-        <t>DNCP has relatively few requirements for the underlying
+        <t>DNCP has few requirements for the underlying
         transport; it requires some way of transmitting either unicast
         datagram or stream data to a peer and, if used in multicast mode, a
         way of sending multicast datagrams.
@@ -622,7 +678,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
 
       </section>
 
-      <section title="Adding and Removing Peers">
+      <section anchor="peers" title="Adding and Removing Peers">
 
         <t>When receiving a <xref target="endpoint">Node Endpoint
         TLV</xref> on an endpoint from an unknown peer:
@@ -647,6 +703,12 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         keep-alives), some other existing local transport-specific
         means (such as Ethernet carrier-detection or TCP keep-alive)
         MUST be used to ensure its presence.
+
+        If the peer does not send keep-alives, and no means to verify
+        presence of the peer are available, the peer MUST be considered no
+        longer present and it SHOULD not be added back as a peer until it
+        starts sending keep-alives again.
+
         When the peer is no longer present, the Peer
         TLV and the local DNCP peer state MUST be removed.</t>
 
@@ -979,7 +1041,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
         transport mode is used on SHOULD be provided by a DNCP profile, but
         MAY also be chosen at runtime.
 
-        Main consideration when selecting a bound (if any)
+        The main consideration when selecting a bound (if any)
         for a particular type of link should be whether it supports
         broadcast traffic, and whether a too large number of peers case
         is likely to happen during the use of that DNCP profile
@@ -1191,9 +1253,9 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
           published state of a node in the DNCP network identified by the
           Node Identifier field in the TLV. </t>
 
-          <t>Every node, including the originating one, MUST update the
-          Milliseconds Since Origination whenever it sends a Node
-          State TLV based on when the node estimates the data was
+          <t>Every node, including the node publishing the node data, MUST
+          update the Milliseconds Since Origination whenever it sends a
+          Node State TLV based on when the node estimates the data was
           originally published. This is, e.g., to ensure that any relative
           timestamps contained within the published node data can be
           correctly offset and interpreted. Ultimately, what is provided is
