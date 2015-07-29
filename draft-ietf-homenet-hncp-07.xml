@@ -1508,7 +1508,7 @@ I writing an essay on this. :-p)
 
       <list>
 
-        <t>0-31: Reserverd - specified in the DNCP registry</t>
+        <t>0-31: Reserved - specified in the DNCP registry</t>
 
         <t>32: HNCP-Version</t>
         <t>33: External-Connection</t>
