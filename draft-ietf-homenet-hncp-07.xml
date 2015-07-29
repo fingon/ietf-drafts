@@ -1523,14 +1523,13 @@ I writing an essay on this. :-p)
         <t>42: Managed-PSK</t>
         <t>43: Prefix-Policy</t>
 
-        <t>44-191: Free - policy of 'standards action' should be used.</t>
+        <t>44-512: Free - policy of 'standards action' should be used.</t>
 
-        <t>192-255: Reserved - to be used for per-implementation
+        <t>512-767: Reserved - specified in the DNCP registry</t>
+
+        <t>768-1023: Reserved - to be used for per-implementation
         experimentation. How collision is avoided is out of scope of this
         document.</t>
-
-        <t>256-65535: Free (but also reserved for future DNCP extensions) - 
-        policy of 'standards action' should be used</t>
 
       </list>
       </t>

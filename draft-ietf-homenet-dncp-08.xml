@@ -1708,6 +1708,7 @@ TODO:
         </t>
       </list>
       </t>
+
     </section>
 
     <section title="Security Considerations">
@@ -1750,13 +1751,12 @@ TODO:
       <t>8: Peer</t>
       <t>9: Keep-alive interval</t>
       <t>10: Trust-Verdict</t>
+      <t>11-31: Free - policy of 'standards action' should be used</t>
       <t>32-511: Reserved for per-DNCP profile use</t>
+      <t>512-767: Free - policy of 'standards action' should be used</t>
       <t>768-1023: Private use</t>
       <t>1024-65535: Reserved for future protocol evolution (for example,
       DNCP version 2)</t>
-
-      <t>For the rest of the values (11-31, 512-767), policy of 'standards
-      action' should be used.</t>
 
     </section>
 
