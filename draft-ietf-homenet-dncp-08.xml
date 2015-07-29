@@ -4,6 +4,9 @@ Created:       Mon Nov 18 17:55:22 2013 mstenber
 
 split from draft-ietf-homenet-hncp-03-pre - generic parts
 
+TODO:
+- caption + title to figures? (gen-art review)
+
 -->
 
 <!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
@@ -57,8 +60,8 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
     <abstract>
 
     <t>This document describes the Distributed Node Consensus Protocol
-    (DNCP), a generic state synchronization protocol that uses Trickle
-    and hash trees. DNCP is an abstract protocol, that must be
+    (DNCP), a generic state synchronization protocol that uses the Trickle
+    algorithm and hash trees. DNCP is an abstract protocol, and must be
     combined with a specific profile to make a complete implementable
     protocol.</t>
     </abstract>
@@ -79,7 +82,8 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       algorithm</xref> to ensure that all nodes share the same view of the
       current state of the published data within the network. The use of
       Trickle with only short network state hashes sent infrequently (in
-      steady state) makes DNCP very thrifty when updates happen rarely.</t>
+      steady state once per Trickle maximum interval per link or unicast
+      connection) makes DNCP very thrifty when updates happen rarely.</t>
 
       <t>For maintaining liveliness of the topology and the data within it,
       a combination of Trickled network state, keep-alives, and "other"
@@ -598,7 +602,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
             hash, the node SHOULD re-publish its own node data with a
             sequence number significantly (e.g., 1000) greater than
             the received one, to reclaim the node identifier. This difference
-            is needed in order to ensure that it is higher then any potentially
+            is needed in order to ensure that it is higher than any potentially
             lingering copies of the node state in the network.
             This may occur normally once due to the local
             node restarting and not storing the most recently used
@@ -1719,7 +1723,7 @@ split from draft-ietf-homenet-hncp-03-pre - generic parts
       <t>When using DNCP to bootstrap a network, PKI based solutions may have
       issues when validating certificates due to potentially unavailable
       accurate time, or due to inability to use the network to either check
-      Certifcate Revocation Lists or perform on-line validation.</t>
+      Certificate Revocation Lists or perform on-line validation.</t>
 
       <t>The Certificate-based trust consensus mechanism defined in this
       document allows for a consenting revocation, however in case of a
