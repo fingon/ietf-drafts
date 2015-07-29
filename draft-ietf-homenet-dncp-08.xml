@@ -1736,7 +1736,7 @@ TODO:
 
     <section anchor="iana" title="IANA Considerations">
 
-      <t>IANA should set up a registry for DNCP TLV types,
+      <t>IANA should set up a registry for the (16-bit) DNCP TLV types,
       with the following initial contents:</t>
 
       <t>0: Reserved</t>
@@ -1750,12 +1750,12 @@ TODO:
       <t>8: Peer</t>
       <t>9: Keep-alive interval</t>
       <t>10: Trust-Verdict</t>
-      <t>32-191: Reserved for per-DNCP profile use</t>
+      <t>32-511: Reserved for per-DNCP profile use</t>
+      <t>768-1023: Private use</t>
+      <t>1024-65535: Reserved for future protocol evolution (for example,
+      DNCP version 2)</t>
 
-      <t>192-255: Reserved for per-implementation experimentation. How
-      collision is avoided is out of scope of this document.</t>
-
-      <t>For the rest of the values (11-31, 256-65535), policy of 'standards
+      <t>For the rest of the values (11-31, 512-767), policy of 'standards
       action' should be used.</t>
 
     </section>
