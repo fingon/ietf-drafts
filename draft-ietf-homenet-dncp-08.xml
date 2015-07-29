@@ -1741,7 +1741,8 @@ TODO:
       Types" under "Distributed Node Consensus Protocol (DNCP)", with the
       following initial contents:
       [TO BE REMOVED: Ideally as http://www.iana.org/assignments/dncp-registry]
-      </t>
+
+      <list>
 
       <t>0: Reserved</t>
       <t>1: Request network state</t>
@@ -1760,6 +1761,9 @@ TODO:
       <t>768-1023: Private use</t>
       <t>1024-65535: Reserved for future protocol evolution (for example,
       DNCP version 2)</t>
+
+      </list>
+      </t>
 
     </section>
 
