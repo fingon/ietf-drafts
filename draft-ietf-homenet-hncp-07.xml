@@ -792,7 +792,7 @@ I writing an essay on this. :-p)
           <t>This section specifies how HNCP nodes reserve addresses for their
           own use. Nodes MAY, at any time, try to reserve a new address from any
           applied Assigned Prefix.
-          
+
           Each HNCP router MAY announce an IPv6 address and - if it supports
           IPv4 - MUST announce an IPv4 address, whenever matching prefixes
           are assigned to at least one if its Common Links. These addresses are
@@ -801,7 +801,7 @@ I writing an essay on this. :-p)
           announce more than one assignment per IP version to avoid cluttering
           the node data with redundant information unless a special use case
           requires it.</t>
-          
+
           <t>Stateless assignment based on Semantically Opaque Interface
           Identifiers <xref target="RFC7217" /> SHOULD be used for address
           assignment whenever possible (e.g., the prefix-length is /64),
@@ -907,7 +907,7 @@ I writing an essay on this. :-p)
           on the configuration, using the last non-deprecated ULA prefix,
           or generated based on <xref target="RFC4193"/>.</t>
         </section>
-        
+
         <section anchor="prefixpolicy" title="Prefix Policy">
         	<t>Some prefixes may have a special meaning and are not regularly
         	used for internal or internet connectivity, instead they may
@@ -917,7 +917,7 @@ I writing an essay on this. :-p)
         	avoid breaking connectivity for devices who are not aware of their
         	special characteristics or to only selectively allow certain
         	devices to use them.</t>
-        	
+
         	<t>Special purpose prefixes are distinguished using
         	<xref target="prefixpolicytlv">Prefix Policy TLVs</xref>. Their
         	contents MAY be partly opaque to HNCP nodes, and their
@@ -927,21 +927,21 @@ I writing an essay on this. :-p)
         		<t>Special rules apply when making address assignments for
         		prefixes with Prefix Policy TLVs with type 131, as
         		described in <xref target="assign"/></t>
-        	
+
         		<t>In presence of any type 1 to 128 Prefix Policy TLV the
         		prefix is specialized to reach destinations denoted by any
         		such Prefix Policy TLV, i.e. in absence of a type 0 Prefix
         		Policy TLV it is not usable for general internet connectivity.
         		An HNCP router MAY enforce this restriction with appropriate
         		packet filtering rules to provide increased security.</t>
-        		
+
         		<t>The presence of a type 129 (DNS zone) Prefix Policy TLV
         		indicates that the delegated prefix or its associated external
         		connection is specialized to reach destinations within the
         		given DNS zone. An HNCP router providing name resolving
         		services SHOULD prefer DNS servers listed in the associated
         		external connection's DHCPv4 or DHCPv6 Data TLVs when
-        		resolving domains from that zone.</t>        		 
+        		resolving domains from that zone.</t>
         	</list>
         	</t>
         </section>
@@ -1389,11 +1389,11 @@ I writing an essay on this. :-p)
         	SHOULD do the same for DHCPv4 options in a DHCPv4 Data TLV.
         	DHCPv6 options received inside an OPTION_IAPREFIX
         	<xref target="RFC3633" /> MUST be published using a DHCPv6 Data TLV
-        	inside the respective Delegated Prefix TLV. 
-        	
+        	inside the respective Delegated Prefix TLV.
+
         	HNCP routers SHOULD make relevant DHCPv6 and DHCPv4 options available
         	to clients, i.e. options contained in External Connection TLVs that
-        	also include delegated prefixes from which a subset is assigned to        	
+        	also include delegated prefixes from which a subset is assigned to
         	the respective link.</t>
         </list>
         </t>
@@ -1503,8 +1503,11 @@ I writing an essay on this. :-p)
 
     <section anchor="iana" title="IANA Considerations">
 
-      <t>IANA should set up a registry for HNCP TLV types,
-      with the following initial contents:
+      <t>IANA should set up a registry for the (decimal values within range
+      0-1023) "HNCP DNCP-profile TLV Types" under "Distributed Node
+      Consensus Protocol (DNCP)", with the following initial contents:
+
+      [TO BE REMOVED: Ideally as http://www.iana.org/assignments/hncp-registry]
 
       <list>
 
