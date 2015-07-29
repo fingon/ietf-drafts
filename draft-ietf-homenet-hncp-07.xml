@@ -1504,7 +1504,7 @@ I writing an essay on this. :-p)
     <section anchor="iana" title="IANA Considerations">
 
       <t>IANA should set up a registry for HNCP TLV types,
-      with the following initial contents:</t>
+      with the following initial contents:
 
       <list>
 
@@ -1533,6 +1533,7 @@ I writing an essay on this. :-p)
         policy of 'standards action' should be used</t>
 
       </list>
+      </t>
 
       <t>HNCP requires allocation of UDP port numbers
       HNCP-UDP-PORT and HNCP-DTLS-PORT, as well as an IPv6 link-local
