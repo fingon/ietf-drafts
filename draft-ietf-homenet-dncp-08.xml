@@ -1737,8 +1737,11 @@ TODO:
 
     <section anchor="iana" title="IANA Considerations">
 
-      <t>IANA should set up a registry for the (16-bit) DNCP TLV types,
-      with the following initial contents:</t>
+      <t>IANA should set up a registry for the (decimal 16-bit) "DNCP TLV
+      Types" under "Distributed Node Consensus Protocol (DNCP)", with the
+      following initial contents:
+      [TO BE REMOVED: Ideally as http://www.iana.org/assignments/dncp-registry]
+      </t>
 
       <t>0: Reserved</t>
       <t>1: Request network state</t>
