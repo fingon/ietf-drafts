@@ -106,7 +106,7 @@ TODO:
         change interval A_NC_I; it is computed by dividing the mean
         interval at which a node originates a new TLV set by the number
         of participating nodes. If keep-alives are used, A_NC_I is the
-        minimum of the A_NC_I and the keep-alive interval.
+        minimum of the computed A_NC_I and the keep-alive interval.
 
         If A_NC_I is less than the (application-specific) Trickle minimum
         interval, DNCP is most likely unsuitable for the application as
@@ -206,7 +206,7 @@ TODO:
       <c /><c />
 
       <c>Endpoint</c>
-      
+
 <!-- SB: another attempt ;)
 	  <c>a locally configured termination point for (potential or established)
 	  message flows. An endpoint is the source and destination for separated
@@ -361,7 +361,10 @@ TODO:
       <t>Before joining a DNCP network, a node starts with a hash tree that
       has only one leaf if the node publishes some TLVs, and no leaves
       otherwise.
-      <!-- SB: should it have no leaves or 1 leave based on (the hash of) an empty string? --->
+      <!-- SB: should it have no leaves or 1 leave based on (the hash of)
+           an empty string? -->
+      <!-- MSt: 'empty' node state cannot be transmitted on the wire
+           currently, so no leaves is probably the correct choice. -->
 
       It then announces the network state hash calculated from the hash
       tree by means of the Trickle algorithm on all its configured
@@ -724,8 +727,6 @@ TODO:
         presence of the peer are available, the peer MUST be considered no
         longer present and it SHOULD not be added back as a peer until it
         starts sending keep-alives again.
-        
-        <!-- SB: does not following the SHOULD not cause inconsistent behavior among multiple nodes? --> 
 
         When the peer is no longer present, the Peer
         TLV and the local DNCP peer state MUST be removed.</t>
