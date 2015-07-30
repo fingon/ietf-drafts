@@ -90,27 +90,122 @@ I writing an essay on this. :-p)
       (HNCP), an extensible configuration protocol and a set of requirements
       for home network devices on top of the Distributed Node Consensus
       Protocol (DNCP). It enables automated configuration of addresses, naming,
-      network borders and the seamless use of a routing protocol.</t>
+      and border discovery between home and outside world.</t>
 
     </abstract>
   </front>
   <middle>
     <section title="Introduction">
 
-      <t>HNCP synchronizes state across a small site
-      in order to allow automated network configuration.
+      <t>HNCP synchronizes state across a small site in order to allow
+      automated network configuration.
+
       The protocol enables use of border discovery, address prefix
       distribution <xref target="I-D.ietf-homenet-prefix-assignment" />,
-      naming and other services across multiple links.</t>
+      naming and other services that may be defined later across multiple
+      links.</t>
 
-      <t>HNCP provides enough information for a routing protocol to operate
-      without homenet-specific extensions. In homenet environments where
-      multiple IPv6 source-prefixes can be present, routing based on source
-      and destination address is necessary <xref target="RFC7368" />.</t>
+      <t>HNCP is a <xref target="I-D.ietf-homenet-dncp">DNCP</xref>-based
+      protocol, with DNCP profile which defines transport and
+      synchronization details of state across the routers defined in <xref
+      target="profile" />. The rest of the document defines a variety of
+      TLVs that deal with the different services that are offered, and how
+      they should be processed.</t>
 
+      <section title="Applicability">
+
+        <t>While HNCP does not deal with routing protocols directly (except
+        potentially letting them about the internal and external interfaces
+        if border discovery specified in <xref target="bd" /> is used), in
+        homenet environments where multiple IPv6 source-prefixes can be
+        present, routing based on source and destination address is
+        necessary <xref target="RFC7368" />.</t>
+
+        <t>As HNCP uses DNCP as the actual state synchronization protocol,
+        the applicability statement of DNCP can be used here as well; HNCP
+        should not be used for any data that changes rapidly and
+        constantly, and locators to find such services should be published
+        within it instead. This is why the <xref target="naming-sd">naming
+        and service discovery</xref> TLVs contain only DNS server
+        addresses, and no actual per-name or per-service data from
+        hosts.</t>
+
+        <t>HNCP TLVs specified within this document, in steady state, stay
+        constant, with one exception: as <xref target="dp-tlv">Delegated
+        Prefix TLVs</xref> do contain lifetimes, they force re-publishing
+        of that data every time the valid or preferred lifetimes of
+        prefixes (significantly) change. Therefore, it is desirable for
+        ISPs to provide large enough valid and preferred lifetimes to avoid
+        unneccessary HNCP state churn in homes, but even given
+        non-cooperating ISPs, the state churn is proportional only to
+        number of externally received delegated prefixes and not the home
+        network size, and should therefore be relatively low.</t>
+
+
+        <t>While HNCP is designed to be used by (home) routers, it can be
+        also used by advanced hosts that want to do e.g. their own address
+        assignment and routing.</t>
+      </section>
     </section>
 
-    <section anchor="kwd" title='Requirements language'>
+    <section title="Terminology">
+
+      <t>Defined in <xref target="I-D.ietf-homenet-prefix-assignment" />:
+      <list style="symbols">
+        <t>Advertised Prefix Priority</t>
+	<t>Advertised Prefix</t>
+	<t>Assigned Prefix</t>
+	<t>Delegated Prefix</t>
+	<t>Prefix Adoption</t>
+	<t>Private Link</t>
+	<t>Published Assigned Prefix</t>
+	<t>Shared Link</t>
+      </list>
+      </t>
+
+      <t>Defined in <xref target="I-D.ietf-homenet-dncp" />:
+      <list style="symbols">
+        <t>DNCP profile</t>
+        <t>Node identifier</t>
+        <t>Link</t>
+        <t>Interface</t>
+      </list>
+      </t>
+
+      <texttable suppress-title="true" style="none" align="left">
+	<ttcol width="25%" /><ttcol width="75%" />
+
+	<c>Border</c>
+	<c>separation point between administrative domains; in this case,
+	between the home network and not-home network, that is, ISP
+	network</c>
+        <c /><c />
+
+	<c>External interface</c>
+	<c>an interface that is connected to a link which crosses
+	a border. This may be either detected, or set statically, as
+	specified in <xref target="bd" />.</c>
+        <c /><c />
+
+	<c>Internal interface</c>
+	<c>an interface that is connected to a link that does not cross
+	borders. This may be either detected, or set statically, as
+	specified in <xref target="bd" />.</c>
+        <c /><c />
+
+	<c>Border router</c>
+	<c>a router with external interfaces.</c>
+        <c /><c />
+
+        <c>Common Link</c>
+        <c>a (sub)set of nodes on a link with shared view of the link - that
+        is, they see each other's traffic and also share view of hosts for
+        that (part of) link.</c>
+        <c /><c />
+
+      </texttable>
+
+      <section anchor="kwd" title='Requirements language'>
 
       <t>
        The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
@@ -120,10 +215,10 @@ I writing an essay on this. :-p)
       </t>
 
     </section>
+    </section>
 
-    <section title="DNCP Profile">
-      <t>HNCP is defined as a profile of <xref target="I-D.ietf-homenet-dncp">
-      DNCP</xref> with the following parameters:
+    <section anchor="profile" title="DNCP Profile">
+      <t>The DNCP profile of HNCP is defined as follows:
 
       <list style="symbols">
 
@@ -155,18 +250,25 @@ I writing an essay on this. :-p)
         <t>HNCP uses opaque 32-bit node identifiers
         (DNCP_NODE_IDENTIFIER_LENGTH = 32). A node implementing HNCP SHOULD
         generate and use a random node identifier. If using a random node
-        identifier and there is a node identifier collision, the node MUST
-        immediately generate and use a new random node identifier which is
-        not used by any other node.</t>
+        identifier and there is a node identifier collision (as specified
+        in the Node State TLV handling of Section 4.4 of <xref
+        target="I-D.ietf-homenet-dncp" />), the node MUST immediately
+        generate and use a new random node identifier which is not used by
+        any other node at the time, based on the current DNCP network state.</t>
 
         <t>HNCP nodes MUST ignore all Node State TLVs received via
         multicast on a link which has DNCP security enabled in order
         to prevent spoofing of node state changes.</t>
 
-        <t>HNCP nodes use the following Trickle parameters:
+        <t>HNCP nodes use the following Trickle parameters for
+        the per-interface Trickle instances:
+
         <list style="symbols">
+
           <t>k SHOULD be 1, as the timer reset when data is updated and
-          further retransmissions should handle packet loss.</t>
+          further retransmissions should handle packet loss. If the
+          underlying link is non-transitive and/or lossy, higher values
+          SHOULD be used.</t>
 
           <t>Imin SHOULD be 200 milliseconds but MUST NOT be lower.
           Note: Earliest transmissions may occur at Imin / 2.</t>
@@ -180,84 +282,42 @@ I writing an essay on this. :-p)
         target="RFC1321">MD5</xref> as DNCP non-cryptographic hash function
         H(x).</t>
 
-        <t>HNCP nodes MUST use DNCP's keep-alive extension on all endpoints.
-        The following parameters are suggested:
+        <t>HNCP nodes MUST use DNCP's per-endpoint keep-alive extension on
+        all endpoints.  The following parameters are suggested:
+
         <list style="symbols">
             <t>Default keep-alive interval (DNCP_KEEPALIVE_INTERVAL): 20 seconds.</t>
-            <t>Multiplier (DNCP_KEEPALIVE_MULTIPLIER): 2.1.</t>
+            <t>Multiplier (DNCP_KEEPALIVE_MULTIPLIER): 2.1 on virtually
+            lossless links works fine as it allows for one lost
+            keep-alive. If used on a lossy link, considerably higher
+            multiplier, such as 15, should be used instead. In that case,
+            an implementation should probably use shorter keep-alive
+            intervals on that link as well.</t>
         </list>
         </t>
 
       </list>
       </t>
-    </section>
-
-    <section title="Common Links" anchor="links">
-
-      <t>HNCP uses the concept of Common Links for some of its
-      applications. A Common Link usually refers to a link layer broadcast
-      domain with certain properties and is used, e.g., to determine where
-      prefixes should be assigned or which neighboring nodes
-      participate in the election of a DHCP(v6) server.
-      The Common Link is computed separately for each local
-      interface, and it always contains the local interface. Additionally,
-      if the local interface is not in ad-hoc mode, it also contains the
-      set of interfaces that are bidirectionally reachable from the given
-      local interface, i.e. every remote interface of a remote node meeting
-      all of the following requirements:
-
-      <list style="symbols">
-
-        <t>The local node publishes a Neighbor TLV with:
-        <list style="symbols">
-
-          <t>Neighbor Node Identifier = remote node's node identifier</t>
-
-          <t>Neighbor Endpoint Identifier = remote interface's endpoint
-          identifier</t>
-
-          <t>Endpoint Identifier = local interface's endpoint identifier</t>
-
-        </list>
-        </t>
-
-        <t>The remote node publishes a Neighbor TLV with:
-        <list style="symbols">
-
-          <t>Neighbor Node Identifier = local node's node identifier</t>
-
-          <t>Neighbor Endpoint Identifier = local interface's endpoint
-          identifier</t>
-
-          <t>Endpoint Identifier = remote interface's endpoint identifier</t>
-
-        </list>
-        </t>
-      </list>
-      </t>
-
-      <t>A node MUST be able to detect whether two of its local interfaces are
-      connected, e.g. by detecting an identical remote interface
-      being part of the Common Links of both local interfaces.</t>
     </section>
 
     <section title="Border Discovery" anchor="bd">
 
-      <t>HNCP router's interfaces are either internal, external or of a different
-          category derived from the internal one.
-          This section defines the border discovery algorithm.
-          It is suitable for both IPv4 and IPv6 (single or dual-stack) and
-          determines whether an HNCP interface is internal, external,
-          or uses another fixed category. The algorithm is derived from the
-          edge router interactions described in the
-          <xref target="RFC7084">Basic Requirements for IPv6 Customer Edge
-              Routers</xref>.  This algorithm
-          MUST be implemented by any router implementing HNCP.</t>
+      <t>HNCP router's interfaces are either internal or external. Internal
+      interfaces have a number of sub-categories.
 
-    <t>If a fixed category is configured for an interface, it MUST be
-    used. Otherwise, the following border discovery auto-detection
-    algorithm SHOULD be used, with evaluation stopping at first match:
-    <list style="numbers">
+      This section defines the border discovery algorithm.  It is suitable
+      for both IPv4 and IPv6 (single or dual-stack) and determines whether
+      an HNCP interface is dynamically detected as internal or external, or
+      uses a fixed category. The algorithm is derived from the edge router
+      interactions described in the <xref target="RFC7084">Basic
+      Requirements for IPv6 Customer Edge Routers</xref>.  This algorithm
+      MUST be implemented by any router implementing HNCP.</t>
+
+      <t>If a fixed category is configured for an interface, it MUST be
+      used. Otherwise, the following border discovery auto-detection
+      algorithm SHOULD be used, with evaluation stopping at first match:
+
+      <list style="numbers">
         <t>If a delegated prefix could be acquired by running a DHCPv6
             client on the interface, it is considered external.</t>
 
@@ -291,7 +351,7 @@ I writing an essay on this. :-p)
       <t>A router SHOULD allow setting a category of either auto-detected,
       internal or external for each interface which is suitable for both
       internal and external connections. In addition the following
-      specializations of the internal category are defined to modify the
+      sub-categories of the internal category are defined to modify the
       local router behavior:
 
       <list style="hanging">
@@ -341,7 +401,9 @@ I writing an essay on this. :-p)
       be connected to an external network.</t>
     </section>
 
-    <section title="Autonomic Address Configuration">
+    <section anchor="aaddr" title="Autonomic Address Configuration">
+
+
       <t>This section specifies how HNCP routers configure host and router
       addresses. At first border routers share information obtained from
       service providers or local configuration by publishing one or more
@@ -355,11 +417,74 @@ I writing an essay on this. :-p)
       are encoded using the <xref target="RFC4291">IPv4-mapped IPv6 addresses format</xref>.
       The prefix length of such IPv4 prefix is set to 96 plus the IPv4 prefix length.</t>
 
+    <section title="Common Link" anchor="links">
+
+      <t>HNCP uses the concept of Common Link both in autonomic address
+      configuration and <xref target="naming-sd">naming and service
+      discovery</xref>.
+
+      A Common Link refers to the set of interfaces of nodes
+      that see each other's traffic and presumably also the traffic of all
+      hosts that may use the nodes to e.g. route traffic.
+
+      Common Link is used, e.g., to determine where prefixes should be
+      assigned or which peers participate in the election of a DHCP(v6)
+      server.
+
+      The Common Link is computed separately for each local internal
+      interface, and it always contains the local interface. Additionally,
+      if the local interface is not set to ad-hoc category (see <xref
+      target="bd" />), it also contains the set of interfaces that are
+      bidirectionally reachable from the given local interface, that is,
+      every remote interface of a remote node meeting all of the following
+      requirements:
+
+      <list style="symbols">
+
+        <t>The local node publishes a Peer TLV with:
+        <list style="symbols">
+
+          <t>Peer Node Identifier = remote node's node identifier</t>
+
+          <t>Peer Endpoint Identifier = remote interface's endpoint
+          identifier</t>
+
+          <t>Endpoint Identifier = local interface's endpoint identifier</t>
+
+        </list>
+        </t>
+
+        <t>The remote node publishes a Peer TLV with:
+        <list style="symbols">
+
+          <t>Peer Node Identifier = local node's node identifier</t>
+
+          <t>Peer Endpoint Identifier = local interface's endpoint
+          identifier</t>
+
+          <t>Endpoint Identifier = remote interface's endpoint identifier</t>
+
+        </list>
+        </t>
+      </list>
+      </t>
+
+      <t>A node MUST be able to detect whether two of its local internal
+      interfaces are connected, e.g. by detecting an identical remote
+      interface being part of the Common Links of both local
+      interfaces.</t>
+    </section>
+
+
+
       <section title="External Connections">
-        <t>Each HNCP router MAY obtain external connection information from
+
+        <t>Each HNCP router MAY obtain external connection information such
+        as address prefixes, DNS server addresses and DNS search paths from
         one or more sources, e.g., <xref target="RFC3633">DHCPv6-PD</xref>,
         <xref target="RFC6241">NETCONF</xref> or static configuration. This
-        section specifies how such information is encoded and advertised.</t>
+        section specifies how such information is encoded and
+        advertised.</t>
 
         <section title="External Connection TLV">
           <t>An External Connection TLV is a container-TLV used to
@@ -394,7 +519,7 @@ I writing an essay on this. :-p)
 
         </section>
 
-        <section title="Delegated Prefix TLV">
+        <section anchor="dp-tlv" title="Delegated Prefix TLV">
           <t>The Delegated Prefix TLV is used by HNCP routers to advertise
           prefixes which are allocated to the whole network and will be used
           for prefix assignment. Any Delegated Prefix TLV MUST be nested
@@ -552,81 +677,85 @@ I writing an essay on this. :-p)
       </section>
 
       <section anchor="pa" title="Prefix Assignment">
-        <t>HNCP uses the Distributed Prefix Assignment Algorithm specified in
-        <xref target="I-D.ietf-homenet-prefix-assignment" /> in order to
-        assign prefixes to HNCP internal links and uses the terminology
-        defined there.</t>
+
+        <t>HNCP uses the <xref
+        target="I-D.ietf-homenet-prefix-assignment">Distributed Prefix
+        Assignment Algorithm</xref> in order to assign prefixes to HNCP
+        internal links and uses the terminology defined there.</t>
 
     <section title="Prefix Assignment Algorithm Parameters">
-    <t>All HNCP nodes running the prefix assignment algorithm MUST use
-        the following parameters:
 
-        <list style="hanging">
-            <t hangText="Node IDs: ">HNCP node identifiers are used. The
-                comparison operation is defined as bit-wise comparison.</t>
+      <t>All HNCP nodes running the Distributed Prefix Assignment Algorithm
+      use the following values for it's parameters:
 
-            <t hangText="Set of Delegated Prefixes: ">The set of prefixes
-                encoded in Delegated Prefix TLVs which are not strictly included
-                in prefixes encoded in other Delegated Prefix TLVs. Note that
-                Delegated Prefix TLVs included in ignored External Connection
-                TLVs are not considered. It is dynamically updated as Delegated
-                Prefix TLVs are added or removed.</t>
+      <list style="hanging">
 
-            <t hangText="Set of Shared Links: ">The set of Common Links associated
-                with internal, leaf, guest or ad-hoc interfaces. It is dynamically updated as
-                HNCP interfaces are added, removed, or switch from one category to another.
-                When multiple interfaces are detected as belonging to the same Common Link,
-                prefix assignment is disabled on all of these interfaces except one.</t>
+        <t hangText="Node IDs: ">HNCP node identifiers are used. The
+        comparison operation is defined as bit-wise comparison.</t>
 
-            <t hangText="Set of Private Links: ">This document defines
-                Private Links representing DHCPv6-PD clients or as a mean to
-                advertise prefixes included in the DHCPv6 Exclude Prefix option.
-                Other implementation-specific Private Links may be defined whenever
-                a prefix needs to be assigned for a purpose that does not require
-                a consensus with other HNCP routers.</t>
+        <t hangText="Set of Delegated Prefixes: ">The set of prefixes
+        encoded in Delegated Prefix TLVs which are not strictly included in
+        prefixes encoded in other Delegated Prefix TLVs. Note that
+        Delegated Prefix TLVs included in ignored External Connection TLVs
+        are not considered. It is dynamically updated as Delegated Prefix
+        TLVs are added or removed.</t>
 
-            <t hangText="Set of Advertised Prefixes: ">The set of prefixes
-                included in Assigned Prefix TLVs advertised by other HNCP
-                routers (Prefixes advertised by the local node are not in this set).
-                The associated Advertised Prefix Priority is the
-                priority specified in the TLV. The associated Shared Link
-                is determined as follows:
+        <t hangText="Set of Shared Links: ">The set of Common Links
+        associated with internal, leaf, guest or ad-hoc interfaces. It is
+        dynamically updated as HNCP interfaces are added, removed, or
+        switch from one category to another.  When multiple interfaces are
+        detected as belonging to the same Common Link, prefix assignment is
+        disabled on all of these interfaces except one.</t>
 
-                <list style="symbols">
-                    <t>If the Link Identifier is zero, the Advertised Prefix
-                        is not assigned on a Shared Link.</t>
+        <t hangText="Set of Private Links: ">This document defines Private
+        Links representing DHCPv6-PD clients or as a mean to advertise
+        prefixes included in the DHCPv6 Exclude Prefix option.  Other
+        implementation-specific Private Links may be defined whenever a
+        prefix needs to be assigned for a purpose that does not require a
+        consensus with other HNCP routers.</t>
 
-                    <t>If the other node's interface identified by the Link Identifier
-                        is included in one of the Common Links used for prefix assignment, it is
-                        considered as assigned on the given Common Link.
-                    </t>
-                    <t>Otherwise, the Advertised Prefix is not assigned on a Shared Link.</t>
+        <t hangText="Set of Advertised Prefixes: ">The set of prefixes
+        included in Assigned Prefix TLVs advertised by other HNCP routers
+        (Prefixes advertised by the local node are not in this set).  The
+        associated Advertised Prefix Priority is the priority specified in
+        the TLV. The associated Shared Link is determined as follows:
 
-                </list>
+        <list style="symbols">
+          <t>If the Link Identifier is zero, the Advertised Prefix
+          is not assigned on a Shared Link.</t>
 
-                Advertised Prefixes as well as their associated priorities
-                and associated Shared Links MUST be updated as Assigned
-                Prefix TLVs are added, updated or removed, and as Common Links
-                are modified.
-            </t>
-            <t hangText="ADOPT_MAX_DELAY: ">The default value is 0
-                seconds (i.e. prefix adoption MAY be done instantly).</t>
+          <t>If the other node's interface identified by the Link
+          Identifier is included in one of the Common Links used for prefix
+          assignment, it is considered as assigned on the given Common
+          Link.</t>
 
-            <t hangText="BACKOFF_MAX_DELAY: ">The default value is
-                4 seconds.</t>
+          <t>Otherwise, the Advertised Prefix is not assigned on a Shared
+          Link.</t>
 
-            <t hangText="RANDOM_SET_SIZE: ">The default value is 64.</t>
-
-            <t hangText="Flooding Delay: ">The default value is
-                5 seconds.</t>
-
-            <t hangText="Default Advertised Prefix Priority: ">When a
-                new assignment is created or an assignment is adopted -
-                as specified in the prefix assignment algorithm routine -
-                the default Advertised Prefix Priority to be used is 2.</t>
         </list>
-    </t>
-</section>
+
+        Advertised Prefixes as well as their associated priorities and
+        associated Shared Links MUST be updated as Assigned Prefix TLVs are
+        added, updated or removed, and as Common Links are modified.
+        </t>
+        <t hangText="ADOPT_MAX_DELAY: ">The default value is 0
+        seconds (i.e. prefix adoption MAY be done instantly).</t>
+
+        <t hangText="BACKOFF_MAX_DELAY: ">The default value is
+        4 seconds.</t>
+
+        <t hangText="RANDOM_SET_SIZE: ">The default value is 64.</t>
+
+        <t hangText="Flooding Delay: ">The default value is
+        5 seconds.</t>
+
+        <t hangText="Default Advertised Prefix Priority: ">When a
+        new assignment is created or an assignment is adopted -
+        as specified in the prefix assignment algorithm routine -
+        the default Advertised Prefix Priority to be used is 2.</t>
+      </list>
+      </t>
+    </section>
 
         <section title="Assigned Prefix TLV">
           <t>Published Assigned Prefixes MUST be advertised using the Assigned
@@ -1231,7 +1360,7 @@ I writing an essay on this. :-p)
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: Managed-PSK (42)     |          Length: 32           |
+|    Type: MANAGED-PSK (42)     |          Length: 32           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
 |                                                               |
@@ -1434,9 +1563,10 @@ I writing an essay on this. :-p)
       <section title="Border Determination">
 
         <t>As described in <xref target="bd" />, an HNCP router determines
-        the internal or external state on a per-link basis. A firewall
-        perimeter is set up for the external links, and for internal links,
-        HNCP and IGP traffic is allowed.</t>
+        the internal or external state on a per-interface basis. A firewall
+        perimeter is set up for the external interfaces, and for internal
+        interfaces, HNCP and IGP traffic is allowed, with the exception of
+        leaf and guest sub-categories.</t>
 
         <t>Threats concerning automatic border discovery cannot be
         mitigated by encrypting or authenticating HNCP traffic itself since
@@ -1632,8 +1762,9 @@ I writing an essay on this. :-p)
 
     <section title="Acknowledgements">
 
-      <t>Thanks to Ole Troan, Mark Baugher, Mark Townsley
-      and Juliusz Chroboczek for their contributions to the draft.</t>
+      <t>Thanks to Ole Troan, Mark Baugher, Mark Townsley, Juliusz
+      Chroboczek and Thomas Clausen for their contributions to the
+      draft.</t>
 
       <t>Thanks to Eric Kline for the original border discovery work.</t>
 
