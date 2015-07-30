@@ -129,7 +129,7 @@ TODO:
         <t>DNCP can be used in networks where only unicast transport is
         available. While DNCP uses the least amount of bandwidth when
         multicast is utilized, even in pure unicast mode, the use
-        of Trickle (ideally with k<2) results in a protocol with an
+        of Trickle (ideally with k &lt; 2) results in a protocol with an
         exponential backoff timer and fewer transmissions than a simpler
         protocol not using Trickle.</t>
 
@@ -211,7 +211,7 @@ TODO:
 	  message flows. An endpoint is the source and destination for separate
 	  unicast message flows to individual nodes and optionally for multicast
 	  messages to all thereby reachable nodes (e.g., for node discovery).
-	  
+
 	  Endpoints are usually in one of the transport modes specified in <xref
       target="dt" />.
       </c>
@@ -482,7 +482,7 @@ TODO:
             Just like Unicast, except multicast transmissions are listened to
             in order to detect changes of the highest node identifier.
             This mode is used only if the DNCP profile supports <xref
-            target="broadcast">dense broadcast link optimization</xref>.</t>
+            target="dense-multicast">dense multicast-enabled link optimization</xref>.</t>
         </list>
         </t>
 
@@ -910,7 +910,7 @@ TODO:
         of this subsection MUST be ignored.</t>
 
         <t>A DNCP profile MAY specify either per-endpoint (sent using
-        multicast to all DNCP nodes connected to a multiple access link)
+        multicast to all DNCP nodes connected to a multicast-enabled link)
         or per-peer (sent using unicast to each peer individually)
         keep-alive support. </t>
 
@@ -1024,7 +1024,7 @@ TODO:
 
       </section>
 
-      <section anchor="broadcast" title="Support For Dense Broadcast Links">
+      <section anchor="dense-multicast" title="Support For Dense Multicast-Enabled Links">
 
         <t>This optimization is needed to avoid a state space explosion.
         Given a large set of DNCP nodes publishing data on an endpoint
@@ -1046,7 +1046,7 @@ TODO:
 
         The main consideration when selecting a bound (if any)
         for a particular type of link should be whether it supports
-        broadcast traffic, and whether a too large number of peers case
+        multicast traffic, and whether a too large number of peers case
         is likely to happen during the use of that DNCP profile
         on that particular type of link. If neither is likely, there is little
         point specifying support for this for that particular link
