@@ -197,18 +197,15 @@ TODO:
 
       <c>Address</c>
 
-      <c>an identifier which specifies how to reach a particular instance
-      of a transport protocol on a particular node. In case of an IPv6 UDP
-      transport, an address in this specification refers to a tuple (IPv6
-      address, UDP port).
-      </c>
+      <c>an identifier used as source or destination of a DNCP message flow,
+      e.g., a tuple (IPv6 address, UDP port) for an IPv6 UDP transport.</c>
 
       <c /><c />
 
       <c>Endpoint</c>
 
 	  <c>a locally configured termination point for (potential or established)
-	  message flows. An endpoint is the source and destination for separate
+	  DNCP message flows. An endpoint is the source and destination for separate
 	  unicast message flows to individual nodes and optionally for multicast
 	  messages to all thereby reachable nodes (e.g., for node discovery).
 	  
