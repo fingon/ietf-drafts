@@ -82,8 +82,9 @@ TODO:
       algorithm</xref> to ensure that all nodes share the same view of the
       current state of the published data within the network. The use of
       Trickle with only short network state hashes sent infrequently (in
-      steady state once per Trickle maximum interval per link or unicast
-      connection) makes DNCP very thrifty when updates happen rarely.</t>
+      steady state, once the maximum Trickle interval per link or unicast
+      connection has been reached) makes DNCP very thrifty when updates
+      happen rarely.</t>
 
       <t>For maintaining liveliness of the topology and the data within it,
       a combination of Trickled network state, keep-alives, and "other"
@@ -100,38 +101,37 @@ TODO:
         DNCP diminishes. In these cases Trickle just provides extra
         complexity within the specification and little added value. </t>
 
-        <t>Suitability of DNCP for a particular application can be roughly
-        evaluated by considering the expected average network-wide state
+        <t>The suitability of DNCP for a particular application can roughly
+        be evaluated by considering the expected average network-wide state
         change interval A_NC_I; it is computed by dividing the mean
-        interval at which a node originates a new TLV set with the number
+        interval at which a node originates a new TLV set by the number
         of participating nodes. If keep-alives are used, A_NC_I is the
         minimum of the A_NC_I and the keep-alive interval.
 
-        If A_NC_I is less than (application-specific) Trickle minimum
-        interval, DNCP is most likely wrong tool for the application as
-        Trickle will not be used anyway most of the time. </t>
+        If A_NC_I is less than the (application-specific) Trickle minimum
+        interval, DNCP is most likely unsuitable for the application as
+        Trickle will not be utilized most of the time. </t>
 
         <t>If constant rapid state changes are needed, the preferable
         choice is to use an additional point-to-point channel whose address
-        or locator is published using DNCP. Even if that does not raise
-        A_NC_I to a value that is more than the (sensibly chosen) Trickle
-        interval parameters for a particular application, using DNCP is not
-        the correct choice for the application.</t>
+        or locator is published using DNCP. Nevertheless, if doing so does
+        not raise A_NC_I above the (sensibly chosen) Trickle interval
+        parameters for a particular application, using DNCP is probably
+        not suitable for the application.</t>
 
         <t>Another consideration is the size of the published TLV set by a
-        node compared to the size of deltas in the TLV set; if the TLV set
-        published by a node is very large, and the TLV set has frequent
-        small changes, DNCP as currently specified is not the correct
-        choice as there is no TLV set delta synchronization scheme
-        specified but the whole TLV sets are transmitted verbatim when
-        change occurs.</t>
+        node compared to the size of deltas in the TLV set. If the TLV set
+        published by a node is very large, and has frequent small changes,
+        DNCP as currently specified may be unsuitable since it does not
+        define any delta synchronization scheme but always transmits the
+        complete updated TLV set verbatim.</t>
 
-        <t>DNCP can be used in networks where unicast transport is
-        available. While DNCP uses least amount of bandwidth given
-        multicast availability, even using pure unicast transport, the use
-        of Trickle (with ideally k less than 2) results in a protocol with
-        an exponential backoff timer and less transmissions than a simpler
-        protocol without Trickle.</t>
+        <t>DNCP can be used in networks where only unicast transport is
+        available. While DNCP uses the least amount of bandwidth when
+        multicast is utilized, even in pure unicast mode, the use
+        of Trickle (ideally with k<2) results in a protocol with an
+        exponential backoff timer and fewer transmissions than a simpler
+        protocol not using Trickle.</t>
 
       </section>
 
@@ -146,8 +146,8 @@ TODO:
 
 	<c>the values for the set of parameters, given in <xref
 	target="profile-bits"/>. They are prefixed with DNCP_ in this
-	document. It also specifies the set of optional parts of this
-	specification, which are to be used.
+	document. The profile also specifies the set of optional DNCP extensions
+	to be used.
         </c>
 
         <c /><c />
@@ -156,7 +156,7 @@ TODO:
 
       <c>a protocol which provides a DNCP profile, according to <xref
       target="profile-bits"/>, and zero or more TLV assignments from the
-      DNCP profile-specific TLV registry as well as their processing rules.</c>
+      per-DNCP profile TLV registry as well as their processing rules.</c>
 
       <c /><c />
 
@@ -173,12 +173,12 @@ TODO:
 
       <c>DNCP network</c>
 
-      <c>a set of DNCP nodes running DNCP-based protocol(s) that have
-      matching DNCP profile.
+      <c>a set of DNCP nodes running DNCP-based protocol(s) with
+      matching DNCP profile(s).
 
       The set consists of nodes that have discovered each other using the
       transport method defined in the DNCP profile, via multicast
-      on local links, and/or by using unicast communication.
+      on local links, and / or by using unicast communication.
       </c>
 
       <c /><c />
@@ -292,17 +292,17 @@ TODO:
 
       <c>Bidirectionally reachable</c>
 
-      <c>a peer is locally unidirectionally reachable if it has sent a
-      recent and consistent multicast message, or it has recently sent a
-      unicast message to the local node (see <xref target="peers" />).
+      <c>a peer is locally unidirectionally reachable if a
+      recent and consistent multicast or any unicast DNCP message
+      has been received by the local node (see <xref target="peers" />).
 
-      If the peer also considers local node unidirectionally reachable, the
-      peer is bidirectionally reachable.
+      If said peer in return also considers the local node unidirectionally
+      reachable, then bidirectionally reachability is established.
 
-      As this is based on publishing local peer relationships and
+      As this process is based on publishing peer relationships and
       evaluating the resulting topology graph as described in <xref
-      target="liveliness" />, the information is available to whole DNCP
-      network.
+      target="liveliness" />, this information is available to the
+      whole DNCP network.
 
       </c>
 
@@ -350,6 +350,7 @@ TODO:
       <t>Before joining a DNCP network, a node starts with a hash tree that
       has only one leaf if the node publishes some TLVs, and no leaves
       otherwise.
+      <!-- SB: should it have no leaves or 1 leave based on (the hash of) an empty string? --->
 
       It then announces the network state hash calculated from the hash
       tree by means of the Trickle algorithm on all its configured
@@ -712,6 +713,8 @@ TODO:
         presence of the peer are available, the peer MUST be considered no
         longer present and it SHOULD not be added back as a peer until it
         starts sending keep-alives again.
+        
+        <!-- SB: does not following the SHOULD not cause inconsistent behavior among multiple nodes? --> 
 
         When the peer is no longer present, the Peer
         TLV and the local DNCP peer state MUST be removed.</t>
@@ -1740,7 +1743,7 @@ TODO:
       <t>IANA should set up a registry for the (decimal 16-bit) "DNCP TLV
       Types" under "Distributed Node Consensus Protocol (DNCP)", with the
       following initial contents:
-      [TO BE REMOVED: Ideally as http://www.iana.org/assignments/dncp-registry]
+      ([RFC Editor: please remove] ideally as http://www.iana.org/assignments/dncp-registry)
 
       <list>
 
