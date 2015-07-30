@@ -207,30 +207,14 @@ TODO:
 
       <c>Endpoint</c>
 
-<!-- SB: another attempt ;)
 	  <c>a locally configured termination point for (potential or established)
-	  message flows. An endpoint is the source and destination for separated
-	  unicast message flows to individual peers. However, it can also be used
-	  to transmit multicast message to all thereby reachable nodes which
-	  allows more efficient bandwidth usage and autonomous discovery of
-	  new potential peers. For multicast operation an endpoint usually refers
-	  to a multicast capable network interface, while for pure unicast
-	  communication a unicast-capable layer 3 transport is sufficient.</c>
--->
-
-      <c>a locally configured communication endpoint of a DNCP node, such
-      as a network socket. An endpoint may be bound to a set of predefined
-      unicast Addresses representing remote DNCP nodes to individually connect
-      to or to accept connections from whereby communication with each node is
-      separated (e.g., an individual unicast UDP message flow per remote node).
-
-      An endpoint may also be bound to a whole network interface, then
-      multicast communication is used (in addition to individual unicast flows)
-      to send certain messages to all DNCP nodes connected therewith at once
-      as well as to automatically discover new DNCP nodes.
-
-      Endpoints are usually in one of the transport modes specified in <xref
-      target="dt" />. </c>
+	  message flows. An endpoint is the source and destination for separate
+	  unicast message flows to individual nodes and optionally for multicast
+	  messages to all thereby reachable nodes (e.g., for node discovery).
+	  
+	  Endpoints are usually in one of the transport modes specified in <xref
+      target="dt" />.
+      </c>
 
       <c /><c />
 
