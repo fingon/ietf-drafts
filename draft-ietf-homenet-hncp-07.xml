@@ -7,11 +7,6 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
 TBD:
 
-- A lot of RFCs seem to assume DHCP = DHCPv4. Perhaps define the fact
-somewhere that DHCP = DHCPv4+DHCPv6 here?
-[SB] should be unambiguous now, if not please mark single occurences where it isn't
-[MSt] it is now. some initial definition would still be nice ;)
-
 - Announce <> publish term bit mixed; hmm
 [SB] is that problematic? what is the "genuine" term?
 [MSt] Not really problematic I think, just makes it potentially harder to
@@ -21,6 +16,11 @@ published/originated/whatever in the link-state literature. (Mostly to
 indicate that they persist for long period of time, as opposed just to
 announce, which by definition is only transient occurrence. Why the hell am
 I writing an essay on this. :-p)
+
+- get rid of routing protocol references for most part (perhaps leave one
+in applicability stmt, and note that routers can configure routing
+protocols if the dynamic border discovery warrants that); otherwise just
+manipulate local routes
 
 -->
 
@@ -141,10 +141,15 @@ I writing an essay on this. :-p)
         number of externally received delegated prefixes and not the home
         network size, and should therefore be relatively low.</t>
 
-
         <t>While HNCP is designed to be used by (home) routers, it can be
         also used by advanced hosts that want to do e.g. their own address
         assignment and routing.</t>
+
+        <t>HNCP is link layer agnostic; if a link supports IPv6
+        (link-local) multicast and unicast, HNCP will work on it. Trickle
+        retransmissions and keep-alives will handle packet both packet loss and
+        non-transitive connectivity, ensuring eventual convergence.</t>
+
       </section>
     </section>
 
@@ -181,16 +186,35 @@ I writing an essay on this. :-p)
 	network</c>
         <c /><c />
 
-	<c>External interface</c>
-	<c>an interface that is connected to a link which crosses
-	a border. This may be either detected, or set statically, as
-	specified in <xref target="bd" />.</c>
-        <c /><c />
+        <c>Internal link</c>
+	<c>a link that does not cross borders.</c>
 
 	<c>Internal interface</c>
-	<c>an interface that is connected to a link that does not cross
-	borders. This may be either detected, or set statically, as
-	specified in <xref target="bd" />.</c>
+	<c>an interface that is connected to an internal link.</c>
+        <c /><c />
+
+	<c>External interface</c>
+	<c>an interface that is connected to a link which is not an
+	internal link.</c>
+        <c /><c />
+
+        <c>Interface category</c>
+
+        <c>a local configuration denoting type of a particular interface.
+        The interface category determines how a HNCP router
+        should treat the particular interface.
+
+        External and internal category mark the interface as external or
+        internal; there are also number of internal category
+        sub-categories that affect local router behavior.
+
+        See <xref target="if-cat" /> for a list of
+        interface categories and how they behave.
+
+        The internal or external category may be also autodetected - see
+        <xref target="bd" />.
+
+        </c>
         <c /><c />
 
 	<c>Border router</c>
@@ -201,6 +225,21 @@ I writing an essay on this. :-p)
         <c>a (sub)set of nodes on a link with shared view of the link - that
         is, they see each other's traffic and also share view of hosts for
         that (part of) link.</c>
+        <c /><c />
+
+
+        <c>DHCPv4</c>
+        <c>refers to <xref target="RFC2131">Dynamic Host Configuration
+        Protocol</xref> in this document.</c>
+
+        <c>DHCPv6</c>
+        <c>refers to <xref target="RFC3315">Dynamic Host Configuration
+        Protocol for IPv6 (DHCPv6)</xref> in this document.</c>
+
+        <c>DHCP</c>
+        <c>refers to cases which apply to both DHCPv4 and DHCPv6 in this
+        document.</c>
+
         <c /><c />
 
       </texttable>
@@ -232,7 +271,7 @@ I writing an essay on this. :-p)
         receive (and potentially reassemble) UDP datagrams with a payload of
         at least 4000 bytes.</t>
 
-        <t>HNCP operates on multicast-capable interfaces only. HNCP routers
+        <t>HNCP operates on multicast-capable interfaces only. HNCP nodes
         MUST assign a unique 32-bit endpoint identifier to each
         interface for which HNCP is enabled. The value zero is reserved
         for internal purposes.
@@ -266,9 +305,9 @@ I writing an essay on this. :-p)
         <list style="symbols">
 
           <t>k SHOULD be 1, as the timer reset when data is updated and
-          further retransmissions should handle packet loss. If the
-          underlying link is non-transitive and/or lossy, higher values
-          SHOULD be used.</t>
+          further retransmissions should handle packet loss. Even on a
+          non-transitive lossy link, the eventual per-endpoint keep-alives
+          should ensure status synchronization occurs.</t>
 
           <t>Imin SHOULD be 200 milliseconds but MUST NOT be lower.
           Note: Earliest transmissions may occur at Imin / 2.</t>
@@ -283,16 +322,21 @@ I writing an essay on this. :-p)
         H(x).</t>
 
         <t>HNCP nodes MUST use DNCP's per-endpoint keep-alive extension on
-        all endpoints.  The following parameters are suggested:
+        all endpoints. The following parameters are suggested:
 
         <list style="symbols">
-            <t>Default keep-alive interval (DNCP_KEEPALIVE_INTERVAL): 20 seconds.</t>
+
+          <t>Default keep-alive interval (DNCP_KEEPALIVE_INTERVAL): 20
+          seconds.</t>
+
             <t>Multiplier (DNCP_KEEPALIVE_MULTIPLIER): 2.1 on virtually
             lossless links works fine as it allows for one lost
             keep-alive. If used on a lossy link, considerably higher
             multiplier, such as 15, should be used instead. In that case,
-            an implementation should probably use shorter keep-alive
-            intervals on that link as well.</t>
+            an implementation might prefer shorter keep-alive intervals on
+            that link as well to ensure that DNCP_KEEPALIVE_INTERVAL *
+            DNCP_KEEPALIVE_MULTIPLIER timeout after which (entirely) lost
+            nodes time out is low enough.</t>
         </list>
         </t>
 
@@ -300,33 +344,58 @@ I writing an essay on this. :-p)
       </t>
     </section>
 
-    <section title="Border Discovery" anchor="bd">
+    <section title="Border Discovery">
 
-      <t>HNCP router's interfaces are either internal or external. Internal
-      interfaces have a number of sub-categories.
+      <section anchor="if-cat" title="Interface Categories">
 
-      This section defines the border discovery algorithm.  It is suitable
-      for both IPv4 and IPv6 (single or dual-stack) and determines whether
-      an HNCP interface is dynamically detected as internal or external, or
-      uses a fixed category. The algorithm is derived from the edge router
-      interactions described in the <xref target="RFC7084">Basic
-      Requirements for IPv6 Customer Edge Routers</xref>.  This algorithm
-      MUST be implemented by any router implementing HNCP.</t>
+        <t>A router SHOULD allow setting a category of either auto-detected,
+      internal or external for each interface which is suitable for both
+      internal and external connections. In addition the following
+      sub-categories of the internal category are defined to modify the
+      local router behavior:
 
-      <t>If a fixed category is configured for an interface, it MUST be
-      used. Otherwise, the following border discovery auto-detection
-      algorithm SHOULD be used, with evaluation stopping at first match:
+      <list style="hanging">
+        <t hangText="Leaf category:"> This declares an interface used by
+        client devices only. Such an interface acts as an internal interface
+        with the exception that HNCP or routing protocol traffic MUST NOT be sent
+        on the interface, and all such traffic received on the interface MUST be ignored.
+        This category SHOULD be supported.</t>
 
-      <list style="numbers">
-        <t>If a delegated prefix could be acquired by running a DHCPv6
-            client on the interface, it is considered external.</t>
+        <t hangText="Guest category:"> This declares an interface used by
+        untrusted client devices only. In addition to the restrictions of
+        the Leaf category, HNCP routers MUST enable firewalling rules such that
+        connected devices are unable to reach other
+        devices inside the HNCP network or query services advertised by them
+        unless explicitly allowed. This category SHOULD be supported.</t>
 
-        <t>If an IPv4 address could be acquired by running a DHCPv4 client
-            on the interface it is considered external.</t>
+        <t hangText="Ad-hoc category:"> This configures an interface to be
+        internal but no assumption is made on the the link's
+        transitivity. All other interface categories assume transitive
+        connectivity.
 
-        <t>Otherwise the interface is considered internal.</t>
-    </list>
-    </t>
+        This affects <xref target="links">Common Link</xref> definition.
+        Support for this category is OPTIONAL.</t>
+
+        <t hangText="Hybrid category:"> This declares an interface to
+        be internal while still running DHCPv4 and DHCPv6-PD clients on it. It
+        is assumed that the link is under control of a legacy, trustworthy
+        non-HNCP router, still within the same network. Detection of this
+        category automatically in addition to manual configuration is
+        out of scope of this document. Support for this category is OPTIONAL.</t>
+      </list>
+      </t>
+
+    </section>
+
+    <section anchor="bd" title="Algorithm">
+
+      <t>This section defines the border discovery algorithm.  It is
+      suitable for both IPv4 and IPv6 (single or dual-stack) and
+      determines whether an HNCP interface is dynamically detected as
+      internal or external, or uses a fixed category. The algorithm is
+      derived from the edge router interactions described in the <xref
+      target="RFC7084">Basic Requirements for IPv6 Customer Edge
+      Routers</xref>.</t>
 
       <t>In order to avoid conflicts between border discovery and HNCP
       routers running <xref target="RFC2131">DHCPv4</xref> or <xref
@@ -348,57 +417,52 @@ I writing an essay on this. :-p)
       </list>
       </t>
 
-      <t>A router SHOULD allow setting a category of either auto-detected,
-      internal or external for each interface which is suitable for both
-      internal and external connections. In addition the following
-      sub-categories of the internal category are defined to modify the
-      local router behavior:
+        <t>This algorithm MUST be implemented by any router implementing
+        HNCP. However, if the router implements only fixed categories, only
+        first step is really needed. The algorithm works as follows,
+        with evaluation stopping at first match:
 
-      <list style="hanging">
-        <t hangText="Leaf category:"> This declares an interface used by
-        client devices only. Such an interface acts as an internal interface
-        with the exception that HNCP or routing protocol traffic MUST NOT be sent
-        on the interface, and all such traffic received on the interface MUST be ignored.
-        This category SHOULD be supported.</t>
 
-        <t hangText="Guest category:"> This declares an interface used by
-        untrusted client devices only. In addition to the restrictions of
-        the Leaf category, HNCP routers MUST enable firewalling rules such that
-        connected devices are unable to reach other
-        devices inside the HNCP network or query services advertised by them
-        unless explicitly allowed. This category SHOULD be supported.</t>
+        <list style="numbers">
 
-        <t hangText="Ad-hoc category:"> This configures an interface to be
-        <xref target="links">ad-hoc</xref>. Ad-hoc interfaces are considered internal but no
-        assumption is made on the the link transitivity properties.
-        Support for this category is OPTIONAL.</t>
+          <t>If a fixed category is configured for an interface, it is
+          used.</t>
 
-        <t hangText="Hybrid category:"> This declares an interface to
-        be internal while still running DHCPv4 and DHCPv6-PD clients on it. It
-        is assumed that the link is under control of a legacy, trustworthy
-        non-HNCP router, still within the same network. Detection of this
-        category automatically in addition to manual configuration is
-        out of scope of this document. Support for this category is OPTIONAL.</t>
-      </list>
-      </t>
+          <t>If a delegated prefix could be acquired by running a DHCPv6
+          client on the interface, it is considered external. </t>
 
-      <t>Each router SHOULD continuously scan each active interface that does
-      not have a fixed category in order to dynamically reclassify it if
-      necessary.  The router therefore runs an appropriately configured
-      DHCPv4 and DHCPv6 client as long as the interface is active including
-      states where it considers the interface to be internal. The router
-      SHOULD wait for a reasonable time period (5 seconds as a default),
-      during which the DHCP clients can acquire a lease, before
-      treating a newly activated or previously external interface as
-      internal. Once it treats a certain interface as internal it MUST
-      start forwarding traffic with appropriate source addresses between
-      its internal interfaces and allow internal traffic to reach external
-      networks according to the routes it publishes.
-      Once a router detects an interface transitioning to external it MUST
-      stop any previously enabled internal forwarding. In addition it
-      SHOULD announce the acquired information for use in the network as
-      described in later sections of this draft if the interface appears to
-      be connected to an external network.</t>
+          <t>If an IPv4 address could be acquired by running a DHCPv4
+          client on the interface it is considered external. </t>
+
+          <t>The interface is considered internal.</t>
+
+        </list>
+
+        Note that as other HNCP routers will ignore the client due to the
+        user class option, the server that replies is clearly external (or
+        malicious internal node).</t>
+
+        <t>Each router SHOULD continuously scan each active interface that
+        does not have a fixed category in order to dynamically reclassify
+        it if necessary.  The router therefore runs an appropriately
+        configured DHCPv4 and DHCPv6 client as long as the interface is
+        active including states where it considers the interface to be
+        internal. The router SHOULD wait for a reasonable time period (5
+        seconds as a default), during which the DHCP clients can acquire a
+        lease, before treating a newly activated or previously external
+        interface as internal. Once it treats a certain interface as
+        internal it MUST start forwarding traffic with appropriate source
+        addresses between its internal interfaces and allow internal
+        traffic to reach external networks according to the routes it
+        publishes.  Once a router detects an interface transitioning to
+        external it MUST stop any previously enabled internal
+        forwarding. In addition it SHOULD announce the acquired information
+        for use in the network as described in later sections of this draft
+        if the interface appears to be connected to an external
+        network.</t>
+
+      </section>
+
     </section>
 
     <section anchor="aaddr" title="Autonomic Address Configuration">
@@ -434,7 +498,7 @@ I writing an essay on this. :-p)
       The Common Link is computed separately for each local internal
       interface, and it always contains the local interface. Additionally,
       if the local interface is not set to ad-hoc category (see <xref
-      target="bd" />), it also contains the set of interfaces that are
+      target="if-cat" />), it also contains the set of interfaces that are
       bidirectionally reachable from the given local interface, that is,
       every remote interface of a remote node meeting all of the following
       requirements:
@@ -477,7 +541,7 @@ I writing an essay on this. :-p)
 
 
 
-      <section title="External Connections">
+      <section anchor="ec" title="External Connections">
 
         <t>Each HNCP router MAY obtain external connection information such
         as address prefixes, DNS server addresses and DNS search paths from
@@ -506,24 +570,29 @@ I writing an essay on this. :-p)
           <t>The External Connection TLV is a container which:
             <list style="symbols">
               <t>MAY contain an arbitrary number of Delegated Prefix TLVs.</t>
-              <t>MUST NOT contain multiple Delegated Prefix TLVs with identical or
-                  overlapping prefixes. In such a situation, the External Connection TLV MUST be ignored.</t>
+
+              <t>MUST NOT contain multiple Delegated Prefix TLVs with
+              identical or overlapping prefixes. In such a situation, the
+              External Connection TLV MUST be ignored.</t>
+
               <t>MAY contain at most one DHCPv6 Data TLV and at most one
               DHCPv4 Data TLV encoding options associated with the External
-              Connection but MUST NOT contain more than one of each otherwise
-              the External Connection TLV MUST be ignored.</t>
-              <t>MAY contain other TLVs for future use.
-                  Such additional TLVs MUST be ignored.</t>
+              Connection but MUST NOT contain more than one of each
+              otherwise the External Connection TLV MUST be ignored.</t>
+
+              <t>MAY contain other TLVs for future use. Such additional
+              TLVs MUST be ignored.</t>
             </list>
           </t>
 
         </section>
 
         <section anchor="dp-tlv" title="Delegated Prefix TLV">
+
           <t>The Delegated Prefix TLV is used by HNCP routers to advertise
           prefixes which are allocated to the whole network and will be used
-          for prefix assignment. Any Delegated Prefix TLV MUST be nested
-          in an External Connection TLV.</t>
+          for prefix assignment. A Delegated Prefix TLV MUST be inside
+          an External Connection TLV.</t>
 
           <figure>
             <artwork>
@@ -565,34 +634,41 @@ I writing an essay on this. :-p)
               the end of the encoded prefix:
 
                 <list style="symbols">
-                  <t>Zero or more Prefix Policy TLVs. In absence of any such
-                  TLV the prefix is assumed to be generated by an HNCP-router
-                  and for internal use only.</t>
+
+                  <t>Zero or more Prefix Policy TLVs. In absence of any
+                  such TLV the prefix is assumed to be generated by an
+                  HNCP-router and for internal use only.</t>
 
                   <t>If the encoded prefix represents an IPv6 prefix, at
-                  most one DHCPv6 Data TLV MAY be included, and any included
-                      DHCPv4 Data TLV MUST be ignored.</t>
+                  most one DHCPv6 Data TLV MAY be included, and any
+                  included DHCPv4 Data TLV MUST be ignored.</t>
 
-                  <t>If the prefix represents an IPv4 prefix (encoded as an IPv4-mapped IPv6 prefix),
-                      at most one DHCPv4 Data TLV MAY be
-                  included, and any included DHCPv6 Data TLV MUST be ignored.</t>
+                  <t>If the prefix represents an IPv4 prefix (encoded as an
+                  IPv4-mapped IPv6 prefix), at most one DHCPv4 Data TLV MAY
+                  be included, and any included DHCPv6 Data TLV MUST be
+                  ignored.</t>
 
-                  <t>It MAY contain other TLVs for future use.
-                      Such additional TLVs MUST be ignored.</t>
+                  <t>It MAY contain other TLVs for future use.  Such
+                  additional TLVs MUST be ignored.</t>
+
                 </list>
               </t>
             </list>
           </t>
         </section>
 
-		<section anchor="prefixpolicytlv" title="Prefix Policy TLV">
+	<section anchor="prefixpolicytlv" title="Prefix Policy TLV">
+
           <t>The Prefix Policy TLV contains information about the policy or
           applicability of a delegated prefix. This information can be used
           to determine whether prefixes for a certain usecase (e.g. local
-          reachability, internet connectivity) do exist or should be acquired
-          and to make decisions about assigning prefixes to certain links or
-          to fine-tune border firewalls. See <xref target="prefixpolicy"/>
-          for a more in-depth discussion.</t>
+          reachability, internet connectivity) do exist or should be
+          acquired and to make decisions about assigning prefixes to
+          certain links or to fine-tune border firewalls. See <xref
+          target="prefixpolicy"/> for a more in-depth discussion.
+
+          A Prefix Policy TLV MUST be inside a Delegated Prefix TLV.
+          </t>
 
           <figure>
             <artwork>
@@ -759,7 +835,7 @@ I writing an essay on this. :-p)
 
         <section title="Assigned Prefix TLV">
           <t>Published Assigned Prefixes MUST be advertised using the Assigned
-          Prefix TLV:</t>
+          Prefix TLV.</t>
           <figure>
             <artwork>
 0                   1                   2                   3
@@ -816,9 +892,12 @@ I writing an essay on this. :-p)
 
 
           <section anchor="assign" title="Making New Assignments">
-            <t>Whenever the Prefix Assignment Algorithm subroutine is run on a
-            Common Link and whenever a new prefix may be assigned (case 1
-            of the subroutine), the decision of whether the assignment of a new
+
+            <t>Whenever the Prefix Assignment Algorithm subroutine (Section
+            4.1 of <xref target="I-D.ietf-homenet-prefix-assignment" />) is
+            run on a Common Link and whenever a new prefix may be assigned
+            (case 1 of the subroutine; no Best Assignment and no Current
+            Assignment), the decision of whether the assignment of a new
             prefix is desired MUST follow these rules:
 
             <list style="hanging">
@@ -831,7 +910,7 @@ I writing an essay on this. :-p)
 
               <t>If the remaining preferred lifetime of the prefix is 0 and
               there is another delegated prefix of the same IP version used for
-              prefix assignment with a non-null preferred lifetime, the
+              prefix assignment with a non-zero preferred lifetime, the
               creation of a new prefix is not desired.</t>
 
               <t>Otherwise, it is desired, if the Delegated Prefix does not
@@ -897,22 +976,25 @@ I writing an essay on this. :-p)
           </section>
 
           <section title="Downstream Prefix Delegation Support" anchor="pd">
-            <t>When an HNCP router receives a request for prefix delegation,
-            it SHOULD assign one prefix per delegated prefix in the network.
-            This set of assigned prefix is then delegated to the client,
-            after it has been applied as described in the Prefix Assignment
-            Algorithm. Each client MUST be considered as an independent
-            Private Link and delegation MUST be based on the same set of
-            Delegated Prefixes as the one used for Common Link prefix
-            assignments.</t>
 
-            <t>The assigned prefixes MUST NOT be given to clients before
-            they are applied, and MUST be withdrawn whenever they are
-            destroyed. As an exception to this rule, in order to shorten
-            delays of processed requests, a router MAY prematurely
+            <t>When an HNCP router with a DHCPv6-PD server receives a
+            DHCPv6-PD request from a DHCPv6-PD client, it SHOULD assign one
+            prefix per delegated prefix in the network.  This set of
+            assigned prefix is then delegated to the DHCPv6-PD client,
+            after it has been applied as described in the Prefix Assignment
+            Algorithm. Each DHCPv6-PD client MUST be considered as an
+            independent Private Link and delegation MUST be based on the
+            same set of Delegated Prefixes as the one used for Common Link
+            prefix assignments.</t>
+
+            <t>The assigned prefixes MUST NOT be given to DHCPv6-PD clients
+            before they are applied, and MUST be withdrawn whenever they
+            are destroyed. As an exception to this rule, in order to
+            shorten delays of processed requests, a router MAY prematurely
             give out a prefix which is advertised but not yet applied if it
             does so with a valid lifetime of not more than 30 seconds and
-            ensures removal or correction of lifetimes as soon as possible.</t>
+            ensures removal or correction of lifetimes as soon as
+            possible.</t>
           </section>
 
         </section>
@@ -1352,6 +1434,11 @@ I writing an essay on this. :-p)
         <!-- [PP] Shouldn't we add some grace period to that. Changing the key
          is an heavy operation which we probably don't want to do when there
          is a flappy link. -->
+
+        <!-- [MSt] purging occurs essentially at best even after router has
+             been gone for a minute (and there is no redundant
+             connectivity). I am not fond of adding more magic constants
+             here.. -->
       </list>
       </t>
 
@@ -1511,7 +1598,7 @@ I writing an essay on this. :-p)
         	prefix assignment mechanism</xref> for each such interface.</t>
         	<t>The requirement L-9 is modified, in that the M flag MUST be set
         	whenever a router connected to the respective link is advertising
-        	a non-null H-capability and MUST NOT be set otherwise.</t>
+        	a non-zero H-capability and MUST NOT be set otherwise.</t>
         	<t>The requirement L-12 to make DHCPv6 options available is
         	adapted, in that a CER SHOULD publish the subset of options using
         	the DHCPv6 Data TLV in an External Connection TLV. Similarly it
