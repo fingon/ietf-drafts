@@ -92,7 +92,7 @@ manipulate local routes
       of and extension to the Distributed Node Consensus Protocol (DNCP).
       HNCP enables automated configuration of addresses, name resolution,
       service discovery, discovery of network borders, and the use of any
-      src-dest-routing capable routing protocol.</t>
+      source-destination-routing capable routing protocol.</t>
 
     </abstract>
   </front>
@@ -108,16 +108,16 @@ manipulate local routes
       multiple links.</t>
 
       <t>HNCP is a <xref target="I-D.ietf-homenet-dncp">DNCP</xref>-based
-      protocol, with DNCP profile which defines transport and
-      synchronization details of state across the routers defined in <xref
-      target="profile" />. The rest of the document defines a variety of
-      TLVs that deal with the different services that are offered, and how
-      they should be processed.</t>
+      protocol and includes a DNCP profile which defines transport and
+      synchronization details for sharing state across routers defined in
+      <xref target="profile" />. The rest of the document defines a variety
+      of TLVs that deal with the different services that are offered, and
+      how they should be processed.</t>
 
       <section title="Applicability">
 
         <t>While HNCP does not deal with routing protocols directly (except
-        potentially letting them about the internal and external interfaces
+        potentially informing them about internal and external interfaces
         if border discovery specified in <xref target="bd" /> is used), in
         homenet environments where multiple IPv6 source-prefixes can be
         present, routing based on source and destination address is
@@ -129,7 +129,7 @@ manipulate local routes
         constantly, and locators to find such services should be published
         within it instead. This is why the <xref target="naming-sd">naming
         and service discovery</xref> TLVs contain only DNS server
-        addresses, and no actual per-name or per-service data from
+        addresses, and no actual per-name or per-service data of
         hosts.</t>
 
         <t>HNCP TLVs specified within this document, in steady state, stay
@@ -184,8 +184,8 @@ manipulate local routes
 
 	<c>Border</c>
 	<c>separation point between administrative domains; in this case,
-	between the home network and not-home network, that is, ISP
-	network</c>
+	between the home network and any other network, i.e., usually an
+	ISP network</c>
         <c /><c />
 
         <c>Internal link</c>
@@ -356,9 +356,10 @@ manipulate local routes
 
         <t>A router SHOULD allow setting a category of either auto-detected,
       internal or external for each interface which is suitable for both
-      internal and external connections. In addition the following
-      sub-categories of the internal category are defined to modify the
-      local router behavior:
+      internal and external connections. If a router implementes
+      auto-detection, it MUST allow a manual override to a fixed category.
+      In addition the following sub-categories of the internal category are
+      defined to modify the local router behavior:
 
       <list style="hanging">
         <t hangText="Leaf category:"> This declares an interface used by
@@ -379,7 +380,7 @@ manipulate local routes
         transitivity. All other interface categories assume transitive
         connectivity.
 
-        This affects <xref target="links">Common Link</xref> definition.
+        This affects the <xref target="links">Common Link</xref> definition.
         Support for this category is OPTIONAL.</t>
 
         <t hangText="Hybrid category:"> This declares an interface to
@@ -424,8 +425,8 @@ manipulate local routes
       </t>
 
         <t>This algorithm MUST be implemented by any router implementing
-        HNCP. However, if the router implements only fixed categories, only
-        first step is really needed. The algorithm works as follows,
+        HNCP. However, if the router does not implement auto-detection,
+        only the first step is required. The algorithm works as follows,
         with evaluation stopping at first match:
 
 
@@ -446,7 +447,7 @@ manipulate local routes
 
         Note that as other HNCP routers will ignore the client due to the
         user class option, the server that replies is clearly external (or
-        malicious internal node).</t>
+        a malicious internal node).</t>
 
         <t>Each router SHOULD continuously scan each active interface that
         does not have a fixed category in order to dynamically reclassify
@@ -459,13 +460,12 @@ manipulate local routes
         interface as internal. Once it treats a certain interface as
         internal it MUST start forwarding traffic with appropriate source
         addresses between its internal interfaces and allow internal
-        traffic to reach external networks according to the routes it
-        publishes.  Once a router detects an interface transitioning to
+        traffic to reach external networks.
+        Once a router detects an interface transitioning to
         external it MUST stop any previously enabled internal
         forwarding. In addition it SHOULD announce the acquired information
         for use in the network as described in later sections of this draft
-        if the interface appears to be connected to an external
-        network.</t>
+        if the interface appears to be connected to an external network.</t>
 
       </section>
 
@@ -497,8 +497,8 @@ manipulate local routes
       that see each other's traffic and presumably also the traffic of all
       hosts that may use the nodes to e.g. route traffic.
 
-      Common Link is used, e.g., to determine where prefixes should be
-      assigned or which peers participate in the election of a DHCP(v6)
+      Common Links are used, e.g., to determine where prefixes should be
+      assigned or which peers participate in the election of a DHCP
       server.
 
       The Common Link is computed separately for each local internal
@@ -1240,11 +1240,11 @@ manipulate local routes
         an IPv4 default route known in the network. If there is no default
         route, the router MUST announce a <xref target="RFC3442">Classless
         Static Route Option</xref> for the IPv4 prefix announced in the
-        Delegated Prefix TLV and MAY announce such an option for each
-        non-default IPv4 route with a destination that is not within any
-        local delegated prefix.</t>
+        Delegated Prefix TLV and MAY announce such an option for each known
+        reachable IPv4 destination that is not within any local delegated
+        prefix.</t>
 
-        <t>DHCPv4 lease times SHOULD be short (i.e. not longer than 5 minutes)
+        <t>DHCPv4 lease times SHOULD be short (i.e., not longer than 5 minutes)
         in order to provide reasonable response times to changes.</t>
       </section>
 
@@ -1431,12 +1431,12 @@ manipulate local routes
       IGPs and other protocols which lack support for asymmetric
       security. The following mechanism manages PSKs using HNCP to enable
       bootstrapping of such third-party protocols and SHOULD therefore be
-      used if such a need arises.
+      used whenever a node uses any DNCP security mechanism not based on PSKs.
 
       This scheme SHOULD be used only in conjunction with secured HNCP
       unicast transport (=DTLS), as transferring the PSK in plain-text
       anywhere in the network is a potential risk, especially as the
-      originator may not know about security (and use of HNCP security) on
+      originator may not know about security (and use of DNCP security) on
       all links.
 
       The following rules define how such a PSK
@@ -1451,15 +1451,7 @@ manipulate local routes
         adopt the remaining one.</t>
         <t>The router currently advertising the Managed-PSK-TLV must
         generate and advertise a new random one whenever an unreachable node
-        is purged as described in DNCP.</t>
-        <!-- [PP] Shouldn't we add some grace period to that. Changing the key
-         is an heavy operation which we probably don't want to do when there
-         is a flappy link. -->
-
-        <!-- [MSt] purging occurs essentially at best even after router has
-             been gone for a minute (and there is no redundant
-             connectivity). I am not fond of adding more magic constants
-             here.. -->
+        is purged from the DNCP topology.</t>
       </list>
       </t>
 
@@ -1482,16 +1474,11 @@ manipulate local routes
         </artwork>
       </figure>
 
-      <t>PSKs for individual protocols are derived from the random PSK
-      through the use of <xref target="RFC6234">HMAC-SHA256</xref> with a
-      pre-defined per-protocol HMAC-key in ASCII-format. The following
-      HMAC-keys are currently defined to derive PSKs for the respective
-      protocols:
-
-      <list>
-        <t>"ROUTING": to be used for IGPs</t>
-      </list>
-      </t>
+      <t>PSKs for individual protocols SHOULD be derived from the random
+      PSK using a suitable one-way hashing algorithm (e.g., by using
+      <xref target="RFC6234">HMAC-SHA256</xref> with a per-protocol HMAC-key)
+      so that disclosure of any derived key does not impact other users of
+      the managed PSK.</t>
     </section>
 
     <section anchor="version-tlv" title="HNCP Versioning and Capabilities">
@@ -1632,6 +1619,12 @@ manipulate local routes
         	to clients, i.e. options contained in External Connection TLVs that
         	also include delegated prefixes from which a subset is assigned to
         	the respective link.</t>
+        	<t>The requirement L-13 to deprecate prefixes is applied to all
+        	delegated prefixes in the network from which assignments have been
+        	made on the respective interface. Furthermore the Prefix Information
+        	Options for deprecation MUST be included until at least three
+        	successive unsolicited Router Advertisements have been sent. 
+        	</t>
         </list>
         </t>
       </list></t>
