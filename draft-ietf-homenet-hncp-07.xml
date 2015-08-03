@@ -119,7 +119,7 @@ manipulate local routes
 
         <t>While HNCP does not deal with routing protocols directly (except
         potentially informing them about internal and external interfaces
-        if border discovery specified in <xref target="bd" /> is used), in
+        if classification specified in <xref target="bd" /> is used), in
         homenet environments where multiple IPv6 source-prefixes can be
         present, routing based on source and destination address is
         necessary <xref target="RFC7368" />.</t>
@@ -358,7 +358,7 @@ manipulate local routes
       </t>
     </section>
 
-    <section title="Interface Classfication">
+    <section title="Interface Classification">
 
       <section anchor="if-cat" title="Interface Categories">
         <t>
@@ -1670,7 +1670,7 @@ manipulate local routes
       </list>
       </t>
 
-      <section title="Border Determination">
+      <section title="Interface Classification">
 
         <t>As described in <xref target="bd" />, an HNCP node determines
         the internal or external state on a per-interface basis. A firewall
@@ -1678,7 +1678,7 @@ manipulate local routes
         interfaces, HNCP and IGP traffic is allowed, with the exception of
         leaf and guest sub-categories.</t>
 
-        <t>Threats concerning automatic border discovery cannot be
+        <t>Threats concerning automatic interface classification cannot be
         mitigated by encrypting or authenticating HNCP traffic itself since
         external routers do not participate in the protocol and often
         cannot be authenticated by other means. These threats include
