@@ -87,10 +87,12 @@ manipulate local routes
     <abstract>
 
       <t>This document describes the Home Networking Control Protocol
-      (HNCP), an extensible configuration protocol and a set of requirements
-      for home network devices on top of the Distributed Node Consensus
-      Protocol (DNCP). It enables automated configuration of addresses, naming,
-      and border discovery between home and outside world.</t>
+      (HNCP), an extensible configuration protocol and a set of
+      requirements for home network devices. HNCP is described as a profile
+      of and extension to the Distributed Node Consensus Protocol (DNCP).
+      HNCP enables automated configuration of addresses, name resolution,
+      service discovery, discovery of network borders, and the use of any
+      src-dest-routing capable routing protocol.</t>
 
     </abstract>
   </front>
@@ -100,10 +102,10 @@ manipulate local routes
       <t>HNCP synchronizes state across a small site in order to allow
       automated network configuration.
 
-      The protocol enables use of border discovery, address prefix
-      distribution <xref target="I-D.ietf-homenet-prefix-assignment" />,
-      naming and other services that may be defined later across multiple
-      links.</t>
+      The protocol enables autonomic discovery of network borders, address
+      prefix distribution <xref target="I-D.ietf-homenet-prefix-assignment"
+      />, naming and other services that may be defined later across
+      multiple links.</t>
 
       <t>HNCP is a <xref target="I-D.ietf-homenet-dncp">DNCP</xref>-based
       protocol, with DNCP profile which defines transport and
@@ -264,27 +266,23 @@ manipulate local routes
         <t>HNCP uses UDP datagrams on port HNCP-UDP-PORT as a transport
         over link-local scoped IPv6, using unicast and multicast
         (All-Homenet-Routers is the HNCP group address).
-        Received datagrams with an IPv6 source or destination address
-        which is not link-local scoped MUST be ignored. Replies
-        to multicast and unicast messages MUST be sent to the IPv6 source
-        address and port of the original message. Each node MUST be able to
-        receive (and potentially reassemble) UDP datagrams with a payload of
-        at least 4000 bytes.</t>
+        Received datagrams where either or both of the IPv6 source or
+        destination address is not link-local scoped MUST be
+        ignored. Replies to multicast and unicast messages MUST be sent to
+        the IPv6 source address and port of the original message. Each node
+        MUST be able to receive (and potentially reassemble) UDP datagrams
+        with a payload of at least 4000 bytes.</t>
 
         <t>HNCP operates on multicast-capable interfaces only. HNCP nodes
-        MUST assign a unique 32-bit endpoint identifier to each
-        interface for which HNCP is enabled. The value zero is reserved
-        for internal purposes.
+        MUST assign a locally unique non-zero 32-bit endpoint identifier to each
+        interface for which HNCP is enabled. The value zero
+        it is not used in DNCP TLVs, but it
+        has a special
+        meaning in HNCP TLVs (see <xref target="ap-tlv" /> and <xref
+        target="node-addr" />).
+
         Implementations MAY use a value equivalent to the sin6_scope_id for
         the given interface.</t>
-
-        <t>HNCP unicast traffic SHOULD be secured using <xref
-        target="RFC6347">DTLS</xref> as described in DNCP if exchanged over
-        unsecured links. UDP on port HNCP-DTLS-PORT is used for this
-        purpose.  A node implementing HNCP security MUST support
-        the DNCP Pre-Shared Key method, SHOULD support the DNCP Certificate
-        Based Trust Consensus and MAY support the PKI-based trust
-        method.</t>
 
         <t>HNCP uses opaque 32-bit node identifiers
         (DNCP_NODE_IDENTIFIER_LENGTH = 32). A node implementing HNCP SHOULD
@@ -294,28 +292,6 @@ manipulate local routes
         target="I-D.ietf-homenet-dncp" />), the node MUST immediately
         generate and use a new random node identifier which is not used by
         any other node at the time, based on the current DNCP network state.</t>
-
-        <t>HNCP nodes MUST ignore all Node State TLVs received via
-        multicast on a link which has DNCP security enabled in order
-        to prevent spoofing of node state changes.</t>
-
-        <t>HNCP nodes use the following Trickle parameters for
-        the per-interface Trickle instances:
-
-        <list style="symbols">
-
-          <t>k SHOULD be 1, as the timer reset when data is updated and
-          further retransmissions should handle packet loss. Even on a
-          non-transitive lossy link, the eventual per-endpoint keep-alives
-          should ensure status synchronization occurs.</t>
-
-          <t>Imin SHOULD be 200 milliseconds but MUST NOT be lower.
-          Note: Earliest transmissions may occur at Imin / 2.</t>
-
-          <t>Imax SHOULD be 7 doublings of Imin (i.e. 25.6 seconds)
-          but MUST NOT be lower.</t>
-        </list>
-        </t>
 
         <t>HNCP nodes MUST use the leading 64 bits of <xref
         target="RFC1321">MD5</xref> as DNCP non-cryptographic hash function
@@ -339,6 +315,36 @@ manipulate local routes
             nodes time out is low enough.</t>
         </list>
         </t>
+
+        <t>HNCP nodes use the following Trickle parameters for
+        the per-interface Trickle instances:
+
+        <list style="symbols">
+
+          <t>k SHOULD be 1, as the timer reset when data is updated and
+          further retransmissions should handle packet loss. Even on a
+          non-transitive lossy link, the eventual per-endpoint keep-alives
+          should ensure status synchronization occurs.</t>
+
+          <t>Imin SHOULD be 200 milliseconds but MUST NOT be lower.
+          Note: Earliest transmissions may occur at Imin / 2.</t>
+
+          <t>Imax SHOULD be 7 doublings of Imin (i.e. 25.6 seconds)
+          but MUST NOT be lower.</t>
+        </list>
+        </t>
+
+        <t>HNCP unicast traffic SHOULD be secured using <xref
+        target="RFC6347">DTLS</xref> as described in DNCP if exchanged over
+        unsecured links. UDP on port HNCP-DTLS-PORT is used for this
+        purpose.  A node implementing HNCP security MUST support
+        the DNCP Pre-Shared Key method, SHOULD support the DNCP Certificate
+        Based Trust Consensus and MAY support the PKI-based trust
+        method.</t>
+
+        <t>HNCP nodes MUST ignore all Node State TLVs received via
+        multicast on a link which has DNCP security enabled in order
+        to prevent spoofing of node state changes.</t>
 
       </list>
       </t>
@@ -833,7 +839,7 @@ manipulate local routes
       </t>
     </section>
 
-        <section title="Assigned Prefix TLV">
+        <section anchor="ap-tlv" title="Assigned Prefix TLV">
           <t>Published Assigned Prefixes MUST be advertised using the Assigned
           Prefix TLV.</t>
           <figure>
@@ -853,10 +859,9 @@ manipulate local routes
           <t>
             <list style="hanging">
               <t hangText="Endpoint Identifier: ">The endpoint identifier
-              of the local interface that belongs to the Common Link the
-              prefix is assigned to, or 0 if the Common Link is a Private
-              Link (e.g., when the prefix is assigned for downstream prefix
-              delegation).</t>
+              of the local interface the prefix is assigned to, or 0 if it
+              iassigned to a Private Link (e.g., when the prefix is
+              assigned for downstream prefix delegation).</t>
 
 
               <t hangText="Rsv.: ">Bits are reserved for future use. They
@@ -913,10 +918,15 @@ manipulate local routes
               prefix assignment with a non-zero preferred lifetime, the
               creation of a new prefix is not desired.</t>
 
-              <t>Otherwise, it is desired, if the Delegated Prefix does not
+              <t>If the Delegated Prefix does not
               include a Prefix Policy TLV indicating restrictive assignment
               (type 131) or if local policy exists to identify it based on,
-              e.g., other Prefix Policy TLV values and allows assignment.</t>
+              e.g., other Prefix Policy TLV values and allows
+              assignment, the
+              creation of a new prefix is desired.</t>
+
+              <t>Otherwise, the creation of a new prefix is not
+              desired.</t>
             </list>
             </t>
 
@@ -948,9 +958,8 @@ manipulate local routes
             each router connected to said link:
 
             <list>
-              <t>MUST create an appropriate route for said prefix, indicating
-              it is directly reachable on the respective link
-              and advertise said route using the chosen routing protocol.</t>
+              <t>MUST create a route for said prefix, indicating
+              it is directly reachable on the respective link.</t>
 
               <t>MUST participate in the client configuration election as
               described in <xref target="client-config" />, if the link is
@@ -1027,7 +1036,9 @@ manipulate local routes
           reserved for HNCP nodes and the remaining addresses are reserved
           for the elected DHCPv4 server.</t>
 
-          <t>HNCP routers assign themselves addresses using the Node Address TLV:
+          <t>HNCP routers assign themselves addresses, and then (to ensure
+          eventual lack of conflicting assignments) publish the assignments
+          using the Node Address TLV:
             <figure>
               <artwork>
 0                   1                   2                   3
@@ -1047,9 +1058,8 @@ manipulate local routes
             <list style="hanging">
 
               <t hangText="Endpoint Identifier: ">The endpoint identifier
-              of the local interface that belongs to the Common Link the
-              prefix is assigned to, or 0 if it is not assigned on an HNCP
-              enabled link.</t>
+              of the local interface the prefix is assigned to, or 0 if it
+              is not assigned on an HNCP enabled link.</t>
 
               <t hangText="IP Address: ">The globally scoped IPv6 address, or the IPv4 address
               encoded as an <xref target="RFC4291">IPv4-mapped IPv6 address</xref>.</t>
@@ -1062,17 +1072,18 @@ manipulate local routes
               already advertised by another router.</t>
 
               <t>An assigned address MUST be in the first quarter of an
-              assigned prefix currently applied on a Common Link which includes
-                  the interface specified by the endpoint identifier.</t>
+              assigned prefix currently applied on a Common Link which
+              includes the interface specified by the endpoint
+              identifier.</t>
 
-              <t>An address MUST NOT be used unless it has been advertised for
-              at least ADDRESS_APPLY_DELAY consecutive seconds, and is still
-              currently being advertised. The default value for ADDRESS_APPLY_DELAY
-              is 3 seconds.</t>
+              <t>An address MUST NOT be used unless it has been advertised
+              for at least ADDRESS_APPLY_DELAY consecutive seconds, and is
+              still currently being advertised. The default value for
+              ADDRESS_APPLY_DELAY is 3 seconds.</t>
 
-              <t>Whenever the same address is advertised by more than one node,
-              all but the one advertised by the node with the highest node identifier
-              MUST be removed.</t>
+              <t>Whenever the same address is advertised by more than one
+              node, all but the one advertised by the node with the highest
+              node identifier MUST be removed.</t>
             </list>
           </t>
         </section>
@@ -1103,7 +1114,7 @@ manipulate local routes
             identifier is kept among those with a Prefix Policy of type 0 -
             if there is any.
             The router publishing a prefix with internet connectivity
-            MUST announce an IPv4 default route using the routing protocol and
+            MUST also have an IPv4 default route and
             perform NAT on behalf of the network as long as it publishes the
             prefix, other routers in the network MAY choose not to.</t>
           </list>
@@ -1224,14 +1235,14 @@ manipulate local routes
         The elected router MUST provide
         DHCPv4 services on the given link.</t>
 
-        <t>The DHCPv4 serving router MUST announce itself as
-        <xref target="RFC2132">router</xref> to clients if and only if there
-        is an IPv4 default route known in the network. If there is no default
+        <t>The DHCPv4 serving router MUST announce itself as <xref
+        target="RFC2132">router</xref> to clients if and only if there is
+        an IPv4 default route known in the network. If there is no default
         route, the router MUST announce a <xref target="RFC3442">Classless
         Static Route Option</xref> for the IPv4 prefix announced in the
         Delegated Prefix TLV and MAY announce such an option for each
-	non-default IPv4 route advertised in the routing protocol with an
-       	external destination.</t>
+        non-default IPv4 route with a destination that is not within any
+        local delegated prefix.</t>
 
         <t>DHCPv4 lease times SHOULD be short (i.e. not longer than 5 minutes)
         in order to provide reasonable response times to changes.</t>
@@ -1415,11 +1426,21 @@ manipulate local routes
 
 
     <section title="Securing Third-Party Protocols">
-      <t>Pre-shared keys (PSKs) are often required to secure IGPs and other
-      protocols which lack support for asymmetric security. The following
-      mechanism manages PSKs using HNCP to enable bootstrapping of such
-      third-party protocols and SHOULD therefore be used if such a need
-      arises. The following rules define how such a PSK is managed and used:
+
+      <t>Pre-shared keys (PSKs) are often required to secure (for example)
+      IGPs and other protocols which lack support for asymmetric
+      security. The following mechanism manages PSKs using HNCP to enable
+      bootstrapping of such third-party protocols and SHOULD therefore be
+      used if such a need arises.
+
+      This scheme SHOULD be used only in conjunction with secured HNCP
+      unicast transport (=DTLS), as transferring the PSK in plain-text
+      anywhere in the network is a potential risk, especially as the
+      originator may not know about security (and use of HNCP security) on
+      all links.
+
+      The following rules define how such a PSK
+      is managed and used:
 
       <list style="symbols">
         <t>If no Managed-PSK-TLV is currently being announced, an HNCP
