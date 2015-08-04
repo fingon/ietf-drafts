@@ -17,12 +17,6 @@ indicate that they persist for long period of time, as opposed just to
 announce, which by definition is only transient occurrence. Why the hell am
 I writing an essay on this. :-p)
 
-- get rid of routing protocol references for most part (perhaps leave one
-in applicability stmt, and note that routers can configure routing
-protocols if the dynamic border discovery warrants that); otherwise just
-manipulate local routes
-[SB] should be done
-
 -->
 
 <!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
@@ -93,7 +87,8 @@ manipulate local routes
       of and extension to the Distributed Node Consensus Protocol (DNCP).
       HNCP enables automated configuration of addresses, name resolution,
       service discovery, discovery of network borders, and the use of any
-      source-destination-routing capable routing protocol.</t>
+      routing protocol which supports routing based on both source and
+      destination address.</t>
 
     </abstract>
   </front>
@@ -122,7 +117,10 @@ manipulate local routes
         if classification specified in <xref target="bd" /> is used), in
         homenet environments where multiple IPv6 source-prefixes can be
         present, routing based on source and destination address is
-        necessary <xref target="RFC7368" />.</t>
+        necessary <xref target="RFC7368" />. Ideally, the routing protocol
+        is also zero-configuration (e.g. no need to configure router id, or
+        metrics) although HNCP can be used also with a manually configured
+        routing protocol.</t>
 
         <t>As HNCP uses DNCP as the actual state synchronization protocol,
         the applicability statement of DNCP can be used here as well; HNCP
@@ -139,11 +137,11 @@ manipulate local routes
         of that data every time the valid or preferred lifetimes of
         prefixes (significantly) change. Therefore, it is desirable for
         ISPs to provide large enough valid and preferred lifetimes to avoid
-        unneccessary HNCP state churn in homes, but even given
+        unnecessary HNCP state churn in homes, but even given
         non-cooperating ISPs, the state churn is proportional only to
         number of externally received delegated prefixes and not the home
         network size, and should therefore be relatively low.</t>
-        
+
         <t>HNCP assumes a certain level of control over host configuration
         servers (e.g., <xref target="RFC2131" />) on links that are managed
         by its routers. Some HNCP functionality (such as border discovery
@@ -193,7 +191,7 @@ manipulate local routes
 
 	<c>Node</c>
 	<c>A device implementing this specification.</c>
-	
+
 	<c>Router</c>
 	<c>A device implementing this specification which forwards
 	traffic on behalf of other devices.</c>
@@ -224,12 +222,12 @@ manipulate local routes
 
         External and internal category mark the interface as external or
         internal; there are also number of internal category
-        sub-categories that affect local router behavior.
+        sub-categories that affect local node behavior.
 
         See <xref target="if-cat" /> for a list of
         interface categories and how they behave.
 
-        The internal or external category may be also autodetected - see
+        The internal or external category may be also auto-detected - see
         <xref target="bd" />.
 
         </c>
@@ -366,14 +364,14 @@ manipulate local routes
       </list>
       </t>
     </section>
-    
+
     <section anchor="versioning" title="HNCP Versioning and Router Capabilities">
 
       <t>Multiple versions of HNCP based on compatible DNCP profiles may be
       present in the same network when transitioning between HNCP versions
-      and for troubleshooting purposes it might be benefetial to identify
+      and for troubleshooting purposes it might be beneficial to identify
       the HNCP agent version running. Therefore each node MUST include an
-      <xref target="version">HNCP-Version-TLV</xref> in its Node Data and
+      <xref target="version">HNCP-Version TLV</xref> in its Node Data and
       MUST ignore (except for DNCP synchronization purposes) any TLVs with a
       type greater than 32 published by nodes not also publishing an
       HNCP-Version TLV or publishing such a TLV with a different Version.</t>
@@ -406,15 +404,15 @@ manipulate local routes
       	external networks. All nodes MUST implement this category and
       	nodes not implementing any other category implicitly use it
       	as a fixed default.</t>
-        
+
         <t hangText="External category:"> This declares an interface
         to be external, i.e., not within the borders of the HNCP network.
         HNCP traffic MUST neither be sent nor received.
-        HNCP Routers SHOULD announce acquired configuration information
-        for use in the network as described in later sections of this draft,
+        HNCP routers SHOULD announce acquired configuration information
+        for use in the network as described in <xref target="ec" />,
         if the interface appears to be connected to an external network.
         HNCP routers MUST implement this category.</t>
-      
+
         <t hangText="Leaf category:"> This declares an interface used by
         client devices only. Such an interface uses the Internal category
         with the exception that HNCP traffic MUST NOT be sent on the
@@ -429,28 +427,29 @@ manipulate local routes
         unless explicitly allowed. This category SHOULD be supported by
         HNCP routers.</t>
 
-        <t hangText="Ad-hoc category:"> This configures an interface to be
-        Internal but no assumption is made on the the link's
+        <t hangText="Ad-hoc category:"> This configures an interface to use
+        the Internal category but no assumption is made about the the link's
         transitivity. All other interface categories assume transitive
         connectivity.
 
         This affects the <xref target="links">Common Link</xref> definition.
         Support for this category is OPTIONAL.</t>
 
-        <t hangText="Hybrid category:"> This declares an interface to
-        be Internal while still trying to acquire (external) configuration
-        information on it, e.g., by running DHCP clients. This is useful,
-        e.g., if the link is shared with a non-HNCP router under control and
-        still within the borders of the same network. Detection of this
-        category automatically in addition to manual configuration is
-        out of scope of this document. Support for this category is OPTIONAL.</t>
+        <t hangText="Hybrid category:"> This declares an interface to use
+        the Internal category while still trying to acquire (external)
+        configuration information on it, e.g., by running DHCP
+        clients. This is useful, e.g., if the link is shared with a
+        non-HNCP router under control and still within the borders of the
+        same network. Detection of this category automatically in addition
+        to manual configuration is out of scope of this document. Support
+        for this category is OPTIONAL.</t>
       </list>
       </t>
 
     </section>
-    
+
     <section title="DHCP-server aided auto-detection">
-    
+
       <t>Auto-detection of interface categories is possible based on
       interaction with <xref target="RFC2131">DHCPv4</xref> and <xref
       target="RFC3633">DHCPv6-PD</xref> servers on connected links.
@@ -466,19 +465,19 @@ manipulate local routes
 
         <t>The device MUST ignore or reject DHCP-Requests containing a
         DHCP User-Class consisting of the ASCII-String "HOMENET".</t>
-        
+
       </list>
-      
+
       Not following this rule (e.g., running unmodified DHCP servers)
-      might lead to false-positives when auto-detection is used, i.e.,
+      might lead to false positives when auto-detection is used, i.e.,
       HNCP nodes assume an interface to not be internal, even though
       it was intended to be.
       </t>
     </section>
-    
+
     <section anchor="bd" title="Algorithm and Border Discovery">
 
-      <t>This section defines the interface classfication algorithm.  It is
+      <t>This section defines the interface classification algorithm.  It is
       suitable for both IPv4 and IPv6 (single or dual-stack) and
       detects the category of an HNCP interface either automatically
       or based on a fixed configuration. By determining the category for all
@@ -488,7 +487,7 @@ manipulate local routes
 
         <t>The following algorithm MUST be implemented by any node
         implementing HNCP. However, if the node does not implement
-        auto-detection, only the first step is required. 
+        auto-detection, only the first step is required.
         The algorithm works as follows, with evaluation stopping at
         first match:
 
@@ -514,14 +513,14 @@ manipulate local routes
         Note that as other HNCP nodes will ignore the client due to the
         user class option, any server that replies is clearly external (or
         a malicious internal node).</t>
-        
+
         <t>Each HNCP router SHOULD allow setting the category for each
       	interface which may be connected to either an internal or external
-      	device (e.g., an ethernet port that can be connected to a modem,
+      	device (e.g., an Ethernet port that can be connected to a modem,
       	another HNCP router or a client).
       	It MAY use auto-detection as described above for
       	interfaces, however whenever it does, it MUST allow configuration
-      	of a fixed category to override the result and it MUST continously
+      	of a fixed category to override the result and it MUST continuously
       	scan the interfaces in order to dynamically reclassify them if
       	necessary. It therefore runs an appropriately configured
       	DHCPv4 and DHCPv6 client as long as the interface is active
@@ -531,7 +530,7 @@ manipulate local routes
         lease, before treating a newly activated or previously external
         interface as internal.</t>
       </section>
-      
+
 
 
     </section>
@@ -622,7 +621,7 @@ manipulate local routes
         advertised.</t>
 
         <section title="External Connection TLV">
-          <t>An External Connection TLV is a container-TLV used to
+          <t>An External Connection TLV is a container TLV used to
           gather network configuration information associated with
           a single external connection. A node MAY publish an arbitrary
           number of instances of this TLV.</t>
@@ -928,7 +927,7 @@ manipulate local routes
             <list style="hanging">
               <t hangText="Endpoint Identifier: ">The endpoint identifier
               of the local interface the prefix is assigned to, or 0 if it
-              iassigned to a Private Link (e.g., when the prefix is
+              is assigned to a Private Link (e.g., when the prefix is
               assigned for downstream prefix delegation).</t>
 
 
@@ -1510,15 +1509,17 @@ manipulate local routes
       is managed and used:
 
       <list style="symbols">
-        <t>If no Managed-PSK-TLV is currently being announced, an HNCP
+        <t>If no Managed-PSK TLV is currently being announced, an HNCP
         node MUST create one after a random delay of 0 to 10 seconds
         with a 32 bytes long random key and add it to its node data.</t>
         <t>In case multiple nodes announce such a TLV at the same time,
         all but the one with the greatest node identifier stop advertising it and
         adopt the remaining one.</t>
-        <t>The node currently advertising the Managed-PSK-TLV must
-        generate and advertise a new random one whenever an unreachable node
-        is purged from the DNCP topology.</t>
+
+        <t>The node currently advertising the Managed PSK TLV must generate
+        and advertise a new random one whenever an unreachable node is
+        removed from the DNCP topology as described in the Section 4.6 of
+        <xref target="I-D.ietf-homenet-dncp" />.</t>
       </list>
       </t>
 
@@ -1547,11 +1548,11 @@ manipulate local routes
       so that disclosure of any derived key does not impact other users of
       the managed PSK.</t>
     </section>
-    
+
     <section anchor="tlvs" title="Type-Length-Value Objects">
 
 	<t>HNCP defines the following TLVs in addition to those defined by DNCP.
-	
+
 	TODO: define generic rules for e.g. containers etc.</t>
 
         <section anchor="version" title="Version TLV">
@@ -1572,7 +1573,7 @@ manipulate local routes
       	This TLV is used to indicate the supported version and
       	router capabilities of an HNCP node as described in
       	<xref target="versioning" />.
-      
+
           <list style="hanging">
               <t hangText="Version:">Indicates which version of HNCP is
                   currently in use by this particular node. It MUST be set to 1.
@@ -1625,10 +1626,10 @@ manipulate local routes
         <t>It MUST implement and run the method for securing third-party
         protocols whenever it uses the security mechanism of HNCP.</t>
       </list></t>
-      
+
       <t>If the node is acting as a router, then the following requirements
       apply in addition:
-      
+
       <list style="symbols">
       	<t>It MUST support Prefix Assignment and Configuration of Hosts
       	as defined in this document.</t>
@@ -1681,7 +1682,7 @@ manipulate local routes
         	delegated prefixes in the network from which assignments have been
         	made on the respective interface. Furthermore the Prefix Information
         	Options for deprecation MUST be included until at least three
-        	successive unsolicited Router Advertisements have been sent. 
+        	successive unsolicited Router Advertisements have been sent.
         	</t>
         </list>
         </t>
