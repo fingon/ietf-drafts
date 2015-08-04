@@ -217,10 +217,10 @@ TODO:
 
       <c>Endpoint identifier</c>
 
-      <c>a 32-bit opaque value, which identifies a particular endpoint of
-      a particular DNCP node. The value 0 is reserved for DNCP and DNCP-based
-      protocol purposes and not used to identify an actual
-      endpoint. This definition is in sync with the interface index
+      <c>a 32-bit opaque and locally unique value, which identifies a
+      particular endpoint of a particular DNCP node. The value 0 is reserved
+      for DNCP and DNCP-based protocol purposes and not used to identify an
+      actual endpoint. This definition is in sync with the interface index
       definition in <xref target="RFC3493"/>, as the non-zero small
       positive integers should comfortably fit within 32 bits.</c>
 
@@ -844,8 +844,8 @@ TODO:
       is configured to be used. For each such endpoint, a node has:
       <list style="symbols">
 
-        <t>Endpoint identifier: the 32-bit opaque value uniquely
-        identifying the endpoint within the local node. It SHOULD
+        <t>Endpoint identifier: the 32-bit opaque locally unique
+        value identifying the endpoint within a node. It SHOULD
         NOT be reused immediately after an endpoint is disabled.</t>
 
         <t>Trickle instance: the endpoint's Trickle instance with
@@ -1082,7 +1082,8 @@ TODO:
         length field (of the value excluding header, in bytes, 0 meaning no
         value) followed by the value itself, if any. Both type and length
         fields in the header as well as all integer fields inside the value
-        - unless explicitly stated otherwise - are represented in network
+        - unless explicitly stated otherwise - are represented unsigned and
+        in network
         byte order. Padding bytes with value zero MUST be added up to the
         next 4 byte boundary if the length is not divisible by 4.  These
         padding bytes MUST NOT be included in the number stored in the
