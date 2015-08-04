@@ -671,9 +671,9 @@ I writing an essay on this. :-p)
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |  Type: DELEGATED-PREFIX (34)  |          Length: >= 9         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                Valid Lifetime since origination               |
+|                Valid Lifetime Since Origination               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|              Preferred Lifetime since origination             |
+|              Preferred Lifetime Since Origination             |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 | Prefix Length |                                               |
 +-+-+-+-+-+-+-+-+            Prefix [+ nested TLVs]             +
@@ -683,15 +683,17 @@ I writing an essay on this. :-p)
 
           <t>
             <list style="hanging">
-              <t hangText="Valid Lifetime since origination: ">
+              <t hangText="Valid Lifetime Since Origination: ">
               The time in seconds the delegated prefix was valid for at the
-              origination time of the Node Data. It MUST be updated whenever
-              the node republishes its Node-Data TLV.</t>
+              origination time of the node data containing this TLV. The
+              value MUST be updated whenever the node republishes its Node
+              State TLV.</t>
 
-              <t hangText="Preferred Lifetime since origination: ">
-              The time in seconds the delegated prefix was preferred for at the
-              origination time of the Node Data. It MUST be updated whenever
-              the node republishes its Node-Data TLV.</t>
+              <t hangText="Preferred Lifetime Since Origination: ">
+              The time in seconds the delegated prefix was preferred for at
+              the origination time of the node data containing this
+              TLV. The value MUST be updated whenever the node republishes
+              its Node State TLV.</t>
 
               <t hangText="Prefix Length: ">The number of significant bits in
               the Prefix.</t>
