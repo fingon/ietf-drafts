@@ -105,8 +105,8 @@ manipulate local routes
 
       The protocol enables autonomic discovery of network borders, address
       prefix distribution <xref target="I-D.ietf-homenet-prefix-assignment"
-      />, naming and other services that may be defined later across
-      multiple links.</t>
+      />, internal name resolution and other services that may be defined
+      later across multiple links.</t>
 
       <t>HNCP is a <xref target="I-D.ietf-homenet-dncp">DNCP</xref>-based
       protocol and includes a DNCP profile which defines transport and
@@ -143,9 +143,16 @@ manipulate local routes
         non-cooperating ISPs, the state churn is proportional only to
         number of externally received delegated prefixes and not the home
         network size, and should therefore be relatively low.</t>
+        
+        <t>HNCP assumes a certain level of control over host configuration
+        servers (e.g., <xref target="RFC2131" />) on links that are managed
+        by its routers. Some HNCP functionality (such as border discovery
+        or some aspects of naming) would be affected by existing DHCP servers
+        not aware of the HNCP managed network and thus might need to be
+        reconfigured to not result in unexpected behavior.</t>
 
         <t>While HNCP is designed to be used by (home) routers, it can be
-        also used by advanced hosts that want to do e.g. their own address
+        also used by advanced hosts that want to do, e.g., their own address
         assignment and routing.</t>
 
         <t>HNCP is link layer agnostic; if a link supports IPv6
@@ -167,6 +174,7 @@ manipulate local routes
 	<t>Prefix Adoption</t>
 	<t>Private Link</t>
 	<t>Published Assigned Prefix</t>
+	<t>Applied Assigned Prefix</t>
 	<t>Shared Link</t>
       </list>
       </t>
@@ -196,7 +204,7 @@ manipulate local routes
 	ISP network</c>
         <c /><c />
 
-        <c>Internal link</c>
+    <c>Internal link</c>
 	<c>a link that does not cross borders.</c>
 
 	<c>Internal interface</c>
@@ -228,13 +236,14 @@ manipulate local routes
         <c /><c />
 
 	<c>Border router</c>
-	<c>a router with external interfaces.</c>
+	<c>a router announcing external connectivity and
+	forwarding traffic across the network border.</c>
         <c /><c />
 
         <c>Common Link</c>
-        <c>a (sub)set of nodes on a link with shared view of the link - that
-        is, they see each other's traffic and also share view of hosts for
-        that (part of) link.</c>
+        <c>a set of nodes on a link which share a common view of it, i.e.,
+        they see each other's traffic and the same set of hosts.
+        Unless configured otherwise transitive connectivity is assumed.</c>
         <c /><c />
 
 
@@ -337,7 +346,7 @@ manipulate local routes
           <t>Imin SHOULD be 200 milliseconds but MUST NOT be lower.
           Note: Earliest transmissions may occur at Imin / 2.</t>
 
-          <t>Imax SHOULD be 7 doublings of Imin (i.e. 25.6 seconds)
+          <t>Imax SHOULD be 7 doublings of Imin (i.e., 25.6 seconds)
           but MUST NOT be lower.</t>
         </list>
         </t>
@@ -362,12 +371,13 @@ manipulate local routes
 
       <section anchor="if-cat" title="Interface Categories">
         <t>
-      HNCP defines the following categories interfaces can be configured
+      HNCP specified the following categories interfaces can be configured
       to be in:
 
       <list style="hanging">
       	<t hangText="Internal category:"> This declares an interfaces
-      	to be internal. HNCP traffic MUST be sent and received. Routers
+      	to be internal, i.e., within the borders of the HNCP network.
+      	HNCP traffic MUST be sent and received. Routers
       	MUST forward traffic with appropriate source addresses between
       	their internal interfaces and allow internal traffic to reach
       	external networks. All nodes MUST implement this category and
@@ -375,7 +385,8 @@ manipulate local routes
       	as a fixed default.</t>
         
         <t hangText="External category:"> This declares an interface
-        to be external. HNCP traffic MUST neither be sent nor received.
+        to be external, i.e., not within the borders of the HNCP network.
+        HNCP traffic MUST neither be sent nor received.
         HNCP Routers SHOULD announce acquired configuration information
         for use in the network as described in later sections of this draft,
         if the interface appears to be connected to an external network.
@@ -396,7 +407,7 @@ manipulate local routes
         HNCP routers.</t>
 
         <t hangText="Ad-hoc category:"> This configures an interface to be
-        internal but no assumption is made on the the link's
+        Internal but no assumption is made on the the link's
         transitivity. All other interface categories assume transitive
         connectivity.
 
@@ -404,46 +415,57 @@ manipulate local routes
         Support for this category is OPTIONAL.</t>
 
         <t hangText="Hybrid category:"> This declares an interface to
-        be internal while still running DHCPv4 and DHCPv6-PD clients on it. It
-        is assumed that the link is under control of a legacy, trustworthy
-        non-HNCP router, still within the same network. Detection of this
+        be Internal while still trying to acquire (external) configuration
+        information on it, e.g., by running DHCP clients. This is useful,
+        e.g., if the link is shared with a non-HNCP router under control and
+        still within the borders of the same network. Detection of this
         category automatically in addition to manual configuration is
         out of scope of this document. Support for this category is OPTIONAL.</t>
       </list>
       </t>
 
     </section>
-
-    <section anchor="bd" title="Algorithm">
-
-      <t>This section defines the interface classfication algorithm.  It is
-      suitable for both IPv4 and IPv6 (single or dual-stack) and
-      determines whether an HNCP interface is dynamically detected as
-      internal or external, or uses a fixed category.</t>
-
-      <t>In order to avoid conflicts between auto-detection and HNCP
-      nodes running <xref target="RFC2131">DHCPv4</xref> or <xref
-      target="RFC3633">DHCPv6-PD</xref> servers, each node MUST implement
+    
+    <section title="DHCP-server aided auto-detection">
+    
+      <t>Auto-detection of interface categories is possible based on
+      interaction with <xref target="RFC2131">DHCPv4</xref> and <xref
+      target="RFC3633">DHCPv6-PD</xref> servers on connected links.
+      HNCP defines special DHCP behavior to differentiate its internal
+      servers from external ones in order to achieve this. Therefore
+      all internal devices (including HNCP nodes) running DHCP servers
+      on links where auto-detection is used by any HNCP node MUST use
       the following mechanism based on <xref target="RFC3004">The User
       Class Option for DHCPv4</xref> and its <xref target="RFC3315">DHCPv6
       counterpart</xref>:
 
       <list style="symbols">
 
-        <t>An HNCP node running a DHCP client on an HNCP interface
-        MUST include a DHCP User-Class consisting of the ASCII-String
-        "HOMENET".</t>
-
-        <t>An HNCP node running a DHCP server on an HNCP interface
-        MUST ignore or reject DHCP-Requests containing a DHCP User-Class
-        consisting of the ASCII-String "HOMENET".</t>
-
+        <t>The device MUST ignore or reject DHCP-Requests containing a
+        DHCP User-Class consisting of the ASCII-String "HOMENET".</t>
+        
       </list>
+      
+      Not following this rule (e.g., running unmodified DHCP servers)
+      might lead to false-positives when auto-detection is used, i.e.,
+      HNCP nodes assume an interface to not be internal, even though
+      it was intended to be.
       </t>
+    </section>
+    
+    <section anchor="bd" title="Algorithm and Border Discovery">
+
+      <t>This section defines the interface classfication algorithm.  It is
+      suitable for both IPv4 and IPv6 (single or dual-stack) and
+      detects the category of an HNCP interface either automatically
+      or based on a fixed configuration. By determining the category for all
+      interfaces, the network borders are implicitly defined, i.e., all
+      interfaces not belonging to the External category are considered to be
+      within the borders of the network, all others are not.</t>
 
         <t>The following algorithm MUST be implemented by any node
         implementing HNCP. However, if the node does not implement
-        auto-detection, only the first step applies. 
+        auto-detection, only the first step is required. 
         The algorithm works as follows, with evaluation stopping at
         first match:
 
@@ -453,22 +475,28 @@ manipulate local routes
           used.</t>
 
           <t>If a delegated prefix could be acquired by running a DHCPv6
-          client on the interface, it is considered external. </t>
+          client, it is considered external. The DHCPv6 client MUST
+          have included a DHCPv6 User-Class consisting of the ASCII-String
+          "HOMENET" in all of its requests.</t>
 
           <t>If an IPv4 address could be acquired by running a DHCPv4
-          client on the interface it is considered external. </t>
+          client on the interface, it is considered external. The DHCPv4
+          client MUST have included a DHCP User-Class consisting of the
+          ASCII-String "HOMENET" in all of its requests.</t>
 
           <t>The interface is considered internal.</t>
 
         </list>
 
         Note that as other HNCP nodes will ignore the client due to the
-        user class option, the server that replies is clearly external (or
+        user class option, any server that replies is clearly external (or
         a malicious internal node).</t>
         
         <t>Each HNCP router SHOULD allow setting the category for each
-      	interface which is suitable for both internal and external
-      	connectivity. It MAY use auto-detection as described above for
+      	interface which may be connected to either an internal or external
+      	device (e.g., an ethernet port that can be connected to a modem,
+      	another HNCP router or a client).
+      	It MAY use auto-detection as described above for
       	interfaces, however whenever it does, it MUST allow configuration
       	of a fixed category to override the result and it MUST continously
       	scan the interfaces in order to dynamically reclassify them if
@@ -480,6 +508,8 @@ manipulate local routes
         lease, before treating a newly activated or previously external
         interface as internal.</t>
       </section>
+      
+
 
     </section>
 
@@ -507,7 +537,7 @@ manipulate local routes
 
       A Common Link refers to the set of interfaces of nodes
       that see each other's traffic and presumably also the traffic of all
-      hosts that may use the nodes to e.g. forward traffic.
+      hosts that may use the nodes to, e.g., forward traffic.
 
       Common Links are used, e.g., to determine where prefixes should be
       assigned or which peers participate in the election of a DHCP
@@ -552,7 +582,7 @@ manipulate local routes
       </t>
 
       <t>A node MUST be able to detect whether two of its local internal
-      interfaces are connected, e.g. by detecting an identical remote
+      interfaces are connected, e.g., by detecting an identical remote
       interface being part of the Common Links of both local
       interfaces.</t>
     </section>
@@ -610,7 +640,7 @@ manipulate local routes
           <t>The Delegated Prefix TLV is used by HNCP routers to advertise
           prefixes which are allocated to the whole network and will be used
           for prefix assignment. A Delegated Prefix TLV MUST be inside
-          an External Connection TLV.</t>
+          an External Connection TLV and ignored otherwise.</t>
 
           <figure>
             <artwork>
@@ -619,9 +649,9 @@ manipulate local routes
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |  Type: DELEGATED-PREFIX (34)  |          Length: >= 9         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                        Valid Lifetime                         |
+|                Valid Lifetime since origination               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                      Preferred Lifetime                       |
+|              Preferred Lifetime since origination             |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 | Prefix Length |                                               |
 +-+-+-+-+-+-+-+-+            Prefix [+ nested TLVs]             +
@@ -631,15 +661,15 @@ manipulate local routes
 
           <t>
             <list style="hanging">
-              <t hangText="Valid Lifetime: ">The time in seconds the delegated
-              prefix is valid. The value is relative to the point in time the
-              Node-Data TLV was last published. It MUST be updated whenever
+              <t hangText="Valid Lifetime since origination: ">
+              The time in seconds the delegated prefix was valid for at the
+              origination time of the Node Data. It MUST be updated whenever
               the node republishes its Node-Data TLV.</t>
 
-              <t hangText="Preferred Lifetime: ">The time in seconds the
-              delegated prefix is preferred. The value is relative to the
-              point in time the Node-Data TLV was last published. It MUST be
-              updated whenever the node republishes its Node-Data TLV.</t>
+              <t hangText="Preferred Lifetime since origination: ">
+              The time in seconds the delegated prefix was preferred for at the
+              origination time of the Node Data. It MUST be updated whenever
+              the node republishes its Node-Data TLV.</t>
 
               <t hangText="Prefix Length: ">The number of significant bits in
               the Prefix.</t>
@@ -654,8 +684,9 @@ manipulate local routes
                 <list style="symbols">
 
                   <t>Zero or more Prefix Policy TLVs. In absence of any
-                  such TLV the prefix is assumed to be generated by an
-                  HNCP router and for internal use only.</t>
+                  such TLV the prefix is assumed to not be delegated,
+                  but instead generated by an HNCP router for internal
+                  connectivity (e.g., a ULA prefix).</t>
 
                   <t>If the encoded prefix represents an IPv6 prefix, at
                   most one DHCPv6 Data TLV MAY be included, and any
@@ -679,13 +710,14 @@ manipulate local routes
 
           <t>The Prefix Policy TLV contains information about the policy or
           applicability of a delegated prefix. This information can be used
-          to determine whether prefixes for a certain usecase (e.g. local
+          to determine whether prefixes for a certain usecase (e.g., local
           reachability, internet connectivity) do exist or should be
           acquired and to make decisions about assigning prefixes to
           certain links or to fine-tune border firewalls. See <xref
           target="prefixpolicy"/> for a more in-depth discussion.
 
-          A Prefix Policy TLV MUST be inside a Delegated Prefix TLV.
+          A Prefix Policy TLV MUST be inside a Delegated Prefix TLV
+          and ignored otherwise.
           </t>
 
           <figure>
@@ -713,7 +745,7 @@ manipulate local routes
                       padded with zeroes up to the next byte boundary).</t>
                       <t hangText="129    :">DNS Zone (Value contains an <xref
             target="RFC1035">RFC 1035</xref> encoded DNS label sequence).</t>
-                      <t hangText="130    :">Opaque UTF-8 string (e.g. for administrative purposes).</t>
+                      <t hangText="130    :">Opaque UTF-8 string (e.g., for administrative purposes).</t>
                       <t hangText="131    :">Restrictive Assignment (no Value).</t>
                       <t hangText="132-255:">Reserved for future additions.</t>
                   </list></t>
@@ -727,7 +759,8 @@ manipulate local routes
         <section title="DHCP Data TLVs">
           <t>Auxiliary connectivity information is encoded as a stream of
           DHCP options. Such TLVs MUST only be present in an
-          External Connection TLV or a Delegated Prefix TLV. When included in
+          External Connection TLV or a Delegated Prefix TLV and ignored otherwise.
+          When included in
           an External Connection TLV, they MUST contain DHCP options which are
           relevant to the whole External Connection. When included in a
           Delegated Prefix, they MUST contain DHCP options which are specific
@@ -773,13 +806,13 @@ manipulate local routes
       <section anchor="pa" title="Prefix Assignment">
 
         <t>HNCP uses the <xref
-        target="I-D.ietf-homenet-prefix-assignment">Distributed Prefix
+        target="I-D.ietf-homenet-prefix-assignment">Prefix
         Assignment Algorithm</xref> in order to assign prefixes to HNCP
         internal links and uses the terminology defined there.</t>
 
     <section title="Prefix Assignment Algorithm Parameters">
 
-      <t>All HNCP nodes running the Distributed Prefix Assignment Algorithm
+      <t>All HNCP nodes running the prefix assignment algorithm
       use the following values for it's parameters:
 
       <list style="hanging">
@@ -833,7 +866,7 @@ manipulate local routes
         added, updated or removed, and as Common Links are modified.
         </t>
         <t hangText="ADOPT_MAX_DELAY: ">The default value is 0
-        seconds (i.e. prefix adoption MAY be done instantly).</t>
+        seconds (i.e., prefix adoption MAY be done instantly).</t>
 
         <t hangText="BACKOFF_MAX_DELAY: ">The default value is
         4 seconds.</t>
@@ -910,12 +943,12 @@ manipulate local routes
 
           <section anchor="assign" title="Making New Assignments">
 
-            <t>Whenever the Prefix Assignment Algorithm subroutine (Section
+            <t>Whenever the prefix assignment algorithm subroutine (Section
             4.1 of <xref target="I-D.ietf-homenet-prefix-assignment" />) is
             run on a Common Link and whenever a new prefix may be assigned
             (case 1 of the subroutine; no Best Assignment and no Current
             Assignment), the decision of whether the assignment of a new
-            prefix is desired MUST follow these rules:
+            prefix is desired MUST follow these rules in order:
 
             <list style="hanging">
               <t>If the Delegated Prefix TLV contains a DHCPv4 or DHCPv6
@@ -991,7 +1024,7 @@ manipulate local routes
             <t>Whenever a <xref target="RFC6603">DHCPv6 Prefix Exclude option
             </xref> is received with a delegated prefix, the excluded prefix
             MUST be advertised as assigned to a Private Link with the maximum
-            priority (i.e. 15).</t>
+            priority (i.e., 15).</t>
 
             <t>The same procedure MAY be applied in order to exclude
             prefixes obtained by other means of configuration.</t>
@@ -1003,8 +1036,8 @@ manipulate local routes
             DHCPv6-PD request from a DHCPv6-PD client, it SHOULD assign one
             prefix per delegated prefix in the network.  This set of
             assigned prefix is then delegated to the DHCPv6-PD client,
-            after it has been applied as described in the Prefix Assignment
-            Algorithm. Each DHCPv6-PD client MUST be considered as an
+            after it has been applied as described in the prefix assignment
+            algorithm. Each DHCPv6-PD client MUST be considered as an
             independent Private Link and delegation MUST be based on the
             same set of Delegated Prefixes as the one used for Common Link
             prefix assignments.</t>
@@ -1024,7 +1057,7 @@ manipulate local routes
         <section title="Node Address Assignment" anchor="node-addr">
           <t>This section specifies how HNCP nodes reserve addresses for their
           own use. Nodes MAY, at any time, try to reserve a new address from any
-          applied Assigned Prefix.
+          Applied Assigned Prefix.
 
           Each HNCP node SHOULD announce an IPv6 address and - if it supports
           IPv4 - MUST announce an IPv4 address, whenever matching prefixes
@@ -1165,10 +1198,10 @@ manipulate local routes
 
         		<t>In presence of any type 1 to 128 Prefix Policy TLV the
         		prefix is specialized to reach destinations denoted by any
-        		such Prefix Policy TLV, i.e. in absence of a type 0 Prefix
+        		such Prefix Policy TLV, i.e., in absence of a type 0 Prefix
         		Policy TLV it is not usable for general internet connectivity.
         		An HNCP router MAY enforce this restriction with appropriate
-        		packet filtering rules to provide increased security.</t>
+        		packet filter rules.</t>
 
         		<t>The presence of a type 129 (DNS zone) Prefix Policy TLV
         		indicates that the delegated prefix or its associated external
@@ -1199,7 +1232,7 @@ manipulate local routes
         <t>In general Stateless Address Autoconfiguration is used for client
         configuration for its low overhead and fast renumbering capabilities,
         however stateful DHCPv6 can be used in addition by administrative choice,
-        to e.g. collect hostnames and use them to provide naming services
+        to, e.g., collect hostnames and use them to provide naming services
         or whenever stateless configuration is not applicable.</t>
 
         <t>The designated stateful DHCPv6 server for a <xref
@@ -1354,7 +1387,7 @@ manipulate local routes
             <t hangText="S-bit :"> (fully-qualified <xref target="RFC6763">DNS-SD</xref>
              domain) indicates that this delegated zone consists of a
             fully-qualified DNS-SD domain, which should be used as base for
-            DNS-SD domain enumeration, i.e. _dns-sd._udp.(Zone) exists.
+            DNS-SD domain enumeration, i.e., _dns-sd._udp.(Zone) exists.
             Forward zones MAY have this bit set, reverse zones MUST NOT.
             This can be used to provision DNS search path to hosts for
             non-local services (such as those provided by an ISP, or other
@@ -1507,7 +1540,7 @@ manipulate local routes
 
       <t>Capabilities are indicated by setting M, P, H and L fields in the TLV. The
       "capability value" is a metric indicated by interpreting the bits as an
-      integer, i.e. (M &lt;&lt; 12 | P &lt;&lt; 8 | H &lt;&lt; 4 | L). Nodes that
+      integer, i.e., (M &lt;&lt; 12 | P &lt;&lt; 8 | H &lt;&lt; 4 | L). Nodes that
       are not routers MUST announce the value 0 for all capabilities.</t>
 
       <figure>
@@ -1623,7 +1656,7 @@ manipulate local routes
         	inside the respective Delegated Prefix TLV.
 
         	HNCP routers SHOULD make relevant DHCPv6 and DHCPv4 options available
-        	to clients, i.e. options contained in External Connection TLVs that
+        	to clients, i.e., options contained in External Connection TLVs that
         	also include delegated prefixes from which a subset is assigned to
         	the respective link.</t>
         	<t>The requirement L-13 to deprecate prefixes is applied to all
@@ -1682,9 +1715,9 @@ manipulate local routes
         mitigated by encrypting or authenticating HNCP traffic itself since
         external routers do not participate in the protocol and often
         cannot be authenticated by other means. These threats include
-        propagation of forged uplinks in the homenet in order to
-        e.g. redirect traffic destined to external locations and forged
-        internal status by external routers to e.g. circumvent the
+        propagation of forged uplinks in the homenet in order to,
+        e.g., redirect traffic destined to external locations and forged
+        internal status by external routers to, e.g., circumvent the
         perimeter firewall.</t>
 
         <t>It is therefore imperative to either secure individual links on
@@ -1826,7 +1859,7 @@ manipulate local routes
       <t>draft-ietf-homenet-hncp-05: Renamed "Adjacent Link" to "Common Link".
       Changed single IPv4 uplink election from MUST to MAY. Added explicit
       indication to distinguish (IPv4)-PDs for local connectivity and ones
-      with uplink connectivity allowing e.g. better local-only
+      with uplink connectivity allowing, e.g., better local-only
       IPv4-connectivity.</t>
 
       <t>draft-ietf-homenet-hncp-04: Change the responsibility for sending
