@@ -366,6 +366,29 @@ manipulate local routes
       </list>
       </t>
     </section>
+    
+    <section anchor="versioning" title="HNCP Versioning and Router Capabilities">
+
+      <t>Multiple versions of HNCP based on compatible DNCP profiles may be
+      present in the same network when transitioning between HNCP versions
+      and for troubleshooting purposes it might be benefetial to identify
+      the HNCP agent version running. Therefore each node MUST include an
+      <xref target="version">HNCP-Version-TLV</xref> in its Node Data and
+      MUST ignore (except for DNCP synchronization purposes) any TLVs with a
+      type greater than 32 published by nodes not also publishing an
+      HNCP-Version TLV or publishing such a TLV with a different Version.</t>
+
+      <t>HNCP routers may also have different capabilities regarding
+      interactions with hosts, e.g., for configuration or service discovery.
+      These are indicated by M, P, H and L values. The combined
+      "capability value" is a metric indicated by interpreting the bits as
+      an integer, i.e., (M &lt;&lt; 12 | P &lt;&lt; 8 | H &lt;&lt; 4 | L).
+      These values are used to elect certain servers on a Common Link,
+      as described in <xref target="client-config" />. Nodes that are not
+      routers MUST announce the value 0 for all capabilities and therefore
+      do not take part in these elections.</t>
+
+    </section>
 
     <section title="Interface Classification">
 
@@ -994,7 +1017,7 @@ manipulate local routes
             advertisements. In addition if an assigned IPv6 prefix is not
             suitable for Stateless Address Autoconfiguration the router MUST
             also support the H-capability as defined in
-            <xref target="version-tlv" />.</t>
+            <xref target="versioning" />.</t>
 
           </section>
 
@@ -1076,7 +1099,7 @@ manipulate local routes
           quarter of the addresses
           are reserved for HNCP based address assignments, whereas the last
           three quarters are left to the DHCPv6 (resp. DHCPv4) elected router
-          (<xref target="version-tlv" /> specifies the DHCP server election process).
+          (<xref target="versioning" /> specifies the DHCP server election process).
           For instance, if the prefix 192.0.2.0/24 is assigned and
           applied to a Common Link, addresses included in 192.0.2.0/26 are
           reserved for HNCP nodes and the remaining addresses are reserved
@@ -1225,7 +1248,7 @@ manipulate local routes
       <t>HNCP routers may have different capabilities for configuring
       downstream devices and providing naming services. Each router MUST
       therefore indicate its capabilities as specified in <xref
-      target="version-tlv" /> in order to participate as a candidate in the
+      target="versioning" /> in order to participate as a candidate in the
       election.</t>
 
       <section title="DHCPv6 for Addressing or Configuration">
@@ -1237,7 +1260,7 @@ manipulate local routes
 
         <t>The designated stateful DHCPv6 server for a <xref
         target="links">Common Link</xref> is elected
-        based on the capabilities described in <xref target="version-tlv"
+        based on the capabilities described in <xref target="versioning"
         />.  The winner is the router (connected to the Common Link) advertising the greatest
         H-capability. In case of a tie, Capability Values and node
         identifiers are considered (greatest value is elected). The
@@ -1254,7 +1277,7 @@ manipulate local routes
 
         <t>The designated DHCPv6 server for prefix-delegation on a Common Link is
         elected based on the capabilities described in <xref
-        target="version-tlv" />.
+        target="versioning" />.
 
         The winner is the router (connected to the Common Link) advertising
         the greatest P-capability. In case of a tie, Capability Values are
@@ -1270,7 +1293,7 @@ manipulate local routes
       <section title="DHCPv4 for Addressing and Configuration">
         <t>The designated DHCPv4 server on a <xref
         target="links">Common Link</xref> is elected based on the
-        capabilities described in <xref target="version-tlv" />.
+        capabilities described in <xref target="versioning" />.
 
         The winner is the router (connected to the Common Link) advertising
         the greatest L-capability. In case of a tie, Capability Values are
@@ -1297,7 +1320,7 @@ manipulate local routes
       <section title="Multicast DNS Proxy">
         <t>The designated <xref target="RFC6762">MDNS</xref> proxy on a
         Common Link is elected based on the capabilities described in <xref
-        target="version-tlv" />.
+        target="versioning" />.
 
         The winner is the router (connected to the Common Link) advertising
         the greatest M-capability. In case of a tie, Capability Values are
@@ -1524,26 +1547,16 @@ manipulate local routes
       so that disclosure of any derived key does not impact other users of
       the managed PSK.</t>
     </section>
+    
+    <section anchor="tlvs" title="Type-Length-Value Objects">
 
-    <section anchor="version-tlv" title="HNCP Versioning and Capabilities">
+	<t>HNCP defines the following TLVs in addition to those defined by DNCP.
+	
+	TODO: define generic rules for e.g. containers etc.</t>
 
-      <t>Multiple versions of HNCP based on compatible
-      DNCP profiles may be
-      present in the same network when transitioning between HNCP versions
-      and HNCP routers may have different capabilities to support clients.
-      The following mechanism describes a way to announce the currently active
-      version and User-agent of a node. Each node MUST include an
-      HNCP-Version-TLV in its Node Data and MUST ignore (except for DNCP
-      synchronization purposes) any TLVs with a type greater than 32 published
-      by nodes not also publishing an HNCP-Version TLV or publishing such a TLV with a
-      different Version number.</t>
+        <section anchor="version" title="Version TLV">
 
-      <t>Capabilities are indicated by setting M, P, H and L fields in the TLV. The
-      "capability value" is a metric indicated by interpreting the bits as an
-      integer, i.e., (M &lt;&lt; 12 | P &lt;&lt; 8 | H &lt;&lt; 4 | L). Nodes that
-      are not routers MUST announce the value 0 for all capabilities.</t>
-
-      <figure>
+               <figure>
         <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -1556,6 +1569,10 @@ manipulate local routes
         </artwork>
       </figure>
       <t>
+      	This TLV is used to indicate the supported version and
+      	router capabilities of an HNCP node as described in
+      	<xref target="versioning" />.
+      
           <list style="hanging">
               <t hangText="Version:">Indicates which version of HNCP is
                   currently in use by this particular node. It MUST be set to 1.
@@ -1597,6 +1614,7 @@ manipulate local routes
           </list>
       </t>
 
+        </section>
     </section>
 
     <section title="Requirements for HNCP Nodes" anchor="nodereq">
