@@ -294,8 +294,8 @@ manipulate local routes
 
         <t>HNCP uses opaque 32-bit node identifiers
         (DNCP_NODE_IDENTIFIER_LENGTH = 32). A node implementing HNCP SHOULD
-        generate and use a random node identifier. If using a random node
-        identifier and there is a node identifier collision (as specified
+        use a random node identifier. If there is a node identifier collision
+        (as specified
         in the Node State TLV handling of Section 4.4 of <xref
         target="I-D.ietf-homenet-dncp" />), the node MUST immediately
         generate and use a new random node identifier which is not used by
