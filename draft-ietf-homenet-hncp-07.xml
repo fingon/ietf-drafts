@@ -85,8 +85,8 @@ I writing an essay on this. :-p)
       (HNCP), an extensible configuration protocol and a set of
       requirements for home network devices. HNCP is described as a profile
       of and extension to the Distributed Node Consensus Protocol (DNCP).
-      HNCP enables automated configuration of addresses, name resolution,
-      service discovery, discovery of network borders, and the use of any
+      HNCP enables discovery of network borders, automated configuration of
+      addresses, name resolution, service discovery, and the use of any
       routing protocol which supports routing based on both source and
       destination address.</t>
 
@@ -109,6 +109,9 @@ I writing an essay on this. :-p)
 
       <list style="symbols">
 
+        <t><xref target="bd">Autonomic discovery of network borders</xref>
+        based on DNCP topology.</t>
+
         <t>Automated portioning of prefixes delegated by the service
         providers as first as <xref target="pa">assigned prefixes to both
         HNCP and non-HNCP routers</xref> using <xref
@@ -125,9 +128,6 @@ I writing an essay on this. :-p)
 
         </list>
         </t>
-
-        <t><xref target="bd">Autonomic discovery of network borders</xref>
-        based on DNCP topology.</t>
 
         <t><xref target="naming-sd">Internal and external name resolution,
         as well as multi-link service discovery</xref>.</t>
