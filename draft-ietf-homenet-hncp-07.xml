@@ -1495,7 +1495,7 @@ I writing an essay on this. :-p)
     </section>
 
 
-    <section title="Securing Third-Party Protocols">
+    <section title="Securing Third-Party Protocols" anchor="secure-igp">
 
       <t>Pre-shared keys (PSKs) are often required to secure (for example)
       IGPs and other protocols which lack support for asymmetric
@@ -1511,8 +1511,9 @@ I writing an essay on this. :-p)
       is managed and used:
 
       <list style="symbols">
-        <t>If no Managed-PSK TLV is currently being announced, an HNCP
-        node MUST create one after a random delay of 0 to 10 seconds
+        <t>If no <xref target="managed-psk">Managed PSK TLV</xref> is
+        currently being announced, an HNCP node using this mechanism
+        MUST create one after a random delay of 0 to 10 seconds
         with a 32 bytes long random key and add it to its node data.</t>
         <t>In case multiple nodes announce such a TLV at the same time,
         all but the one with the greatest node identifier stop advertising it and
@@ -1525,25 +1526,6 @@ I writing an essay on this. :-p)
       </list>
       </t>
 
-      <figure>
-        <artwork>
-0                   1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: MANAGED-PSK (42)     |          Length: 32           |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                                                               |
-|                                                               |
-|                                                               |
-|                           Random PSK                          |
-|                                                               |
-|                                                               |
-|                                                               |
-|                                                               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-        </artwork>
-      </figure>
-
       <t>PSKs for individual protocols SHOULD be derived from the random
       PSK using a suitable one-way hashing algorithm (e.g., by using
       <xref target="RFC6234">HMAC-SHA256</xref> with a per-protocol HMAC-key)
@@ -1554,10 +1536,16 @@ I writing an essay on this. :-p)
     <section anchor="tlvs" title="Type-Length-Value Objects">
 
 	<t>HNCP defines the following TLVs in addition to those defined by DNCP.
+	The same general rules and defaults for encoding as noted in Section 7 of
+	<xref target="I-D.ietf-homenet-dncp" /> apply.
+	
+	TLVs defined here are only valid when appearing in their designated
+	context, i.e., only directly within container TLVs mentioned in their
+	definition, or - absent any mentions - only as top-level TLVs within
+	the node data set. TLVs appearing outside their designated context
+	MUST be ignored.</t>
 
-	TODO: define generic rules for e.g. containers etc.</t>
-
-        <section anchor="version" title="Version TLV">
+        <section anchor="version" title="HNCP Version TLV">
 
                <figure>
         <artwork>
@@ -1618,6 +1606,34 @@ I writing an essay on this. :-p)
       </t>
 
         </section>
+
+        <section anchor="managed-psk" title="Managed PSK TLV">
+              <figure>
+        <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|    Type: MANAGED-PSK (42)     |          Length: 32           |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+|                                                               |
+|                                                               |
+|                      Random 256-bit PSK                       |
+|                                                               |
+|                                                               |
+|                                                               |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        </artwork>
+      </figure>
+
+        <t>
+        This TLV is used to announce a PSK for securing third-party
+        protocols exclusively supporting symmetric cryptography as
+        specified in <xref target="secure-igp" />.
+        </t>
+     </section>
+
     </section>
 
     <section title="Requirements for HNCP Nodes" anchor="nodereq">
