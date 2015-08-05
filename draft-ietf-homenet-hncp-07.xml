@@ -96,7 +96,7 @@ I writing an essay on this. :-p)
     <section title="Introduction">
 
       <t>HNCP is designed to facilitate sharing of state among home routers
-      to fullfill the needs of the <xref target="RFC7368">IPv6 homenet
+      to fulfill the needs of the <xref target="RFC7368">IPv6 homenet
       architecture</xref>, which assumes zero-conf operation, multiple
       subnets, and multiple home routers.
 
@@ -1274,7 +1274,7 @@ I writing an essay on this. :-p)
           <t>An External Connection TLV is a container TLV used to
           gather network configuration information associated with
           a single <xref target="ec">external connection</xref> to
-          be shared accross the HNCP network. A node MAY publish
+          be shared across the HNCP network. A node MAY publish
           an arbitrary number of instances of this TLV to share
           the desired number of external connections.</t>
           
