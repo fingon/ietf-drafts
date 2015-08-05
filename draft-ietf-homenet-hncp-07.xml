@@ -1745,7 +1745,7 @@ I writing an essay on this. :-p)
         <t>As described in <xref target="bd" />, an HNCP node determines
         the internal or external state on a per-interface basis. A firewall
         perimeter is set up for the external interfaces, and for internal
-        interfaces, HNCP and IGP traffic is allowed, with the exception of
+        interfaces, HNCP traffic is allowed, with the exception of
         leaf and guest sub-categories.</t>
 
         <t>Threats concerning automatic interface classification cannot be
@@ -1785,7 +1785,7 @@ I writing an essay on this. :-p)
 
         <t>Detailed interface categories like "leaf" or "guest" can be used
         to integrate not fully trusted devices to various degrees into the
-        homenet by not exposing them to HNCP and IGP traffic or by using
+        homenet by not exposing them to HNCP traffic or by using
         firewall rules to prevent them from reaching homenet-internal
         resources. </t>
 
