@@ -1830,6 +1830,14 @@ TODO:
 
     </section>
     <section title="Changelog [RFC Editor: please remove]">
+      <t>draft-ietf-homenet-dncp-09:
+      <list style="symbols">
+        <t>Reserved 1024+ TLV types for future versions (=versioning
+        mechanism); private use section moved from 192-255 to 512-767.</t>
+        <t>Added applicability statement and clarified some text based on
+        reviews.</t>
+      </list>
+      </t>
       <t>draft-ietf-homenet-dncp-08:
       <list style="symbols">
         <t>Removed fragmentation as it is somewhat underspecified and
