@@ -95,20 +95,57 @@ I writing an essay on this. :-p)
   <middle>
     <section title="Introduction">
 
-      <t>HNCP synchronizes state across a small site in order to allow
-      automated network configuration.
+      <t>HNCP is designed to facilitate sharing of state among home routers
+      to fullfill the needs of the <xref target="RFC7368">IPv6 homenet
+      architecture</xref>, which assumes zero-conf operation, multiple
+      subnets, and multiple home routers.
 
-      The protocol enables autonomic discovery of network borders, address
-      prefix distribution <xref target="I-D.ietf-homenet-prefix-assignment"
-      />, internal name resolution and other services that may be defined
-      later across multiple links.</t>
+      While RFC7368 sets no requirements for IPv4 support, HNCP aims to
+      support dual-stack mode of operation, and therefore the functionality
+      is designed with that in mind.
+
+      The state is shared as TLVs among the routers (and potentially
+      advanced hosts) to enable:
+
+      <list style="symbols">
+
+        <t>Automated portioning of prefixes delegated by the service
+        providers as first as <xref target="pa">assigned prefixes to both
+        HNCP and non-HNCP routers</xref> using <xref
+        target="I-D.ietf-homenet-prefix-assignment" />. Prefixes assigned
+        to HNCP routers are used to:
+
+        <list style="symbols">
+
+          <t>Provide addresses to non-HNCP aware nodes (using SLAAC and
+          DHCP).</t>
+
+          <t>Provide space in which <xref target="node-addr">HNCP nodes
+          assign their own addresses</xref>.</t>
+
+        </list>
+        </t>
+
+        <t><xref target="bd">Autonomic discovery of network borders</xref>
+        based on DNCP topology.</t>
+
+        <t><xref target="naming-sd">Internal and external name resolution,
+        as well as multi-link service discovery</xref>.</t>
+
+        <t>Other services not defined in this document, that do need to
+        share state among homenet nodes, and do not cause rapid and constant
+        TLV changes (see following applicability section).</t>
+
+      </list>
+      </t>
 
       <t>HNCP is a <xref target="I-D.ietf-homenet-dncp">DNCP</xref>-based
       protocol and includes a DNCP profile which defines transport and
       synchronization details for sharing state across nodes defined in
-      <xref target="profile" />. The rest of the document defines a variety
-      of TLVs that deal with the different services that are offered, and
-      how they should be processed.</t>
+      <xref target="profile" />. The rest of the document define behavior
+      of the services noted above, <xref target="tlvs">how the required
+      TLVs are encoded</xref>, as well <xref target="nodereq">additional
+      requirements on how HNCP nodes should behave</xref>.</t>
 
       <section title="Applicability">
 
