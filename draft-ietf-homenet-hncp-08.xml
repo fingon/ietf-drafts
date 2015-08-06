@@ -26,6 +26,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       Home Networking Control Protocol
     </title>
     <author initials="M" surname="Stenberg" fullname="Markus Stenberg">
+    <organization>Independent</organization>
       <address>
         <postal>
           <street/>
@@ -37,6 +38,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       </address>
     </author>
     <author initials="S" surname="Barth" fullname="Steven Barth">
+    <organization>Independent</organization>
       <address>
         <postal>
           <street/>
@@ -102,7 +104,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         based on DNCP topology.</t>
 
         <t>Automated portioning of prefixes delegated by the service
-        providers as first as <xref target="pa">assigned prefixes to both
+        providers as well as <xref target="pa">assigned prefixes to both
         HNCP and non-HNCP routers</xref> using <xref
         target="I-D.ietf-homenet-prefix-assignment" />. Prefixes assigned
         to HNCP routers are used to:
@@ -131,9 +133,9 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <t>HNCP is a <xref target="I-D.ietf-homenet-dncp">DNCP</xref>-based
       protocol and includes a DNCP profile which defines transport and
       synchronization details for sharing state across nodes defined in
-      <xref target="profile" />. The rest of the document define behavior
+      <xref target="profile" />. The rest of the document defines behavior
       of the services noted above, <xref target="tlvs">how the required
-      TLVs are encoded</xref>, as well <xref target="nodereq">additional
+      TLVs are encoded</xref>, as well as <xref target="nodereq">additional
       requirements on how HNCP nodes should behave</xref>.</t>
 
       <section title="Applicability">
@@ -144,7 +146,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         homenet environments where multiple IPv6 source-prefixes can be
         present, routing based on source and destination address is
         necessary <xref target="RFC7368" />. Ideally, the routing protocol
-        is also zero-configuration (e.g., no need to configure router id, or
+        is also zero-configuration (e.g., no need to configure identifiers or
         metrics) although HNCP can be used also with a manually configured
         routing protocol.</t>
 
@@ -152,7 +154,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         the applicability statement of DNCP can be used here as well; HNCP
         should not be used for any data that changes rapidly and
         constantly, and locators to find such services should be published
-        within it instead. This is why the <xref target="naming-sd">naming
+        using it instead. This is why the <xref target="naming-sd">naming
         and service discovery</xref> TLVs contain only DNS server
         addresses, and no actual per-name or per-service data of
         hosts.</t>
@@ -161,27 +163,27 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         constant, with one exception: as <xref target="dp-tlv">Delegated
         Prefix TLVs</xref> do contain lifetimes, they force re-publishing
         of that data every time the valid or preferred lifetimes of
-        prefixes (significantly) change. Therefore, it is desirable for
+        prefixes are updated (significantly). Therefore, it is desirable for
         ISPs to provide large enough valid and preferred lifetimes to avoid
         unnecessary HNCP state churn in homes, but even given
-        non-cooperating ISPs, the state churn is proportional only to
+        non-cooperating ISPs, the state churn is proportional only to the
         number of externally received delegated prefixes and not the home
         network size, and should therefore be relatively low.</t>
 
         <t>HNCP assumes a certain level of control over host configuration
-        servers (e.g., <xref target="RFC2131" />) on links that are managed
-        by its routers. Some HNCP functionality (such as border discovery
-        or some aspects of naming) would be affected by existing DHCP servers
-        not aware of the HNCP managed network and thus might need to be
-        reconfigured to not result in unexpected behavior.</t>
+        servers (e.g., <xref target="RFC2131">DHCP</xref>) on links that are
+        managed by its routers. Some HNCP functionality (such as border
+        discovery or some aspects of naming) might be affected by existing
+        DHCP servers not aware of the HNCP-managed network and thus might
+        need to be reconfigured to not result in unexpected behavior.</t>
 
-        <t>While HNCP is designed to be used by (home) routers, it can be
-        also used by advanced hosts that want to do, e.g., their own address
+        <t>While HNCP is designed to be used by (home) routers, it can also
+        be used by advanced hosts that want to do, e.g., their own address
         assignment and routing.</t>
 
         <t>HNCP is link layer agnostic; if a link supports IPv6
         (link-local) multicast and unicast, HNCP will work on it. Trickle
-        retransmissions and keep-alives will handle packet both packet loss and
+        retransmissions and keep-alives will handle both packet loss and
         non-transitive connectivity, ensuring eventual convergence.</t>
 
       </section>
@@ -189,7 +191,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
     <section anchor="terminology" title="Terminology">
 
-      <t>Following terms are used as they are defined in <xref
+      <t>The following terms are used as they are defined in <xref
       target="I-D.ietf-homenet-prefix-assignment" />:
 
       <list style="symbols">
@@ -205,7 +207,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       </list>
       </t>
 
-      <t>Following terms are used as they are defined in <xref
+      <t>The following terms are used as they are defined in <xref
       target="I-D.ietf-homenet-dncp" />:
 
       <list style="symbols">
@@ -223,7 +225,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 	<c>A device implementing this specification.</c>
 
 	<c>(HNCP) router</c>
-	<c>A device implementing this specification which forwards
+	<c>A device implementing this specification, which forwards
 	traffic on behalf of other devices.</c>
 
 	<c>Border</c>
@@ -246,19 +248,19 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
         <c>Interface category</c>
 
-        <c>a local configuration denoting type of a particular interface.
+        <c>a local configuration denoting the use of a particular interface.
         The interface category determines how a HNCP node
         should treat the particular interface.
 
-        External and internal category mark the interface as external or
-        internal; there are also number of internal category
-        sub-categories that affect local node behavior.
+        External and internal category mark the interface as out of or within
+        the network border; there are also a number of sub-categories to
+        internal that further affect local node behavior.
 
         See <xref target="if-cat" /> for a list of
         interface categories and how they behave.
 
-        The internal or external category may be also auto-detected - see
-        <xref target="bd" />.
+        The internal or external categories may also be <xref target="bd">
+        auto-detected</xref>.
 
         </c>
         <c /><c />
@@ -326,8 +328,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         meaning in HNCP TLVs (see <xref target="ap-tlv" /> and <xref
         target="node-addr" />).
 
-        Implementations MAY use a value equivalent to the sin6_scope_id for
-        the given interface.</t>
+        Implementations MAY use a value equivalent to the IPv6 link-local
+        scope identifier for the given interface.</t>
 
         <t>HNCP uses opaque 32-bit node identifiers
         (DNCP_NODE_IDENTIFIER_LENGTH = 32). A node implementing HNCP SHOULD
@@ -422,7 +424,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
       <section anchor="if-cat" title="Interface Categories">
         <t>
-      HNCP specified the following categories interfaces can be configured
+      HNCP specifies the following categories interfaces can be configured
       to be in:
 
       <list style="hanging">
@@ -451,8 +453,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
         <t hangText="Guest category:"> This declares an interface used by
         untrusted client devices only. In addition to the restrictions of
-        the Leaf category, HNCP routers MUST enable firewalling rules such that
-        connected devices are unable to reach other
+        the Leaf category, HNCP routers MUST filter traffic from and to
+        the interface such that connected devices are unable to reach other
         devices inside the HNCP network or query services advertised by them
         unless explicitly allowed. This category SHOULD be supported by
         HNCP routers.</t>
@@ -652,7 +654,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 			<t hangText="Delegated Prefixes: ">address space available for
 			assignment to internal links announced using <xref
 			target="dp-tlv">Delegated Prefix TLVs</xref>. Some address
-			spaces might have special properties which is necessary to
+			spaces might have special properties which are necessary to
 			understand in order to handle them (e.g., information similar
 			to <xref target="RFC6603" />). This information is encoded
 			using <xref target="dhcpv6-data">DHCPv6 Data TLVs</xref> inside
@@ -715,7 +717,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
     <section title="Prefix Assignment Algorithm Parameters">
 
       <t>All HNCP nodes running the prefix assignment algorithm
-      use the following values for it's parameters:
+      use the following values for its parameters:
 
       <list style="hanging">
 
@@ -798,7 +800,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
             prefix is desired MUST follow these rules in order:
 
             <list style="hanging">
-              <t>If the Delegated Prefix TLV contains a DHCPv4 or DHCPv6
+              <t>If the Delegated Prefix TLV contains a DHCPv6
               Data TLV, and the meaning of one of the DHCP options is not
               understood by the HNCP node, the creation of a new prefix
               is not desired. This rule applies to TLVs
@@ -836,11 +838,9 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
             MUST support a mechanism suitable to distribute addresses from
             the considered prefix if the link is
             intended to be used by clients. In this case a router assigning
-            an IPv4 prefix MUST support the L-capability and a router
-            assigning an IPv6 prefix MUST support serving router
-            advertisements. In addition if an assigned IPv6 prefix is not
-            suitable for Stateless Address Autoconfiguration the router MUST
-            also support the H-capability as defined in
+            an IPv4 prefix MUST announce the L-capability and a router
+            assigning an IPv6 prefix with a length greater than 64 MUST
+            announce the H-capability as defined in
             <xref target="versioning" />.</t>
 
           </section>
@@ -869,15 +869,17 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
           <section title="DHCPv6 Prefix Delegation" anchor="pd">
 
-            <t>When an HNCP router running a DHCPv6-PD server receives a
-            DHCPv6-PD request from a DHCPv6-PD client, it SHOULD assign one
+            <t>When an HNCP router announcing the <xref target="versioning">
+            P-Capability</xref> receives a DHCPv6-PD request from a client,
+            it SHOULD assign one
             prefix per delegated prefix in the network.  This set of
-            assigned prefix is then delegated to the DHCPv6-PD client,
+            assigned prefixes is then delegated to the client,
             after it has been applied as described in the prefix assignment
             algorithm. Each DHCPv6-PD client MUST be considered as an
             independent Private Link and delegation MUST be based on the
             same set of Delegated Prefixes as the one used for Common Link
-            prefix assignments.</t>
+            prefix assignments, however the prefix length to be delegated
+            MAY be smaller than 64.</t>
 
             <t>The assigned prefixes MUST NOT be given to DHCPv6-PD clients
             before they are applied, and MUST be withdrawn whenever they
@@ -898,7 +900,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
           Each HNCP node SHOULD announce an IPv6 address and - if it supports
           IPv4 - MUST announce an IPv4 address, whenever matching prefixes
-          are assigned to at least one if its Common Links. These addresses are
+          are assigned to at least one of its Common Links. These addresses are
           published using Node Address TLVs and used to locally reach HNCP
           nodes for other services. Nodes SHOULD NOT create and
           announce more than one assignment per IP version to avoid cluttering
@@ -907,12 +909,12 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
           <t>Stateless assignment based on Semantically Opaque Interface
           Identifiers <xref target="RFC7217" /> SHOULD be used for address
-          assignment whenever possible (e.g., the prefix-length is /64),
+          assignment whenever possible (e.g., the prefix length is 64),
           otherwise (e.g., for IPv4 if supported) the following method MUST
           be used instead:
 
-          For any assigned prefix for which SLAAC cannot be used, the first
-          quarter of the addresses
+          For any assigned prefix for which stateless assignment is not used,
+          the first quarter of the addresses
           are reserved for HNCP based address assignments, whereas the last
           three quarters are left to the DHCP elected router
           (<xref target="versioning" /> specifies the DHCP server election
@@ -932,7 +934,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
               <t>A node MUST NOT start advertising an address if it is
               already advertised by another node.</t>
 
-              <t>An assigned address MUST be in the first quarter of an
+              <t>An assigned address MUST be part of an
               assigned prefix currently applied on a Common Link which
               includes the interface specified by the endpoint
               identifier.</t>
@@ -952,7 +954,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         <section anchor="ula" title="Local IPv4 and ULA Prefixes">
           <t>HNCP routers can create a ULA or private IPv4 prefix to enable
           connectivity between local devices. These prefixes are inserted in
-          HNCP as if they were delegated prefixes. The following rules apply:
+          HNCP as if they were delegated prefixes of a (virtual) <xref target="ec">
+          external connection</xref>. The following rules apply:
 
           <list>
             <t>An HNCP router SHOULD create a ULA prefix if there is no other
@@ -1029,11 +1032,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         target="naming-sd" />.  Stateful addresses SHOULD be assigned in a
         way not hindering fast renumbering even if the DHCPv6 server or
         client do not support the DHCPv6 reconfigure mechanism. In case no
-        router was elected, stateful DHCPv6 is not provided and each router
-        assigning IPv6-prefixes on said link MUST provide stateless DHCPv6
-        service.</t>
-
-        <!-- TODO (MSt): I am tempted to say this last MUST is a SHOULD? -->
+        router was elected, stateful DHCPv6 is not provided.</t>
 
       </section>
 
@@ -1083,7 +1082,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         route, the elected router MUST announce a <xref
         target="RFC3442">Classless Static Route Option</xref> for the IPv4
         prefix announced in the Delegated Prefix TLV and MAY announce such
-        an option for each known reachable IPv4 destination that is not
+        an option for known reachable IPv4 destinations not
         within any local delegated prefix.</t>
 
         <t>DHCPv4 lease times SHOULD be short (i.e., not longer than 5 minutes)
@@ -1194,7 +1193,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       PSK using a suitable one-way hashing algorithm (e.g., by using
       <xref target="RFC6234">HMAC-SHA256</xref> with a per-protocol HMAC-key)
       so that disclosure of any derived key does not impact other users of
-      the managed PSK.</t>
+      the managed PSK. Furthermore derived PSKs MUST be updated whenever
+      the managed PSK changes.</t>
     </section>
 
     <section anchor="tlvs" title="Type-Length-Value Objects">
@@ -1753,15 +1753,15 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         	<t>The dropping of packets with a destination address belonging to
         	a delegated prefix mandated in WPD-5 MUST NOT be applied to
         	destinations that are part of any prefix announced using an
-        	ASSIGNED-PREFIX TLV by any HNCP router in the network.</t>
+        	Assigned Prefix TLV by any HNCP router in the network.</t>
         	<t>The section "LAN-Side Configuration" applies to interfaces
         	not classified as external.</t>
         	<t>The requirement L-2 to assign a separate /64 to each LAN interface
         	is replaced by the participation in the <xref target="pa">
         	prefix assignment mechanism</xref> for each such interface.</t>
         	<t>The requirement L-9 is modified, in that the M flag MUST be set
-        	whenever a router connected to the respective link is advertising
-        	a non-zero H-capability and MUST NOT be set otherwise.</t>
+        	if and only if a router connected to the respective Common Link is
+        	advertising a non-zero H-capability.</t>
         	<t>The requirement L-12 to make DHCPv6 options available is
         	adapted, in that a CER SHOULD publish the subset of options using
         	the DHCPv6 Data TLV in an External Connection TLV. Similarly it
@@ -1938,7 +1938,6 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6347.xml"?>
       <?rfc include="reference.RFC.6603.xml"?>
-      <?rfc include="reference.RFC.7084.xml"?>
       <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-07"?>
     </references>
 
@@ -1960,6 +1959,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <?rfc include="reference.RFC.2132.xml"?>
       <?rfc include="reference.RFC.3442.xml"?>
       <?rfc include="reference.RFC.4193.xml"?>
+      <?rfc include="reference.RFC.7084.xml"?>
       <?rfc include="reference.RFC.7217.xml"?>
     </references>
 
