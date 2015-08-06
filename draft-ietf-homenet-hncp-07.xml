@@ -505,19 +505,11 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       </t>
     </section>
 
-    <section anchor="bd" title="Algorithm and Border Discovery">
+    <section anchor="bd" title="Algorithm for Border Discovery">
 
-      <!-- TOOD (MSt): I do not like the subsection name :)
-           Algorithm _for_ BD would be better, for example. Not sure what
-           'and' here means though, so not changing it outright.
-
-           Also: HNCP interface is not defined anywhere but it is used in
-           few places; should we add it to terminology, or rewrite the text
-           somehow?
-      -->
       <t>This section defines the interface classification algorithm.  It is
       suitable for both IPv4 and IPv6 (single or dual-stack) and
-      detects the category of an HNCP interface either automatically
+      detects the category of an interface either automatically
       or based on a fixed configuration. By determining the category for all
       interfaces, the network borders are implicitly defined, i.e., all
       interfaces not belonging to the External category are considered to be
@@ -552,30 +544,19 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         user class option, any server that replies is clearly external (or
         a malicious internal node).</t>
 
-        <t>Each HNCP router SHOULD allow setting the fixed category for each
+        <t>An HNCP router SHOULD allow setting the fixed category for each
       	interface which may be connected to either an internal or external
       	device (e.g., an Ethernet port that can be connected to a modem,
-      	another HNCP router or a client).
+      	another HNCP router or a client).</t>
 
-      	It MAY use auto-detection as described above for interfaces. When
-      	it does, it MUST allow configuration of a fixed category to
-      	override the result and it MUST continuously scan the interface
-      	without fixed category in order to dynamically reclassify them
-      	later.
-
-        It therefore runs an appropriately configured DHCPv4 and DHCPv6
-        client as long as the interface without fixed category is active
-        including states where auto-detection considers the interface to be
-        internal. The router SHOULD wait for a reasonable time period (5
-        seconds as a default), during which the DHCP clients can acquire a
-        lease, before treating a newly activated or previously external
-        interface as internal.</t>
-
-        <!-- TODO: (MSt) I think the two paragraphs above are
-             semi-redundant. Are they? (the second paragraph contains
-             something useful; first one seems entirely redundant as we
-             already specify MUST implement alg and that given non-fixed
-             interfaces, rest of steps are also MUST). -->
+		<t>An HNCP router using auto-detection on an interface MUST run the
+		appropriately configured DHCP clients as long as the interface without
+		a fixed category is active (including states where auto-detection
+		considers it to be internal) and rerun the algorithm above to react
+		to conditions resulting in a different interface category. The router
+		SHOULD wait for a reasonable time period (5 seconds as a default),
+		during which the DHCP clients can acquire a lease, before treating
+		a newly activated or previously external interface as internal.</t>
       </section>
 
 
@@ -750,7 +731,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
         <t hangText="Set of Shared Links: ">The set of Common Links
         associated with interfaces with internal, leaf, guest or ad-hoc
-        category . It is dynamically updated as HNCP interfaces are added,
+        category. It is dynamically updated as interfaces are added,
         removed, or switch from one category to another.  When multiple
         interfaces are detected as belonging to the same Common Link,
         prefix assignment is disabled on all of these interfaces except
@@ -1762,7 +1743,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         	known default router on any interface is sufficient for a router
         	to announce itself as default router, similarly only the loss of
         	all such default routers results in self-invalidation.</t>
-            <t>The section "WAN-Side Configuration" applies to HNCP interfaces
+            <t>The section "WAN-Side Configuration" applies to interfaces
         	classified as external.</t>
         	<t>If the CE sends a size-hint as indicated in WPD-2, the hint
         	MUST NOT be determined by the number of LAN-interfaces of the CE,
@@ -1773,8 +1754,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         	a delegated prefix mandated in WPD-5 MUST NOT be applied to
         	destinations that are part of any prefix announced using an
         	ASSIGNED-PREFIX TLV by any HNCP router in the network.</t>
-        	<t>The section "LAN-Side Configuration" applies to HNCP interfaces
-        	classified as internal.</t>
+        	<t>The section "LAN-Side Configuration" applies to interfaces
+        	not classified as external.</t>
         	<t>The requirement L-2 to assign a separate /64 to each LAN interface
         	is replaced by the participation in the <xref target="pa">
         	prefix assignment mechanism</xref> for each such interface.</t>
@@ -1796,9 +1777,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
             <t>The requirement L-13 to deprecate prefixes is applied to all
             delegated prefixes in the network from which assignments have been
             made on the respective interface. Furthermore the Prefix
-            Information Options indicating deprecation MUST be included
-            for the remainder of the prefixes respective valid lifetime,
-            but they MAY be removed after at least 2 hours have passed.</t>
+            Information Options indicating deprecation MUST be included in
+            Router Advertisements for the remainder of the prefixes'
+            respective valid lifetime, but MAY be omitted after at least
+            2 hours have passed.</t>
         </list>
         </t>
       </list>
@@ -1952,7 +1934,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
   </middle>
   <back>
     <references title="Normative references">
-      <?rfc include="reference.I-D.draft-ietf-homenet-dncp-07"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-dncp-09"?>
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6347.xml"?>
       <?rfc include="reference.RFC.6603.xml"?>
@@ -1982,6 +1964,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
     </references>
 
     <section title="Changelog [RFC Editor: please remove]">
+
+      <t>draft-ietf-homenet-hncp-08: Editorial reorganization.</t>
 
       <t>draft-ietf-homenet-hncp-07: Using version 1 instead of version 0,
       as existing implementations already use it.</t>
