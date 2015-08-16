@@ -1008,10 +1008,15 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       target="versioning" /> in order to participate as a candidate in the
       election.</t>
 
-      <section title="DHCPv6 for Addressing or Configuration">
-        <t>In general Stateless Address Autoconfiguration is used for client
-        configuration for its low overhead and fast renumbering capabilities,
-        however stateful DHCPv6 can be used in addition by administrative choice,
+      <section title="IPv6 Addressing and Configuration">
+        <t>In general <xref target="RFC4861">Stateless Address
+        Autoconfiguration</xref> is used for client configuration for its 
+        low overhead and fast renumbering capabilities. Therefore each HNCP
+        router sends Router Advertisements on interfaces which are intended
+        to be used by clients and MUST at least include a Prefix Information
+        Option for each Applied Assigned Prefix which it assigned to the
+        respective link in every such advertisement. However, stateful DHCPv6
+        can be used in addition by administrative choice,
         to, e.g., collect hostnames and use them to provide naming services
         or whenever stateless configuration is not applicable.</t>
 
@@ -1031,8 +1036,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         naming services for acquired hostnames as outlined in <xref
         target="naming-sd" />.  Stateful addresses SHOULD be assigned in a
         way not hindering fast renumbering even if the DHCPv6 server or
-        client do not support the DHCPv6 reconfigure mechanism. In case no
-        router was elected, stateful DHCPv6 is not provided.</t>
+        client do not support the DHCPv6 reconfigure mechanism, e.g., by only
+        handing out leases from locally-generated (ULA) prefixes and prefixes
+        with a length different from 64.
+        In case no router was elected, stateful DHCPv6 is not provided.</t>
 
       </section>
 
@@ -1075,8 +1082,9 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
 
         <t>
-        The elected router MUST provide DHCPv4 services on the given
-        link. It MUST announce itself as <xref
+        The elected router MUST provide DHCPv4 services on the given link.
+        It MUST provide IP addresses from the pool defined in <xref
+        target="node-addr" />, furthermore it MUST announce itself as <xref
         target="RFC2132">router</xref> to clients if and only if there is
         an IPv4 default route known in the network. If there is no default
         route, the elected router MUST announce a <xref
@@ -1961,6 +1969,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <?rfc include="reference.RFC.4193.xml"?>
       <?rfc include="reference.RFC.7084.xml"?>
       <?rfc include="reference.RFC.7217.xml"?>
+      <?rfc include="reference.RFC.4861.xml"?>
     </references>
 
     <section title="Changelog [RFC Editor: please remove]">
