@@ -415,8 +415,9 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       an integer, i.e., (M &lt;&lt; 12 | P &lt;&lt; 8 | H &lt;&lt; 4 | L).
       These values are used to elect certain servers on a Common Link,
       as described in <xref target="client-config" />. Nodes that are not
-      routers MUST announce the value 0 for all capabilities and therefore
-      do not take part in these elections.</t>
+      routers MUST announce the value 0 for all capabilities. Any node
+      announcing the value 0 is considered to not advertise the respective
+      capability and thus does not take part in the respective election.</t>
 
     </section>
 
@@ -1026,7 +1027,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         />.  The winner is the router (connected to the Common Link) advertising the greatest
         H-capability.
 
-        In case of a tie, Capability Values are compared, and router with
+        In case of a tie, <xref target="versioning">Capability Values</xref>
+        are compared, and router with
         the greatest value is elected. In case of another tie, the router
         with the highest node identifier is elected among the routers with
         tied Capability Values.
@@ -1034,7 +1036,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         
         <t>The elected router MUST serve stateful DHCPv6 and SHOULD provide
         naming services for acquired hostnames as outlined in <xref
-        target="naming-sd" />.  Stateful addresses SHOULD be assigned in a
+        target="naming-sd" />, all others nodes MUST NOT.
+        Stateful addresses SHOULD be assigned in a
         way not hindering fast renumbering even if the DHCPv6 server or
         client do not support the DHCPv6 reconfigure mechanism, e.g., by only
         handing out leases from locally-generated (ULA) prefixes and prefixes
@@ -1052,7 +1055,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         The winner is the router (connected to the Common Link) advertising
         the greatest P-capability.
 
-        In case of a tie, Capability Values are compared, and router with
+        In case of a tie, <xref target="versioning">Capability Values</xref>
+        are compared, and router with
         the greatest value is elected. In case of another tie, the router
         with the highest node identifier is elected among the routers with
         tied Capability Values.
@@ -1060,8 +1064,9 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         </t>
 
         <t>The elected router MUST provide <xref
-        target="RFC3633">prefix-delegation services</xref> on the given
-        link and follow the rules in <xref target="pd" />.</t>
+        target="RFC3633">prefix-delegation services</xref> on the given link
+        (and follow the rules in <xref target="pd" />), all other nodes
+        MUST NOT.</t>
 
       </section>
 
@@ -1074,7 +1079,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         The winner is the router (connected to the Common Link) advertising
         the greatest L-capability.
 
-        In case of a tie, Capability Values are compared, and router with
+        In case of a tie, <xref target="versioning">Capability Values</xref>
+        are compared, and router with
         the greatest value is elected. In case of another tie, the router
         with the highest node identifier is elected among the routers with
         tied Capability Values.
@@ -1082,19 +1088,15 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
 
         <t>
-        The elected router MUST provide DHCPv4 services on the given link.
-        It MUST provide IP addresses from the pool defined in <xref
-        target="node-addr" />, furthermore it MUST announce itself as <xref
-        target="RFC2132">router</xref> to clients if and only if there is
-        an IPv4 default route known in the network. If there is no default
-        route, the elected router MUST announce a <xref
-        target="RFC3442">Classless Static Route Option</xref> for the IPv4
-        prefix announced in the Delegated Prefix TLV and MAY announce such
-        an option for known reachable IPv4 destinations not
-        within any local delegated prefix.</t>
+        The elected router MUST provide DHCPv4 services on the given link,
+        all other nodes MUST NOT. The elected router MUST provide IP
+        addresses from the pool defined in <xref target="node-addr" />
+        and MUST announce itself as <xref target="RFC2132">router</xref>
+        to clients.</t>
 
-        <t>DHCPv4 lease times SHOULD be short (i.e., not longer than 5 minutes)
-        in order to provide reasonable response times to changes.</t>
+        <t>DHCPv4 renew and rebind times (T1 and T2) SHOULD be short (i.e.,
+        not longer than 5 minutes) in order to provide reasonable response
+        times to changes.</t>
       </section>
 
       <section title="Multicast DNS Proxy">
@@ -1103,7 +1105,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         target="versioning" />.
 
         The winner is the router (connected to the Common Link) advertising
-        the greatest M-capability. In case of a tie, Capability Values are
+        the greatest M-capability. In case of a tie, <xref
+        target="versioning">Capability Values</xref> are
         compared, and router with the greatest value is elected. In case of
         another tie, the router with the highest node identifier is elected
         among the routers with tied Capability Values.</t>
@@ -1965,7 +1968,6 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <?rfc include="reference.RFC.6763.xml"?>
       <?rfc include="reference.RFC.6241.xml"?>
       <?rfc include="reference.RFC.2132.xml"?>
-      <?rfc include="reference.RFC.3442.xml"?>
       <?rfc include="reference.RFC.4193.xml"?>
       <?rfc include="reference.RFC.7084.xml"?>
       <?rfc include="reference.RFC.7217.xml"?>
