@@ -1028,7 +1028,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         H-capability.
 
         In case of a tie, <xref target="versioning">Capability Values</xref>
-        are compared, and router with
+        are compared, and the router with
         the greatest value is elected. In case of another tie, the router
         with the highest node identifier is elected among the routers with
         tied Capability Values.
@@ -1059,7 +1059,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         the greatest P-capability.
 
         In case of a tie, <xref target="versioning">Capability Values</xref>
-        are compared, and router with
+        are compared, and the router with
         the greatest value is elected. In case of another tie, the router
         with the highest node identifier is elected among the routers with
         tied Capability Values.
@@ -1083,7 +1083,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         the greatest L-capability.
 
         In case of a tie, <xref target="versioning">Capability Values</xref>
-        are compared, and router with
+        are compared, and the router with
         the greatest value is elected. In case of another tie, the router
         with the highest node identifier is elected among the routers with
         tied Capability Values.
@@ -1112,7 +1112,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         The winner is the router (connected to the Common Link) advertising
         the greatest M-capability. In case of a tie, <xref
         target="versioning">Capability Values</xref> are
-        compared, and router with the greatest value is elected. In case of
+        compared, and the router with the greatest value is elected. In case of
         another tie, the router with the highest node identifier is elected
         among the routers with tied Capability Values.</t>
 
