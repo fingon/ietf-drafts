@@ -1036,12 +1036,12 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         
         <t>The elected router MUST serve stateful DHCPv6 and SHOULD provide
         naming services for acquired hostnames as outlined in <xref
-        target="naming-sd" />, all others nodes MUST NOT.
-        Stateful addresses SHOULD be assigned in a
-        way not hindering fast renumbering even if the DHCPv6 server or
-        client do not support the DHCPv6 reconfigure mechanism, e.g., by only
-        handing out leases from locally-generated (ULA) prefixes and prefixes
-        with a length different from 64.
+        target="naming-sd" />, all others nodes MUST NOT. Stateful addresses
+        SHOULD be assigned in a way not hindering fast renumbering even if
+        the DHCPv6 server or client do not support the DHCPv6 reconfigure
+        mechanism, e.g., by only handing out leases from locally-generated
+        (ULA) prefixes and prefixes with a length different from 64, and by
+        using low renew and rebind times (i.e., not longer than 5 minutes).
         In case no router was elected, stateful DHCPv6 is not provided.</t>
 
       </section>
