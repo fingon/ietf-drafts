@@ -1129,8 +1129,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       means to setup and delegate naming and service discovery across
       multiple HNCP routers.</t>
 
-      <t>Each HNCP router SHOULD
-      provide a recursive name resolution server which honors the
+      <t>Each HNCP router SHOULD provide and advertise a recursive name
+      resolving server to clients which honors the
       announcements made in <xref target="delegated-zone-tlv">Delegated Zone
       TLVs</xref>, <xref target="domain-name-tlv">Domain Name TLVs</xref> and
       <xref target="node-name-tlv">Node Name TLVs</xref>, i.e., delegate
@@ -1146,8 +1146,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       Delegated Zone TLVs</xref> and MUST be unique in the whole network. 
       In case of a conflict the announcement of the node with
       the highest node identifier takes precedence and all other nodes
-      MUST cease to announce the conflicting TLV. HNCP routers
-      providing name resolving services MUST use the included DNS server
+      MUST cease to announce the conflicting TLV. HNCP routers providing
+      recursive name resolving services MUST use the included DNS server
       address within the TLV to resolve names belonging to the zone as if
       there was an NS record.</t>
 
@@ -1157,9 +1157,9 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       MUST be unique in the whole network. In case of a conflict the
       announcement of the node with the highest node identifier takes
       precedence and all other nodes MUST cease to announce the conflicting
-      TLV. HNCP routers providing name resolving services MUST resolve
-      these names to their respective IP addresses as if there were
-      corresponding A/AAAA records.</t>
+      TLV. HNCP routers providing recursive name resolving services as
+      described above MUST resolve such announced names to their respective
+      IP addresses as if there were corresponding A/AAAA records.</t>
 
       <t>Names and unqualified zones are used in an HNCP network to provide
       naming and service discovery with local significance. A network-wide
