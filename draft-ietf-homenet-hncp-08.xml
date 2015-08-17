@@ -1042,7 +1042,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         mechanism, e.g., by only handing out leases from locally-generated
         (ULA) prefixes and prefixes with a length different from 64, and by
         using low renew and rebind times (i.e., not longer than 5 minutes).
-        In case no router was elected, stateful DHCPv6 is not provided.</t>
+        In case no router was elected, stateful DHCPv6 is not provided.
+        Routers which seize to be elected DHCP servers SHOULD - when
+        applicable - invalidate remaining existing bindings in order to
+        trigger client reconfiguration.</t>
 
       </section>
 
@@ -1094,9 +1097,11 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         and MUST announce itself as <xref target="RFC2132">router</xref>
         to clients.</t>
 
-        <t>DHCPv4 renew and rebind times (T1 and T2) SHOULD be short (i.e.,
-        not longer than 5 minutes) in order to provide reasonable response
-        times to changes.</t>
+        <t>DHCPv4 lifetimes renew and rebind times (T1 and T2) SHOULD be short
+        (i.e., not longer than 5 minutes) in order to provide reasonable
+        response times to changes. Routers which seize to be elected DHCP
+        servers SHOULD - when applicable - invalidate remaining existing
+        bindings in order to trigger client reconfiguration.</t>
       </section>
 
       <section title="Multicast DNS Proxy">
