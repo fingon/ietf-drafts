@@ -1772,7 +1772,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         	prefix assignment mechanism</xref> for each such interface.</t>
         	<t>The requirement L-9 is modified, in that the M flag MUST be set
         	if and only if a router connected to the respective Common Link is
-        	advertising a non-zero H-capability.</t>
+			advertising a non-zero H-capability. The O flag SHOULD always be
+			set.</t>
         	<t>The requirement L-12 to make DHCPv6 options available is
         	adapted, in that a CER SHOULD publish the subset of options using
         	the DHCPv6 Data TLV in an External Connection TLV. Similarly it
