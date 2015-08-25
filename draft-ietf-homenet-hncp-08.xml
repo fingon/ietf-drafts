@@ -920,7 +920,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
           three quarters are left to the DHCP elected router
           (<xref target="versioning" /> specifies the DHCP server election
           process).
-          
+
           For example, if the prefix 192.0.2.0/24 is assigned and
           applied to a Common Link, addresses included in 192.0.2.0/26 are
           reserved for HNCP nodes and the remaining addresses are reserved
@@ -1011,7 +1011,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
       <section title="IPv6 Addressing and Configuration">
         <t>In general <xref target="RFC4861">Stateless Address
-        Autoconfiguration</xref> is used for client configuration for its 
+        Autoconfiguration</xref> is used for client configuration for its
         low overhead and fast renumbering capabilities. Therefore each HNCP
         router sends Router Advertisements on interfaces which are intended
         to be used by clients and MUST at least include a Prefix Information
@@ -1033,7 +1033,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         with the highest node identifier is elected among the routers with
         tied Capability Values.
         </t>
-        
+
         <t>The elected router MUST serve stateful DHCPv6 and SHOULD provide
         naming services for acquired hostnames as outlined in <xref
         target="naming-sd" />, all others nodes MUST NOT. Stateful addresses
@@ -1118,7 +1118,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
         <t>The elected router MUST provide an MDNS-proxy on the given link
         and announce it as described in <xref target="naming-sd" />.</t>
-        
+
       </section>
     </section>
 
@@ -1143,7 +1143,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       DHCPv6 server, MDNS proxy, or for which it provides forward or
       reverse DNS services on behalf of connected devices.
       This announcement is done using <xref target="delegated-zone-tlv">
-      Delegated Zone TLVs</xref> and MUST be unique in the whole network. 
+      Delegated Zone TLVs</xref> and MUST be unique in the whole network.
       In case of a conflict the announcement of the node with
       the highest node identifier takes precedence and all other nodes
       MUST cease to announce the conflicting TLV. HNCP routers providing
@@ -1215,9 +1215,13 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
     <section anchor="tlvs" title="Type-Length-Value Objects">
 
-	<t>HNCP defines the following TLVs in addition to those defined by DNCP.
-	The same general rules and defaults for encoding as noted in Section 7 of
-	<xref target="I-D.ietf-homenet-dncp" /> apply.</t>
+	<t>HNCP defines the following TLVs in addition to those defined by
+	DNCP.  The same general rules and defaults for encoding as noted in
+	Section 7 of <xref target="I-D.ietf-homenet-dncp" />
+        apply. Note that most HNCP variable-length TLVs also support
+        optional nested TLVs, and they are encoded after the variable
+        length content, followed by the zero padding of the variable length
+        content to the next 32-bit boundary. </t>
 
 	<t>TLVs defined here are only valid when appearing in their designated
 	context, i.e., only directly within container TLVs mentioned in their
@@ -1225,11 +1229,13 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 	the node data set. TLVs appearing outside their designated context
 	MUST be ignored.</t>
 
-	<t>Unless specified otherwise, TLVs encoding IP addresses or prefixes
-	allow encoding both IPv6 and IPv4 addresses and prefixes. IPv6 information
-	is encoded as is, whereas for IPv4 <xref target="RFC4291">IPv4-mapped
-	IPv6 addresses format</xref> is used and prefix lengths are encoded
-	as original IPv4 prefix length increased by 96.</t>
+	<t>TLVs encoding IP addresses or prefixes allow encoding both IPv6
+	and IPv4 addresses and prefixes. IPv6 information is encoded as is,
+	whereas for IPv4 <xref target="RFC4291">IPv4-mapped IPv6 addresses
+	format</xref> is used and prefix lengths are encoded as original
+	IPv4 prefix length increased by 96.</t>
+
+        <t>
 
         <section anchor="version" title="HNCP Version TLV">
 
@@ -1301,7 +1307,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 | Type: EXTERNAL-CONNECTION (33)|             Length            |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                          Nested TLVs                          |
+|                     (Optional nested TLVs)                    |
             </artwork>
           </figure>
 
@@ -1325,8 +1331,11 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 |              Preferred Lifetime Since Origination             |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 | Prefix Length |                                               |
-+-+-+-+-+-+-+-+-+            Prefix [+ nested TLVs]             +
-|                                                               |
++-+-+-+-+-+-+-+-+            Prefix                             +
+...
+|                                               | 0-pad if any  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                     (Optional nested TLVs)                    |
             </artwork>
           </figure>
 
@@ -1355,10 +1364,6 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
               <t hangText="Prefix: ">Significant bits of the prefix padded
               with zeroes up to the next byte boundary.</t>
-
-              <t hangText="Nested TLVs:">Other TLVs included in the Delegated
-              Prefix TLV starting at the next 32-bit boundary following
-              the end of the encoded prefix.</t>
 
             </list>
             </t>
@@ -1480,7 +1485,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |  Rsv. | Prty. | Prefix Length |                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+            Prefix             +
-|                                                               |
+...
+|                                               | 0-pad if any  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                     (Optional nested TLVs)                    |
             </artwork>
           </figure>
           <t>
@@ -1539,6 +1547,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 |                                                               |
 |                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                     (Optional nested TLVs)                    |
               </artwork>
             </figure>
 
@@ -1574,7 +1583,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |Reserved |L|B|S|                                               |
 +-+-+-+-+-+-+-+-+  Zone (DNS label sequence - variable length)  |
-|                                                               |
+...
+|                                               | 0-pad if any  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                     (Optional nested TLVs)                    |
           </artwork>
         </figure>
 
@@ -1661,15 +1673,18 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: NODE-NAME (41)      |         Length: > 16          |
+|     Type: NODE-NAME (41)      |         Length: > 17          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
 |                           IP Address                          |
 |                                                               |
 |                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|         Name (not null-terminated - variable length)          |
+|     Length    |       Name                                    |
+ ...
+| (not null-terminated, variable length)        | 0-pad if any  |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                     (Optional nested TLVs)                    |
           </artwork>
         </figure>
 
@@ -1705,6 +1720,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 |                                                               |
 |                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                     (Optional nested TLVs)                    |
         </artwork>
       </figure>
 
@@ -1725,7 +1741,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         <t>It MUST implement <xref
         target="versioning">HNCP-Versioning</xref> and <xref
         target="if-class">Interface Classification</xref>.</t>
-        
+
         <t>It MUST implement and run <xref target="secure-3p">the method
         for securing third-party protocols</xref> whenever it uses the
         security mechanism of HNCP.</t>
