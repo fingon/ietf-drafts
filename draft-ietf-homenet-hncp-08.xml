@@ -1962,7 +1962,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6347.xml"?>
       <?rfc include="reference.RFC.6603.xml"?>
-      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-07"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-08"?>
     </references>
 
     <references title="Informative references">
