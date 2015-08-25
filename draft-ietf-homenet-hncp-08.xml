@@ -1695,8 +1695,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
             <t hangText="IP Address: ">The IP address associated with the
             name. IPv4 addresses are encoded using IPv4-mapped IPv6 addresses.</t>
 
-            <t hangText="Name: ">The name of the node as a single DNS label
-            (up to 63 characters, no leading length byte).</t>
+            <t hangText="Length: ">The length of name of the node.</t>
+            <t hangText="Name: ">The name of the node as a single DNS label.</t>
         </list>
         </t>
       </section>
