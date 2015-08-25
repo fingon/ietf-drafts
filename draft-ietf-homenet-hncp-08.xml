@@ -1918,10 +1918,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
     <section anchor="iana" title="IANA Considerations">
 
       <t>IANA should set up a registry for the (decimal values within range
-      0-1023) "HNCP DNCP-profile TLV Types" under "Distributed Node
+      0-1023) "HNCP TLV Types" under "Distributed Node
       Consensus Protocol (DNCP)", with the following initial contents:
-
-      [TO BE REMOVED BY RFC-EDITOR: Ideally as http://www.iana.org/assignments/hncp-registry]
 
       <list>
 
