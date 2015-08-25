@@ -1235,8 +1235,6 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 	format</xref> is used and prefix lengths are encoded as original
 	IPv4 prefix length increased by 96.</t>
 
-        <t>
-
         <section anchor="version" title="HNCP Version TLV">
 
                <figure>
