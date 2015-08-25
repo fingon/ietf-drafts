@@ -406,7 +406,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <xref target="version">HNCP-Version TLV</xref> in its Node Data and
       MUST ignore (except for DNCP synchronization purposes) any TLVs with a
       type greater than 32 published by nodes not also publishing an
-      HNCP-Version TLV or publishing such a TLV with a different Version.</t>
+      HNCP-Version TLV.</t>
 
       <t>HNCP routers may also have different capabilities regarding
       interactions with hosts, e.g., for configuration or service discovery.
@@ -1244,7 +1244,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |    Type: HNCP-VERSION (32)    |         Length: >= 5          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Version    |   Reserved    |   M   |   P   |   H   |   L   |
+|           Reserved            |   M   |   P   |   H   |   L   |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                          User-agent                           |
         </artwork>
@@ -1255,11 +1255,6 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       	<xref target="versioning" />.
 
           <list style="hanging">
-              <t hangText="Version:">Indicates which version of HNCP is
-                  currently in use by this particular node. It MUST be set to 1.
-                  Nodes with different versions are considered incompatible.
-              </t>
-
               <t hangText="Reserved:">Bits are reserved for future use. They
               MUST be set to zero when creating this TLV, and their value
               MUST be ignored when processing the TLV.
