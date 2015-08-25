@@ -1991,7 +1991,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
       <t>draft-ietf-homenet-hncp-09: Added nested TLV definitions for
       variable length TLVs. NOTE: Node name TLV encoding includes now
-      length byte.</t>
+      length byte. Version TLV now itself indicates version.</t>
 
       <t>draft-ietf-homenet-hncp-08: Editorial reorganization.</t>
 
