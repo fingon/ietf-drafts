@@ -1309,7 +1309,11 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
           a single <xref target="ec">external connection</xref> to
           be shared across the HNCP network. A node MAY publish
           an arbitrary number of instances of this TLV to share
-          the desired number of external connections.</t>
+          the desired number of external connections. Upon reception,
+          the information transmitted in any nested TLVs is used for
+          the purposes of <xref target="pa">prefix assignment</xref>
+          and <xref target="client-config">host configuration</xref>.
+          </t>
 
       <section anchor="dp-tlv" title="Delegated Prefix TLV">
           <figure>
