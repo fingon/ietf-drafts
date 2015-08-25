@@ -1945,7 +1945,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         <t>42: Managed-PSK</t>
         <t>43: Prefix-Policy</t>
 
-        <t>44-512: Free - policy of 'standards action' should be used.</t>
+        <t>44-512: Free - policy of 'RFC required' should be used.</t>
 
         <t>512-767: Reserved - specified in the DNCP registry</t>
 
