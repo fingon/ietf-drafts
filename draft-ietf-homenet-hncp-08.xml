@@ -440,7 +440,9 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
         <t hangText="External category:"> This declares an interface
         to be external, i.e., not within the borders of the HNCP network.
-        HNCP traffic MUST neither be sent nor received.
+        HNCP traffic MUST neither be sent nor received. Accessing internal
+        resources from external interfaces is restricted, i.e., the use of
+        <xref target="RFC6092" /> is RECOMMENDED.
         HNCP routers SHOULD announce acquired configuration information
         for use in the network as described in <xref target="ec" />,
         if the interface appears to be connected to an external network.
@@ -1989,6 +1991,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <?rfc include="reference.RFC.7084.xml"?>
       <?rfc include="reference.RFC.7217.xml"?>
       <?rfc include="reference.RFC.4861.xml"?>
+      <?rfc include="reference.RFC.6092.xml"?>
     </references>
 
     <section title="Changelog [RFC Editor: please remove]">
