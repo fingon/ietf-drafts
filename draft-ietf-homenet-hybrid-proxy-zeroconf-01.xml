@@ -1,8 +1,8 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Mon Jun 17 04:55:57 2013 mstenber
-Last modified: Wed Mar  4 18:01:55 2015 mstenber
-Edit time:     565 min
+Last modified: Wed Sep  2 12:18:06 2015 mstenber
+Edit time:     568 min
 -->
 
 <!--
@@ -29,7 +29,7 @@ Edit time:     565 min
 
 <rfc
     ipr='trust200902'
-    docName='draft-ietf-homenet-hybrid-proxy-zeroconf-00'
+    docName='draft-ietf-homenet-hybrid-proxy-zeroconf-01'
     category='std'
     >
   <front>
@@ -38,6 +38,7 @@ Edit time:     565 min
       Service Discovery Proxy Nodes
     </title>
     <author initials="M" surname="Stenberg" fullname="Markus Stenberg">
+      <organization>Independent</organization>
       <address>
         <postal>
           <street/>
@@ -48,8 +49,7 @@ Edit time:     565 min
         <email>markus.stenberg@iki.fi</email>
       </address>
     </author>
-    <date month="March" year="2015" />
-<!--    <workgroup></workgroup> -->
+    <date month="September" year="2015" />
     <area>Internet</area>
     <workgroup>Homenet Working Group</workgroup>
     <keyword>IPv6</keyword>
@@ -69,7 +69,7 @@ Edit time:     565 min
     <section title="Introduction">
 
       <t>Section 3 ("Hybrid Proxy Operation") of <xref
-      target="I-D.cheshire-dnssd-hybrid"/> describes how to translate
+      target="I-D.ietf-dnssd-hybrid"/> describes how to translate
       queries from Unicast DNS-Based Service Discovery described in <xref
       target="RFC6763"/> to Multicast DNS described in <xref
       target="RFC6762"/>, and how to filter the responses and translate
@@ -115,7 +115,7 @@ Edit time:     565 min
 
       <t>Beyond the low-level translation mechanism between unicast and
       multicast service discovery, the hybrid proxy draft <xref
-      target="I-D.cheshire-dnssd-hybrid"/> describes just that there have
+      target="I-D.ietf-dnssd-hybrid"/> describes just that there have
       to be NS records pointing to hybrid proxy responsible for each link
       within the covered network.</t>
 
@@ -421,14 +421,14 @@ Edit time:     565 min
   </middle>
   <back>
     <references title="Normative references">
-      <?rfc include="reference.I-D.draft-cheshire-dnssd-hybrid-01.xml"?>
+      <?rfc include="reference.I-D.draft-ietf-dnssd-hybrid-00.xml"?>
       <?rfc include="reference.RFC.1035.xml"?>
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6762.xml"?>
       <?rfc include="reference.RFC.6763.xml"?>
     </references>
     <references title="Informative references">
-      <?rfc include="reference.I-D.draft-ietf-homenet-hncp-03.xml"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-hncp-09.xml"?>
       <?rfc include="reference.RFC.3633.xml"?>
       <?rfc include="reference.RFC.3646.xml"?>
     </references>
@@ -718,5 +718,13 @@ node-2 NS node-2
 
     </section>
 
+    <section title="Changelog [RFC Editor: please remove]">
+      <t>draft-ietf-homenet-hybrid-proxy-zeroconf-01:
+      <list style="symbols">
+        <t>Refreshed the draft while waiting on progress of
+        draft-ietf-dnssd-hybrid.</t>
+      </list>
+      </t>
+    </section>
   </back>
 </rfc>
