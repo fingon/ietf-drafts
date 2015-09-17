@@ -70,9 +70,10 @@ TODO:
     <section title="Introduction">
 
       <t>DNCP is designed to provide a way for each participating node to
-      publish a set of TLV (Type-Length-Value) tuples, and to provide
-      a shared and common view about the data published by every currently
-      or recently bidirectionally reachable DNCP node in a network.</t>
+      publish a small set of TLV (Type-Length-Value) tuples (at most 64
+      KB), and to provide a shared and common view about the data published
+      by every currently or recently bidirectionally reachable DNCP node in
+      a network.</t>
 
       <t>For state synchronization a hash tree is used. It is formed by
       first calculating a hash for the dataset published by each node,
@@ -325,10 +326,12 @@ TODO:
       <t>DNCP discovers the topology of the nodes in the DNCP network and
       maintains the liveliness of published node data by ensuring that the
       publishing node was - at least recently - bidirectionally reachable.
-      New potential peers can be
-      discovered autonomously on multicast-enabled links, their addresses
-      may be manually configured or they may be found by some other means
-      defined in a later specification.</t>
+      New potential peers can be discovered autonomously on
+      multicast-enabled links, their addresses may be manually configured
+      or they may be found by some other means defined in the particular
+      DNCP profile. The DNCP profile may specify, for example, a well-known
+      anycast address or provisioning the remote address to contact via
+      some other protocol such as <xref target="RFC3315">DHCPv6</xref>.</t>
 
       <t>A hash tree of height 1, rooted in itself, is maintained by each
       node to represent the state of all currently reachable nodes (see
@@ -469,11 +472,11 @@ TODO:
           </t>
 
           <t hangText="Multicast+Unicast:"> If multicast datagram transport
-          is available on an endpoint, Trickle state is only maintained for the
-          endpoint as a whole. It is used to send Network State TLVs every
-          now and then, as specified in <xref target="trickle-updates"
-          />. Additionally, per-endpoint keep-alives MAY be defined
-          in the DNCP profile, as specified in <xref target="pe-ka" />.</t>
+          is available on an endpoint, Trickle state is only maintained for
+          the endpoint as a whole. It is used to send Network State TLVs
+          periodically, as specified in <xref target="trickle-updates"
+          />. Additionally, per-endpoint keep-alives MAY be defined in the
+          DNCP profile, as specified in <xref target="pe-ka" />.</t>
 
           <t hangText="MulticastListen+Unicast:">
             Just like Unicast, except multicast transmissions are listened to
@@ -706,7 +709,7 @@ TODO:
 
         If the peer does not send keep-alives, and no means to verify
         presence of the peer are available, the peer MUST be considered no
-        longer present and it SHOULD not be added back as a peer until it
+        longer present and it SHOULD NOT be added back as a peer until it
         starts sending keep-alives again.
 
         When the peer is no longer present, the Peer
@@ -1775,6 +1778,7 @@ TODO:
     </references>
     <references title="Informative references">
       <?rfc include="reference.RFC.3493.xml"?>
+      <?rfc include="reference.RFC.3315.xml"?>
     </references>
 
     <section title="Alternative Modes of Operation">
