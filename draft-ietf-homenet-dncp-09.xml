@@ -123,9 +123,9 @@ TODO:
         <t>Another consideration is the size of the published TLV set by a
         node compared to the size of deltas in the TLV set. If the TLV set
         published by a node is very large, and has frequent small changes,
-        DNCP as currently specified may be unsuitable since it does not
-        define any delta synchronization scheme but always transmits the
-        complete updated TLV set verbatim.</t>
+        DNCP as currently specified in this specification may be unsuitable
+        as it lacks a delta synchronization scheme to keep implementation
+        simple.</t>
 
         <t>DNCP can be used in networks where only unicast transport is
         available. While DNCP uses the least amount of bandwidth when
@@ -417,7 +417,10 @@ TODO:
         methods is to be used, support for some TLS-derived transport
         scheme - such as <xref target="RFC5246">TLS</xref> on top of TCP or
         <xref target="RFC6347">DTLS</xref> on top of UDP - is also
-        required.
+        required. They provide for integrity protection and confidentiality
+        of the node data, as well as authentication and authorization using
+        the schemes defined in <xref target="sec-trust">Security and Trust
+        Management</xref>.
 
         A specific definition of the transport(s) in use and their parameters
         MUST be provided by the DNCP profile.</t>
@@ -541,13 +544,14 @@ TODO:
         Any 'reply' mentioned in the steps below denotes sending of the
         specified TLV(s) over unicast to the originator of the TLV being
         processed. If the TLV being replied to was received via multicast
-        and it was sent to a multiple access link, the reply SHOULD
-        be delayed by a random timespan in [0, Imin/2], to avoid potential
+        and it was sent to a multiple access link, the reply SHOULD be
+        delayed by a random timespan in [0, Imin/2], to avoid potential
         simultaneous replies that may cause problems on some links. Sending
-        of replies MAY also be rate-limited or
-        omitted for a short period of time by an implementation. However, an
-        implementation MUST eventually reply to similar repeated requests,
-        as otherwise state synchronization breaks.</t>
+        of replies MAY also be rate-limited or omitted for a short period
+        of time by an implementation. However, if the TLV is not forbidden
+        by the DNCP profile, an implementation MUST reply to resends of the
+        TLV with a non-zero probability to avoid starvation which would
+        break the state synchronization.</t>
 
         <t>A DNCP node MUST process TLVs received from any valid address,
         as specified by the DNCP profile and the configuration of a
@@ -1366,7 +1370,7 @@ TODO:
     </section>
 
 
-    <section title="Security and Trust Management">
+    <section anchor="sec-trust" title="Security and Trust Management">
 
       <t>If specified in the DNCP profile, either <xref
       target="RFC6347">DTLS</xref> or <xref target="RFC5246">TLS</xref> may
@@ -1649,7 +1653,13 @@ TODO:
 
         <t>When receiving TLVs, what sort of TLVs are ignored in addition -
         as specified in <xref target="reception" /> - e.g., for security
-        reasons.
+        reasons. While the security of the node data published within the
+        Node State TLVs is already ensured by the base specification (if
+        secure mode is enabled, Node State TLVs are sent only via unicast
+        as multicast ones are ignored on receipt), if a profile adds TLVs
+        that are sent outside the node data, a profile should indicate
+        whether or not those TLVs should be ignored if they are received
+        via multicast or non-secured unicast.
 
         A DNCP profile may safely define the following DNCP TLVs to be safely
         ignored:
