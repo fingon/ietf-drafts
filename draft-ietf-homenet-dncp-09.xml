@@ -147,8 +147,9 @@ TODO:
 
 	<c>the values for the set of parameters, given in <xref
 	target="profile-bits"/>. They are prefixed with DNCP_ in this
-	document. The profile also specifies the set of optional DNCP extensions
-	to be used.
+	document. The profile also specifies the set of optional DNCP
+	extensions to be used. For a simple example DNCP profile, see <xref
+	target="profile-example" />.
         </c>
 
         <c /><c />
@@ -549,9 +550,9 @@ TODO:
         simultaneous replies that may cause problems on some links. Sending
         of replies MAY also be rate-limited or omitted for a short period
         of time by an implementation. However, if the TLV is not forbidden
-        by the DNCP profile, an implementation MUST reply to resends of the
-        TLV with a non-zero probability to avoid starvation which would
-        break the state synchronization.</t>
+        by the DNCP profile, an implementation MUST reply to
+        retransmissions of the TLV with a non-zero probability to avoid
+        starvation which would break the state synchronization.</t>
 
         <t>A DNCP node MUST process TLVs received from any valid address,
         as specified by the DNCP profile and the configuration of a
@@ -1716,9 +1717,15 @@ TODO:
           configuration.</t>
         </list>
         </t>
+
+        <t>Whether to support <xref target="dense-multicast">dense
+        multicast-enabled link optimization</xref> or not.</t>
+
       </list>
       </t>
 
+      <t>For some guidance on choosing transport and security options,
+      please see <xref target="profile-guidance" />.</t>
     </section>
 
     <section title="Security Considerations">
@@ -1827,6 +1834,139 @@ TODO:
 
     </section>
 
+    <section anchor="profile-guidance" title="DNCP Profile Additional Guidance">
+
+      <t>This appendix explains some implicit design choices that are made
+      when specifying DNCP profile to use particular transport or security
+      options.</t>
+
+      <section title="Unicast Transport">
+
+        <t>The node data published by a DNCP node is limited to 64KB due to
+        the 16-bit size of the length field of the TLV it is published
+        within. Some transport choices may decrease this limit; if using
+        e.g. UDP datagrams for unicast transport the upper bound of node
+        data size is whatever the nodes and the underlying network can pass
+        to each other as DNCP does not define its own fragmentation scheme.
+
+        A profile which chooses UDP has to be limited to small node data
+        (e.g. somewhat smaller than IPv6 default MTU if using IPv6), or
+        specify a minimum which all nodes have to support. Even then, if
+        using non-link-local communications, there is some concern about
+        what middleboxes do to the fragmented IPv6 packets. Therefore, the
+        use of stream transport such as TCP is probably a good idea if
+        either non-link-local communication is desired, or fragmentation is
+        expected to cause potential problems.</t>
+
+        <t>TCP also provides for some other facilities, such as relatively
+        long built-in keep-alive which in conjunction with connection
+        closes occurring from eventual failed retransmissions may be
+        sufficient to avoid use of in-protocol keep-alive defined in <xref
+        target="ka" />. Additionally it is reliable, so there is no need
+        for Trickle on the unicast connections.</t>
+
+        <t>The only real downside in using TCP instead of UDP with
+        DNCP-based profiles lies in the loss of control over the time at
+        which TLVs are really received; while unreliable UDP datagrams have
+        also some delay, TLVs within reliable stream transport may be
+        delayed significantly due to retransmissions. This is not a problem
+        if relative timestamps are not used within the TLVs in the
+        DNCP-based protocol; with absolute timestamps (or no timestamps)
+        TCP is the reasonable unicast default (if it is available).</t>
+
+      </section>
+      <section title="(Optional) Multicast Transport">
+
+        <t>The multicast is needed for dynamic peer discovery; for that,
+        unreliable datagrams of UDP are the only option defined within this
+        specification, although DNCP-based protocols may themselves define
+        some other peer discovery mechanism (e.g. mDNS-based, DNS-based,
+        ..). </t>
+
+        <t>If it is used, well-known address should be also specified for
+        it, and with e.g. IPv6, also the allowed scopes if multiple-scope
+        address is reserved. Most likely at most link-local and site-local
+        are useful scopes. </t>
+
+      </section>
+
+      <section title="(Optional) Transport Security">
+
+        <t>In terms of provided security, DTLS and TLS are equivalent; they
+        also consume similar amount of state on the devices. While TLS is
+        on top of a real stream protocol, using DTLS also requires
+        relatively long session caching within the DTLS layer to avoid
+        expensive re-authentication/authorization steps if and when any
+        state within the DNCP network changes or per-peer keep-alive (if
+        enabled) is sent.</t>
+
+        <t>TLS implementations (at the time of the writing of the
+        specification) seem more mature and available (as open source) than
+        the DTLS ones. This may be due to long use of TLS within HTTPS.</t>
+
+        <t>Some libraries seem not to support multiplexing between insecure
+        and secure communication on a same port, so use of one port for
+        insecure unicast traffic, and another for secure unicast traffic
+        may be good idea.</t>
+
+      </section>
+    </section>
+    <section anchor="profile-example" title="Example Profile">
+
+      <t>This is the DNCP profile of SHSP, an experimental and for purposes
+      of this document fictional home automation protocol that one of the
+      authors is toying with. The protocol itself is used to make key-value
+      store published by each of the nodes available to the other nodes
+      for distributed monitoring and control of home infrastructure. It has
+      only one TLV type: key=value TLV which contains a single key=value
+      assignment published by the node.
+
+      <list style="symbols">
+
+        <t>Unicast transport: IPv6 TCP on port EXAMPLE-P1. Only absolute
+        timestamps are used within the key=value data (hello, NTP) so it is
+        the easy default as all nodes are Linux-based and therefore support
+        TCP and IPv6.</t>
+
+        <t>Multicast transport: IPv6 UDP on port EXAMPLE-P2 to link-local
+        scoped multicast address ff02:EXAMPLE. We assume at least one node
+        per link in the home to facilitate node discovery without other
+        infrastructure.</t>
+
+        <t>Security: None. It is to be used only on trusted links (WPA2-x
+        wireless, physically secure wired links).</t>
+
+        <t>Additional TLVs to be ignored: None. No security, and no new
+        TLVs outside node data anyway.</t>
+
+        <t>Node identifier length (DNCP_NODE_IDENTIFIER_LENGTH): 32 bits
+        that are randomly generated.</t>
+
+        <t>Node identifier collision handling: Pick new random node
+        identifier.</t>
+
+        <t>Trickle parameters: Imin = 100ms, Imax = 10, k = 1. It means
+        essentially one multicast per link in 25 seconds in stable
+        state (0.1 * 2^10).</t>
+
+        <t>Hash function H(x) + length: SHA-256, only 128 bits
+        used. Relatively fast, and 128 bits should be plenty to prevent
+        random conflicts (64 bits would be too). </t>
+
+        <t>No <xref target="ka">in-protocol keep-alives</xref>; TCP
+        keep-alive is to be used. In practice TCP keep-alive is seldom
+        encountered anyway as changes in network state cause packets to be
+        sent on the unicast connections, and those that fail sufficiently
+        many retransmissions are dropped much before keep-alive actually
+        would fire. </t>
+
+        <t>No support for <xref target="dense-multicast">dense
+        multicast-enabled link optimization</xref>; SHSP is a simple
+        protocol for few nodes (network-wide, not to even mention on a
+        single link), and it does not matter.</t>
+      </list>
+      </t>
+    </section>
 
     <section title="Some Questions and Answers [RFC Editor: please remove]">
 
@@ -1844,6 +1984,11 @@ TODO:
 
     </section>
     <section title="Changelog [RFC Editor: please remove]">
+      <t>draft-ietf-homenet-dncp-10:
+      <list style="symbols">
+        <t>Added profile guidance section, as well as example profile.</t>
+      </list>
+      </t>
       <t>draft-ietf-homenet-dncp-09:
       <list style="symbols">
         <t>Reserved 1024+ TLV types for future versions (=versioning
