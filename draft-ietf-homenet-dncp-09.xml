@@ -1662,7 +1662,7 @@ TODO:
         whether or not those TLVs should be ignored if they are received
         via multicast or non-secured unicast.
 
-        A DNCP profile may safely define the following DNCP TLVs to be safely
+        A DNCP profile may define the following DNCP TLVs to be safely
         ignored:
 
         <list style="symbols">
@@ -1926,7 +1926,9 @@ TODO:
         <t>Unicast transport: IPv6 TCP on port EXAMPLE-P1. Only absolute
         timestamps are used within the key=value data (hello, NTP) so it is
         the easy default as all nodes are Linux-based and therefore support
-        TCP and IPv6.</t>
+        TCP and IPv6. Connections from/to non-link-local addresses are to
+        be ignored to avoid exposing this protocol outside the secure
+        links.</t>
 
         <t>Multicast transport: IPv6 UDP on port EXAMPLE-P2 to link-local
         scoped multicast address ff02:EXAMPLE. We assume at least one node
@@ -1945,9 +1947,9 @@ TODO:
         <t>Node identifier collision handling: Pick new random node
         identifier.</t>
 
-        <t>Trickle parameters: Imin = 100ms, Imax = 10, k = 1. It means
-        essentially one multicast per link in 25 seconds in stable
-        state (0.1 * 2^10).</t>
+        <t>Trickle parameters: Imin = 200ms, Imax = 7, k = 1. It means at
+        least one multicast per link in 25 seconds in stable state (0.2 *
+        2^7).</t>
 
         <t>Hash function H(x) + length: SHA-256, only 128 bits
         used. Relatively fast, and 128 bits should be plenty to prevent
