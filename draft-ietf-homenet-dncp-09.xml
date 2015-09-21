@@ -558,9 +558,10 @@ TODO:
         Any 'reply' mentioned in the steps below denotes sending of the
         specified TLV(s) over unicast to the originator of the TLV being
         processed. If the TLV being replied to was received via multicast
-        and it was sent to a multiple access link, the reply SHOULD be
+        and it was sent to a multiple access link, the reply MUST be
         delayed by a random timespan in [0, Imin/2], to avoid potential
-        simultaneous replies that may cause problems on some links. Sending
+        simultaneous replies that may cause problems on some links,
+        unless specified differently in the DNCP profile. Sending
         of replies MAY also be rate-limited or omitted for a short period
         of time by an implementation. However, if the TLV is not forbidden
         by the DNCP profile, an implementation MUST reply to
@@ -1150,7 +1151,7 @@ TODO:
 
       If any sub-TLVs are present, the Length field of the TLV describes
       the number of bytes from the first byte of the TLV's own Value (if
-      any) to the last byte of the last sub-TLV.</t>
+      any) to the last (padding) byte of the last sub-TLV.</t>
 
       <t>
         For example, type=123 (0x7b) TLV with value 'x' (120 =
