@@ -338,7 +338,7 @@ TODO:
 
       <t>DNCP discovers the topology of the nodes in the DNCP network and
       maintains the liveliness of published node data by ensuring that the
-      publishing node was - at least recently - bidirectionally reachable.
+      publishing node is bidirectionally reachable.
       New potential peers can be discovered autonomously on
       multicast-enabled links, their addresses may be manually configured
       or they may be found by some other means defined in the particular
@@ -392,7 +392,7 @@ TODO:
         <t>Each DNCP node maintains an arbitrary width hash tree of height
         1.
 
-        Each leaf represents one recently bidirectionally reachable DNCP
+        Each leaf represents one bidirectionally reachable DNCP
         node (see <xref target="liveliness" />), and is represented by a
         tuple consisting of the node's sequence number in network byte
         order concatenated with the hash-value of the node's ordered node
@@ -459,7 +459,7 @@ TODO:
           <t>If using a datagram transport, it MUST be included in every
           datagram that also contains a <xref target="net-state">Network
           State TLV</xref> and MUST be located before any such TLV.
-          It SHOULD also be included in any other datagram, to speeds up
+          It SHOULD also be included in any other datagram, to speed up
           initial peer detection.</t>
         </list>
         </t>
@@ -651,9 +651,9 @@ TODO:
             <list style="symbols">
 
               <t>If the TLV contains the Node Data field, it SHOULD also be
-              verified by ensuring that the locally calculated H(Node Data)
-              matches the content of the H(Node Data) field within the
-              TLV. If they differ, the TLV SHOULD be ignored and not
+              verified by ensuring that the locally calculated hash of the
+              Node Data matches the content of the H(Node Data) field within
+              the TLV. If they differ, the TLV SHOULD be ignored and not
               processed further.</t>
 
               <t>If the TLV does not contain the Node Data field, and the
@@ -1320,8 +1320,8 @@ TODO:
       <section title="Data TLVs within Node State TLV">
 
         <t>These TLVs are published by the DNCP nodes, and therefore only
-        encoded within the Node State TLVs. If encountered outside Node
-        State TLV, they MUST be silently ignored.</t>
+        encoded in the Node Data field of Node State TLVs. If encountered
+        outside Node State TLV, they MUST be silently ignored.</t>
 
         <section anchor="peer"
                  title="Peer TLV">
@@ -1807,13 +1807,13 @@ TODO:
     <references title="Normative references">
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6206.xml"?>
-      <?rfc include="reference.RFC.6347.xml"?>
-      <?rfc include="reference.RFC.5246.xml"?>
       <?rfc include="reference.RFC.6234.xml"?>
     </references>
     <references title="Informative references">
       <?rfc include="reference.RFC.3493.xml"?>
       <?rfc include="reference.RFC.3315.xml"?>
+      <?rfc include="reference.RFC.6347.xml"?>
+      <?rfc include="reference.RFC.5246.xml"?>
     </references>
 
     <section title="Alternative Modes of Operation">
