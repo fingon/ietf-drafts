@@ -238,13 +238,13 @@ TODO:
       <c>a set of TLVs published and owned by a node in the DNCP
       network. Other nodes pass it along as-is, even if they cannot
       fully interpret it.</c>
-      
+
       <c /><c />
 
       <c>Origination Time</c>
       <c>the (estimated) time when the node data set with the
       current sequence number was published.</c>
-      
+
       <c /><c />
 
       <c>Node state</c>
@@ -303,7 +303,7 @@ TODO:
       evaluating the resulting topology graph as described in <xref
       target="liveliness" />, this information is available to the
       whole DNCP network.</c>
-      
+
       <c /><c />
 
       <c>Trickle Instance</c>
@@ -1101,31 +1101,6 @@ TODO:
     </section>
 
     <section anchor="tlvs" title="Type-Length-Value Objects">
-      <t>
-        Each TLV is encoded as a 2 byte type field, followed by a 2 byte
-        length field (of the value excluding header, in bytes, 0 meaning no
-        value) followed by the value itself, if any. Both type and length
-        fields in the header as well as all integer fields inside the value
-        - unless explicitly stated otherwise - are represented unsigned and
-        in network
-        byte order. Padding bytes with value zero MUST be added up to the
-        next 4 byte boundary if the length is not divisible by 4.  These
-        padding bytes MUST NOT be included in the number stored in the
-        length field of the TLV preceding the padding, however if said
-        TLV is enclosed within another TLV, then the padding is reflected
-        in the enclosing TLV's length value.</t>
-
-      <t>
-        Each TLV which does not define optional fields or
-        variable-length content MAY be sent with additional nested TLVs
-        appended after the required TLV fields - and padding (if
-        applicable) to allow for extensibility. In this case the length
-        field of the TLV includes the length of the TLV fields, the length
-        of the padding inserted before and after any embedded TLVs and the
-        length of the embedded TLVs. Therefore, each node MUST accept
-        received TLVs that are longer than the fixed fields specified and
-        ignore embedded TLVs it does not understand.
-      </t>
 
       <figure>
         <artwork>
@@ -1134,7 +1109,7 @@ TODO:
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |            Type               |           Length              |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                             Value                             |
+|               Value (if any) (+padding (if any))              |
 ..
 |                     (variable # of bytes)                     |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1142,6 +1117,40 @@ TODO:
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
         </artwork>
       </figure>
+
+      <t>Each TLV is encoded as:
+
+      <list style="symbols">
+
+        <t>a 2 byte Type field</t>
+
+        <t>a 2 byte Length field which contains the length of the Value
+        field in bytes; 0 means no Value</t>
+
+        <t>the Value itself (if any)</t>
+
+        <t>padding bytes with value of zero up to the next 4 byte
+        boundary if the Length is not divisible by 4.</t>
+
+      </list>
+
+      While padding bytes MUST NOT be included in the number stored in
+      the Length field of the TLV, if the TLV is enclosed within
+      another TLV, then the padding is included in the enclosing TLV's
+      Length value.</t>
+
+      <t>Each TLV which does not define optional fields or variable-length
+      content MAY be sent with additional sub-TLVs appended after the TLV
+      to allow for extensibility.
+
+      When handling such TLV types, each node MUST accept received TLVs
+      that are longer than the fixed fields specified for the particular
+      type, and ignore the sub-TLVs with either unknown types, or not
+      supported within that particular TLV type.
+
+      If any sub-TLVs are present, the Length field of the TLV describes
+      the number of bytes from the first byte of the TLV's own Value (if
+      any) to the last byte of the last sub-TLV.</t>
 
       <t>
         For example, type=123 (0x7b) TLV with value 'x' (120 =
@@ -1423,7 +1432,7 @@ TODO:
       </section>
 
       <section title="Certificate Based Trust Consensus Method">
-      
+
         <t>For some scenarios - such as bootstrapping a mostly unmanaged
         network - the methods described above may not provide a desirable
         tradeoff between security and user experience. This section
