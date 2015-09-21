@@ -1113,7 +1113,9 @@ TODO:
         padding bytes MUST NOT be included in the number stored in the
         length field of the TLV preceding the padding, however if said
         TLV is enclosed within another TLV, then the padding is reflected
-        in the enclosing TLV's length value. 
+        in the enclosing TLV's length value.</t>
+
+      <t>
         Each TLV which does not define optional fields or
         variable-length content MAY be sent with additional nested TLVs
         appended after the required TLV fields - and padding (if
