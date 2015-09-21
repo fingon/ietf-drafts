@@ -1836,7 +1836,7 @@ TODO:
 
     <section anchor="profile-guidance" title="DNCP Profile Additional Guidance">
 
-      <t>This appendix explains some implicit design choices that are made
+      <t>This appendix explains implications of design choices made
       when specifying DNCP profile to use particular transport or security
       options.</t>
 
@@ -1853,40 +1853,39 @@ TODO:
         (e.g. somewhat smaller than IPv6 default MTU if using IPv6), or
         specify a minimum which all nodes have to support. Even then, if
         using non-link-local communications, there is some concern about
-        what middleboxes do to the fragmented IPv6 packets. Therefore, the
+        what middleboxes do to fragmented packets. Therefore, the
         use of stream transport such as TCP is probably a good idea if
         either non-link-local communication is desired, or fragmentation is
-        expected to cause potential problems.</t>
+        expected to cause problems.</t>
 
-        <t>TCP also provides for some other facilities, such as relatively
+        <t>TCP also provides some other facilities, such as a relatively
         long built-in keep-alive which in conjunction with connection
         closes occurring from eventual failed retransmissions may be
-        sufficient to avoid use of in-protocol keep-alive defined in <xref
-        target="ka" />. Additionally it is reliable, so there is no need
-        for Trickle on the unicast connections.</t>
+        sufficient to avoid the use of in-protocol keep-alive defined in
+        <xref target="ka" />. Additionally it is reliable, so there is no
+        need for Trickle on such unicast connections.</t>
 
-        <t>The only real downside in using TCP instead of UDP with
+        <t>The major downside of using TCP instead of UDP with
         DNCP-based profiles lies in the loss of control over the time at
-        which TLVs are really received; while unreliable UDP datagrams have
-        also some delay, TLVs within reliable stream transport may be
+        which TLVs are received; while unreliable UDP datagrams also have
+        some delay, TLVs within reliable stream transport may be
         delayed significantly due to retransmissions. This is not a problem
-        if relative timestamps are not used within the TLVs in the
-        DNCP-based protocol; with absolute timestamps (or no timestamps)
-        TCP is the reasonable unicast default (if it is available).</t>
+        if no time dependent information is stored within the TLVs in the
+        DNCP-based protocol; for a protocol using absolute timestamps at most,
+        TCP is a reasonable choice for unicast if it is available).</t>
 
       </section>
       <section title="(Optional) Multicast Transport">
 
-        <t>The multicast is needed for dynamic peer discovery; for that,
+        <t>Multicast is needed for dynamic peer discovery; for that,
         unreliable datagrams of UDP are the only option defined within this
         specification, although DNCP-based protocols may themselves define
         some other peer discovery mechanism (e.g. mDNS-based, DNS-based,
         ..). </t>
 
-        <t>If it is used, well-known address should be also specified for
-        it, and with e.g. IPv6, also the allowed scopes if multiple-scope
-        address is reserved. Most likely at most link-local and site-local
-        are useful scopes. </t>
+        <t>If it is used, a well-known address should be specified, and
+        for e.g. IPv6 respectively the desired address scopes. In most cases
+        link-local and possibly site-local are useful scopes.</t>
 
       </section>
 
@@ -1902,44 +1901,42 @@ TODO:
 
         <t>TLS implementations (at the time of the writing of the
         specification) seem more mature and available (as open source) than
-        the DTLS ones. This may be due to long use of TLS within HTTPS.</t>
+        DTLS ones. This may be due to a long history of use with HTTPS.</t>
 
         <t>Some libraries seem not to support multiplexing between insecure
-        and secure communication on a same port, so use of one port for
-        insecure unicast traffic, and another for secure unicast traffic
-        may be good idea.</t>
+        and secure communication on the same port, so specifying distinct
+        ports for secured and unsecured communication may be benefitial.</t>
 
       </section>
     </section>
     <section anchor="profile-example" title="Example Profile">
 
-      <t>This is the DNCP profile of SHSP, an experimental and for purposes
-      of this document fictional home automation protocol that one of the
-      authors is toying with. The protocol itself is used to make key-value
-      store published by each of the nodes available to the other nodes
-      for distributed monitoring and control of home infrastructure. It has
-      only one TLV type: key=value TLV which contains a single key=value
-      assignment published by the node.
+      <t>This is the DNCP profile of SHSP, an experimental (and for the
+      purposes of this document fictional) home automation protocol. The
+      protocol itself is used to make key-value store published by each
+      of the nodes available to all other nodes for distributed monitoring
+      and control of a home infrastructure. It defines only one additional
+      TLV type: a key=value TLV which contains a single key=value
+      assignment for publication.
 
       <list style="symbols">
 
-        <t>Unicast transport: IPv6 TCP on port EXAMPLE-P1. Only absolute
-        timestamps are used within the key=value data (hello, NTP) so it is
-        the easy default as all nodes are Linux-based and therefore support
-        TCP and IPv6. Connections from/to non-link-local addresses are to
-        be ignored to avoid exposing this protocol outside the secure
-        links.</t>
+        <t>Unicast transport: IPv6 TCP on port EXAMPLE-P1 since only absolute
+        timestamps are used within the key=value data and since it focusses
+        primarily on Linux-based nodes which support both protocols well.
+        Connections from and to non-link-local addresses are ignored to
+        avoid exposing this protocol outside the secure links.</t>
 
         <t>Multicast transport: IPv6 UDP on port EXAMPLE-P2 to link-local
-        scoped multicast address ff02:EXAMPLE. We assume at least one node
-        per link in the home to facilitate node discovery without other
-        infrastructure.</t>
+        scoped multicast address ff02:EXAMPLE. At least one node per link
+        in the home is assumted to facilitate node discovery without
+        depending on any other infrastructure.</t>
 
         <t>Security: None. It is to be used only on trusted links (WPA2-x
         wireless, physically secure wired links).</t>
 
-        <t>Additional TLVs to be ignored: None. No security, and no new
-        TLVs outside node data anyway.</t>
+        <t>Additional TLVs to be ignored: None. No DNCP security is specified,
+        and no new TLVs are defined outside of node data.</t>
 
         <t>Node identifier length (DNCP_NODE_IDENTIFIER_LENGTH): 32 bits
         that are randomly generated.</t>
@@ -1953,7 +1950,7 @@ TODO:
 
         <t>Hash function H(x) + length: SHA-256, only 128 bits
         used. Relatively fast, and 128 bits should be plenty to prevent
-        random conflicts (64 bits would be too). </t>
+        random conflicts (64 bits would most likely be sufficent, too).</t>
 
         <t>No <xref target="ka">in-protocol keep-alives</xref>; TCP
         keep-alive is to be used. In practice TCP keep-alive is seldom
@@ -1964,8 +1961,8 @@ TODO:
 
         <t>No support for <xref target="dense-multicast">dense
         multicast-enabled link optimization</xref>; SHSP is a simple
-        protocol for few nodes (network-wide, not to even mention on a
-        single link), and it does not matter.</t>
+        protocol for few nodes (network-wide, not even to mention on a
+        single link), and therefore would not provide any benefit.</t>
       </list>
       </t>
     </section>
