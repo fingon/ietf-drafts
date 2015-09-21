@@ -1790,10 +1790,10 @@ TODO:
       <t>8: Peer</t>
       <t>9: Keep-alive interval</t>
       <t>10: Trust-Verdict</t>
-      <t>11-31: Free - policy of 'standards action' should be used</t>
+      <t>11-31: Free - policy of <xref target="RFC5226">standards action</xref> should be used</t>
       <t>32-511: Reserved for per-DNCP profile use</t>
-      <t>512-767: Free - policy of 'standards action' should be used</t>
-      <t>768-1023: Private use</t>
+      <t>512-767: Free - policy of <xref target="RFC5226">standards action</xref> should be used</t>
+      <t>768-1023: <xref target="RFC5226">Private use</xref></t>
       <t>1024-65535: Reserved for future protocol evolution (for example,
       DNCP version 2)</t>
 
@@ -1808,6 +1808,7 @@ TODO:
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6206.xml"?>
       <?rfc include="reference.RFC.6234.xml"?>
+      <?rfc include="reference.RFC.5226.xml"?>
     </references>
     <references title="Informative references">
       <?rfc include="reference.RFC.3493.xml"?>
