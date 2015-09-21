@@ -21,7 +21,7 @@ TODO:
 
 <rfc
     ipr='trust200902'
-    docName='draft-ietf-homenet-dncp-09'
+    docName='draft-ietf-homenet-dncp-10'
     category='std'
     >
   <front>
@@ -52,7 +52,7 @@ TODO:
         <email>cyrus@openwrt.org</email>
       </address>
     </author>
-    <date month="August" year="2015" />
+    <date month="September" year="2015" />
 
     <area>Internet</area>
     <workgroup>Homenet Working Group</workgroup>
