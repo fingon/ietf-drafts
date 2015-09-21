@@ -1879,7 +1879,7 @@ TODO:
       when specifying DNCP profile to use particular transport or security
       options.</t>
 
-      <section title="Unicast Transport">
+      <section title="Unicast Transport - UDP or TCP?">
 
         <t>The node data published by a DNCP node is limited to 64KB due to
         the 16-bit size of the length field of the TLV it is published
@@ -1904,27 +1904,28 @@ TODO:
         <xref target="ka" />. Additionally it is reliable, so there is no
         need for Trickle on such unicast connections.</t>
 
-        <t>The major downside of using TCP instead of UDP with
-        DNCP-based profiles lies in the loss of control over the time at
-        which TLVs are received; while unreliable UDP datagrams also have
-        some delay, TLVs within reliable stream transport may be
-        delayed significantly due to retransmissions. This is not a problem
-        if no time dependent information is stored within the TLVs in the
-        DNCP-based protocol; for a protocol using absolute timestamps at most,
-        TCP is a reasonable choice for unicast if it is available).</t>
+        <t>The major downside of using TCP instead of UDP with DNCP-based
+        profiles lies in the loss of control over the time at which TLVs
+        are received; while unreliable UDP datagrams also have some delay,
+        TLVs within reliable stream transport may be delayed significantly
+        due to retransmissions. This is not a problem if no relative time
+        dependent information is stored within the TLVs in the DNCP-based
+        protocol; for such a protocol, TCP is a reasonable choice for
+        unicast transport if it is available.</t>
 
       </section>
       <section title="(Optional) Multicast Transport">
 
-        <t>Multicast is needed for dynamic peer discovery; for that,
-        unreliable datagrams of UDP are the only option defined within this
+        <t>Multicast is needed for dynamic peer discovery and to trigger
+        unicast exchanges; for that, unreliable datagram transport
+        (=typically UDP) is the only transport option defined within this
         specification, although DNCP-based protocols may themselves define
-        some other peer discovery mechanism (e.g. mDNS-based, DNS-based,
-        ..). </t>
+        some other transport or peer discovery mechanism (e.g. based on
+        mDNS or DNS). </t>
 
-        <t>If it is used, a well-known address should be specified, and
-        for e.g. IPv6 respectively the desired address scopes. In most cases
-        link-local and possibly site-local are useful scopes.</t>
+        <t>If multicast is used, a well-known address should be specified,
+        and for e.g. IPv6 respectively the desired address scopes. In most
+        cases link-local and possibly site-local are useful scopes.</t>
 
       </section>
 
@@ -1932,7 +1933,7 @@ TODO:
 
         <t>In terms of provided security, DTLS and TLS are equivalent; they
         also consume similar amount of state on the devices. While TLS is
-        on top of a real stream protocol, using DTLS also requires
+        on top of a stream protocol, using DTLS also requires
         relatively long session caching within the DTLS layer to avoid
         expensive re-authentication/authorization steps if and when any
         state within the DNCP network changes or per-peer keep-alive (if
