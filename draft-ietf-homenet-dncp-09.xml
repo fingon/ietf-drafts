@@ -1111,7 +1111,7 @@ TODO:
         byte order. Padding bytes with value zero MUST be added up to the
         next 4 byte boundary if the length is not divisible by 4.  These
         padding bytes MUST NOT be included in the number stored in the
-        length field of the TLV preceeding the padding, however if said
+        length field of the TLV preceding the padding, however if said
         TLV is enclosed within another TLV, then the padding is reflected
         in the enclosing TLV's length value. 
         Each TLV which does not define optional fields or
@@ -1933,7 +1933,7 @@ TODO:
 
         <t>Some libraries seem not to support multiplexing between insecure
         and secure communication on the same port, so specifying distinct
-        ports for secured and unsecured communication may be benefitial.</t>
+        ports for secured and unsecured communication may be beneficial.</t>
 
       </section>
     </section>
@@ -1950,14 +1950,14 @@ TODO:
       <list style="symbols">
 
         <t>Unicast transport: IPv6 TCP on port EXAMPLE-P1 since only absolute
-        timestamps are used within the key=value data and since it focusses
+        timestamps are used within the key=value data and since it focuses
         primarily on Linux-based nodes which support both protocols well.
         Connections from and to non-link-local addresses are ignored to
         avoid exposing this protocol outside the secure links.</t>
 
         <t>Multicast transport: IPv6 UDP on port EXAMPLE-P2 to link-local
         scoped multicast address ff02:EXAMPLE. At least one node per link
-        in the home is assumted to facilitate node discovery without
+        in the home is assumed to facilitate node discovery without
         depending on any other infrastructure.</t>
 
         <t>Security: None. It is to be used only on trusted links (WPA2-x
@@ -1978,7 +1978,7 @@ TODO:
 
         <t>Hash function H(x) + length: SHA-256, only 128 bits
         used. Relatively fast, and 128 bits should be plenty to prevent
-        random conflicts (64 bits would most likely be sufficent, too).</t>
+        random conflicts (64 bits would most likely be sufficient, too).</t>
 
         <t>No <xref target="ka">in-protocol keep-alives</xref>; TCP
         keep-alive is to be used. In practice TCP keep-alive is seldom
