@@ -801,13 +801,13 @@ TODO:
         <t>DNCP nodes that have not been reachable in the most recent
         topology graph traversal MUST NOT be used for calculation of the
         network state hash, be provided to any applications that need to
-        use the whole TLV graph, or be provided to remote nodes. They
-        MAY be forgotten immediately after the topology graph traversal, however
-        it is RECOMMENDED to keep them at least briefly to improve the
-        speed of DNCP network state convergence. In case a remote node loses and
-        regains bidirectional connectivity in that time period, the local node
-        can reuse the cached node data if it did not change in the meantime
-        and thereby reduce the number of queries needed to reconverge.</t>
+        use the whole TLV graph, or be provided to remote nodes. They MAY
+        be forgotten immediately after the topology graph traversal,
+        however it is RECOMMENDED to keep them at least briefly to improve
+        the speed of DNCP network state convergence. This reduces the
+        number of queries needed to reconverge during both initial network
+        convergence and when a part of the network loses and regains
+        bidirectional connectivity within that time period.</t>
 
       </section>
 
