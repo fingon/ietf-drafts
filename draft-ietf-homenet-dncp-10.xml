@@ -292,7 +292,7 @@ TODO:
       <c>Bidirectionally reachable</c>
 
       <c>a peer is locally unidirectionally reachable if a
-      recent and consistent multicast or any unicast DNCP message
+      consistent multicast or any unicast DNCP message
       has been received by the local node (see <xref target="peers" />).
 
       If said peer in return also considers the local node unidirectionally
