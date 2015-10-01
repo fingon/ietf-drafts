@@ -72,8 +72,7 @@ TODO:
       <t>DNCP is designed to provide a way for each participating node to
       publish a small set of TLV (Type-Length-Value) tuples (at most 64
       KB), and to provide a shared and common view about the data published
-      by every currently or recently bidirectionally reachable DNCP node in
-      a network.</t>
+      by every currently bidirectionally reachable DNCP node in a network.</t>
 
       <t>For state synchronization a hash tree is used. It is formed by
       first calculating a hash for the dataset published by each node,
