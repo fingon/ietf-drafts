@@ -113,10 +113,67 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
   <back>
     <references title="Normative references">
       <?rfc include="reference.RFC.2119.xml"?>
+      <?rfc include="reference.RFC.6763.xml"?>
+      <?rfc include="reference.RFC.2308.xml"?>
     </references>
     <references title="Informative references">
       <?rfc include="reference.RFC.3315.xml"?>
     </references>
+
+    <section title="This solution compared to doing this in DHCPv6/NDP [RFC
+                    Editor: please remove]">
+
+      <t>The angle of attack of the MIF work to date (autumn 2015) has been
+      to add container options and their transfer mechanisms to DHCPv6 and
+      NDP. This document details a different approach, and therefore it is
+      sensible to compare it to to the existing solutions in terms of
+      (highly subjective) pros and cons.
+
+      The authors consider pros of this proposal to be:
+
+      <list style="symbols">
+
+        <t>No overhead for hosts that do not care (possibly most; no
+        spurious RA options, ...)</t>
+
+        <t>No problems with relaying data; if the first-hop device does not
+        care, DNS request propagate onwards.</t>
+
+        <t>Little/no changes to DHCP, DHCPv6, DHCPv6-PD or RA.</t>
+
+        <t>No duplication of specifications / TLVs for DHCP, DHCPv6 and
+        RA.</t>
+
+        <t>Solves m:n prefix &lt;-&gt; PVD elegantly: no need to either
+        duplicate applying prefix for each PVD or duplicate each PVD for
+        each applying prefix.</t>
+
+        <t>Easily extensible (TXT records, no TLV definitions, parsing and
+        generation necessary)</t>
+
+        <t>Not affected by Huawei DHCPv6 IPR</t>
+
+        <t>Reuses the existing reverse DNS infrastructure</t>
+      </list>
+
+      The authors consider cons of this proposal to be:
+      <list style="symbols">
+        <t>This scheme requires DNS servers ‘close’ on the path to the
+        user, if changed information is to be sent; otherwise centralized
+        solution would work (with some synthesized records).</t>
+
+        <t>Security using either DNSSec or in-band hashes is rather painful
+        (but possibly not more than the scheme in the current DHCP/RA
+        drafts), so the default would most likely be insecure. That is not
+        much different from DHCP*/RA, which are also 99.999…% of the time
+        not secured.</t>
+
+      </list>
+
+      </t>
+
+    </section>
+
 
     <section title="Changelog [RFC Editor: please remove]">
       <t>draft-stenberg-mif-mpvd-dns-00:
