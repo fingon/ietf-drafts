@@ -54,15 +54,15 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     <keyword>PVD</keyword>
     <keyword>DNS</keyword>
     <abstract>
-
-    <t>TBD.</t>
+	<t>This document describes a mechanism to transmit and secure provisioning
+	domain information for IPv6 and IPv4 addresses by using reverse DNS
+	resolution. In addition it specifies backwards-compatible extensions to
+	IPv6 host configuration to support special-purpose global IPv6 prefixes
+	and routers which can only be used to access certain isolated services.</t>
     </abstract>
   </front>
   <middle>
-    <section title="Introduction">
-
-
-
+    <section title="Introduction"> 
     </section>
 
     <section title="Terminology">
@@ -70,8 +70,10 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       <texttable suppress-title="true" style="none" align="left">
 	<ttcol width="25%" /><ttcol width="75%" />
 
-	<c>ex</c>
-	<c>ample</c>
+	<c>special-purpose IPv6 prefix</c>
+	<c>a global IPv6 source prefix that cannot be used to reach the public
+	IPv6 internet but instead only allows access to certain special services
+	(e.g., a walled garden, VoIP, IPTV, ...).</c>
 
         <c /><c />
 
@@ -94,6 +96,114 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     <section title="Overview">
 
       <t>TBD</t>
+
+    </section>
+    
+    <section anchor="recordtag" title="_pvd Record Tags">
+    	<t>TODO</t>
+    </section>
+    
+    <section anchor="sp" title="Special-purpose IPv6 prefixes">
+		<t>A service provider might wish to assign certain global unicast
+		address prefixes which can be used to reach a limited set of services
+		only. In the presence of legacy hosts it must be ensured however
+		that these prefixes are not mistakenly used as source addresses for
+		other destinations. This section therefore defines optional extensions
+		to NDP, DHCPv6 and DHCPv6-PD to indicate this state.</t>
+		
+		<section anchor="sp-slaac"
+		  title="Extensions to Stateless Address Autoconfiguration">
+			<t>NDP defines the Prefix Information to announce prefixes for
+			stateless address configuration. The "A-bit" is set, whenever
+			hosts may autonomously derive addresses from a given prefix.
+			For special-purpose prefixes this document defines the first
+			bit of the Reserved1-field as the "S-Bit".</t>
+			
+			<t>The following additional requirements apply to hosts intending
+			to support global special-purpose IPv6 prefixes:
+			<list>
+				<t>Upon reception of a Prefix Information Option with the
+				S-Bit set, it should behave as if the A-Bit was set, however
+				(unless the A-Bit was actually set by the sending router)
+				it MUST delay using any adresses derived from the prefix
+				until it has queried, retrieved and honored (see TODO)
+				at least all mandatory provisioning domain information related
+				to the given prefix.</t>
+				
+				<t>A host SHOULD NOT interpretate the S-Bit being clear as an
+				indicator that no provisioning domain information is available
+				for a given prefix.</t>
+			</list>
+			</t>
+			
+			<t>
+			The following additional requirements apply to routers:
+			<list>
+				<t>A router MUST NOT set the A-Bit for global unicast
+				address prefixes which cannot be used to reach the public
+				IPv6 internet.</t>
+			
+				<t>A router SHOULD use the S-Bit to indicate that PVD-aware
+				hosts can statelessly assign themselves addresses from a given
+				prefix. It MAY use the S-Bit in addition to the A-Bit to
+				indicate that a prefix usable to reach the public IPv6
+				internet has additional (optional) provisioning domain
+				information.</t>
+				
+				<t>A router announcing one or more Prefix Information options
+				with the S-Bit set MUST also announce one or more recursive
+				DNS servers using a Recursive DNS Server Option. If none of
+				the Prefix Information Options it announces have the A-Bit
+				set then at least one of these recursive DNS servers MUST be
+				reachable using a link-local address.</t>
+			</list>
+			</t>
+		</section>
+		<section anchor="sp-dhcpv6" title="Extensions to DHCPv6">
+		  <t>Using DHCPv6 and DHCPv6-PD servers can actively decide which
+		  addresses or prefixes are assigned to clients and requesting routers,
+		  however a mechanism is needed to distinguish PVD-aware devices and
+		  in the same sense PVD-aware devices need to be able to detect which
+		  prefixes and addresses are special-purpose. Therefore, a zero-length
+		  DHCPv6 option OPTION_SPECIAL_PURPOSE is defined to be added as a
+		  suboption to OPTION_IAADDR and OPTION_IAPREFIX options.</t>
+		  
+		  <t>The following additional requirements apply to clients and
+		  requesting routers intending to support global special-purpose IPv6
+		  prefixes via DHCPv6:
+		  <list>
+		  	<t>A client or requesting router MUST include the option code
+		  	OPTION_SPECIAL_PURPOSE in an option OPTION_ORO in its SOLICIT and
+		  	REQUEST messages, whenever it wishes to accept special-purpose
+		  	prefixes in its identity associations.</t>
+		  	
+		  	<t>Upon reception of an OPTION_IAADDR or OPTION_IAPREFIX option
+		  	having an embedded OPTION_SPECIAL_PURPOSE option it MUST delay
+		  	using any adresses derived from the prefix as source address for
+		  	its own communication until it has queried, retrieved and
+		  	honored (see TODO) at least all mandatory provisioning domain
+		  	information related to the given prefix or address. If it is a
+		  	requesting router, it MAY however subdelegate prefixes or assign
+		  	addresses from special-purpose prefixes to clients without doing
+		  	so as long as the requirements in the following paragraph are
+		  	followed.</t> 
+		  </list>
+		  </t>
+		  
+		  <t>The following additional requirements apply to routers assigning
+		  addresses from or delegating (parts of) special-purpose prefixes
+		  using DHCPv6:
+		  <list>
+		  	<t>A router MUST include a zero-length suboption of type
+		  	OPTION_SPECIAL_PURPOSE in every OPTION_IAADDR and OPTION_IAPREFIX
+		  	option it assings or delegates containing a global unicast address
+		  	or prefix which cannot be used to reach the public IPv6 internet.
+		  	It MUST NOT assign or delegate such an address or prefix to a
+		  	client or requesting router not including the option code of
+		  	OPTION_SPECIAL_PURPOSE inside an OPTION_ORO option.</t>
+		  </list>
+		  </t>
+		</section>
 
     </section>
 
@@ -151,7 +261,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
         <t>Easily extensible (TXT records, no TLV definitions, parsing and
         generation necessary)</t>
 
-        <t>Not affected by Huawei DHCPv6 IPR</t>
+        <t>Probably not affected by IPR on draft-ietf-mif-mpvd-dhcp-support</t>
 
         <t>Reuses the existing reverse DNS infrastructure</t>
       </list>
@@ -173,6 +283,32 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       </t>
 
     </section>
+ 
+    <section title="Discussion Points [RFC Editor: please remove]">
+    	<t>
+    	<list style="symbols">
+    	<t>Besides special purpose prefixes, it might be desirable to
+    	have special purpose routers which only provide access to certain
+    	services but not the entire internet. These services could be
+    	announced by only using more-specific routes, however if the
+    	destination addresses are possibly changing, extension of the RIO
+    	mechanism might be needed. One possibility would be to add a new
+    	RIO S-flag with semantics like: "When the host receives
+    	a Route Information Option with the S-Bit set, it MUST ignore the value
+    	in the Prf-field (even if it is (10)) and instead assume the preference
+    	to have a value greater than (11). However, it MUST only use the route
+    	for packets having a source prefix announced by the same router.". This
+    	would allow selective routes (Prf=(10)) only applying to MIF-hosts.</t>
+    	
+        <t>DNSSEC delegation of reverse zones might be difficult in some cases.
+        It is debatable, whether we want a complementary in-band signing
+        mechanism as well, e.g., pre-shared public keys associated the domain
+        name of the TXT records and "sig-X=..." record tags (where X identifies
+        the specific key) and ... is an EdDSA or ECDSA signature over all
+        records not starting with "sig-".</t>
+		</list>
+		</t>
+	</section>
 
 
     <section title="Changelog [RFC Editor: please remove]">
