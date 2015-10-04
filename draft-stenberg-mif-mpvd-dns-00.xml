@@ -222,18 +222,28 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 
     <section title="Security Considerations">
 
-      <t>TBD</t>
+		<t>Security properties of NDP and DHCPv6 are inherited for the
+		respective extensions, therefore relevant sections of <xref
+		target="RFC4861" /> and <xref target="RFC3315" /> should be consulted.
+		In any case, signalling addresses and prefixes to be special-purpose
+		does not have a significant impact on the underlying assignment and
+		delegation mechanisms.</t>
 
     </section>
 
     <section anchor="iana" title="IANA Considerations">
 
-      <t>This document defines a new bit for the NDP Prefix Information Option
-      (the S-bit). There is currently no registration procedure for such
-      bits, so IANA should not take any action on this matter.</t>
+		<t>IANA is requested to setup a _pvd DNS TXT Record Tag registry
+		with a default policy of <xref target="RFC5226">RFC Required</xref>
+		and the following initial contents (see <xref target="recordtag" />):
+		</t>
+
+		<t>This document defines a new bit for the NDP Prefix Information
+		Option (the S-bit). There is currently no registration procedure for
+		such bits, so IANA should not take any action on this matter.</t>
       
-      <t>IANA should assign a DHCPv6 option code OPTION_SPECIAL_PURPOSE to the
-      DHCPv6 option code space defined in <xref target="RFC3315" />.</t>
+		<t>IANA should assign a DHCPv6 option code OPTION_SPECIAL_PURPOSE to
+		the DHCPv6 option code space defined in <xref target="RFC3315" />.</t>
 
     </section>
 
@@ -248,6 +258,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       <?rfc include="reference.RFC.3633.xml"?>
       <?rfc include="reference.RFC.3646.xml"?>
       <?rfc include="reference.RFC.6106.xml"?>
+      <?rfc include="reference.RFC.5226.xml"?>
     </references>
     <!--<references title="Informative references">
       
