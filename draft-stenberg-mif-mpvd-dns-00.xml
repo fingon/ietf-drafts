@@ -109,15 +109,18 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 		only. In the presence of legacy hosts it must be ensured however
 		that these prefixes are not mistakenly used as source addresses for
 		other destinations. This section therefore defines optional extensions
-		to NDP, DHCPv6 and DHCPv6-PD to indicate this state.</t>
+		to <xref target="RFC4861">NDP</xref>, <xref target="RFC3315">DHCPv6
+		</xref> and <xref target="RFC3633">DHCPv6-PD</xref> to indicate this
+		state.</t>
 		
 		<section anchor="sp-slaac"
 		  title="Extensions to Stateless Address Autoconfiguration">
-			<t>NDP defines the Prefix Information to announce prefixes for
-			stateless address configuration. The "A-bit" is set, whenever
-			hosts may autonomously derive addresses from a given prefix.
-			For special-purpose prefixes this document defines the first
-			bit of the Reserved1-field as the "S-Bit".</t>
+			<t><xref target="RFC4861">NDP</xref> defines the Prefix
+			Information option to announce prefixes for stateless address
+			configuration. The "A-bit" is set, whenever hosts may autonomously
+			derive addresses from a given prefix. For special-purpose prefixes
+			this document defines the first bit of the Reserved1-field as the
+			"S-Bit".</t>
 			
 			<t>The following additional requirements apply to hosts intending
 			to support global special-purpose IPv6 prefixes:
@@ -152,15 +155,17 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 				
 				<t>A router announcing one or more Prefix Information options
 				with the S-Bit set MUST also announce one or more recursive
-				DNS servers using a Recursive DNS Server Option. If none of
-				the Prefix Information Options it announces have the A-Bit
-				set then at least one of these recursive DNS servers MUST be
-				reachable using a link-local address.</t>
+				DNS servers using a <xref target="RFC6106">Recursive DNS Server
+				Option</xref>. If none of the Prefix Information Options it
+				announces have the A-Bit set then at least one of these
+				recursive DNS servers MUST be reachable using a link-local
+				address.</t>
 			</list>
 			</t>
 		</section>
 		<section anchor="sp-dhcpv6" title="Extensions to DHCPv6">
-		  <t>Using DHCPv6 and DHCPv6-PD servers can actively decide which
+		  <t>Using <xref target="RFC3315">DHCPv6</xref> and <xref
+		  target="RFC3633">DHCPv6-PD</xref> servers can actively decide which
 		  addresses or prefixes are assigned to clients and requesting routers,
 		  however a mechanism is needed to distinguish PVD-aware devices and
 		  in the same sense PVD-aware devices need to be able to detect which
@@ -186,7 +191,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 		  	requesting router, it MAY however subdelegate prefixes or assign
 		  	addresses from special-purpose prefixes to clients without doing
 		  	so as long as the requirements in the following paragraph are
-		  	followed.</t> 
+		  	honored.</t> 
 		  </list>
 		  </t>
 		  
@@ -201,6 +206,14 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 		  	It MUST NOT assign or delegate such an address or prefix to a
 		  	client or requesting router not including the option code of
 		  	OPTION_SPECIAL_PURPOSE inside an OPTION_ORO option.</t>
+		  	
+		  	<t>A router announcing one or more addresses or prefixes
+			with an embedded OPTION_SPECIAL_PURPOSE option MUST also announce
+			one or more recursive DNS servers using a <xref target="RFC3646">
+			OPTION_DNS_SERVERS option</xref>. If all of the addresses in a
+			DHCPv6 reply carry the embedded OPTION_SPECIAL_PURPOSE option
+			then at least one of the announced recursive DNS servers MUST
+			be reachable using a link-local address.</t>
 		  </list>
 		  </t>
 		</section>
@@ -215,7 +228,12 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 
     <section anchor="iana" title="IANA Considerations">
 
-      <t>TBD</t>
+      <t>This document defines a new bit for the NDP Prefix Information Option
+      (the S-bit). There is currently no registration procedure for such
+      bits, so IANA should not take any action on this matter.</t>
+      
+      <t>IANA should assign a DHCPv6 option code OPTION_SPECIAL_PURPOSE to the
+      DHCPv6 option code space defined in <xref target="RFC3315" />.</t>
 
     </section>
 
@@ -225,10 +243,15 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6763.xml"?>
       <?rfc include="reference.RFC.2308.xml"?>
-    </references>
-    <references title="Informative references">
+      <?rfc include="reference.RFC.4861.xml"?>
       <?rfc include="reference.RFC.3315.xml"?>
+      <?rfc include="reference.RFC.3633.xml"?>
+      <?rfc include="reference.RFC.3646.xml"?>
+      <?rfc include="reference.RFC.6106.xml"?>
     </references>
+    <!--<references title="Informative references">
+      
+    </references>-->
 
     <section title="This solution compared to doing this in DHCPv6/NDP [RFC
                     Editor: please remove]">
@@ -305,7 +328,8 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
         mechanism as well, e.g., pre-shared public keys associated the domain
         name of the TXT records and "sig-X=..." record tags (where X identifies
         the specific key) and ... is an EdDSA or ECDSA signature over all
-        records not starting with "sig-".</t>
+        records not starting with "sig-". Care would need to be taken wrt. TTL
+        and negative caching though.</t>
 		</list>
 		</t>
 	</section>
