@@ -69,6 +69,10 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 
       <texttable suppress-title="true" style="none" align="left">
 	<ttcol width="25%" /><ttcol width="75%" />
+	
+	<c>PVD</c>
+	<c>a unique provisioning domain, usually with a set of provisioning
+	domain information</c>
 
 	<c>special-purpose IPv6 prefix</c>
 	<c>a global IPv6 source prefix that cannot be used to reach the public
@@ -99,7 +103,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 
     </section>
     
-    <section anchor="recordtags" title="_pvd TXT Record Tags">
+    <section anchor="tags" title="_pvd TXT Record Tags">
     	<t>Using the Domain Name Systems PVDs have an implicit unique
     	identifier in the form of the FQDN to which the PTR records point to,
     	however that alone would require either a preliminary exchange of
@@ -108,10 +112,14 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     	TXT record tags to be able to announce a generic set of attributes
     	for any given PVD.</t>
     	
-    	<section title="Reachable Services">
+    	<section title="Reachable Services" anchor="tags-services">
     		<t>The following set of record tags can be used to specify the set
     		of services for which the respecitve PVD should be used. If present
-    		they MUST be honored by the client.</t>
+    		they MUST be honored by the client, i.e., if the PVD is marked as
+    		not usable for internet access it MUST NOT be used for internet
+    		access, if the usability is limited to a certain set of domain or
+    		address prefixes, then a different PVD MUST be used for other
+    		destinations.</t>
     		<texttable>
     			<ttcol>Type</ttcol>
     			<ttcol>Description</ttcol>
@@ -136,10 +144,11 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     		</texttable>
     	</section>
     	
-    	<section title="DNS Configuration">
+    	<section title="DNS Configuration" anchor="tags-dns">
     		<t>The following set of record tags can be used to specify the DNS
-    		configuration for the respecitve PVD. If present, they MUST be
-    		honored by the client.</t>
+    		configuration for the respective PVD. If present, they MUST be
+    		honored and used by the client whenever it wishes to access the
+    		a ressource in the PVD.</t>
     		<texttable>
     			<ttcol>Type</ttcol>
     			<ttcol>Description</ttcol>
@@ -156,28 +165,32 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     		</texttable>
     	</section>
     	
-    	<section title="Usage Limitations">
+    	<section title="Connectivity Characteristics" anchor="tags-conn">
     		<t>The following set of record tags can be used to signal certain
-    		usage limitations or preconditions.</t>
+    		characteristics of the connection towards the PVD.</t>
     		<texttable>
     			<ttcol>Type</ttcol>
     			<ttcol>Description</ttcol>
-    			<ttcol>Value</ttcol>
+    			<ttcol width="20%">Value</ttcol>
     			<ttcol width="20%">Example</ttcol>
     			<c>bw</c>
     			<c>Maximum achievable bandwidth</c>
-    			<c>1 symmetrical or 2 comma-separated ingress, egress values in kbit/s</c>
-    			<c>bw=10000,1000</c>
+    			<c>1 symmetrical or 2 comma-sep. ingress, egress values in kbit/s</c>
+    			<c>bw=5000 or bw=1000,100</c>
     			<c>lt</c>
     			<c>Minimum achievable latency</c>
-				<c>1 symmetrical or 2 comma-separated ingress, egress values in msec</c>
-    			<c>lt=20</c>
+				<c>1 symmetrical or 2 comma-sep. ingress, egress values in msec</c>
+    			<c>lt=20 ot lt=20,100</c>
     			<c>rl</c>
     			<c>Maximum achievable reliability</c>
-				<c>1 symmetrical or 2 comma-separated ingress, egress values in 1/1000</c>
-    			<c>rl=1000</c>
+				<c>1 symmetrical or 2 comma-sep. ingress, egress values in 1/1000</c>
+    			<c>rl=1000 or rl=900,800</c>
+    			<c>tm</c>
+    			<c>Traffic metered (cut-off / limited over threshold)</c>
+    			<c>(none) or traffic threshold in kByte</c>
+    			<c>tm or tm=1000000</c>
     			<c>cp</c>
-    			<c>Captive portal in place</c>
+    			<c>Captive portal</c>
     			<c>(none)</c>
     			<c>cp</c>
     			<c>nat</c>
@@ -187,15 +200,14 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     		</texttable>
     	</section>
     	
-    	<section title="Private Extensions">
+    	<section title="Private Extensions" anchor="tags-private">
     		<t>Record tags starting with "x-" are reserved for private use and
-    		can be utilized to provide e.g. provide vendor-, user- or
-    		enterprise-specific information. It is RECOMMENDED to use one of
-    		the following patterns to avoid conflicts: "x-FQDN-KEY[=VALUE]" or
-    		"x-PEN-KEY[=VALUE]" where FQDN is a fully qualified domain name
-    		or PEN is a private enterprise number under control of the author
-    		of the extension and KEY and VALUE are the key and value of the
-    		information to be published.</t>
+    		can be utilized to provide vendor-, user- or enterprise-specific
+    		information. It is RECOMMENDED to use one of the patterns
+    		"x-FQDN-KEY[=VALUE]" or "x-PEN-KEY[=VALUE]" where FQDN is a fully
+    		qualified domain name or PEN is a <xref target="PEN">private
+    		enterprise number</xref> under control of the author of the
+    		extension to avoid collissions.</t>
     	</section>
     
     </section>
@@ -352,9 +364,12 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     <section anchor="iana" title="IANA Considerations">
 
 		<t>IANA is requested to setup a _pvd DNS TXT Record Tag registry
-		with a default policy of <xref target="RFC5226">RFC Required</xref>
-		and the following initial contents (see <xref target="recordtags" />):
-		</t>
+		with the initial types: <xref target="tags-services">s, z, 6, 4</xref>;
+		<xref target="tags-dns">r, d</xref>; <xref target="tags-conn">bw, lt,
+		rl, tm, cp, nat</xref> and a prefix <xref target="tags-private">x-
+		</xref> for <xref target="RFC5226">Private Use</xref>. The policy
+		for further additions to the registry is requested to be <xref
+		target="RFC5226">RFC Required</xref>.</t>
 
 		<t>This document defines a new bit for the NDP Prefix Information
 		Option (the S-bit). There is currently no registration procedure for
@@ -378,9 +393,15 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       <?rfc include="reference.RFC.6106.xml"?>
       <?rfc include="reference.RFC.5226.xml"?>
     </references>
-    <!--<references title="Informative references">
-      
-    </references>-->
+    <references title="Informative references">
+		<reference anchor="PEN" target="https://www.iana.org/assignments/enterprise-numbers">
+		<front>
+			<title>Private Enterprise Numbers</title>
+			<author><organization>IANA</organization></author>
+			<date />
+		</front>
+		</reference>
+    </references>
 
     <section title="This solution compared to doing this in DHCPv6/NDP [RFC
                     Editor: please remove]">
