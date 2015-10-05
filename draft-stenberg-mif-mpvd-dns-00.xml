@@ -58,7 +58,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 	domain information for IPv6 and IPv4 addresses by using reverse DNS
 	resolution. In addition it specifies backwards-compatible extensions to
 	IPv6 host configuration to support special-purpose global IPv6 prefixes
-	and routers which can only be used to access certain isolated services.</t>
+	which can only be used to access certain isolated services.</t>
     </abstract>
   </front>
   <middle>
@@ -106,11 +106,11 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     <section anchor="tags" title="_pvd TXT Record Tags">
     	<t>Using the Domain Name Systems PVDs have an implicit unique
     	identifier in the form of the FQDN to which the PTR records point to,
-    	however that alone would require either a preliminary exchange of
-    	said identifiers or an external directory in order to know the specific
-    	charateristics of each PVD. This document therfore defines a set of
-    	TXT record tags to be able to announce a generic set of attributes
-    	for any given PVD.</t>
+    	however using that alone would require either a preliminary exchange of
+    	these FQDNs or an external directory to get to know the specific
+    	charateristics of each PVD. This document therefore defines a set of
+    	generic TXT record tags to announce a set of attributes usable without
+    	knowledge of the specific PVD.</t>
     	
     	<section title="Reachable Services" anchor="tags-services">
     		<t>The following set of record tags can be used to specify the set
@@ -148,7 +148,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     		<t>The following set of record tags can be used to specify the DNS
     		configuration for the respective PVD. If present, they MUST be
     		honored and used by the client whenever it wishes to access the
-    		a ressource in the PVD.</t>
+    		a ressource of the PVD.</t>
     		<texttable>
     			<ttcol>Type</ttcol>
     			<ttcol>Description</ttcol>
@@ -207,7 +207,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     		"x-FQDN-KEY[=VALUE]" or "x-PEN-KEY[=VALUE]" where FQDN is a fully
     		qualified domain name or PEN is a <xref target="PEN">private
     		enterprise number</xref> under control of the author of the
-    		extension to avoid collissions.</t>
+    		extension to avoid collisions.</t>
     	</section>
     
     </section>
