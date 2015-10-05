@@ -99,8 +99,105 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 
     </section>
     
-    <section anchor="recordtag" title="_pvd Record Tags">
-    	<t>TODO</t>
+    <section anchor="recordtags" title="_pvd TXT Record Tags">
+    	<t>Using the Domain Name Systems PVDs have an implicit unique
+    	identifier in the form of the FQDN to which the PTR records point to,
+    	however that alone would require either a preliminary exchange of
+    	said identifiers or an external directory in order to know the specific
+    	charateristics of each PVD. This document therfore defines a set of
+    	TXT record tags to be able to announce a generic set of attributes
+    	for any given PVD.</t>
+    	
+    	<section title="Reachable Services">
+    		<t>The following set of record tags can be used to specify the set
+    		of services for which the respecitve PVD should be used. If present
+    		they MUST be honored by the client.</t>
+    		<texttable>
+    			<ttcol>Type</ttcol>
+    			<ttcol>Description</ttcol>
+    			<ttcol>Value</ttcol>
+    			<ttcol width="20%">Example</ttcol>
+    			<c>s</c>
+    			<c>Internet inaccessible</c>
+    			<c>(none)</c>
+    			<c>s</c>
+    			<c>z</c>
+    			<c>DNS zones accessible</c>
+    			<c>comma-separated list of DNS zone</c>
+    			<c>z=foo.com,sub.bar.com</c>
+    			<c>6</c>
+    			<c>IPv6-prefixes accessible</c>
+    			<c>comma-separated list of IPv6 prefixes</c>
+    			<c>6=2001:db8:a::/48,2001:db8:b:c::/64</c>
+    			<c>4</c>
+    			<c>IPv4-prefixes accessible</c>
+    			<c>comma-separated list of IPv4 prefixes in CIDR</c>
+    			<c>4=1.2.3.0/24,2.3.0.0/16</c>
+    		</texttable>
+    	</section>
+    	
+    	<section title="DNS Configuration">
+    		<t>The following set of record tags can be used to specify the DNS
+    		configuration for the respecitve PVD. If present, they MUST be
+    		honored by the client.</t>
+    		<texttable>
+    			<ttcol>Type</ttcol>
+    			<ttcol>Description</ttcol>
+    			<ttcol>Value</ttcol>
+    			<ttcol width="20%">Example</ttcol>
+    			<c>r</c>
+    			<c>Recursive DNS server</c>
+    			<c>comma-separated list of IPv6 and IPv4 addresses</c>
+    			<c>r=2001:db8::1,192.0.2.2</c>
+    			<c>d</c>
+    			<c>DNS search domains</c>
+    			<c>comma-separated list of search domains</c>
+    			<c>d=foo.com,sub.bar.com</c>
+    		</texttable>
+    	</section>
+    	
+    	<section title="Usage Limitations">
+    		<t>The following set of record tags can be used to signal certain
+    		usage limitations or preconditions.</t>
+    		<texttable>
+    			<ttcol>Type</ttcol>
+    			<ttcol>Description</ttcol>
+    			<ttcol>Value</ttcol>
+    			<ttcol width="20%">Example</ttcol>
+    			<c>bw</c>
+    			<c>Maximum achievable bandwidth</c>
+    			<c>1 symmetrical or 2 comma-separated ingress, egress values in kbit/s</c>
+    			<c>bw=10000,1000</c>
+    			<c>lt</c>
+    			<c>Minimum achievable latency</c>
+				<c>1 symmetrical or 2 comma-separated ingress, egress values in msec</c>
+    			<c>lt=20</c>
+    			<c>rl</c>
+    			<c>Maximum achievable reliability</c>
+				<c>1 symmetrical or 2 comma-separated ingress, egress values in 1/1000</c>
+    			<c>rl=1000</c>
+    			<c>cp</c>
+    			<c>Captive portal in place</c>
+    			<c>(none)</c>
+    			<c>cp</c>
+    			<c>nat</c>
+    			<c>IPv4 NAT in place</c>
+    			<c>(none)</c>
+    			<c>nat</c>
+    		</texttable>
+    	</section>
+    	
+    	<section title="Private Extensions">
+    		<t>Record tags starting with "x-" are reserved for private use and
+    		can be utilized to provide e.g. provide vendor-, user- or
+    		enterprise-specific information. It is RECOMMENDED to use one of
+    		the following patterns to avoid conflicts: "x-FQDN-KEY[=VALUE]" or
+    		"x-PEN-KEY[=VALUE]" where FQDN is a fully qualified domain name
+    		or PEN is a private enterprise number under control of the author
+    		of the extension and KEY and VALUE are the key and value of the
+    		information to be published.</t>
+    	</section>
+    
     </section>
     
     <section anchor="sp" title="Special-purpose IPv6 prefixes">
@@ -121,6 +218,17 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 			derive addresses from a given prefix. For special-purpose prefixes
 			this document defines the first bit of the Reserved1-field as the
 			"S-Bit".</t>
+			
+		  <figure>
+            <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|     Type      |    Length     | Prefix Length |L|A|S|Reserved1|
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                              ...                              |
+            </artwork>
+          </figure>
 			
 			<t>The following additional requirements apply to hosts intending
 			to support global special-purpose IPv6 prefixes:
@@ -172,6 +280,16 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 		  prefixes and addresses are special-purpose. Therefore, a zero-length
 		  DHCPv6 option OPTION_SPECIAL_PURPOSE is defined to be added as a
 		  suboption to OPTION_IAADDR and OPTION_IAPREFIX options.</t>
+		  
+		  <figure>
+            <artwork>
+0                   1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+| OPTION_SPECIAL_PURPOSE (TBD)  |               0               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            </artwork>
+          </figure>
 		  
 		  <t>The following additional requirements apply to clients and
 		  requesting routers intending to support global special-purpose IPv6
@@ -235,7 +353,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 
 		<t>IANA is requested to setup a _pvd DNS TXT Record Tag registry
 		with a default policy of <xref target="RFC5226">RFC Required</xref>
-		and the following initial contents (see <xref target="recordtag" />):
+		and the following initial contents (see <xref target="recordtags" />):
 		</t>
 
 		<t>This document defines a new bit for the NDP Prefix Information
