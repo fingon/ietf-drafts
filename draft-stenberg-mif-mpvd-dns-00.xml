@@ -175,19 +175,22 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     			<ttcol width="20%">Example</ttcol>
     			<c>bw</c>
     			<c>Maximum achievable bandwidth</c>
-    			<c>1 symmetrical or 2 comma-sep. ingress, egress values in kbit/s</c>
+                        
+    			<c>1 symmetrical or 2 comma-separated ingress,
+                        egress values in kilobits per second</c>
+                        
     			<c>bw=5000 or bw=1000,100</c>
     			<c>lt</c>
     			<c>Minimum achievable latency</c>
-				<c>1 symmetrical or 2 comma-sep. ingress, egress values in msec</c>
+				<c>1 symmetrical or 2 comma-separated ingress, egress values in milliseconds</c>
     			<c>lt=20 ot lt=20,100</c>
     			<c>rl</c>
     			<c>Maximum achievable reliability</c>
-				<c>1 symmetrical or 2 comma-sep. ingress, egress values in 1/1000</c>
+				<c>1 symmetrical or 2 comma-separated ingress, egress values in 1/1000</c>
     			<c>rl=1000 or rl=900,800</c>
     			<c>tm</c>
     			<c>Traffic metered (cut-off / limited over threshold)</c>
-    			<c>(none) or traffic threshold in kByte</c>
+    			<c>(none) or traffic threshold in kilobytes</c>
     			<c>tm or tm=1000000</c>
     			<c>cp</c>
     			<c>Captive portal</c>
