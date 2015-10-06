@@ -54,22 +54,25 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     <keyword>PVD</keyword>
     <keyword>DNS</keyword>
     <abstract>
-	<t>This document describes a mechanism to transmit and secure provisioning
-	domain information for IPv6 and IPv4 addresses by using reverse DNS
-	resolution. In addition it specifies backwards-compatible extensions to
-	IPv6 host configuration to support special-purpose global IPv6 prefixes
-	which can only be used to access certain isolated services.</t>
+
+      <t>This document describes a mechanism to transmit and secure
+      provisioning domain information for IPv6 and IPv4 addresses by using
+      reverse DNS resolution. In addition it specifies backwards-compatible
+      extensions to IPv6 host configuration to support special-purpose
+      global IPv6 prefixes which can only be used to access certain
+      isolated services.</t>
+
     </abstract>
   </front>
   <middle>
-    <section title="Introduction"> 
+    <section title="Introduction">
     </section>
 
     <section title="Terminology">
 
       <texttable suppress-title="true" style="none" align="left">
 	<ttcol width="25%" /><ttcol width="75%" />
-	
+
 	<c>PVD</c>
 	<c>a unique provisioning domain, usually with a set of provisioning
 	domain information</c>
@@ -102,284 +105,288 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       <t>TBD</t>
 
     </section>
-    
+
     <section anchor="tags" title="_pvd TXT Record Tags">
-    	<t>Using the Domain Name Systems PVDs have an implicit unique
-    	identifier in the form of the FQDN to which the PTR records point to,
-    	however using that alone would require either a preliminary exchange of
-    	these FQDNs or an external directory to get to know the specific
-    	characteristics of each PVD. This document therefore defines a set of
-    	generic TXT record tags to announce a set of attributes usable without
-    	knowledge of the specific PVD.</t>
-    	
-    	<section title="Reachable Services" anchor="tags-services">
-    		<t>The following set of record tags can be used to specify the set
-    		of services for which the respective PVD should be used. If present
-    		they MUST be honored by the client, i.e., if the PVD is marked as
-    		not usable for internet access it MUST NOT be used for internet
-    		access, if the usability is limited to a certain set of domain or
-    		address prefixes, then a different PVD MUST be used for other
-    		destinations.</t>
-    		<texttable>
-    			<ttcol>Type</ttcol>
-    			<ttcol>Description</ttcol>
-    			<ttcol>Value</ttcol>
-    			<ttcol width="20%">Example</ttcol>
-    			<c>s</c>
-    			<c>Internet inaccessible</c>
-    			<c>(none)</c>
-    			<c>s</c>
-    			<c>z</c>
-    			<c>DNS zones accessible</c>
-    			<c>comma-separated list of DNS zone</c>
-    			<c>z=foo.com,sub.bar.com</c>
-    			<c>6</c>
-    			<c>IPv6-prefixes accessible</c>
-    			<c>comma-separated list of IPv6 prefixes</c>
-    			<c>6=2001:db8:a::/48,2001:db8:b:c::/64</c>
-    			<c>4</c>
-    			<c>IPv4-prefixes accessible</c>
-    			<c>comma-separated list of IPv4 prefixes in CIDR</c>
-    			<c>4=1.2.3.0/24,2.3.0.0/16</c>
-    		</texttable>
-    	</section>
-    	
-    	<section title="DNS Configuration" anchor="tags-dns">
-    		<t>The following set of record tags can be used to specify the DNS
-    		configuration for the respective PVD. If present, they MUST be
-    		honored and used by the client whenever it wishes to access the
-    		a resource of the PVD.</t>
-    		<texttable>
-    			<ttcol>Type</ttcol>
-    			<ttcol>Description</ttcol>
-    			<ttcol>Value</ttcol>
-    			<ttcol width="20%">Example</ttcol>
-    			<c>r</c>
-    			<c>Recursive DNS server</c>
-    			<c>comma-separated list of IPv6 and IPv4 addresses</c>
-    			<c>r=2001:db8::1,192.0.2.2</c>
-    			<c>d</c>
-    			<c>DNS search domains</c>
-    			<c>comma-separated list of search domains</c>
-    			<c>d=foo.com,sub.bar.com</c>
-    		</texttable>
-    	</section>
-    	
-    	<section title="Connectivity Characteristics" anchor="tags-conn">
-    		<t>The following set of record tags can be used to signal certain
-    		characteristics of the connection towards the PVD.</t>
-    		<texttable>
-    			<ttcol>Type</ttcol>
-    			<ttcol>Description</ttcol>
-    			<ttcol width="20%">Value</ttcol>
-    			<ttcol width="20%">Example</ttcol>
-    			<c>bw</c>
-    			<c>Maximum achievable bandwidth</c>
-                        
-    			<c>1 symmetrical or 2 comma-separated ingress,
-                        egress values in kilobits per second</c>
-                        
-    			<c>bw=5000 or bw=1000,100</c>
-    			<c>lt</c>
-    			<c>Minimum achievable latency</c>
-				<c>1 symmetrical or 2 comma-separated ingress, egress values in milliseconds</c>
-    			<c>lt=20 ot lt=20,100</c>
-    			<c>rl</c>
-    			<c>Maximum achievable reliability</c>
-				<c>1 symmetrical or 2 comma-separated ingress, egress values in 1/1000</c>
-    			<c>rl=1000 or rl=900,800</c>
-    			<c>tm</c>
-    			<c>Traffic metered (cut-off / limited over threshold)</c>
-    			<c>(none) or traffic threshold in kilobytes</c>
-    			<c>tm or tm=1000000</c>
-    			<c>cp</c>
-    			<c>Captive portal</c>
-    			<c>(none)</c>
-    			<c>cp</c>
-    			<c>nat</c>
-    			<c>IPv4 NAT in place</c>
-    			<c>(none)</c>
-    			<c>nat</c>
-    		</texttable>
-    	</section>
-    	
-    	<section title="Private Extensions" anchor="tags-private">
-    		<t>Record tags starting with "x-" are reserved for private use and
-    		can be utilized to provide vendor-, user- or enterprise-specific
-    		information. It is RECOMMENDED to use one of the patterns
-    		"x-FQDN-KEY[=VALUE]" or "x-PEN-KEY[=VALUE]" where FQDN is a fully
-    		qualified domain name or PEN is a <xref target="PEN">private
-    		enterprise number</xref> under control of the author of the
-    		extension to avoid collisions.</t>
-    	</section>
-    
+      <t>Using the Domain Name Systems PVDs have an implicit unique
+      identifier in the form of the FQDN to which the PTR records point to,
+      however using that alone would require either a preliminary exchange of
+      these FQDNs or an external directory to get to know the specific
+      characteristics of each PVD. This document therefore defines a set of
+      generic TXT record tags to announce a set of attributes usable without
+      knowledge of the specific PVD.</t>
+
+      <section title="Reachable Services" anchor="tags-services">
+    	<t>The following set of record tags can be used to specify the set
+    	of services for which the respective PVD should be used. If present
+    	they MUST be honored by the client, i.e., if the PVD is marked as
+    	not usable for internet access it MUST NOT be used for internet
+    	access, if the usability is limited to a certain set of domain or
+    	address prefixes, then a different PVD MUST be used for other
+    	destinations.</t>
+    	<texttable>
+    	  <ttcol>Type</ttcol>
+    	  <ttcol>Description</ttcol>
+    	  <ttcol>Value</ttcol>
+    	  <ttcol width="20%">Example</ttcol>
+    	  <c>s</c>
+    	  <c>Internet inaccessible</c>
+    	  <c>(none)</c>
+    	  <c>s</c>
+    	  <c>z</c>
+    	  <c>DNS zones accessible</c>
+    	  <c>comma-separated list of DNS zone</c>
+    	  <c>z=foo.com,sub.bar.com</c>
+    	  <c>6</c>
+    	  <c>IPv6-prefixes accessible</c>
+    	  <c>comma-separated list of IPv6 prefixes</c>
+    	  <c>6=2001:db8:a::/48,2001:db8:b:c::/64</c>
+    	  <c>4</c>
+    	  <c>IPv4-prefixes accessible</c>
+    	  <c>comma-separated list of IPv4 prefixes in CIDR</c>
+    	  <c>4=1.2.3.0/24,2.3.0.0/16</c>
+    	</texttable>
+      </section>
+
+      <section title="DNS Configuration" anchor="tags-dns">
+    	<t>The following set of record tags can be used to specify the DNS
+    	configuration for the respective PVD. If present, they MUST be
+    	honored and used by the client whenever it wishes to access the
+    	a resource of the PVD.</t>
+    	<texttable>
+    	  <ttcol>Type</ttcol>
+    	  <ttcol>Description</ttcol>
+    	  <ttcol>Value</ttcol>
+    	  <ttcol width="20%">Example</ttcol>
+    	  <c>r</c>
+    	  <c>Recursive DNS server</c>
+    	  <c>comma-separated list of IPv6 and IPv4 addresses</c>
+    	  <c>r=2001:db8::1,192.0.2.2</c>
+    	  <c>d</c>
+    	  <c>DNS search domains</c>
+    	  <c>comma-separated list of search domains</c>
+    	  <c>d=foo.com,sub.bar.com</c>
+    	</texttable>
+      </section>
+
+      <section title="Connectivity Characteristics" anchor="tags-conn">
+    	<t>The following set of record tags can be used to signal certain
+    	characteristics of the connection towards the PVD.</t>
+    	<texttable>
+    	  <ttcol>Type</ttcol>
+    	  <ttcol>Description</ttcol>
+    	  <ttcol width="20%">Value</ttcol>
+    	  <ttcol width="20%">Example</ttcol>
+    	  <c>bw</c>
+    	  <c>Maximum achievable bandwidth</c>
+
+    	  <c>1 symmetrical or 2 comma-separated ingress,
+          egress values in kilobits per second</c>
+
+    	  <c>bw=5000 or bw=1000,100</c>
+    	  <c>lt</c>
+    	  <c>Minimum achievable latency</c>
+	  <c>1 symmetrical or 2 comma-separated ingress, egress values in
+          milliseconds</c>
+
+    	  <c>lt=20 ot lt=20,100</c>
+    	  <c>rl</c>
+    	  <c>Maximum achievable reliability</c>
+	  <c>1 symmetrical or 2 comma-separated ingress, egress values in
+          1/1000</c>
+
+    	  <c>rl=1000 or rl=900,800</c>
+    	  <c>tm</c>
+    	  <c>Traffic metered (cut-off / limited over threshold)</c>
+    	  <c>(none) or traffic threshold in kilobytes</c>
+    	  <c>tm or tm=1000000</c>
+    	  <c>cp</c>
+    	  <c>Captive portal</c>
+    	  <c>(none)</c>
+    	  <c>cp</c>
+    	  <c>nat</c>
+    	  <c>IPv4 NAT in place</c>
+    	  <c>(none)</c>
+    	  <c>nat</c>
+    	</texttable>
+      </section>
+
+      <section title="Private Extensions" anchor="tags-private">
+    	<t>Record tags starting with "x-" are reserved for private use and
+    	can be utilized to provide vendor-, user- or enterprise-specific
+    	information. It is RECOMMENDED to use one of the patterns
+    	"x-FQDN-KEY[=VALUE]" or "x-PEN-KEY[=VALUE]" where FQDN is a fully
+    	qualified domain name or PEN is a <xref target="PEN">private
+    	enterprise number</xref> under control of the author of the
+    	extension to avoid collisions.</t>
+      </section>
+
     </section>
-    
+
     <section anchor="sp" title="Special-purpose IPv6 prefixes">
-		<t>A service provider might wish to assign certain global unicast
-		address prefixes which can be used to reach a limited set of services
-		only. In the presence of legacy hosts it must be ensured however
-		that these prefixes are not mistakenly used as source addresses for
-		other destinations. This section therefore defines optional extensions
-		to <xref target="RFC4861">NDP</xref>, <xref target="RFC3315">DHCPv6
-		</xref> and <xref target="RFC3633">DHCPv6-PD</xref> to indicate this
-		state.</t>
-		
-		<section anchor="sp-slaac"
-		  title="Extensions to Stateless Address Autoconfiguration">
-			<t><xref target="RFC4861">NDP</xref> defines the Prefix
-			Information option to announce prefixes for stateless address
-			configuration. The "A-bit" is set, whenever hosts may autonomously
-			derive addresses from a given prefix. For special-purpose prefixes
-			this document defines the first bit of the Reserved1-field as the
-			"S-Bit".</t>
-			
-		  <figure>
-            <artwork>
+      <t>A service provider might wish to assign certain global unicast
+      address prefixes which can be used to reach a limited set of services
+      only. In the presence of legacy hosts it must be ensured however
+      that these prefixes are not mistakenly used as source addresses for
+      other destinations. This section therefore defines optional extensions
+      to <xref target="RFC4861">NDP</xref>, <xref target="RFC3315">DHCPv6
+      </xref> and <xref target="RFC3633">DHCPv6-PD</xref> to indicate this
+      state.</t>
+
+      <section anchor="sp-slaac"
+	       title="Extensions to Stateless Address Autoconfiguration">
+	<t><xref target="RFC4861">NDP</xref> defines the Prefix
+	Information option to announce prefixes for stateless address
+	configuration. The "A-bit" is set, whenever hosts may autonomously
+	derive addresses from a given prefix. For special-purpose prefixes
+	this document defines the first bit of the Reserved1-field as the
+	"S-Bit".</t>
+
+	<figure>
+          <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |     Type      |    Length     | Prefix Length |L|A|S|Reserved1|
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                              ...                              |
-            </artwork>
-          </figure>
-			
-			<t>The following additional requirements apply to hosts intending
-			to support global special-purpose IPv6 prefixes:
-			<list>
-				<t>Upon reception of a Prefix Information Option with the
-				S-Bit set, it should behave as if the A-Bit was set, however
-				(unless the A-Bit was actually set by the sending router)
-				it MUST delay using any addresses derived from the prefix
-				until it has queried, retrieved and honored (see TODO)
-				at least all mandatory provisioning domain information related
-				to the given prefix.</t>
-				
-				<t>A host SHOULD NOT interpret the S-Bit being clear as an
-				indicator that no provisioning domain information is available
-				for a given prefix.</t>
-			</list>
-			</t>
-			
-			<t>
-			The following additional requirements apply to routers:
-			<list>
-				<t>A router MUST NOT set the A-Bit for global unicast
-				address prefixes which cannot be used to reach the public
-				IPv6 internet.</t>
-			
-				<t>A router SHOULD use the S-Bit to indicate that PVD-aware
-				hosts can statelessly assign themselves addresses from a given
-				prefix. It MAY use the S-Bit in addition to the A-Bit to
-				indicate that a prefix usable to reach the public IPv6
-				internet has additional (optional) provisioning domain
-				information.</t>
-				
-				<t>A router announcing one or more Prefix Information options
-				with the S-Bit set MUST also announce one or more recursive
-				DNS servers using a <xref target="RFC6106">Recursive DNS Server
-				Option</xref>. If none of the Prefix Information Options it
-				announces have the A-Bit set then at least one of these
-				recursive DNS servers MUST be reachable using a link-local
-				address.</t>
-			</list>
-			</t>
-		</section>
-		<section anchor="sp-dhcpv6" title="Extensions to DHCPv6">
-		  <t>Using <xref target="RFC3315">DHCPv6</xref> and <xref
-		  target="RFC3633">DHCPv6-PD</xref> servers can actively decide which
-		  addresses or prefixes are assigned to clients and requesting routers,
-		  however a mechanism is needed to distinguish PVD-aware devices and
-		  in the same sense PVD-aware devices need to be able to detect which
-		  prefixes and addresses are special-purpose. Therefore, a zero-length
-		  DHCPv6 option OPTION_SPECIAL_PURPOSE is defined to be added as a
-		  suboption to OPTION_IAADDR and OPTION_IAPREFIX options.</t>
-		  
-		  <figure>
-            <artwork>
+          </artwork>
+        </figure>
+
+	<t>The following additional requirements apply to hosts intending
+	to support global special-purpose IPv6 prefixes:
+	<list>
+	  <t>Upon reception of a Prefix Information Option with the
+	  S-Bit set, it should behave as if the A-Bit was set, however
+	  (unless the A-Bit was actually set by the sending router)
+	  it MUST delay using any addresses derived from the prefix
+	  until it has queried, retrieved and honored (see TODO)
+	  at least all mandatory provisioning domain information related
+	  to the given prefix.</t>
+
+	  <t>A host SHOULD NOT interpret the S-Bit being clear as an
+	  indicator that no provisioning domain information is available
+	  for a given prefix.</t>
+	</list>
+	</t>
+
+	<t>
+	  The following additional requirements apply to routers:
+	  <list>
+	    <t>A router MUST NOT set the A-Bit for global unicast
+	    address prefixes which cannot be used to reach the public
+	    IPv6 internet.</t>
+
+	    <t>A router SHOULD use the S-Bit to indicate that PVD-aware
+	    hosts can statelessly assign themselves addresses from a given
+	    prefix. It MAY use the S-Bit in addition to the A-Bit to
+	    indicate that a prefix usable to reach the public IPv6
+	    internet has additional (optional) provisioning domain
+	    information.</t>
+
+	    <t>A router announcing one or more Prefix Information options
+	    with the S-Bit set MUST also announce one or more recursive
+	    DNS servers using a <xref target="RFC6106">Recursive DNS Server
+	    Option</xref>. If none of the Prefix Information Options it
+	    announces have the A-Bit set then at least one of these
+	    recursive DNS servers MUST be reachable using a link-local
+	    address.</t>
+	  </list>
+	</t>
+      </section>
+      <section anchor="sp-dhcpv6" title="Extensions to DHCPv6">
+	<t>Using <xref target="RFC3315">DHCPv6</xref> and <xref
+	target="RFC3633">DHCPv6-PD</xref> servers can actively decide which
+	addresses or prefixes are assigned to clients and requesting routers,
+	however a mechanism is needed to distinguish PVD-aware devices and
+	in the same sense PVD-aware devices need to be able to detect which
+	prefixes and addresses are special-purpose. Therefore, a zero-length
+	DHCPv6 option OPTION_SPECIAL_PURPOSE is defined to be added as a
+	suboption to OPTION_IAADDR and OPTION_IAPREFIX options.</t>
+
+	<figure>
+          <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 | OPTION_SPECIAL_PURPOSE (TBD)  |               0               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-            </artwork>
-          </figure>
-		  
-		  <t>The following additional requirements apply to clients and
-		  requesting routers intending to support global special-purpose IPv6
-		  prefixes via DHCPv6:
-		  <list>
-		  	<t>A client or requesting router MUST include the option code
-		  	OPTION_SPECIAL_PURPOSE in an option OPTION_ORO in its SOLICIT and
-		  	REQUEST messages, whenever it wishes to accept special-purpose
-		  	prefixes in its identity associations.</t>
-		  	
-		  	<t>Upon reception of an OPTION_IAADDR or OPTION_IAPREFIX option
-		  	having an embedded OPTION_SPECIAL_PURPOSE option it MUST delay
-		  	using any addresses derived from the prefix as source address for
-		  	its own communication until it has queried, retrieved and
-		  	honored (see TODO) at least all mandatory provisioning domain
-		  	information related to the given prefix or address. If it is a
-		  	requesting router, it MAY however subdelegate prefixes or assign
-		  	addresses from special-purpose prefixes to clients without doing
-		  	so as long as the requirements in the following paragraph are
-		  	honored.</t> 
-		  </list>
-		  </t>
-		  
-		  <t>The following additional requirements apply to routers assigning
-		  addresses from or delegating (parts of) special-purpose prefixes
-		  using DHCPv6:
-		  <list>
-		  	<t>A router MUST include a zero-length suboption of type
-		  	OPTION_SPECIAL_PURPOSE in every OPTION_IAADDR and OPTION_IAPREFIX
-		  	option it assigns or delegates containing a global unicast address
-		  	or prefix which cannot be used to reach the public IPv6 internet.
-		  	It MUST NOT assign or delegate such an address or prefix to a
-		  	client or requesting router not including the option code of
-		  	OPTION_SPECIAL_PURPOSE inside an OPTION_ORO option.</t>
-		  	
-		  	<t>A router announcing one or more addresses or prefixes
-			with an embedded OPTION_SPECIAL_PURPOSE option MUST also announce
-			one or more recursive DNS servers using a <xref target="RFC3646">
-			OPTION_DNS_SERVERS option</xref>. If all of the addresses in a
-			DHCPv6 reply carry the embedded OPTION_SPECIAL_PURPOSE option
-			then at least one of the announced recursive DNS servers MUST
-			be reachable using a link-local address.</t>
-		  </list>
-		  </t>
-		</section>
+          </artwork>
+        </figure>
+
+	<t>The following additional requirements apply to clients and
+	requesting routers intending to support global special-purpose IPv6
+	prefixes via DHCPv6:
+	<list>
+	  <t>A client or requesting router MUST include the option code
+	  OPTION_SPECIAL_PURPOSE in an option OPTION_ORO in its SOLICIT and
+	  REQUEST messages, whenever it wishes to accept special-purpose
+	  prefixes in its identity associations.</t>
+
+	  <t>Upon reception of an OPTION_IAADDR or OPTION_IAPREFIX option
+	  having an embedded OPTION_SPECIAL_PURPOSE option it MUST delay
+	  using any addresses derived from the prefix as source address for
+	  its own communication until it has queried, retrieved and
+	  honored (see TODO) at least all mandatory provisioning domain
+	  information related to the given prefix or address. If it is a
+	  requesting router, it MAY however subdelegate prefixes or assign
+	  addresses from special-purpose prefixes to clients without doing
+	  so as long as the requirements in the following paragraph are
+	  honored.</t>
+	</list>
+	</t>
+
+	<t>The following additional requirements apply to routers assigning
+	addresses from or delegating (parts of) special-purpose prefixes
+	using DHCPv6:
+	<list>
+	  <t>A router MUST include a zero-length suboption of type
+	  OPTION_SPECIAL_PURPOSE in every OPTION_IAADDR and OPTION_IAPREFIX
+	  option it assigns or delegates containing a global unicast address
+	  or prefix which cannot be used to reach the public IPv6 internet.
+	  It MUST NOT assign or delegate such an address or prefix to a
+	  client or requesting router not including the option code of
+	  OPTION_SPECIAL_PURPOSE inside an OPTION_ORO option.</t>
+
+	  <t>A router announcing one or more addresses or prefixes
+	  with an embedded OPTION_SPECIAL_PURPOSE option MUST also announce
+	  one or more recursive DNS servers using a <xref target="RFC3646">
+	  OPTION_DNS_SERVERS option</xref>. If all of the addresses in a
+	  DHCPv6 reply carry the embedded OPTION_SPECIAL_PURPOSE option
+	  then at least one of the announced recursive DNS servers MUST
+	  be reachable using a link-local address.</t>
+	</list>
+	</t>
+      </section>
 
     </section>
 
     <section title="Security Considerations">
 
-		<t>Security properties of NDP and DHCPv6 are inherited for the
-		respective extensions, therefore relevant sections of <xref
-		target="RFC4861" /> and <xref target="RFC3315" /> should be consulted.
-		In any case, signaling addresses and prefixes to be special-purpose
-		does not have a significant impact on the underlying assignment and
-		delegation mechanisms.</t>
+      <t>Security properties of NDP and DHCPv6 are inherited for the
+      respective extensions, therefore relevant sections of <xref
+      target="RFC4861" /> and <xref target="RFC3315" /> should be consulted.
+      In any case, signaling addresses and prefixes to be special-purpose
+      does not have a significant impact on the underlying assignment and
+      delegation mechanisms.</t>
 
     </section>
 
     <section anchor="iana" title="IANA Considerations">
 
-		<t>IANA is requested to setup a _pvd DNS TXT Record Tag registry
-		with the initial types: <xref target="tags-services">s, z, 6, 4</xref>;
-		<xref target="tags-dns">r, d</xref>; <xref target="tags-conn">bw, lt,
-		rl, tm, cp, nat</xref> and a prefix <xref target="tags-private">x-
-		</xref> for <xref target="RFC5226">Private Use</xref>. The policy
-		for further additions to the registry is requested to be <xref
-		target="RFC5226">RFC Required</xref>.</t>
+      <t>IANA is requested to setup a _pvd DNS TXT Record Tag registry
+      with the initial types: <xref target="tags-services">s, z, 6, 4</xref>;
+      <xref target="tags-dns">r, d</xref>; <xref target="tags-conn">bw, lt,
+      rl, tm, cp, nat</xref> and a prefix <xref target="tags-private">x-
+      </xref> for <xref target="RFC5226">Private Use</xref>. The policy
+      for further additions to the registry is requested to be <xref
+      target="RFC5226">RFC Required</xref>.</t>
 
-		<t>This document defines a new bit for the NDP Prefix Information
-		Option (the S-bit). There is currently no registration procedure for
-		such bits, so IANA should not take any action on this matter.</t>
-      
-		<t>IANA should assign a DHCPv6 option code OPTION_SPECIAL_PURPOSE to
-		the DHCPv6 option code space defined in <xref target="RFC3315" />.</t>
+      <t>This document defines a new bit for the NDP Prefix Information
+      Option (the S-bit). There is currently no registration procedure for
+      such bits, so IANA should not take any action on this matter.</t>
+
+      <t>IANA should assign a DHCPv6 option code OPTION_SPECIAL_PURPOSE to
+      the DHCPv6 option code space defined in <xref target="RFC3315" />.</t>
 
     </section>
 
@@ -397,13 +404,13 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       <?rfc include="reference.RFC.5226.xml"?>
     </references>
     <references title="Informative references">
-		<reference anchor="PEN" target="https://www.iana.org/assignments/enterprise-numbers">
-		<front>
-			<title>Private Enterprise Numbers</title>
-			<author><organization>IANA</organization></author>
-			<date />
-		</front>
-		</reference>
+      <reference anchor="PEN" target="https://www.iana.org/assignments/enterprise-numbers">
+	<front>
+	  <title>Private Enterprise Numbers</title>
+	  <author><organization>IANA</organization></author>
+	  <date />
+	</front>
+      </reference>
     </references>
 
     <section title="This solution compared to doing this in DHCPv6/NDP [RFC
@@ -459,33 +466,35 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       </t>
 
     </section>
- 
+
     <section title="Discussion Points [RFC Editor: please remove]">
-    	<t>
+      <t>
     	<list style="symbols">
-    	<t>Besides special purpose prefixes, it might be desirable to
-    	have special purpose routers which only provide access to certain
-    	services but not the entire internet. These services could be
-    	announced by only using more-specific routes, however if the
-    	destination addresses are possibly changing, extension of the RIO
-    	mechanism might be needed. One possibility would be to add a new
-    	RIO S-flag with semantics like: "When the host receives
-    	a Route Information Option with the S-Bit set, it MUST ignore the value
-    	in the Prf-field (even if it is (10)) and instead assume the preference
-    	to have a value greater than (11). However, it MUST only use the route
-    	for packets having a source prefix announced by the same router.". This
-    	would allow selective routes (Prf=(10)) only applying to MIF-hosts.</t>
-    	
-        <t>DNSSEC delegation of reverse zones might be difficult in some cases.
-        It is debatable, whether we want a complementary in-band signing
-        mechanism as well, e.g., pre-shared public keys associated the domain
-        name of the TXT records and "sig-X=..." record tags (where X identifies
-        the specific key) and ... is an EdDSA or ECDSA signature over all
-        records not starting with "sig-". Care would need to be taken wrt. TTL
-        and negative caching though.</t>
-		</list>
-		</t>
-	</section>
+    	  <t>Besides special purpose prefixes, it might be desirable to
+    	  have special purpose routers which only provide access to certain
+    	  services but not the entire internet. These services could be
+    	  announced by only using more-specific routes, however if the
+    	  destination addresses are possibly changing, extension of the RIO
+    	  mechanism might be needed. One possibility would be to add a new
+    	  RIO S-flag with semantics like: "When the host receives a Route
+    	  Information Option with the S-Bit set, it MUST ignore the value
+    	  in the Prf-field (even if it is (10)) and instead assume the
+    	  preference to have a value greater than (11). However, it MUST
+    	  only use the route for packets having a source prefix announced
+    	  by the same router.". This would allow selective routes
+    	  (Prf=(10)) only applying to MIF-hosts.</t>
+
+          <t>DNSSEC delegation of reverse zones might be difficult in some
+          cases.  It is debatable, whether we want a complementary in-band
+          signing mechanism as well, e.g., pre-shared public keys
+          associated the domain name of the TXT records and "sig-X=..."
+          record tags (where X identifies the specific key) and ... is an
+          EdDSA or ECDSA signature over all records not starting with
+          "sig-". Care would need to be taken wrt. TTL and negative caching
+          though.</t>
+	</list>
+      </t>
+    </section>
 
 
     <section title="Changelog [RFC Editor: please remove]">
