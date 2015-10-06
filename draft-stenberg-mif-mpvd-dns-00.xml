@@ -108,13 +108,13 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     	identifier in the form of the FQDN to which the PTR records point to,
     	however using that alone would require either a preliminary exchange of
     	these FQDNs or an external directory to get to know the specific
-    	charateristics of each PVD. This document therefore defines a set of
+    	characteristics of each PVD. This document therefore defines a set of
     	generic TXT record tags to announce a set of attributes usable without
     	knowledge of the specific PVD.</t>
     	
     	<section title="Reachable Services" anchor="tags-services">
     		<t>The following set of record tags can be used to specify the set
-    		of services for which the respecitve PVD should be used. If present
+    		of services for which the respective PVD should be used. If present
     		they MUST be honored by the client, i.e., if the PVD is marked as
     		not usable for internet access it MUST NOT be used for internet
     		access, if the usability is limited to a certain set of domain or
@@ -148,7 +148,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     		<t>The following set of record tags can be used to specify the DNS
     		configuration for the respective PVD. If present, they MUST be
     		honored and used by the client whenever it wishes to access the
-    		a ressource of the PVD.</t>
+    		a resource of the PVD.</t>
     		<texttable>
     			<ttcol>Type</ttcol>
     			<ttcol>Description</ttcol>
@@ -248,12 +248,12 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 				<t>Upon reception of a Prefix Information Option with the
 				S-Bit set, it should behave as if the A-Bit was set, however
 				(unless the A-Bit was actually set by the sending router)
-				it MUST delay using any adresses derived from the prefix
+				it MUST delay using any addresses derived from the prefix
 				until it has queried, retrieved and honored (see TODO)
 				at least all mandatory provisioning domain information related
 				to the given prefix.</t>
 				
-				<t>A host SHOULD NOT interpretate the S-Bit being clear as an
+				<t>A host SHOULD NOT interpret the S-Bit being clear as an
 				indicator that no provisioning domain information is available
 				for a given prefix.</t>
 			</list>
@@ -314,7 +314,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 		  	
 		  	<t>Upon reception of an OPTION_IAADDR or OPTION_IAPREFIX option
 		  	having an embedded OPTION_SPECIAL_PURPOSE option it MUST delay
-		  	using any adresses derived from the prefix as source address for
+		  	using any addresses derived from the prefix as source address for
 		  	its own communication until it has queried, retrieved and
 		  	honored (see TODO) at least all mandatory provisioning domain
 		  	information related to the given prefix or address. If it is a
@@ -331,7 +331,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 		  <list>
 		  	<t>A router MUST include a zero-length suboption of type
 		  	OPTION_SPECIAL_PURPOSE in every OPTION_IAADDR and OPTION_IAPREFIX
-		  	option it assings or delegates containing a global unicast address
+		  	option it assigns or delegates containing a global unicast address
 		  	or prefix which cannot be used to reach the public IPv6 internet.
 		  	It MUST NOT assign or delegate such an address or prefix to a
 		  	client or requesting router not including the option code of
@@ -355,7 +355,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 		<t>Security properties of NDP and DHCPv6 are inherited for the
 		respective extensions, therefore relevant sections of <xref
 		target="RFC4861" /> and <xref target="RFC3315" /> should be consulted.
-		In any case, signalling addresses and prefixes to be special-purpose
+		In any case, signaling addresses and prefixes to be special-purpose
 		does not have a significant impact on the underlying assignment and
 		delegation mechanisms.</t>
 
@@ -420,7 +420,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
         spurious RA options, ...)</t>
 
         <t>No problems with relaying data; if the first-hop device does not
-        care, DNS request propagate onwards.</t>
+        care, DNS request propagate onward.</t>
 
         <t>Little/no changes to DHCP, DHCPv6, DHCPv6-PD or RA.</t>
 
