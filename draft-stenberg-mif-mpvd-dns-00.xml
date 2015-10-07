@@ -57,10 +57,10 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 
       <t>This document describes a mechanism to transmit and secure
       provisioning domain information for IPv6 and IPv4 addresses by using
-      reverse DNS resolution. In addition it specifies
-      backwards-compatible extensions to IPv6 host configuration to support
-      special-purpose global IPv6 prefixes which can only be used to access
-      certain isolated services.</t>
+      reverse DNS resolution. In addition it specifies backwards-compatible
+      extensions to IPv6 host configuration to support special-purpose
+      global IPv6 prefixes which can only be used to access certain
+      isolated services.</t>
 
     </abstract>
   </front>
@@ -74,12 +74,10 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       need. </t>
 
       <t>This document describes where and how the provision domain
-      information is encoded in the Domain Name System (DNS).
-      <!-- TBD - to do or not? Two
+      information is encoded in the Domain Name System (DNS). Two
       alternative authentication schemes are also provided to authenticate
       the DNS records, although unauthenticated records may be also useful
-      in many cases.-->
-      </t>
+      in many cases.</t>
 
       <t>A backwards compatible way of adding IPv6 prefixes without generic
       internet connectivity is also provided so that the hosts that are not
