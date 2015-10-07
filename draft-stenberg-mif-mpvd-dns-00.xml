@@ -21,7 +21,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     >
   <front>
     <title abbrev="MPVD using DNS">
-      Multiple Provisioning Domains using DNS
+      Multiple Provisioning Domains using Domain Name System
     </title>
     <author initials="M" surname="Stenberg" fullname="Markus Stenberg">
       <organization>Independent</organization>
@@ -57,30 +57,54 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 
       <t>This document describes a mechanism to transmit and secure
       provisioning domain information for IPv6 and IPv4 addresses by using
-      reverse DNS resolution. In addition it specifies backwards-compatible
-      extensions to IPv6 host configuration to support special-purpose
-      global IPv6 prefixes which can only be used to access certain
-      isolated services.</t>
+      reverse DNS resolution. In addition it specifies
+      backwards-compatible extensions to IPv6 host configuration to support
+      special-purpose global IPv6 prefixes which can only be used to access
+      certain isolated services.</t>
 
     </abstract>
   </front>
   <middle>
     <section title="Introduction">
+
+      <t>Given multiple address prefixes and/or multiple interfaces,
+      the hosts require more information to make educated choices about the
+      interfaces and addresses to use. <xref target='RFC7556' /> describes
+      the provision domains that provide the information the hosts
+      need. </t>
+
+      <t>This document describes where and how the provision domain
+      information is encoded in the Domain Name System (DNS).
+      <!-- TBD - to do or not? Two
+      alternative authentication schemes are also provided to authenticate
+      the DNS records, although unauthenticated records may be also useful
+      in many cases.-->
+      </t>
+
+      <t>A backwards compatible way of adding IPv6 prefixes without generic
+      internet connectivity is also provided so that the hosts that are not
+      aware of the provisioning domain prefixes do not inadvertly use those
+      for general network access. </t>
+
     </section>
 
     <section title="Terminology">
+
 
       <texttable suppress-title="true" style="none" align="left">
 	<ttcol width="25%" /><ttcol width="75%" />
 
 	<c>PVD</c>
 	<c>a unique provisioning domain, usually with a set of provisioning
-	domain information</c>
+	domain information; for more information, see <xref
+        target="RFC7556" />.</c>
 
 	<c>special-purpose IPv6 prefix</c>
 	<c>a global IPv6 source prefix that cannot be used to reach the public
 	IPv6 internet but instead only allows access to certain special services
-	(e.g., a walled garden, VoIP, IPTV, ...).</c>
+	(e.g., a walled garden, VoIP, IPTV, ...). Note that while RFC7556
+        talks about special-purpose connections, this scheme is
+        per-prefix.</c>
 
         <c /><c />
 
@@ -106,17 +130,58 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 
     </section>
 
-    <section anchor="tags" title="_pvd TXT Record Tags">
-      <t>Using the Domain Name Systems PVDs have an implicit unique
-      identifier in the form of the FQDN to which the PTR records point to,
-      however using that alone would require either a preliminary exchange of
-      these FQDNs or an external directory to get to know the specific
-      characteristics of each PVD. This document therefore defines a set of
-      generic TXT record tags to announce a set of attributes usable without
-      knowledge of the specific PVD.</t>
+    <section title="PVD discovery using DNS">
 
-      <section title="Reachable Services" anchor="tags-services">
-    	<t>The following set of record tags can be used to specify the set
+
+      <t>The data for a single PVD within DNS is encoded as one TXT record,
+      encoded similarly to the TXT records specified in <xref
+      target="RFC6763">RFC6763 Section 6</xref>.
+
+      This document specifies particular reserved keys and an extension
+      mechanism in <xref target="keys" />.</t>
+
+      <t>Given an address and it's netmask, the TXT record that applies to
+      it is found by looking for a PTR record. The PTR record is found by
+      querying _pvd.&lt;domain&gt;. The &lt;domain&gt; is derived from the
+      address and it's netmask, by generating it as specified in
+      <xref target="RFC6763">RFC6763 Section 11</xref>. As prefixes can be
+      sub-delegated arbitrarily, PTR records should be provided for any
+      subprefixes contained within a particular prefix.
+      </t>
+
+      <!-- TBD: Insert normative text here somehow? -->
+      <!-- TBD: Note that caching MUST be implemented correctly by hosts,
+           incl. negative entries -->
+
+      <t>For example: Given 2001:db8:8765:4321::/64 prefix, a node with an
+      address of 2001:db8:8765:4321:1234:5678:abcd:beef queries for
+      _pvd.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1.2.3.4.5.6.7.8.8.b.d.0.1.0.0.2.ip6.arpa
+      for PTR(s) to PVD TXT records. However, if the address is
+      subdelegated from 2001:db8:8765:4321:1234::/80, the request would be
+      for
+      _pvd.0.0.0.0.0.0.0.0.0.0.0.0.4.3.2.1.1.2.3.4.5.6.7.8.8.b.d.0.1.0.0.2.ip6.arpa. Therefore
+      all sub-prefixes should provide similar set of PTR records given they
+      are part of same connection.
+
+      Given the retrieved PTR record points at _pvd.example.com, then the
+      TXT record is queried for there. A node MUST support multiple PTR
+      records at the initial _pvd.&lt;domain&gt; as well as multiple TXT
+      records where the PTR records point to. This facilitates handling of
+      multiple PVDs with minimal amount of state in the network.
+      </t>
+
+
+    <section anchor="keys" title="PVD TXT Record Keys">
+
+      <t>While the FQDN PTR records point at provide an implicit unique
+      identifier, however using that alone would require either a
+      preliminary exchange of these FQDNs or an external directory to get
+      to know the specific characteristics of each PVD. Therefore we next
+      define the TXT record keys used to announce a set of attributes about
+      that particular PVD.</t>
+
+      <section title="Reachable Services" anchor="keys-services">
+    	<t>The following set of record keys can be used to specify the set
     	of services for which the respective PVD should be used. If present
     	they MUST be honored by the client, i.e., if the PVD is marked as
     	not usable for internet access it MUST NOT be used for internet
@@ -147,8 +212,8 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     	</texttable>
       </section>
 
-      <section title="DNS Configuration" anchor="tags-dns">
-    	<t>The following set of record tags can be used to specify the DNS
+      <section title="DNS Configuration" anchor="keys-dns">
+    	<t>The following set of record keys can be used to specify the DNS
     	configuration for the respective PVD. If present, they MUST be
     	honored and used by the client whenever it wishes to access the
     	a resource of the PVD.</t>
@@ -168,8 +233,8 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     	</texttable>
       </section>
 
-      <section title="Connectivity Characteristics" anchor="tags-conn">
-    	<t>The following set of record tags can be used to signal certain
+      <section title="Connectivity Characteristics" anchor="keys-conn">
+    	<t>The following set of record keys can be used to signal certain
     	characteristics of the connection towards the PVD.</t>
     	<texttable>
     	  <ttcol>Type</ttcol>
@@ -178,7 +243,6 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     	  <ttcol width="20%">Example</ttcol>
     	  <c>bw</c>
     	  <c>Maximum achievable bandwidth</c>
-
     	  <c>1 symmetrical or 2 comma-separated ingress,
           egress values in kilobits per second</c>
 
@@ -193,16 +257,18 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     	  <c>Maximum achievable reliability</c>
 	  <c>1 symmetrical or 2 comma-separated ingress, egress values in
           1/1000</c>
-
     	  <c>rl=1000 or rl=900,800</c>
+
     	  <c>tm</c>
     	  <c>Traffic metered (cut-off / limited over threshold)</c>
     	  <c>(none) or traffic threshold in kilobytes</c>
     	  <c>tm or tm=1000000</c>
+
     	  <c>cp</c>
     	  <c>Captive portal</c>
     	  <c>(none)</c>
     	  <c>cp</c>
+
     	  <c>nat</c>
     	  <c>IPv4 NAT in place</c>
     	  <c>(none)</c>
@@ -210,8 +276,8 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     	</texttable>
       </section>
 
-      <section title="Private Extensions" anchor="tags-private">
-    	<t>Record tags starting with "x-" are reserved for private use and
+      <section title="Private Extensions" anchor="keys-private">
+    	<t>Record keys starting with "x-" are reserved for private use and
     	can be utilized to provide vendor-, user- or enterprise-specific
     	information. It is RECOMMENDED to use one of the patterns
     	"x-FQDN-KEY[=VALUE]" or "x-PEN-KEY[=VALUE]" where FQDN is a fully
@@ -221,7 +287,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       </section>
 
     </section>
-
+  </section>
     <section anchor="sp" title="Special-purpose IPv6 prefixes">
       <t>A service provider might wish to assign certain global unicast
       address prefixes which can be used to reach a limited set of services
@@ -373,10 +439,10 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 
     <section anchor="iana" title="IANA Considerations">
 
-      <t>IANA is requested to setup a _pvd DNS TXT Record Tag registry
-      with the initial types: <xref target="tags-services">s, z, 6, 4</xref>;
-      <xref target="tags-dns">r, d</xref>; <xref target="tags-conn">bw, lt,
-      rl, tm, cp, nat</xref> and a prefix <xref target="tags-private">x-
+      <t>IANA is requested to setup a pvd DNS TXT Record Key registry
+      with the initial types: <xref target="keys-services">s, z, 6, 4</xref>;
+      <xref target="keys-dns">r, d</xref>; <xref target="keys-conn">bw, lt,
+      rl, tm, cp, nat</xref> and a prefix <xref target="keys-private">x-
       </xref> for <xref target="RFC5226">Private Use</xref>. The policy
       for further additions to the registry is requested to be <xref
       target="RFC5226">RFC Required</xref>.</t>
@@ -402,6 +468,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       <?rfc include="reference.RFC.3646.xml"?>
       <?rfc include="reference.RFC.6106.xml"?>
       <?rfc include="reference.RFC.5226.xml"?>
+      <?rfc include="reference.RFC.7556.xml"?>
     </references>
     <references title="Informative references">
       <reference anchor="PEN" target="https://www.iana.org/assignments/enterprise-numbers">
@@ -430,7 +497,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
         spurious RA options, ...)</t>
 
         <t>No problems with relaying data; if the first-hop device does not
-        care, DNS request propagate onward.</t>
+        care, DNS requests propagate onward.</t>
 
         <t>Little/no changes to DHCP, DHCPv6, DHCPv6-PD or RA.</t>
 
@@ -488,7 +555,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
           cases.  It is debatable, whether we want a complementary in-band
           signing mechanism as well, e.g., pre-shared public keys
           associated the domain name of the TXT records and "sig-X=..."
-          record tags (where X identifies the specific key) and ... is an
+          record keys (where X identifies the specific key) and ... is an
           EdDSA or ECDSA signature over all records not starting with
           "sig-". Care would need to be taken wrt. TTL and negative caching
           though.</t>
