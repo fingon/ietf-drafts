@@ -21,7 +21,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     >
   <front>
     <title abbrev="MPVD using DNS">
-      Multiple Provisioning Domains using DNS
+      Multiple Provisioning Domains using Domain Name System
     </title>
     <author initials="M" surname="Stenberg" fullname="Markus Stenberg">
       <organization>Independent</organization>
@@ -57,30 +57,51 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 
       <t>This document describes a mechanism to transmit and secure
       provisioning domain information for IPv6 and IPv4 addresses by using
-      reverse DNS resolution. In addition it specifies backwards-compatible
-      extensions to IPv6 host configuration to support special-purpose
-      global IPv6 prefixes which can only be used to access certain
-      isolated services.</t>
+      reverse Domain Name System (DNS) resolution. In addition it specifies
+      backwards-compatible extensions to IPv6 host configuration to support
+      special-purpose global IPv6 prefixes which can only be used to access
+      certain isolated services.</t>
 
     </abstract>
   </front>
   <middle>
     <section title="Introduction">
+
+      <t>Given multiple address prefixes and/or multiple interfaces,
+      the hosts require more information to make educated choices about the
+      interfaces and addresses to use. <xref target='RFC7556' /> describes
+      the provision domains that provide the information the hosts
+      need. </t>
+
+      <t>This document describes where and how the provision domain
+      information is encoded in the DNS. Two alternative authentication
+      schemes are also provided to authenticate the DNS records, although
+      unauthenticated records may be also useful in many cases.</t>
+
+      <t>A backwards compatible way of adding IPv6 prefixes without generic
+      internet connectivity is also provided so that the hosts that are not
+      aware of the provisioning domain prefixes do not inadvertly use those
+      for general network access. </t>
+
     </section>
 
     <section title="Terminology">
+
 
       <texttable suppress-title="true" style="none" align="left">
 	<ttcol width="25%" /><ttcol width="75%" />
 
 	<c>PVD</c>
 	<c>a unique provisioning domain, usually with a set of provisioning
-	domain information</c>
+	domain information; for more information, see <xref
+        target="RFC7556" />.</c>
 
 	<c>special-purpose IPv6 prefix</c>
 	<c>a global IPv6 source prefix that cannot be used to reach the public
 	IPv6 internet but instead only allows access to certain special services
-	(e.g., a walled garden, VoIP, IPTV, ...).</c>
+	(e.g., a walled garden, VoIP, IPTV, ...). Note that while RFC7556
+        talks about special-purpose connections, this scheme is
+        per-prefix.</c>
 
         <c /><c />
 
@@ -107,7 +128,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     </section>
 
     <section anchor="tags" title="_pvd TXT Record Tags">
-      <t>Using the Domain Name Systems PVDs have an implicit unique
+      <t>Using the DNS PVDs have an implicit unique
       identifier in the form of the FQDN to which the PTR records point to,
       however using that alone would require either a preliminary exchange of
       these FQDNs or an external directory to get to know the specific
@@ -178,7 +199,6 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     	  <ttcol width="20%">Example</ttcol>
     	  <c>bw</c>
     	  <c>Maximum achievable bandwidth</c>
-
     	  <c>1 symmetrical or 2 comma-separated ingress,
           egress values in kilobits per second</c>
 
@@ -193,16 +213,18 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     	  <c>Maximum achievable reliability</c>
 	  <c>1 symmetrical or 2 comma-separated ingress, egress values in
           1/1000</c>
-
     	  <c>rl=1000 or rl=900,800</c>
+
     	  <c>tm</c>
     	  <c>Traffic metered (cut-off / limited over threshold)</c>
     	  <c>(none) or traffic threshold in kilobytes</c>
     	  <c>tm or tm=1000000</c>
+
     	  <c>cp</c>
     	  <c>Captive portal</c>
     	  <c>(none)</c>
     	  <c>cp</c>
+
     	  <c>nat</c>
     	  <c>IPv4 NAT in place</c>
     	  <c>(none)</c>
@@ -402,6 +424,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       <?rfc include="reference.RFC.3646.xml"?>
       <?rfc include="reference.RFC.6106.xml"?>
       <?rfc include="reference.RFC.5226.xml"?>
+      <?rfc include="reference.RFC.7556.xml"?>
     </references>
     <references title="Informative references">
       <reference anchor="PEN" target="https://www.iana.org/assignments/enterprise-numbers">
