@@ -150,9 +150,6 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       records point at are queried to find the TXT records for the PVDs
       that apply to the particular address.</t>
 
-      <!-- TBD: Note that caching MUST be implemented correctly by hosts,
-           incl. negative entries -->
-
       <t>For example, given 2001:db8:8765:4321::/64 prefix, a node with an
       address of 2001:db8:8765:4321:1234:5678:abcd:beef queries for
       _pvd.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1.2.3.4.5.6.7.8.8.b.d.0.1.0.0.2.ip6.arpa
@@ -434,6 +431,30 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 
     <section title="Security Considerations">
 
+      <t>The security effects of using PVDs in general depend on two
+      factors: What they are allowed to do, and whether or not the
+      authentication and authorization of the PVD information received is
+      sufficient for the particular usecase. As the defined scheme uses DNS
+      for retrieval of the connection parameters, the retrieval of both the
+      PTR and the TXT records should be secured, if they are to be
+      trusted. The PVD information allows for following types of attacks:
+
+      <list style="symbols">
+        <t>Traffic redirection, both by providing custom DNS server, as
+        well as actual potentially different next-hop and/or source address
+        selection. </t>
+        <t>Faking of connection capabilities to e.g. prefer some connection
+        fradulently over others.</t>
+      </list>
+
+      In general, if e.g. the records lack DNSSEC protection, and host
+      requires that, PVDs involved should be simply ignored as the defined
+      way of using them in <xref target="tags" /> requires honoring
+      whatever supplied keys have been retrieved for the PVD.</t>
+
+      <!-- TBD: Do we want to insert here 'the other scheme' as well; I
+           would rather not :p -->
+
       <t>Security properties of NDP and DHCPv6 are inherited for the
       respective extensions, therefore relevant sections of <xref
       target="RFC4861" /> and <xref target="RFC3315" /> should be consulted.
@@ -445,7 +466,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 
     <section anchor="iana" title="IANA Considerations">
 
-      <t>IANA is requested to setup a pvd DNS TXT Record Key registry
+      <t>IANA is requested to setup a PVD DNS TXT Record Key registry
       with the initial types: <xref target="keys-services">s, z, 6, 4</xref>;
       <xref target="keys-dns">r, d</xref>; <xref target="keys-conn">bw, lt,
       rl, tm, cp, nat</xref> and a prefix <xref target="keys-private">x-
@@ -507,6 +528,9 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 
         <t>Little/no changes to DHCP, DHCPv6, DHCPv6-PD or RA.</t>
 
+        <t>Much more scalable; no worries about multicast packet size
+        limits.</t>
+
         <t>No duplication of specifications / TLVs for DHCP, DHCPv6 and
         RA.</t>
 
@@ -523,12 +547,14 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       </list>
 
       The authors consider cons of this proposal to be:
+
       <list style="symbols">
+
         <t>This scheme requires DNS servers ‘close’ on the path to the
         user, if changed information is to be sent; otherwise centralized
         solution would work (with some synthesized records).</t>
 
-        <t>Security using either DNSSec or in-band hashes is rather painful
+        <t>Security using either DNSSEC or in-band hashes is rather painful
         (but possibly not more than the scheme in the current DHCP/RA
         drafts), so the default would most likely be insecure. That is not
         much different from DHCP*/RA, which are also 99.999…% of the time
