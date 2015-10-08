@@ -67,19 +67,22 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
   <middle>
     <section title="Introduction">
 
-      <t>Given multiple address prefixes and/or multiple interfaces,
-      the hosts require more information to make educated choices about the
+      <t>Given multiple address prefixes and/or multiple interfaces, the
+      hosts require more information to make educated choices about the
       interfaces and addresses to use. <xref target='RFC7556' /> describes
-      the provision domains that provide the information the hosts
-      need. </t>
+      the provision domains (PVDs) that provide the additional information
+      the hosts need. </t>
 
       <t>This document describes where and how the provision domain
-      information is encoded in the Domain Name System (DNS). Two
+      information is encoded in the Domain Name System (DNS).
+      <!-- TBD - keep or not?
+
+      Two
       alternative authentication schemes are also provided to authenticate
       the DNS records, although unauthenticated records may be also useful
-      in many cases.</t>
+      in many cases.-->
 
-      <t>A backwards compatible way of adding IPv6 prefixes without generic
+      A backwards compatible way of adding IPv6 prefixes without generic
       internet connectivity is also provided so that the hosts that are not
       aware of the provisioning domain prefixes do not inadvertly use those
       for general network access. </t>
@@ -93,16 +96,15 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 	<ttcol width="25%" /><ttcol width="75%" />
 
 	<c>PVD</c>
-	<c>a unique provisioning domain, usually with a set of provisioning
-	domain information; for more information, see <xref
-        target="RFC7556" />.</c>
+
+	<c>a provisioning domain, usually with a set of provisioning domain
+	information; for more information, see <xref target="RFC7556"
+	/>.</c>
 
 	<c>special-purpose IPv6 prefix</c>
-	<c>a global IPv6 source prefix that cannot be used to reach the public
-	IPv6 internet but instead only allows access to certain special services
-	(e.g., a walled garden, VoIP, IPTV, ...). Note that while RFC7556
-        talks about special-purpose connections, this scheme is
-        per-prefix.</c>
+	<c>a global IPv6 source prefix that cannot be used to reach the
+	public IPv6 internet but instead only allows access to certain
+	special services (e.g., VoIP, IPTV).</c>
 
         <c /><c />
 
@@ -138,54 +140,56 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       This document specifies particular reserved keys and an extension
       mechanism in <xref target="keys" />.</t>
 
-      <t>Given an address and it's netmask, the TXT record that applies to
-      it is found by looking for a PTR record. The PTR record is found by
-      querying _pvd.&lt;domain&gt;. The &lt;domain&gt; is derived from the
-      address and it's netmask, by generating it as specified in
-      <xref target="RFC6763">RFC6763 Section 11</xref>. As prefixes can be
+      <t>To find the per-PVD TXT records that apply to an address, given an
+      address and its netmask, initially PTR records are queried for at
+      _pvd.&lt;domain&gt;. The &lt;domain&gt; is derived from the address
+      and its netmask, by generating it as specified in the <xref
+      target="RFC6763">RFC6763 Section 11</xref>. As prefixes can be
       sub-delegated arbitrarily, PTR records should be provided for any
-      subprefixes contained within a particular prefix.
-      </t>
+      subprefixes contained within a particular prefix. Then the FQDNs PTR
+      records point at are queried to find the TXT records for the PVDs
+      that apply to the particular address.</t>
 
-      <!-- TBD: Insert normative text here somehow? -->
       <!-- TBD: Note that caching MUST be implemented correctly by hosts,
            incl. negative entries -->
 
-      <t>For example: Given 2001:db8:8765:4321::/64 prefix, a node with an
+      <t>For example, given 2001:db8:8765:4321::/64 prefix, a node with an
       address of 2001:db8:8765:4321:1234:5678:abcd:beef queries for
       _pvd.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1.2.3.4.5.6.7.8.8.b.d.0.1.0.0.2.ip6.arpa
       for PTR(s) to PVD TXT records. However, if the address is
       subdelegated from 2001:db8:8765:4321:1234::/80, the request would be
       for
-      _pvd.0.0.0.0.0.0.0.0.0.0.0.0.4.3.2.1.1.2.3.4.5.6.7.8.8.b.d.0.1.0.0.2.ip6.arpa. Therefore
-      all sub-prefixes should provide similar set of PTR records given they
-      are part of same connection.
+      _pvd.0.0.0.0.0.0.0.0.0.0.0.0.4.3.2.1.1.2.3.4.5.6.7.8.8.b.d.0.1.0.0.2.ip6.arpa.
 
-      Given the retrieved PTR record points at _pvd.example.com, then the
-      TXT record is queried for there. A node MUST support multiple PTR
-      records at the initial _pvd.&lt;domain&gt; as well as multiple TXT
-      records where the PTR records point to. This facilitates handling of
-      multiple PVDs with minimal amount of state in the network.
-      </t>
+      Continuing the example, the retrieved PTR record points at FQDN
+      _pvd.example.com. Therefore next query is sent for TXT records there,
+      and when received, the node has up-to-date information about PVDs
+      applicable to that particular address.</t>
+
+      <t>A node MUST support multiple PTR records at the initial
+      _pvd.&lt;domain&gt; as well as multiple TXT records where the PTR
+      records point to. This facilitates handling of multiple PVDs with
+      minimal amount of state in the network. A node MUST honor both the
+      time-to-live of the received records, and negative replies that
+      conform to <xref target="RFC2308" />.</t>
 
 
     <section anchor="keys" title="PVD TXT Record Keys">
 
-      <t>While the FQDN PTR records point at provide an implicit unique
-      identifier, however using that alone would require either a
-      preliminary exchange of these FQDNs or an external directory to get
-      to know the specific characteristics of each PVD. Therefore we next
-      define the TXT record keys used to announce a set of attributes about
-      that particular PVD.</t>
+      <t>While the format of the PVD TXT itself is reused from <xref
+      target="RFC6763">RFC6763 Section 6</xref>, the format of the keys are
+      defined here.</t>
 
       <section title="Reachable Services" anchor="keys-services">
-    	<t>The following set of record keys can be used to specify the set
+
+    	<t>The following set of keys can be used to specify the set
     	of services for which the respective PVD should be used. If present
     	they MUST be honored by the client, i.e., if the PVD is marked as
     	not usable for internet access it MUST NOT be used for internet
     	access, if the usability is limited to a certain set of domain or
     	address prefixes, then a different PVD MUST be used for other
     	destinations.</t>
+
     	<texttable>
     	  <ttcol>Type</ttcol>
     	  <ttcol>Description</ttcol>
@@ -211,10 +215,12 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       </section>
 
       <section title="DNS Configuration" anchor="keys-dns">
-    	<t>The following set of record keys can be used to specify the DNS
+
+    	<t>The following set of keys can be used to specify the DNS
     	configuration for the respective PVD. If present, they MUST be
     	honored and used by the client whenever it wishes to access the
     	a resource of the PVD.</t>
+
     	<texttable>
     	  <ttcol>Type</ttcol>
     	  <ttcol>Description</ttcol>
@@ -232,8 +238,10 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       </section>
 
       <section title="Connectivity Characteristics" anchor="keys-conn">
-    	<t>The following set of record keys can be used to signal certain
+
+    	<t>The following set of keys can be used to signal certain
     	characteristics of the connection towards the PVD.</t>
+
     	<texttable>
     	  <ttcol>Type</ttcol>
     	  <ttcol>Description</ttcol>
@@ -275,7 +283,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       </section>
 
       <section title="Private Extensions" anchor="keys-private">
-    	<t>Record keys starting with "x-" are reserved for private use and
+    	<t>keys starting with "x-" are reserved for private use and
     	can be utilized to provide vendor-, user- or enterprise-specific
     	information. It is RECOMMENDED to use one of the patterns
     	"x-FQDN-KEY[=VALUE]" or "x-PEN-KEY[=VALUE]" where FQDN is a fully
@@ -553,7 +561,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
           cases.  It is debatable, whether we want a complementary in-band
           signing mechanism as well, e.g., pre-shared public keys
           associated the domain name of the TXT records and "sig-X=..."
-          record keys (where X identifies the specific key) and ... is an
+          keys (where X identifies the specific key) and ... is an
           EdDSA or ECDSA signature over all records not starting with
           "sig-". Care would need to be taken wrt. TTL and negative caching
           though.</t>
