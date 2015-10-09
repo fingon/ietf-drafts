@@ -93,13 +93,26 @@ TODO:
       network state also stays up-to-date.</t>
 
       <section title="Applicability">
+	<t>DNCP is useful for cases like autonomous bootstrapping, discovery
+	and negotiation of embedded network devices like routers. 
+	Furthermore it can be used as a basis to run distributed algorithms
+	like <xref target="I-D.ietf-homenet-prefix-assignment" /> or
+	usecases as described in <xref target="profile-example"/>. The
+	topology of the devices is not limited and automatically discovered.
+	If globally scoped addresses are used, DNCP peers do not necessarily
+	need to be on the same link.
+	Autonomous discovery features are usually used in local network
+	scenario however - with security enabled - DNCP can also be used
+	over unsecured public networks. Network size is restricted merely by
+	the capabilities of the devices, i.e., each DNCP node needs to be
+	able to store the entirety of the data published by all nodes.</t>
 
         <t>DNCP is most suitable for data that changes only infrequently to
         gain the maximum benefit from using Trickle. As the network of
         nodes grows, or the frequency of data changes per node increases,
         Trickle is eventually used less and less and the benefit of using
         DNCP diminishes. In these cases Trickle just provides extra
-        complexity within the specification and little added value. </t>
+        complexity within the specification and little added value.</t>
 
         <t>The suitability of DNCP for a particular application can roughly
         be evaluated by considering the expected average network-wide state
@@ -1835,6 +1848,7 @@ TODO:
       <?rfc include="reference.RFC.6347.xml"?>
       <?rfc include="reference.RFC.5246.xml"?>
       <?rfc include="reference.RFC.7435.xml"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-08"?>
     </references>
 
     <section title="Alternative Modes of Operation">
