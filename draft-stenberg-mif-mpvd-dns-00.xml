@@ -449,7 +449,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 
       In general, if e.g. the records lack DNSSEC protection, and host
       requires that, PVDs involved should be simply ignored as the defined
-      way of using them in <xref target="tags" /> requires honoring
+      way of using them in <xref target="keys" /> requires honoring
       whatever supplied keys have been retrieved for the PVD.</t>
 
       <!-- TBD: Do we want to insert here 'the other scheme' as well; I
