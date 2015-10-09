@@ -67,22 +67,17 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
   <middle>
     <section title="Introduction">
 
-      <t>Given multiple address prefixes and/or multiple interfaces, the
+      <t>Given multiple address prefixes or multiple interfaces,
       hosts require more information to make educated choices about the
       interfaces and addresses to use. <xref target='RFC7556' /> describes
       the provision domains (PVDs) that provide the additional information
       the hosts need. </t>
 
       <t>This document describes where and how the provision domain
-      information is encoded in the Domain Name System (DNS).
-      <!-- TBD - keep or not?
-
-      Two
-      alternative authentication schemes are also provided to authenticate
-      the DNS records, although unauthenticated records may be also useful
-      in many cases.-->
-
-      A backwards compatible way of adding IPv6 prefixes without generic
+      information is encoded in the Domain Name System (DNS). For optional
+      authentication DNSSEC is used.</t>
+      
+      <t>A backwards compatible way of adding IPv6 prefixes without generic
       internet connectivity is also provided so that the hosts that are not
       aware of the provisioning domain prefixes do not inadvertly use those
       for general network access. </t>
@@ -122,60 +117,68 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 
       </section>
     </section>
+    
 
+    <section anchor="dns" title="PVD information discovery using DNS">
+      <t>Each PVD is stored within the DNS, encoded as a single
+      <xref target="RFC1035">TXT record</xref>. <xref target="format" />
+      describes the syntax and <xref target="keys" /> the semantics of
+      the enclosed data.</t>
 
-    <section title="Overview">
-
-      <t>TBD</t>
-
-    </section>
-
-    <section title="PVD discovery using DNS">
-
-
-      <t>The data for a single PVD within DNS is encoded as one TXT record,
-      encoded similarly to the TXT records specified in <xref
-      target="RFC6763">RFC6763 Section 6</xref>.
-
-      This document specifies particular reserved keys and an extension
-      mechanism in <xref target="keys" />.</t>
-
-      <t>To find the per-PVD TXT records that apply to an address, given an
-      address and its netmask, initially PTR records are queried for at
-      _pvd.&lt;domain&gt;. The &lt;domain&gt; is derived from the address
-      and its netmask, by generating it as specified in the <xref
-      target="RFC6763">RFC6763 Section 11</xref>. As prefixes can be
-      sub-delegated arbitrarily, PTR records should be provided for any
-      subprefixes contained within a particular prefix. Then the FQDNs PTR
-      records point at are queried to find the TXT records for the PVDs
-      that apply to the particular address.</t>
-
-      <t>For example, given 2001:db8:8765:4321::/64 prefix, a node with an
-      address of 2001:db8:8765:4321:1234:5678:abcd:beef queries for
+      <t>To find the per-PVD TXT records that apply to a source address,
+      the host queries the DNS for PTR records of the domain
+      _pvd.&lt;domain&gt;. &lt;domain&gt; is a .arpa domain for reverse
+      lookups derived from the respective  prefix or subnet the source
+      address is assigned from and generated as specified in
+      <xref target="RFC3596" /> for IPv6 adresses and <xref target="RFC1034" />
+      for IPv4 addresses respectively. If the query returned any PTR records
+      the host then subsequently queries the DNS for TXT records located in
+      each domain indicated in the PTR records and handles their contents as
+      PVD information.</t>
+      
+      <t>As prefixes can be sub-delegated arbitrarily, PTR records SHOULD
+      be provided for any subprefixes contained within a particular prefix.
+      For example, given a prefix 2001:db8:8765:4321::/64, a host with an
+      address of 2001:db8:8765:4321:1234:5678:abcd:beef queries for PTR records in
       _pvd.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1.2.3.4.5.6.7.8.8.b.d.0.1.0.0.2.ip6.arpa
-      for PTR(s) to PVD TXT records. However, if the address is
-      subdelegated from 2001:db8:8765:4321:1234::/80, the request would be
-      for
-      _pvd.0.0.0.0.0.0.0.0.0.0.0.0.4.3.2.1.1.2.3.4.5.6.7.8.8.b.d.0.1.0.0.2.ip6.arpa.
+      However, if the address is assigned from 2001:db8:8765:4321:1234::/80,
+      the request would be made for
+      _pvd.0.0.0.0.0.0.0.0.0.0.0.0.4.3.2.1.1.2.3.4.5.6.7.8.8.b.d.0.1.0.0.2.ip6.arpa
+      instead.</t>
 
-      Continuing the example, the retrieved PTR record points at FQDN
-      _pvd.example.com. Therefore next query is sent for TXT records there,
-      and when received, the node has up-to-date information about PVDs
-      applicable to that particular address.</t>
+	  <t>If for example, the retrieved PTR record is assumed to point at the
+	  FQDN _pvd.example.com. The next query is then sent for TXT records of
+	  this domain, and if successful, the node has retrieved up-to-date
+      information about PVDs applicable to that particular address.</t>
 
-      <t>A node MUST support multiple PTR records at the initial
-      _pvd.&lt;domain&gt; as well as multiple TXT records where the PTR
-      records point to. This facilitates handling of multiple PVDs with
-      minimal amount of state in the network. A node MUST honor both the
-      time-to-live of the received records, and negative replies that
-      conform to <xref target="RFC2308" />.</t>
+      <t>A host MUST support handling multiple PTR records for the initial
+      .arpa domain as well as multiple TXT records at all domains
+      pointed to by the PTR records. This facilitates handling of multiple
+      PVDs with minimal amount of state in the network. A host MUST honor both
+      the time-to-live of the received records, and negative replies that
+      conform to <xref target="RFC2308" />. A host MUST NOT use addresses from
+      a prefix as the source for new packet flows once the TTL has passed 
+      until it did successfully retrieve updated PVD information.</t>
 
+	<section anchor="format" title="PVD TXT Record Fomat">
+      <t>PVD information within DNS is encoded using TXT records, similar to
+      those of <xref target="RFC6763">DNS-SD</xref> and defined as follows.
+
+	  TXT records consist of key/value pairs, each encoded as a string of up
+	  to 255 octets preceeded by a length byte storing the number of octets.
+	  The strings are in the form "key=value" or simply "key" (without
+	  quotation marks) where everything up to the first '=' character (if any,
+	  otherwise the whole string) is the key and everything after it (if any,
+	  including subsequent '=' characters) is the value. Due to the use of a
+	  length byte, quotation marks or similar are not required around the
+	  value. Keys are case-sensitive. Hosts MUST ignore TXT records which do
+	  not conform to these rules.</t>		
+	</section>
 
     <section anchor="keys" title="PVD TXT Record Keys">
 
-      <t>While the format of the PVD TXT itself is reused from <xref
-      target="RFC6763">RFC6763 Section 6</xref>, the format of the keys are
-      defined here.</t>
+      <t>The following keys are defined to be used inside PVD TXT records.
+      Unknown keys inside PVD Information MUST be ignored.</t>
 
       <section title="Reachable Services" anchor="keys-services">
 
@@ -188,10 +191,14 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     	destinations.</t>
 
     	<texttable>
-    	  <ttcol>Type</ttcol>
+    	  <ttcol>Key</ttcol>
     	  <ttcol>Description</ttcol>
     	  <ttcol>Value</ttcol>
     	  <ttcol width="20%">Example</ttcol>
+    	  <c>n</c>
+    	  <c>User-visible service name</c>
+    	  <c>human-readbale UTF-8 string</c>
+    	  <c>n=Foobar Service</c>
     	  <c>s</c>
     	  <c>Internet inaccessible</c>
     	  <c>(none)</c>
@@ -215,11 +222,11 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 
     	<t>The following set of keys can be used to specify the DNS
     	configuration for the respective PVD. If present, they MUST be
-    	honored and used by the client whenever it wishes to access the
+    	honored and used by the client whenever it wishes to access
     	a resource of the PVD.</t>
 
     	<texttable>
-    	  <ttcol>Type</ttcol>
+    	  <ttcol>Key</ttcol>
     	  <ttcol>Description</ttcol>
     	  <ttcol>Value</ttcol>
     	  <ttcol width="20%">Example</ttcol>
@@ -240,9 +247,9 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     	characteristics of the connection towards the PVD.</t>
 
     	<texttable>
-    	  <ttcol>Type</ttcol>
+    	  <ttcol>Key</ttcol>
     	  <ttcol>Description</ttcol>
-    	  <ttcol width="20%">Value</ttcol>
+    	  <ttcol>Value</ttcol>
     	  <ttcol width="20%">Example</ttcol>
     	  <c>bw</c>
     	  <c>Maximum achievable bandwidth</c>
@@ -328,7 +335,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 	  S-Bit set, it should behave as if the A-Bit was set, however
 	  (unless the A-Bit was actually set by the sending router)
 	  it MUST delay using any addresses derived from the prefix
-	  until it has queried, retrieved and honored (see TODO)
+	  until it has queried, retrieved and honored (see <xref target="dns" />)
 	  at least all mandatory provisioning domain information related
 	  to the given prefix.</t>
 
@@ -395,7 +402,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 	  having an embedded OPTION_SPECIAL_PURPOSE option it MUST delay
 	  using any addresses derived from the prefix as source address for
 	  its own communication until it has queried, retrieved and
-	  honored (see TODO) at least all mandatory provisioning domain
+	  honored (see <xref target="dns" />) at least all mandatory provisioning domain
 	  information related to the given prefix or address. If it is a
 	  requesting router, it MAY however subdelegate prefixes or assign
 	  addresses from special-purpose prefixes to clients without doing
@@ -431,13 +438,13 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 
     <section title="Security Considerations">
 
-      <t>The security effects of using PVDs in general depend on two
-      factors: What they are allowed to do, and whether or not the
+      <t>The security implications of using PVDs in general depend on two
+      factors: what they are allowed to do, and whether or not the
       authentication and authorization of the PVD information received is
       sufficient for the particular usecase. As the defined scheme uses DNS
       for retrieval of the connection parameters, the retrieval of both the
-      PTR and the TXT records should be secured, if they are to be
-      trusted. The PVD information allows for following types of attacks:
+      PTR and the TXT records should be secured, if they are to be trusted.
+      The PVD information allows for the following types of attacks:
 
       <list style="symbols">
         <t>Traffic redirection, both by providing custom DNS server, as
@@ -447,13 +454,10 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
         fradulently over others.</t>
       </list>
 
-      In general, if e.g. the records lack DNSSEC protection, and host
-      requires that, PVDs involved should be simply ignored as the defined
-      way of using them in <xref target="keys" /> requires honoring
-      whatever supplied keys have been retrieved for the PVD.</t>
-
-      <!-- TBD: Do we want to insert here 'the other scheme' as well; I
-           would rather not :p -->
+      If a host requires DNSSEC authentication and the retrieved information
+      is not sufficiently secured, they MUST be ignored as the defined
+      way of using them in <xref target="keys" /> requires honoring the
+      supplied information.</t>
 
       <t>Security properties of NDP and DHCPv6 are inherited for the
       respective extensions, therefore relevant sections of <xref
@@ -486,8 +490,9 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
   </middle>
   <back>
     <references title="Normative references">
+      <?rfc include="reference.RFC.1034.xml"?>
+      <?rfc include="reference.RFC.1035.xml"?>
       <?rfc include="reference.RFC.2119.xml"?>
-      <?rfc include="reference.RFC.6763.xml"?>
       <?rfc include="reference.RFC.2308.xml"?>
       <?rfc include="reference.RFC.4861.xml"?>
       <?rfc include="reference.RFC.3315.xml"?>
@@ -496,8 +501,10 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       <?rfc include="reference.RFC.6106.xml"?>
       <?rfc include="reference.RFC.5226.xml"?>
       <?rfc include="reference.RFC.7556.xml"?>
+      <?rfc include="reference.RFC.3596.xml"?>
     </references>
     <references title="Informative references">
+    <?rfc include="reference.RFC.6763.xml"?>
       <reference anchor="PEN" target="https://www.iana.org/assignments/enterprise-numbers">
 	<front>
 	  <title>Private Enterprise Numbers</title>
