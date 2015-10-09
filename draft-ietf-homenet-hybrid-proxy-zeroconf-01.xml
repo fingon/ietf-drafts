@@ -1,8 +1,8 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Mon Jun 17 04:55:57 2013 mstenber
-Last modified: Wed Sep  2 12:18:06 2015 mstenber
-Edit time:     568 min
+Last modified: Fri Oct  9 17:36:49 2015 mstenber
+Edit time:     595 min
 -->
 
 <!--
@@ -396,6 +396,26 @@ Edit time:     568 min
 
     </section>
 
+    <section title="Limited zone stitching for host name resolution">
+
+      <t><xref target="I-D.ietf-dnssd-hybrid">Section 4.1 of the hybrid
+      proxy specification</xref> notes that the stitching of multiple
+      .local zones into a single DNS-SD zone is to be defined later. This
+      specification does not even attempt that, but for the purpose of host
+      name resolution, it is possible to use the set of DNS Delegated Zone
+      TLVs with S-bit or B-bit set to also provide host naming for the
+      (domain). It is done by simply rewriting A/AAAA queries for
+      (name).(domain) to every (name).(ddz-subdomain).(domain), and
+      providing response to the host when the first non-empty one is
+      received, rewritten back to (name).(domain).</t>
+
+      <t>While this scheme is not very scalable, as it multiplies the
+      number of queries by the number of links (given no response in
+      cache), it does work in small networks with relatively few
+      sub-domains.</t>
+
+    </section>
+
     <section title="Security Considerations">
 
       <t>There is a trade-off between security and zero-configuration in
@@ -705,6 +725,7 @@ node-2 NS node-2
         perhaps. </t>
 
       </section>
+
     </section>
 
     <section title="Acknowledgements">
@@ -719,6 +740,11 @@ node-2 NS node-2
     </section>
 
     <section title="Changelog [RFC Editor: please remove]">
+      <t>draft-ietf-homenet-hybrid-proxy-zeroconf-02:
+      <list style="symbols">
+        <t>Added subsection on simple zone stitching for host name purposes.</t>
+      </list>
+      </t>
       <t>draft-ietf-homenet-hybrid-proxy-zeroconf-01:
       <list style="symbols">
         <t>Refreshed the draft while waiting on progress of
