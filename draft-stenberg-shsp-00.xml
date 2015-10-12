@@ -1,8 +1,8 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Fri Jul  3 08:40:24 2015 mstenber
-Last modified: Thu Jul 23 11:34:42 2015 mstenber
-Edit time:     51 min
+Last modified: Mon Oct 12 20:54:30 2015 mstenber
+Edit time:     104 min
 -->
 
 <!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
@@ -35,18 +35,17 @@ Edit time:     51 min
         <email>markus.stenberg@iki.fi</email>
       </address>
     </author>
-    <date month="Jul" year="2015" />
+    <date month="Oct" year="2015" />
     <keyword>Homenet(??)</keyword>
     <abstract>
 
-      <t>This document describes yet another DNCP-based protocol, which
-      uses HNCP-style transport, yet intentionally is incompatible with it
-      so that TLVs of SHSP and HNCP can be handled using same transport
-      channel and de/encoders, but individual implementations of the
-      different protocols can ignore each other unless they support both
-      protocols.
-
-      </t>
+      <t>In reasonable home networks there are no cloud services; just a
+      set of local nodes sharing state, and possibly invoking operations
+      either automatically or on behalf of the home user. This document
+      describes a key-value database that can be used to do both; published
+      key=values represent the current state of the system, and by setting
+      a key published by some other node to a different value a node can
+      indicate the desire for changing of state.</t>
 
     </abstract>
   </front>
@@ -65,6 +64,13 @@ Edit time:     51 min
       can be a serious hazard if security is not addressed appropriately.
 
       SHSP is an attempt to produce a solution to address these needs.</t>
+
+      <t>This document describes yet another DNCP-based protocol, which
+      uses HNCP-style transport, yet intentionally is incompatible with it
+      so that TLVs of SHSP and HNCP can be handled using same transport
+      channel and de/encoders, but individual implementations of the
+      different protocols can ignore each other unless they support both
+      protocols.</t>
 
 
       <t>TBD: The long form of the acronym is actually misleading, as it is
@@ -85,86 +91,88 @@ Edit time:     51 min
     <section title="DNCP Profile">
 
       <t>Hard work of SHSP is handled by <xref
-      target="I-D.ietf-homenet-dncp">DNCP</xref>; due to laziness, DNCP
-      profile of <xref target="I-D.ietf-homenet-hncp">HNCP</xref> is used
-      as is. Despite the reuse of the transport and DNCP core logic, NONE
-      of the HNCP TLVs are part of SHSP.</t>
+      target="I-D.ietf-homenet-dncp">DNCP</xref>. DNCP profile of <xref
+      target="I-D.ietf-homenet-hncp">HNCP</xref> is used as is. Arguably
+      TCP-based solution would be better, but compatibility with existing
+      implementations of HNCP to transfer state, and eventual port- and
+      multicast address reservations of HNCP make it more attractive.
+      Despite the reuse of the transport and DNCP core logic, NONE of the
+      HNCP TLVs are part of SHSP.</t>
 
-      <t>Only difference from HNCP transport is the security methods; SHSP
-      MUST NOT be used in insecure mode.</t>
+      <t>SHSP nodes MAY choose to use the DTLS method(s) specified in the
+      DNCP document, but in practise if authentication is desirable,
+      something more lightwewight using simple PSKs + sha256 authentication
+      may be used. To prevent providing a bad example, a concrete example
+      is omitted. </t>
 
-      <t>TBD: This may change to 'lite' version, with it's own non-TLS/DTLS
-      transport if some small devices will not live with DTLS footprint as
-      House Stenberg can deal with simple PSKs + sha256 authentication or
-      something, confidentiality is not a requirement here.</t>
     </section>
 
     <section title="Overview">
 
-      <t>At it's core, SHSP provides a distributed key-value store, with
-      each node having consistent view of the whole database. Essentially,
-      the database provides view of ((int) node identifier, (string) key,
-      (json-encodable) value, (UTC second)last changed) pairs for
-      any participant interested in viewing it.</t>
+      <t>SHSP provides a distributed key-value store, with each node having
+      consistent view of the whole database. Essentially, the database
+      provides view of ((int) node identifier, (string) key,
+      (json-encodable) value, (UTC second)last changed at) pairs for any
+      participant interested in viewing it.</t>
 
-      <t>Based on the key-value store, SHSP protocol implementations can
-      e.g. maintain a shared set of Python based agents as described in
-      <xref target="pa" />, or do more or less any other arbitrary thing
-      they care about, within limits; as HNCP transport is reused, the
-      total amount of node data published by a node SHOULD NOT exceed 4000
-      bytes, and MUST NOT (obviously) exceed ~64k limit set by UDP.</t>
-      
+      <t>If we assume that keys in and of themselves are unique, then we
+      can assume that someone else than the node responsible for
+      particular resource beloning to that key publishing a key=value for
+      it desires a state change, e.g. turning on a light.</t>
+
     </section>
 
-    <section anchor="pa" title="Python Agents">
+    <section title="Device Data">
 
-        <t>Within SHSP key-value store, there are some specific keys that
-        are reserved for specific things. One of them are Python-based
-        agents, which compromise of a fully self-contained Python set of
-        modules that can be run as a daemon (and also access SHSP state):
+      <t>SHSP devices typically provide either boolean input/output, or
+      some numeric output value for other nodes to use. Whatever can be
+      transmitted inside JSON (particular key = particular value) is fine,
+      but for example, in House Stenberg there are currently:
 
-        <list style="symbols">
+      <list style="symbols">
 
-          <t>system-information: JSON dictionary with human readable
-          content about the node.</t>
+        <t>Light sensor: numeric value (in lux)
+        .kh.light_sensor.(name)/value=(int).</t>
 
-          <t>power: An integer value which roughly expresses the
-          computation power of the device. It is used as tie-breaker if
-          only single instance of an agent is desired.</t>
-          
-          <t>python-agent: JSON dictionary containing name, url and hash keys,
-          which describe the logical name (which includes version) url
-          where the package can be found, and finally hash used to verify
-          the download.</t>
+        <t>Philips Hue lights: boolean with key .kh.hue.(name)/on.
+        (TBD: this could be also active color value)</t>
 
-          <t>run-python-agent: JSON dictionary containing:
-          <list style="symbols">
-            <t>name: specifies a name of the python-agent to be run</t>
+        <t>Motion sensor: boolean with key
+        .kh.motion_sensor.(name)/on.</t>
 
-            <t>node-specification: a dictionary which specifies which nodes
-            should run the agent. A node MUST run an instance of the agent
-            if and only if the intersection of node-specification and
-            published system-information equals node-specification.</t>
+        <t>Wifi device presence detection: boolean key with
+        .kh.wifi.(name)/on.</t>
 
-            <t>(optional) copies: number of copies to run at most; if more are
-            available than required, 'power' (and then node identifier) are
-            used as tie breakers; greater power wins, and then greater node
-            identifier. If a node determines it is not within the
-            top-copies of nodes that match, it MUST NOT run the agent.</t>
+        <t>Process activity monitor: boolean key with .kh.process.(name)/on.</t>
 
-          </list>
-          </t>
+        <t>(Computer) user activity monitor: boolean key with
+        .kh.user_active.(name)/on.</t>
+      </list>
+      </t>
 
-        </list>
-          
-        </t>
-    </section>
 
-    <section title="Sensor Data">
+      <t>Very cut down example of what the state actually looks like in the
+      whole network of devices, that is determined by looking at the whole
+      DNCP network state, not just that of the local node, looks like this
+      at the time of the writing of the document:</t>
+      <figure>
+        <artwork>
+mstenber@poro ~>khtool -v
+.kh.hue.Entry/on=False (-38)
+.kh.light_sensor.corridor/value=86 (-37)
+.kh.motion_sensor.corridor/on=False (-49)
+.kh.process.kodi/on=False (-67807)
+.kh.user_active.poro/on=True (-41)
+.kh.wifi.iphone6/on=True (-5718)
+...
+        </artwork>
+      </figure>
 
-      <t>TBD: Describe how sensors publish their data (format is still in
-      flux)</t>
-      
+      <t>The numbers in parentheses identify second delta to current time
+      when the state last changed. For example, apparently Kodi process was
+      last running on the machine it is monitored on ~20 hours ago, and the
+      light called Entry was turned off 38 seconds ago.</t>
+
     </section>
 
     <section anchor="tlvs" title="Type-Length-Value Objects">
@@ -176,43 +184,42 @@ Edit time:     51 min
         <t>
           TBD: ASCII art
 
-          TBD: Move to CBOR encoding? Unfortunately not e.g. part of base
-          Python 2, so I guess not.
-          
           <list style="symbols">
-            <t>T=100 (TBD)</t>
+            <t>T=789 (TBD)</t>
             <t>V=
             JSON-encoded string, containing a dictionary with:
             <list style="symbols">
 
-              <t>timestamp: when was the value most recently changed;
+              <t>ts: (timestamp) when was the value most recently changed;
               number, expressed in seconds, UTC since UNIX epoch</t>
 
-              <t>key: name of the key</t>
+              <t>k: which key the value applies for</t>
 
-              <t>value: the value of the key (any acceptable Json)</t>
+              <t>v: the value of the key (any acceptable Json)</t>
             </list>
-            TBD: Encode using non-JSON?
             </t>
           </list>
+
+          For example, the value of the TLV describing Kodi state noted in
+          the above example looks as follows:
+          {"k": ".kh.process.kodi/on", "v": false, "ts": 1444598358.729439}
         </t>
         </section>
 
     </section>
-    
+
     <section title="Security Considerations">
 
-      <t>As SHSP can only be used with DTLS-secured transport, same caveats
-      apply. Even then, care should be taken with e.g.  management of the
-      PSKs as insecure access to devices that control light and power is a
-      bad idea.</t>
+      <t>N/A</t>
 
     </section>
     <section title="IANA Considerations">
-      <t>This document has no actions for IANA.</t>
-      <t>TBD: Steal chunk of HNCP option space for SHSP</t>
+
+      <t>This document has no actions for IANA as it is informational for
+      fun document, not really aimed for standards track.</t>
+
     </section>
-    
+
   </middle>
   <back>
     <references title="Normative references">
@@ -223,7 +230,14 @@ Edit time:     51 min
     <!-- <references title="Informative references"> -->
     <!-- </references> -->
     <section title="Changelog">
-      <t>First version!</t>
+      <t>draft-stenberg-shsp-01:
+      <list style="symbols">
+        <t>Got rid of the Python agent section - while it is planned at
+        some point, not implemented yet and I am mostly interested in
+        documenting the current production scheme.</t>
+        <t>Added concrete examples of sensors and current system output.</t>
+      </list>
+      </t>
     </section>
 
     <section title="Draft source">
