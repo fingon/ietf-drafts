@@ -134,7 +134,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       for IPv4 addresses respectively. If the query returned any PTR records
       the host then subsequently queries the DNS for TXT records located in
       each domain indicated in the PTR records and handles their contents as
-      PVD information.</t>
+      individual PVDs.</t>
 
       <t>As prefixes can be sub-delegated arbitrarily, PTR records SHOULD
       be provided for any subprefixes contained within a particular prefix.
@@ -147,12 +147,12 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       instead.</t>
 
 	  <t>If for example, the retrieved PTR record is assumed to point at the
-	  FQDN _pvd.example.com. The next query is then sent for TXT records of
+	  FQDN _pvd.example.com. The next query is then sent for TXT records in
 	  this domain, and if successful, the node has retrieved up-to-date
       information about PVDs applicable to that particular address.</t>
 
       <t>A host MUST support handling multiple PTR records for the initial
-      .arpa domain as well as multiple TXT records at all domains
+      .arpa domain as well as multiple TXT records for all domains
       pointed to by the PTR records. This facilitates handling of multiple
       PVDs with minimal amount of state in the network. A host MUST honor both
       the time-to-live of the received records, and negative replies that
@@ -598,6 +598,11 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
           EdDSA or ECDSA signature over all records not starting with
           "sig-". Care would need to be taken wrt. TTL and negative caching
           though.</t>
+
+          <t>Should PVD-aware hosts be recommended or even required to always
+          prefer routers that announced the respective source address in a PIO
+          over those that didn't when making routing decisions? This takes on
+          the points made in draft-baker-6man-multi-homed-host.</t>
 	</list>
       </t>
     </section>
