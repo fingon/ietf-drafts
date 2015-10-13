@@ -348,6 +348,13 @@ TODO:
       topology discovery. If used in pure unicast mode with unreliable
       transport, Trickle is also used between peers.</t>
 
+      <t>DNCP is based on exchanging <xref target="tlvs">TLVs</xref> and
+      defines a set of mandatory and optional ones for its operation. They are
+      categorized into TLVs for <xref target="tlv-request">requesting
+      information</xref>, <xref target="tlv-data">transmitting data</xref> and
+      <xref target="tlv-state">being published as data</xref>. DNCP based
+      protocols usually specify additional ones to extend the capabilities.</t>
+
       <t>DNCP discovers the topology of the nodes in the DNCP network and
       maintains the liveliness of published node data by ensuring that the
       publishing node is bidirectionally reachable.
@@ -754,6 +761,11 @@ TODO:
 
       <section anchor="peers" title="Discovering, Adding and Removing Peers">
 
+        <t>Peer relations are established between neighbors using one or more
+        mutually connected endpoints. Such neighbors exchange information about
+        network state and published data directly and through transitivity this
+        information then propagates throughout the network.</t>
+
 		<t>New peers are discovered using the regular unicast or multicast
 		transport defined in the <xref target="profile-bits">DNCP profile
 		</xref>. This process is not distinguished from peer addition, i.e.,
@@ -812,7 +824,7 @@ TODO:
 
         <t>Maintenance of the <xref target="hash-tree">hash tree</xref> and
         thereby network state hash updates depend on up-to-date information
-        on bidirectional node reachablity derived from the contents of the
+        on bidirectional node reachablity derived from the contents of a
         topology graph. This graph changes whenever nodes are added to or
         removed from the network or when bidirectional connectivity between
         existing nodes is established or lost. Therefore the graph MUST be
@@ -1020,7 +1032,7 @@ TODO:
         target="ka-interval">Keep-Alive Interval TLV(s)</xref> within its
         node data.</t>
 
-        <section title="Data Model Additions">
+        <section title="Data Model Additions" anchor="ka-dm">
 
           <t>The following additions to the <xref target="dm">Data
           Model</xref> are needed to support keep-alives:</t>
@@ -1044,7 +1056,9 @@ TODO:
             <t>Last contact timestamp: a timestamp which indicates the last
             time a consistent <xref target="net-state">Network State
             TLV</xref> was received from the peer over multicast, or anything
-            was received over unicast. When adding a new peer, it is
+            was received over unicast. Failing to updated it for a certain
+            amount of time as specified in <xref target="ka-peer-removal" />
+            results in the removal of the peer. When adding a new peer, it is
             initialized to the current time.</t>
 
             <t>Last sent: If per-peer keep-alives are enabled, a timestamp
@@ -1099,17 +1113,18 @@ TODO:
 
           <t>On receipt of a <xref target="net-state">Network State TLV</xref>
           which is consistent with the locally calculated network state hash,
-          the Last contact timestamp for the peer MUST be updated.</t>
+          the Last contact timestamp for the peer MUST be updated in order
+          to prevent removing it as a peer.</t>
 
         </section>
 
-        <section title="Peer Removal">
+        <section title="Peer Removal" anchor="ka-peer-removal">
 
           <t>For every peer on every endpoint, the endpoint-specific
           keep-alive interval must be calculated by looking for <xref
           target="ka-interval">Keep-Alive Interval TLVs</xref> published by
           the node, and if none exist, using the default value of
-          DNCP_KEEPALIVE_INTERVAL. If the peer's last contact
+          DNCP_KEEPALIVE_INTERVAL. If the peer's Last contact
           timestamp has not been updated for at least locally chosen
           potentially endpoint-specific keep-alive multiplier (defaults to
           DNCP_KEEPALIVE_MULTIPLIER) times the peer's endpoint-specific
@@ -1170,7 +1185,8 @@ TODO:
         endpoints in Multicast-Listen+Unicast transport mode MUST be
         changed. If the node identifier of the local node is the highest
         one, the node MUST switch back to, or stay in Multicast+Unicast
-        mode, and normally form peer relationships with all peers.</t>
+        mode, and form peer relationships with all peers as specified
+        in <xref target="peers" />.</t>
 
       </section>
     </section>
@@ -1246,7 +1262,7 @@ TODO:
       </t>
 
 
-      <section title="Request TLVs">
+      <section title="Request TLVs" anchor="tlv-request">
 
         <section anchor="req-net-state" title="Request Network State TLV">
 
@@ -1291,7 +1307,7 @@ TODO:
         </section>
 
       </section>
-      <section title="Data TLVs">
+      <section title="Data TLVs" anchor="tlv-data">
         <section anchor="endpoint" title="Node Endpoint TLV">
 
           <figure>
@@ -1404,7 +1420,7 @@ TODO:
       </section>
 
 
-      <section title="Data TLVs within Node State TLV">
+      <section title="Data TLVs within Node State TLV" anchor="tlv-state">
 
         <t>These TLVs are published by the DNCP nodes, and therefore only
         encoded in the Node Data field of Node State TLVs. If encountered
