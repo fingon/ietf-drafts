@@ -1,8 +1,8 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Fri Jul  3 08:40:24 2015 mstenber
-Last modified: Mon Oct 12 20:54:30 2015 mstenber
-Edit time:     104 min
+Last modified: Tue Oct 13 10:27:49 2015 mstenber
+Edit time:     107 min
 -->
 
 <!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
@@ -177,7 +177,7 @@ mstenber@poro ~>khtool -v
 
     <section anchor="tlvs" title="Type-Length-Value Objects">
       <t>
-        SHSP requires only one TLV for it's own use:
+        SHSP requires only one TLV for its own use:
       </t>
 
       <section title="SHSP Key-Value State TLV">
@@ -224,8 +224,8 @@ mstenber@poro ~>khtool -v
   <back>
     <references title="Normative references">
       <?rfc include="reference.RFC.2119.xml"?>
-      <?rfc include="reference.I-D.draft-ietf-homenet-dncp-06.xml"?>
-      <?rfc include="reference.I-D.draft-ietf-homenet-hncp-06.xml"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-dncp-09.xml"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-hncp-09.xml"?>
     </references>
     <!-- <references title="Informative references"> -->
     <!-- </references> -->
