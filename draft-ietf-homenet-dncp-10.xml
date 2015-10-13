@@ -402,27 +402,44 @@ TODO:
       <section title="Hash Tree" anchor="hash-tree">
 
         <t>Each DNCP node maintains an arbitrary width hash tree of height
-        1.
+        1. The root of the tree represents the overall network state hash and
+		is used to determine whether the view of the network of two or more
+		nodes is consistent and shared. Each leaf represents one
+		bidirectionally reachable DNCP node. Every time a node is added or
+		removed from the <xref target="liveliness">topology graph</xref>
+		it is likewise added or removed as a leaf. At any time the leaves of
+		the tree are ordered in ascending order of the node identifiers of the
+		nodes they represent.</t>
 
-        Each leaf represents one bidirectionally reachable DNCP
-        node (see <xref target="liveliness" />), and is represented by a
-        tuple consisting of the node's sequence number in network byte
-        order concatenated with the hash-value of the node's ordered node
-        data published in the <xref target="node-state">Node State
-        TLV</xref>. These leaves are ordered in ascending order of the
-        node identifiers of the nodes they represent.
+        <section title="Calculating network state and node data hashes">
+        	<t>The network state hash and the node data hashes are calculated
+        	using the hash function defined in the <xref target="profile-bits">
+        	DNCP profile</xref> and truncated to the number of bits specified
+        	therein.</t>
+        	
+        	<t>Individual node data hashes are calculated by applying the
+        	function and truncation on the respective node's node data as
+        	published in the Node State TLV. Such node data sets are always
+        	ordered as defined in <xref target="node-state" />.</t>
+        	
+        	<t>The network state hash is calculated by applying the function
+        	and truncation on the concatenated network state. This state is
+        	formed by first concatenating each node's sequence number (in
+        	network byte order) with its node data hash to form a per-node
+        	datum for each node. These per-node data are then concatenated in
+        	ascending order of the respective node's node identifier, i.e.,
+        	in the order that the nodes appear in the hash tree.</t>
+        
+        </section>
 
-        The root of the tree - the network state hash - is represented by
-        the hash-value calculated over all such leaf tuples concatenated in
-        order.  It is used to determine whether the view of the network of
-        two or more nodes is consistent and shared.</t>
-
-        <t>The node data hashes in the leaves and the root network state
-        hash are updated on-demand and whenever any locally stored per-node
-        state changes. This includes local unidirectional reachability
-        encoded in the published <xref target="peer">Peer TLVs</xref> and -
-        when combined with remote data - results in awareness of
-        bidirectional reachability changes.</t>
+		<section title="Updating network state and node data hashes">
+        	<t>The network state hash and the node data hashes are updated
+        	on-demand and whenever any locally stored per-node state changes.
+        	This includes local unidirectional reachability encoded in the
+        	published <xref target="peer">Peer TLVs</xref> and - when combined
+        	with remote data - results in awareness of bidirectional
+        	reachability changes.</t>
+        </section>
 
       </section>
 
@@ -450,12 +467,20 @@ TODO:
         A specific definition of the transport(s) in use and their parameters
         MUST be provided by the DNCP profile.</t>
 
-        <t>TLVs are sent across the transport as is, and they SHOULD be
-        sent together where, e.g., MTU considerations do not recommend
-        sending them in multiple batches. TLVs in general are handled
-        individually and statelessly, with one exception: To form
-        bidirectional peer relationships DNCP requires identification of
-        the endpoints used for communication. As bidirectional peer
+        <t><xref target="tlvs">TLVs</xref> are sent across the transport as is,
+        and they SHOULD be sent together where, e.g., MTU considerations do not
+        recommend sending them in multiple batches. DNCP does not fragment or
+        reassemble TLVs thus it MUST be ensured that the underlying transport
+        performs these operations should they be necessary. If this document
+        indicates sending one or more TLVs, then the sending node does not need
+        to keep track of the packets sent after handing them over to the
+        respective transport, i.e., reliable DNCP operation is ensured merely
+        by the explicitly defined timers and state machines such as
+        <xref target="trickle-updates">Trickle</xref>.
+        TLVs in general are handled individually and statelessly (and thus do
+        not need to be sent in any particular order) with one exception:
+        To form bidirectional peer relationships DNCP requires
+        identification of the endpoints used for communication. As bidirectional peer
         relationships are required for validating liveliness of published node
         data as described in <xref target="liveliness" />, a DNCP node MUST
         send a <xref target="endpoint">Node Endpoint TLV</xref>. When it is
@@ -486,11 +511,12 @@ TODO:
             <list style="symbols">
 
               <t>If only reliable unicast transport is used, Trickle is
-              not used at all. Where Trickle reset has been specified, a
+              not used at all. Whenever the locally calculated
+              network state hash changes, a
               single <xref target="net-state">Network State TLV</xref> is
               sent instead to every unicast peer. Additionally, recently
               changed <xref target="node-state">Node State TLVs</xref> MAY
-              be included. </t>
+              be included.</t>
 
               <t>If only unreliable unicast transport is used, Trickle
               state is kept per peer and it is used to send Network State
@@ -519,7 +545,18 @@ TODO:
       <section title="Trickle-Driven Status Updates"
                anchor="trickle-updates">
 
-        <t>The <xref target="RFC6206">Trickle algorithm</xref> has
+		<t>The <xref target="RFC6206">Trickle algorithm</xref> is used to
+		ensure protocol reliability over unreliable multicast or unicast
+		transports. For reliable unicast transports, its actual algorithm
+		is unnecessary and <xref target="dt">omitted</xref>. DNCP maintains
+		multiple Trickle states as defined in <xref target="dm" />. Each such
+		state can be based on different parameters (see below) and is
+		reponsible for ensuring that a specific peer or all peers on the
+		respective endpoint are regularly provided with the node's current
+		locally calculated network state hash for state comparison, i.e.,
+		to detect potential divergence in the perceived network state.</t>
+
+        <t>Trickle defines
         3 parameters: Imin, Imax and k. Imin and Imax represent the minimum
         value for I and the maximum number of doublings of Imin, where I is
         the time interval during which at least k Trickle updates must be
@@ -530,9 +567,10 @@ TODO:
         <t>The Trickle state for all Trickle instances defined in
         <xref target="dm" /> is considered
         inconsistent and reset if and only if the locally calculated
-        network state hash changes. This occurs either due to a change in
+        network state hash changes.  This occurs either due to a change in
         the local node's own node data, or due to receipt of more recent
-        data from another node. A node MUST NOT reset its Trickle state
+        data from another node <xref target="hash-tree" />. A node MUST NOT
+        reset its Trickle state
         merely based on receiving a <xref target="net-state">Network State
         TLV</xref> with a network state hash which is different from its
         locally calculated one.</t>
@@ -568,8 +606,9 @@ TODO:
         what may be safely defined to be ignored in a profile.
 
         Any 'reply' mentioned in the steps below denotes sending of the
-        specified TLV(s) over unicast to the originator of the TLV being
-        processed. If the TLV being replied to was received via multicast
+        specified TLV(s) to the originator of the TLV being processed.
+        All such replies MUST be sent using unicast.
+        If the TLV being replied to was received via multicast
         and it was sent to a multiple access link, the reply MUST be
         delayed by a random timespan in [0, Imin/2], to avoid potential
         simultaneous replies that may cause problems on some links,
@@ -713,7 +752,19 @@ TODO:
 
       </section>
 
-      <section anchor="peers" title="Adding and Removing Peers">
+      <section anchor="peers" title="Discovering, Adding and Removing Peers">
+
+		<t>New peers are discovered using the regular unicast or multicast
+		transport defined in the <xref target="profile-bits">DNCP profile
+		</xref>. This process is not distinguished from peer addition, i.e.,
+		an unknown peer is simply discovered by receving regular DNCP protocol
+		TLVs from it and dedicated discovery messages or TLVs do not exist.
+		For unicast-only transports, the individual node's transport addresses
+		are preconfigured or obtained using an external service discovery
+		protocol. In the presence of a multicast transport, messages from
+		unknown peers are handled in the same way as multicast messages from
+		peers that are already known, thus new peers are simply discovered
+		when sending their regular DNCP protocol TLVs using multicast.</t>
 
         <t>When receiving a <xref target="endpoint">Node Endpoint
         TLV</xref> on an endpoint from an unknown peer:
@@ -745,7 +796,10 @@ TODO:
         starts sending keep-alives again.
 
         When the peer is no longer present, the Peer
-        TLV and the local DNCP peer state MUST be removed.</t>
+        TLV and the local DNCP peer state MUST be removed. DNCP does not
+        define an explicit message or TLV for indicating the termination of
+        DNCP operation by the terminating node, however a derived protocol
+        could specify an extension, if the need arises.</t>
 
         <t>If the local endpoint is in the Multicast-Listen+Unicast
         transport mode, a <xref target="peer">Peer TLV</xref> MUST
@@ -756,9 +810,14 @@ TODO:
 
       <section anchor="liveliness" title="Data Liveliness Validation">
 
-        <t>The topology graph MUST be traversed either immediately or with
-        a small delay shorter than the DNCP profile-defined Trickle
-        Imin, whenever:
+        <t>Maintenance of the <xref target="hash-tree">hash tree</xref> and
+        thereby network state hash updates depend on up-to-date information
+        on bidirectional node reachablity derived from the contents of the
+        topology graph. This graph changes whenever nodes are added to or
+        removed from the network or when bidirectional connectivity between
+        existing nodes is established or lost. Therefore the graph MUST be
+        updated either immediately or with a small delay shorter than the
+        DNCP profile-defined Trickle Imin, whenever:
 
         <list style="symbols">
           <t>A Peer TLV or a whole node is added or removed, or</t>
@@ -767,11 +826,15 @@ TODO:
           data is less than current time - 2^32 + 2^15.</t>
 
         </list>
+
+        The artifical upper limit for the origination time is thereby used to
+        gracefully avoid overflows of the origination time and allow for the
+        node to republish its data as noted in <xref target="node-state" />.
         </t>
 
-        <t>The topology graph traversal starts with the local node marked as
-        reachable. Other nodes are then iteratively marked as reachable using
-        the following algorithm:
+        <t>The topology graph update starts with the local node marked as
+        reachable and all other nodes marked as unreachable. Other nodes are
+        then iteratively marked as reachable using the following algorithm:
         A candidate not-yet-reachable node N with an endpoint NE is marked
         as reachable if there is a reachable node R with an endpoint RE that
         meet all of the following criteria:
@@ -933,12 +996,11 @@ TODO:
 
       <section anchor="ka" title="Keep-Alives">
 
-        <t><xref target="trickle-updates">Trickle-driven status
-        updates</xref> provide a mechanism for handling of new peer
-        detection on an endpoint, as well as state change
-        notifications. Another mechanism may be needed to get rid of old,
+        <t>While DNCP provides mechanisms for discovery and adding of new
+        peers on an endpoint, as well as providing state change notifications,
+        another mechanism may be needed to get rid of old,
         no longer valid peers if the transport or lower layers do not
-        provide one.</t>
+        provide one <xref target="liveliness" />.</t>
 
         <t>If keep-alives are not specified in the DNCP profile, the rest
         of this subsection MUST be ignored.</t>
@@ -1399,9 +1461,10 @@ TODO:
           <t>This TLV indicates a non-default interval being used to send
           keep-alives specified in <xref target="ka" />.</t>
 
-          <t>Endpoint identifier is used to identify the particular
-          endpoint for which the interval applies. If 0, it applies for
-          ALL endpoints for which no specific TLV exists.</t>
+          <t>Endpoint identifier is used to identify the particular (local)
+          endpoint for which the interval applies on the sending node.
+          If 0, it applies for ALL endpoints for which no specific TLV
+          exists.</t>
 
           <t>Interval specifies the interval in milliseconds at which the
           node sends keep-alives. A value of zero means no keep-alives are
