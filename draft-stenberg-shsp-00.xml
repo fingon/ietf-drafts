@@ -100,8 +100,8 @@ Edit time:     104 min
       HNCP TLVs are part of SHSP.</t>
 
       <t>SHSP nodes MAY choose to use the DTLS method(s) specified in the
-      DNCP document, but in practise if authentication is desirable,
-      something more lightwewight using simple PSKs + sha256 authentication
+      DNCP document, but in practice if authentication is desirable,
+      something more lightweight using simple PSKs + sha256 authentication
       may be used. To prevent providing a bad example, a concrete example
       is omitted. </t>
 
@@ -117,7 +117,7 @@ Edit time:     104 min
 
       <t>If we assume that keys in and of themselves are unique, then we
       can assume that someone else than the node responsible for
-      particular resource beloning to that key publishing a key=value for
+      particular resource belonging to that key publishing a key=value for
       it desires a state change, e.g. turning on a light.</t>
 
     </section>

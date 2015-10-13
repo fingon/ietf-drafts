@@ -76,7 +76,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       <t>This document describes where and how the provision domain
       information is encoded in the Domain Name System (DNS). For optional
       authentication DNSSEC is used.</t>
-      
+
       <t>A backwards compatible way of adding IPv6 prefixes without generic
       internet connectivity is also provided so that the hosts that are not
       aware of the provisioning domain prefixes do not inadvertly use those
@@ -117,7 +117,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 
       </section>
     </section>
-    
+
 
     <section anchor="dns" title="PVD information discovery using DNS">
       <t>Each PVD is stored within the DNS, encoded as a single
@@ -130,12 +130,12 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       _pvd.&lt;domain&gt;. &lt;domain&gt; is a .arpa domain for reverse
       lookups derived from the respective  prefix or subnet the source
       address is assigned from and generated as specified in
-      <xref target="RFC3596" /> for IPv6 adresses and <xref target="RFC1034" />
+      <xref target="RFC3596" /> for IPv6 addresses and <xref target="RFC1034" />
       for IPv4 addresses respectively. If the query returned any PTR records
       the host then subsequently queries the DNS for TXT records located in
       each domain indicated in the PTR records and handles their contents as
       PVD information.</t>
-      
+
       <t>As prefixes can be sub-delegated arbitrarily, PTR records SHOULD
       be provided for any subprefixes contained within a particular prefix.
       For example, given a prefix 2001:db8:8765:4321::/64, a host with an
@@ -157,7 +157,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       PVDs with minimal amount of state in the network. A host MUST honor both
       the time-to-live of the received records, and negative replies that
       conform to <xref target="RFC2308" />. A host MUST NOT use addresses from
-      a prefix as the source for new packet flows once the TTL has passed 
+      a prefix as the source for new packet flows once the TTL has passed
       until it did successfully retrieve updated PVD information.</t>
 
 	<section anchor="format" title="PVD TXT Record Fomat">
@@ -165,14 +165,14 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       those of <xref target="RFC6763">DNS-SD</xref> and defined as follows.
 
 	  TXT records consist of key/value pairs, each encoded as a string of up
-	  to 255 octets preceeded by a length byte storing the number of octets.
+	  to 255 octets preceded by a length byte storing the number of octets.
 	  The strings are in the form "key=value" or simply "key" (without
 	  quotation marks) where everything up to the first '=' character (if any,
 	  otherwise the whole string) is the key and everything after it (if any,
 	  including subsequent '=' characters) is the value. Due to the use of a
 	  length byte, quotation marks or similar are not required around the
 	  value. Keys are case-sensitive. Hosts MUST ignore TXT records which do
-	  not conform to these rules.</t>		
+	  not conform to these rules.</t>
 	</section>
 
     <section anchor="keys" title="PVD TXT Record Keys">
@@ -197,7 +197,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     	  <ttcol width="20%">Example</ttcol>
     	  <c>n</c>
     	  <c>User-visible service name</c>
-    	  <c>human-readbale UTF-8 string</c>
+    	  <c>human-readable UTF-8 string</c>
     	  <c>n=Foobar Service</c>
     	  <c>s</c>
     	  <c>Internet inaccessible</c>
@@ -451,7 +451,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
         well as actual potentially different next-hop and/or source address
         selection. </t>
         <t>Faking of connection capabilities to e.g. prefer some connection
-        fradulently over others.</t>
+        fraudulently over others.</t>
       </list>
 
       If a host requires DNSSEC authentication and the retrieved information
