@@ -94,7 +94,7 @@ TODO:
 
       <section title="Applicability">
 	<t>DNCP is useful for cases like autonomous bootstrapping, discovery
-	and negotiation of embedded network devices like routers. 
+	and negotiation of embedded network devices like routers.
 	Furthermore it can be used as a basis to run distributed algorithms
 	like <xref target="I-D.ietf-homenet-prefix-assignment" /> or
 	usecases as described in <xref target="profile-example"/>. The
@@ -423,12 +423,12 @@ TODO:
         	using the hash function defined in the <xref target="profile-bits">
         	DNCP profile</xref> and truncated to the number of bits specified
         	therein.</t>
-        	
+
         	<t>Individual node data hashes are calculated by applying the
         	function and truncation on the respective node's node data as
         	published in the Node State TLV. Such node data sets are always
         	ordered as defined in <xref target="node-state" />.</t>
-        	
+
         	<t>The network state hash is calculated by applying the function
         	and truncation on the concatenated network state. This state is
         	formed by first concatenating each node's sequence number (in
@@ -436,7 +436,7 @@ TODO:
         	datum for each node. These per-node data are then concatenated in
         	ascending order of the respective node's node identifier, i.e.,
         	in the order that the nodes appear in the hash tree.</t>
-        
+
         </section>
 
 		<section title="Updating network state and node data hashes">
@@ -571,16 +571,14 @@ TODO:
         actual suggested Trickle algorithm parameters are DNCP profile
         specific, as described in <xref target="profile-bits"/>.</t>
 
-        <t>The Trickle state for all Trickle instances defined in
-        <xref target="dm" /> is considered
-        inconsistent and reset if and only if the locally calculated
-        network state hash changes.  This occurs either due to a change in
-        the local node's own node data, or due to receipt of more recent
-        data from another node <xref target="hash-tree" />. A node MUST NOT
-        reset its Trickle state
-        merely based on receiving a <xref target="net-state">Network State
-        TLV</xref> with a network state hash which is different from its
-        locally calculated one.</t>
+        <t>The Trickle state for all Trickle instances defined in <xref
+        target="dm" /> is considered inconsistent and reset if and only if
+        the locally calculated network state hash changes.  This occurs
+        either due to a change in the local node's own node data, or due to
+        receipt of more recent data from another node. A node MUST NOT
+        reset its Trickle state merely based on receiving a <xref
+        target="net-state">Network State TLV</xref> with a network state
+        hash which is different from its locally calculated one.</t>
 
         <t>Every time a particular Trickle instance indicates that an
         update should be sent, the node MUST send a <xref
@@ -839,9 +837,10 @@ TODO:
 
         </list>
 
-        The artificial upper limit for the origination time is thereby used to
-        gracefully avoid overflows of the origination time and allow for the
-        node to republish its data as noted in <xref target="node-state" />.
+        The artificial upper limit for the origination time is used to
+        gracefully avoid overflows of the origination time and allow for
+        the node to republish its data as noted in <xref
+        target="node-state" />.
         </t>
 
         <t>The topology graph update starts with the local node marked as
@@ -1008,11 +1007,11 @@ TODO:
 
       <section anchor="ka" title="Keep-Alives">
 
-        <t>While DNCP provides mechanisms for discovery and adding of new
-        peers on an endpoint, as well as providing state change notifications,
-        another mechanism may be needed to get rid of old,
-        no longer valid peers if the transport or lower layers do not
-        provide one <xref target="liveliness" />.</t>
+        <t>While DNCP provides <xref target="liveliness">mechanisms for
+        discovery and adding of new peers on an endpoint</xref>, as well as
+        providing state change notifications, another mechanism may be
+        needed to get rid of old, no longer valid peers if the transport or
+        lower layers do not provide one .</t>
 
         <t>If keep-alives are not specified in the DNCP profile, the rest
         of this subsection MUST be ignored.</t>
@@ -1114,7 +1113,7 @@ TODO:
           <t>On receipt of a <xref target="net-state">Network State TLV</xref>
           which is consistent with the locally calculated network state hash,
           the Last contact timestamp for the peer MUST be updated in order
-          to prevent removing it as a peer.</t>
+          to maintain it as a peer.</t>
 
         </section>
 
