@@ -1009,9 +1009,9 @@ TODO:
 
         <t>While DNCP provides <xref target="liveliness">mechanisms for
         discovery and adding of new peers on an endpoint</xref>, as well as
-        providing state change notifications, another mechanism may be
-        needed to get rid of old, no longer valid peers if the transport or
-        lower layers do not provide one .</t>
+        state change notifications, another mechanism may be needed to get
+        rid of old, no longer valid peers if the transport or lower layers
+        do not provide one .</t>
 
         <t>If keep-alives are not specified in the DNCP profile, the rest
         of this subsection MUST be ignored.</t>
