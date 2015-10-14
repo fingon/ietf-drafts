@@ -575,7 +575,8 @@ TODO:
         target="dm" /> is considered inconsistent and reset if and only if
         the locally calculated network state hash changes.  This occurs
         either due to a change in the local node's own node data, or due to
-        receipt of more recent data from another node. A node MUST NOT
+        receipt of more recent data from another node as explained in
+        <xref target="hash-tree" />. A node MUST NOT
         reset its Trickle state merely based on receiving a <xref
         target="net-state">Network State TLV</xref> with a network state
         hash which is different from its locally calculated one.</t>
@@ -1007,11 +1008,11 @@ TODO:
 
       <section anchor="ka" title="Keep-Alives">
 
-        <t>While DNCP provides <xref target="liveliness">mechanisms for
+        <t>While DNCP provides <xref target="peers">mechanisms for
         discovery and adding of new peers on an endpoint</xref>, as well as
         state change notifications, another mechanism may be needed to get
         rid of old, no longer valid peers if the transport or lower layers
-        do not provide one .</t>
+        do not provide one as noted in <xref target="liveliness" />.</t>
 
         <t>If keep-alives are not specified in the DNCP profile, the rest
         of this subsection MUST be ignored.</t>
