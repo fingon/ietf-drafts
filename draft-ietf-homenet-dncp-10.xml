@@ -558,7 +558,7 @@ TODO:
 		is unnecessary and <xref target="dt">omitted</xref>. DNCP maintains
 		multiple Trickle states as defined in <xref target="dm" />. Each such
 		state can be based on different parameters (see below) and is
-		reponsible for ensuring that a specific peer or all peers on the
+		responsible for ensuring that a specific peer or all peers on the
 		respective endpoint are regularly provided with the node's current
 		locally calculated network state hash for state comparison, i.e.,
 		to detect potential divergence in the perceived network state.</t>
@@ -769,7 +769,7 @@ TODO:
 		<t>New peers are discovered using the regular unicast or multicast
 		transport defined in the <xref target="profile-bits">DNCP profile
 		</xref>. This process is not distinguished from peer addition, i.e.,
-		an unknown peer is simply discovered by receving regular DNCP protocol
+		an unknown peer is simply discovered by receiving regular DNCP protocol
 		TLVs from it and dedicated discovery messages or TLVs do not exist.
 		For unicast-only transports, the individual node's transport addresses
 		are preconfigured or obtained using an external service discovery
@@ -824,7 +824,7 @@ TODO:
 
         <t>Maintenance of the <xref target="hash-tree">hash tree</xref> and
         thereby network state hash updates depend on up-to-date information
-        on bidirectional node reachablity derived from the contents of a
+        on bidirectional node reachability derived from the contents of a
         topology graph. This graph changes whenever nodes are added to or
         removed from the network or when bidirectional connectivity between
         existing nodes is established or lost. Therefore the graph MUST be
@@ -839,7 +839,7 @@ TODO:
 
         </list>
 
-        The artifical upper limit for the origination time is thereby used to
+        The artificial upper limit for the origination time is thereby used to
         gracefully avoid overflows of the origination time and allow for the
         node to republish its data as noted in <xref target="node-state" />.
         </t>
