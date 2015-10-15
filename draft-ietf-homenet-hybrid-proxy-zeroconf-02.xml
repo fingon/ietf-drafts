@@ -1,8 +1,8 @@
 <?xml version='1.0' ?>
 <!--
 Created:       Mon Jun 17 04:55:57 2013 mstenber
-Last modified: Fri Oct  9 17:36:49 2015 mstenber
-Edit time:     595 min
+Last modified: Thu Oct 15 13:56:19 2015 mstenber
+Edit time:     596 min
 -->
 
 <!--
@@ -29,7 +29,7 @@ Edit time:     595 min
 
 <rfc
     ipr='trust200902'
-    docName='draft-ietf-homenet-hybrid-proxy-zeroconf-01'
+    docName='draft-ietf-homenet-hybrid-proxy-zeroconf-02'
     category='std'
     >
   <front>
@@ -49,7 +49,7 @@ Edit time:     595 min
         <email>markus.stenberg@iki.fi</email>
       </address>
     </author>
-    <date month="September" year="2015" />
+    <date month="October" year="2015" />
     <area>Internet</area>
     <workgroup>Homenet Working Group</workgroup>
     <keyword>IPv6</keyword>
@@ -742,7 +742,8 @@ node-2 NS node-2
     <section title="Changelog [RFC Editor: please remove]">
       <t>draft-ietf-homenet-hybrid-proxy-zeroconf-02:
       <list style="symbols">
-        <t>Added subsection on simple zone stitching for host name purposes.</t>
+        <t>Added subsection on simple zone stitching for host naming
+        purposes.</t>
       </list>
       </t>
       <t>draft-ietf-homenet-hybrid-proxy-zeroconf-01:
