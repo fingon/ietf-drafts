@@ -67,7 +67,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       <t>In order to minimize additional complexity on routers, this draft
       either relies on existing state in the form the neighbor cache entries
       used for host routing or introduces only lightweight, stateless
-      mechanism to distribute Duplicate Address Detection.</t>
+      mechanism to distribute Duplicate Address Detection messages.</t>
       
       <t>However, an additional mechanism is needed to identify and share
       information about which routers have roaming interfaces, to which roaming
@@ -135,11 +135,15 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 		querying host sending one or more Neighbor Solicitations using the
 		unspecified address as a source and any colliding host replying to the
 		all-nodes address as specified in <xref target="RFC4862" /> and
-		<xref target="RFC4861" />.</t>
+		<xref target="RFC4861" />. Since the source addresses of the DAD
+		solicitations and the destination addresses of the DAD advertisements
+		are fixed, the whole process can happen statelessly.</t>
 		
-		<section title="Receipt and Distribution of DAD Messages">
+		<section title="Receipt of DAD Messages and forwarding to routers">
 			<t>The following requirements apply for receiving DAD traffic
-			on roaming interfaces:
+			from hosts on roaming interfaces and forwarding them to other
+			DAD proxy routers:
+
 			<list>
 				<t>A router MUST listen for all Neighbor Solicitations with
 				a target addresses from an assigned roaming prefix having the
@@ -157,10 +161,10 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
 			</t>
 		</section>
 		
-		<section title="Proxying forwarded of DAD Messages">
-			<t>The following requirements apply to routers having roaming
-			interfaces for receiving and proxying forwarded DAD traffic to
-			clients on respective interfaces:
+		<section title="Distributing DAD Messages received from other routers">
+			<t>The following requirements apply for distributing DAD traffic,
+			forwarded by other routers, to clients on roaming interfaces:
+
 			<list>
 				<t>A router MUST listen for Neighbor Solicitations and
 				Advertisements sent via global unicast from other routers
