@@ -4,11 +4,12 @@
 # Author: Markus Stenberg <markus stenberg@iki.fi>
 #
 # Created:       Mon Jun 17 04:40:32 2013 mstenber
-# Last modified: Thu Oct 15 13:59:57 2015 mstenber
-# Edit time:     32 min
+# Last modified: Fri Oct 16 13:48:10 2015 mstenber
+# Edit time:     34 min
 #
 
 DRAFTS=\
+  draft-barth-homenet-wifi-roaming-00.txt \
   draft-stenberg-homenet-minimalist-pcp-proxy-01.txt \
   draft-stenberg-shsp-01.txt \
   draft-stenberg-anima-adncp-00.txt \

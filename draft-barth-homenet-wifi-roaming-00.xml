@@ -128,8 +128,8 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     </section>
 
 	<section title="Stateless Duplicate Address Detection (DAD) Proxy">
-		<t>Sharing a roaming prefix accross multiple separate interfaces might
-		lead to address colissions between hosts on different interfaces of
+		<t>Sharing a roaming prefix across multiple separate interfaces might
+		lead to address collisions between hosts on different interfaces of
 		the same set. Therefore, it needs to be ensured that DAD messages are
 		shared across interfaces. The typical DAD process involves the
 		querying host sending one or more Neighbor Solicitations using the
@@ -201,7 +201,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
   		
   			<t>A router SHOULD be able to manage and publish host routes for at
   			least two IPv6 addresses for every connected host and IPv6 roaming
-  			prefix announced on a romaing interface.</t>
+  			prefix announced on a roaming interface.</t>
   			
   			<t>The router SHOULD NOT flush neighbor cache entries in STALE
   			state and respective host routes. Instead it SHOULD try to promote
@@ -234,7 +234,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
       	target="I-D.ietf-v6ops-reducing-ra-energy-consumption" />.</t>
       	
       	<t>Stateful DHCPv6 MUST NOT be used to avoid the need to synchronize
-      	lease information and relay DHCPv6 packets. Similary Router
+      	lease information and relay DHCPv6 packets. Similarly Router
       	Advertisements MUST be sent with the M-Bit cleared.</t>
       	
       	<t>NAT64 and DNS64 SHOULD be used if IPv4 connectivity is desired,
@@ -285,7 +285,7 @@ Created:       Fri Oct  2 12:47:06 2015 mstenber
     	  framing or SCTP. However the announced Retrans Timer value in the RA
     	  and retransmission parameters of the transport need to be adjusted,
     	  so that any resend and matching replies happen before the host
-    	  considers the DAD process to have resulted in no colissions.</t>
+    	  considers the DAD process to have resulted in no collisions.</t>
 	</list>
       </t>
     </section>
