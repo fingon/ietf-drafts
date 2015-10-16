@@ -1,0 +1,318 @@
+<?xml version='1.0' ?>
+<!--
+Created:       Fri Oct  2 12:47:06 2015 mstenber
+
+-->
+
+<!DOCTYPE rfc SYSTEM 'rfc2629.dtd'>
+
+<?rfc autobreaks="yes"?>
+<?rfc compact="yes"?>
+<?rfc strict='yes'?>
+<?rfc subcompact="no"?>
+<?rfc symrefs="yes"?>
+<?rfc toc="yes"?>
+<?rfc tocindent="yes"?>
+
+<rfc
+    ipr='trust200902'
+    docName='draft-barth-homenet-wifi-roaming-00'
+    category='exp'
+    >
+  <front>
+    <title abbrev="Homenet WiFi Roaming">
+      Home Network WiFi Roaming
+    </title>
+    <author initials="S" surname="Barth" fullname="Steven Barth">
+      <organization>Independent</organization>
+      <address>
+        <postal>
+          <street/>
+          <city>Halle</city>
+          <code>06114</code>
+          <country>Germany</country>
+        </postal>
+        <email>cyrus@openwrt.org</email>
+      </address>
+    </author>
+    <date month="October" year="2015" />
+
+    <area>Internet</area>
+    <workgroup>Homenet Working Group</workgroup>
+    <keyword>Homenet</keyword>
+    <keyword>DAD</keyword>
+    <keyword>WiFi</keyword>
+    <keyword>Roaming</keyword>
+    <abstract>
+
+      <t>This document describes a mechanism to manage host routes and
+      statelessly proxy IPv6 Duplicate Address Detection messages between
+      multiple WiFi links to allow client roaming.</t>
+
+    </abstract>
+  </front>
+  <middle>
+    <section title="Introduction">
+
+      <t>In a multi router home network it can be desirable to have a WiFi
+      network accessible in different physical locations. Synchronization of
+      configuration parameters like ESSID and authentication allows clients to
+      seamlessly roam the network. However, a client switching from one WiFi
+      AP to another might suffer from service disruption if each AP uses a
+      different IP address prefix. To mitigate this issue, all AP links could
+      be bridged on layer 2, which would lead to increased traffic on the home
+      network backbone. This draft offers an alternative solutions based on
+      host routing and proxying of Duplicate Address Detection for IPv6.</t>
+      
+      <t>In order to minimize additional complexity on routers, this draft
+      either relies on existing state in the form the neighbor cache entries
+      used for host routing or introduces only lightweight, stateless
+      mechanism to distribute Duplicate Address Detection.</t>
+      
+      <t>However, an additional mechanism is needed to identify and share
+      information about which routers have roaming interfaces, to which roaming
+      interface set they belong, under which addresses these routers are
+      reachable and which specific roaming prefixes are assigned. The specific
+      mechanism is out of scope for this draft, however a solution based on
+      <xref target="I-D.ietf-homenet-hncp" /> is conceivable.</t> 
+
+    </section>
+
+    <section title="Terminology">
+
+
+      <texttable suppress-title="true" style="none" align="left">
+	<ttcol width="25%" /><ttcol width="75%" />
+
+	<c>ESSID</c>
+	<c>IEEE 802.11 Extended Service Set Identifier</c>
+
+        <c /><c />
+        
+    <c>host route</c>
+	<c>an IPv6 route with a prefix length of 128 intended to track a
+	host on a roaming interface</c>
+
+<c /><c />
+        
+    <c>roaming interface</c>
+	<c>a network interface (typically IEEE 802.11) which shares an address
+	prefix with other similar interfaces to allow seamless client roaming</c>
+
+<c /><c />
+
+    <c>roaming interface set</c>
+	<c>the set of roaming interfaces which share a particular address
+	prefix</c>
+
+<c /><c />
+        
+    <c>roaming prefix</c>
+	<c>an IPv6 address prefix shared between all interfaces in a roaming
+	interface set</c>
+
+<c /><c />
+
+      </texttable>
+
+      <section anchor="kwd" title='Requirements Language'>
+
+        <t>
+          The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+          NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT
+          RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to
+          be interpreted as described in <xref target='RFC2119'>RFC 2119</xref>.
+        </t>
+
+      </section>
+    </section>
+
+	<section title="Stateless Duplicate Address Detection (DAD) Proxy">
+		<t>Sharing a roaming prefix accross multiple separate interfaces might
+		lead to address colissions between hosts on different interfaces of
+		the same set. Therefore, it needs to be ensured that DAD messages are
+		shared across interfaces. The typical DAD process involves the
+		querying host sending one or more Neighbor Solicitations using the
+		unspecified address as a source and any colliding host replying to the
+		all-nodes address as specified in <xref target="RFC4862" /> and
+		<xref target="RFC4861" />.</t>
+		
+		<section title="Receipt and Distribution of DAD Messages">
+			<t>The following requirements apply for receiving DAD traffic
+			on roaming interfaces:
+			<list>
+				<t>A router MUST listen for all Neighbor Solicitations with
+				a target addresses from an assigned roaming prefix having the
+				unspecified address as the source address. Similarly it MUST
+				listen for all Neighbor Advertisements with a target address
+				from an assigned roaming prefix and having the all-nodes
+				multicast address as the destination address.</t>
+				
+				<t>A router MUST forward all such messages via global unicast
+				to all other routers having roaming interfaces sharing the
+				roaming prefixes the target address of the respective message
+				belongs to.</t>
+			
+			</list>
+			</t>
+		</section>
+		
+		<section title="Proxying forwarded of DAD Messages">
+			<t>The following requirements apply to routers having roaming
+			interfaces for receiving and proxying forwarded DAD traffic to
+			clients on respective interfaces:
+			<list>
+				<t>A router MUST listen for Neighbor Solicitations and
+				Advertisements sent via global unicast from other routers
+				having roaming interfaces with the same roaming prefix.</t>
+				
+				<t>Upon reception of such a Neighbor Solicitation, the
+				router MUST forward the message to all roaming interfaces
+				having prefixes matching the target address. It MUST use
+				the unspecified address as source and the respective solicited
+				node multicast-address as destination address.</t>
+				
+				<t>Upon reception of such a Neighbor Advertisement, the
+				router MUST forward the message to all roaming interfaces
+				having prefixes matching the target address. It MUST use
+				the all-nodes multicast-address as destination address.</t>
+			</list>
+			</t>
+		</section>
+	</section>
+
+  	<section title="Maintaining Host Routes">
+  		<t>Host routes are necessary in order to unambiguously forward packets
+  		to potentially roaming WiFi clients. This draft ties the announcement
+  		of host routes to the presence of <xref target="RFC4861">Neighbor Cache
+  		</xref> entries for addresses of roaming prefixes. The following
+  		requirements apply:
+  		
+  		<list>
+  			<t>A router MUST announce a host route for an IPv6 address belonging
+  			to a roaming prefix whenever there is a corresponding entry for it
+  			in the roaming interface's neighbor cache with the states
+  			REACHABLE, STALE, DELAY or PROBE.</t>
+  			
+  			<t>A router MUST retract any host route for an IPv6 address 
+  			immediately when a neighbor lookup for it has finally failed on the
+  			roaming interface OR when a physical disconnect of the respective
+  			client (e.g., a WiFi disassociation) has been noticed.</t>
+  		
+  			<t>A router SHOULD be able to manage and publish host routes for at
+  			least two IPv6 addresses for every connected host and IPv6 roaming
+  			prefix announced on a romaing interface.</t>
+  			
+  			<t>The router SHOULD NOT flush neighbor cache entries in STALE
+  			state and respective host routes. Instead it SHOULD try to promote
+  			STALE entries to REACHABLE and only upon failure remove the cache
+  			entry and route. This ensures that the address is actually not used
+  			anymore and the host does not happen to be merely temporarily
+  			inactive and potentially waiting for incoming packets.</t>
+  			
+  		</list>
+  		</t>
+  	</section>
+  	
+
+    <section title="Roaming Interface Configuration">
+      <t>The following requirements are suggested for interfaces intended
+      to use the roaming features described in this draft:
+      
+      <list>      
+      	<t>Router Advertisements SHOULD only include Prefix Information Options
+      	for one more IPv6 roaming prefixes. Such Prefix Information Options
+      	MUST have the A-Bit set and the L-Bit cleared.</t>
+      	
+      	<t>The IPv6 address fe80::1 SHOULD be used as fixed link-local address
+      	exclusively by the router on roaming interfaces. This is to ensure
+      	that the IPv6 default route for clients stays the same across roaming
+      	interfaces. Furthermore the address SHOULD be announced as recursive
+      	DNS server address should the router provide such a service.</t> 
+      	
+      	<t>Router Advertisements SHOULD be sent as described in <xref
+      	target="I-D.ietf-v6ops-reducing-ra-energy-consumption" />.</t>
+      	
+      	<t>Stateful DHCPv6 MUST NOT be used to avoid the need to synchronize
+      	lease information and relay DHCPv6 packets. Similary Router
+      	Advertisements MUST be sent with the M-Bit cleared.</t>
+      	
+      	<t>NAT64 and DNS64 SHOULD be used if IPv4 connectivity is desired,
+      	alternatively different and disjoint native IPv4 prefixes MAY be
+      	used on each individual roaming interface.</t>
+      </list>
+      </t>
+  	</section>
+  	
+
+
+    <section title="Security Considerations">
+
+      <t>TBD</t>
+
+    </section>
+
+    <section anchor="iana" title="IANA Considerations">
+
+      <t>No action needed.</t>
+
+    </section>
+
+  </middle>
+  <back>
+    <references title="Normative references">
+      <?rfc include="reference.RFC.2119.xml"?>
+      <?rfc include="reference.RFC.4861.xml"?>
+      <?rfc include="reference.RFC.4862.xml"?>
+      <?rfc include="reference.I-D.draft-ietf-v6ops-reducing-ra-energy-consumption-02"?>
+    </references>
+    <references title="Informative references">
+      <?rfc include="reference.I-D.draft-ietf-homenet-hncp-09"?>
+    </references>
+    
+    <section title="Discussion Points [RFC Editor: please remove]">
+      <t>
+    	<list style="symbols">
+    	  <t>It is debatable which kind of transport could be used for the
+    	  proxied DAD messages. Plain ICMPv6 could be possibly but might be
+    	  dropped by certain hosts. Similarly UDP or DTLS encapsulation could
+    	  be used easily if a port was allocated or exchanged.</t>
+    	  
+    	  <t>Is additional reliability useful and if so what kind? Normally
+    	  hosts only send a single DAD solicitation, so the probability of
+    	  a total packet loss increases with each forwarding hop. Trivially
+    	  one could simply duplicate all proxied DAD messages or use TCP
+    	  framing or SCTP. However the announced Retrans Timer value in the RA
+    	  and retransmission parameters of the transport need to be adjusted,
+    	  so that any resend and matching replies happen before the host
+    	  considers the DAD process to have resulted in no colissions.</t>
+	</list>
+      </t>
+    </section>
+
+    <section title="Changelog [RFC Editor: please remove]">
+      <t>draft-barth-homenet-wifi-roaming-00:
+      <list style="symbols">
+
+        <t>Initial version.</t>
+      </list>
+      </t>
+
+    </section>
+
+    <section title="Draft Source [RFC Editor: please remove]">
+      <t>As usual, this draft is available at <eref
+      target="https://github.com/fingon/ietf-drafts/">
+      https://github.com/fingon/ietf-drafts/</eref>
+      in source format (with nice Makefile too). Feel free to send comments
+      and/or pull requests if and when you have changes to it! </t>
+    </section>
+
+    <section title="Acknowledgements">
+
+      <t></t>
+
+    </section>
+
+  </back>
+</rfc>
