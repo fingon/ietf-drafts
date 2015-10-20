@@ -241,8 +241,8 @@ TODO:
       <c /><c />
 
       <c>Peer</c>
-      <c>another DNCP node with which a DNCP node communicates using a
-      particular local and remote endpoint pair.</c>
+      <c>another DNCP node with which a DNCP node communicates using at least
+      one particular local and remote endpoint pair.</c>
 
       <c /><c />
 
@@ -746,8 +746,11 @@ TODO:
 
           TLVs not recognized by the receiver MUST be silently ignored
           unless they are sent within another TLV (for example, TLVs within
-          the Node Data field of a Node State TLV).
-          </t>
+          the Node Data field of a Node State TLV). TLVs within the Node Data
+          field of the Node State TLV not recognized by the receiver MUST be
+          retained for distribution to other nodes and for calculating the
+          node data hash as described in <xref target="node-state" /> but
+          are ignored for other purposes.</t>
 
         </list>
         </t>
@@ -1348,8 +1351,8 @@ TODO:
             </artwork>
           </figure>
 
-          <t>This TLV contains the current locally calculated network state
-          hash, see <xref target="hash-tree" /> for how it is calculated.</t>
+          <t>This TLV contains the current network state hash calculated by its
+          sender (<xref target="hash-tree" /> describes the algorithm).</t>
 
         </section>
         <section anchor="node-state" title="Node State TLV">
