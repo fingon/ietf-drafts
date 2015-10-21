@@ -1858,10 +1858,25 @@ TODO:
 
         <t>Hash function H(x) to be used, and how many bits of the output
         are actually used. The chosen hash function is used to handle both
-        hashing of node specific data, and network state hash, which is a
-        hash of node specific data hashes. SHA-256 defined in <xref
+        hashing of node data, and to produce network state hash, which is a
+        hash of node data hashes. SHA-256 defined in <xref
         target="RFC6234" /> is the recommended default choice, but a
-        non-cryptographic hash function could be used as well.</t>
+        non-cryptographic hash function could be used as well.
+
+        If there is a hash collision in the network state hash, the network
+        will effectively be partitioned to partitions that believe that
+        they are up to date, but actually no longer converged. The network
+        will converge either when some node data anywhere in the network
+        changes, or when conflicting Node State TLVs get transmitted across
+        the partition (either caused by <xref
+        target="trickle-updates">Trickle-Driven Status Updates</xref> or as
+        part of the <xref target="reception">Processing of Received
+        TLVs</xref>).
+
+        If a node publishes node data with a hash that collides with any
+        previously published node data, the update may not be (fully)
+        propagated and the old version of node data may be used
+        instead.</t>
 
         <t>DNCP_NODE_IDENTIFIER_LENGTH: The fixed length of a node
         identifier (in bytes).</t>
