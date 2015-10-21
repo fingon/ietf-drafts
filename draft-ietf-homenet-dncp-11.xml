@@ -97,15 +97,48 @@ TODO:
 	and negotiation of embedded network devices like routers.
 	Furthermore it can be used as a basis to run distributed algorithms
 	like <xref target="I-D.ietf-homenet-prefix-assignment" /> or
-	usecases as described in <xref target="profile-example"/>. The
-	topology of the devices is not limited and automatically discovered.
-	If globally scoped addresses are used, DNCP peers do not necessarily
-	need to be on the same link.
+	usecases as described in <xref target="profile-example"/>. DNCP is
+	abstract, which allows it to be tuned to a variety of applications by
+	defining profiles. These profiles include choices of:
+	<list style="hanging">
+		<t hangText="- unicast transport:">datagram or stream oriented protocol
+		(e.g., TCP, UDP, SCTP) for generic protocol operation</t>
+
+		<t hangText="- optional transport security:">whether and when to use
+		security based on (D)TLS, if supported over the chosen transport</t>
+
+		<t hangText="- optional multicast transport:">multicast-capable
+		protocol like UDP allowing autonomous peer discovery or more efficient
+		use of multiple access links</t>
+
+		<t hangText="- communication scopes:">either hop-by-hop only relying
+		on link-local addressing (e.g., for LANs) or using addresses with
+		broader scopes (e.g. over WANs or the internet) relying on an existing
+		routing infrastructure or a combination of both (e.g., to exchange
+		state between multiple LANs over a WAN or the internet)</t>
+
+		<t hangText="- payloads:">additional specific payloads (e.g., IANA
+		standardized, enterprise-specific or private use)</t>
+
+		<t hangText="- extensions:">possible protocol extensions, either as
+		predefined in this document or specific for a particular usecase</t>
+	</list>
+
+	The topology of the devices is not limited and automatically discovered.
+	When relying on link-local communication exclusively, all links having
+	DNCP nodes need to be at least transitively connected by routers running
+	the protocol on multiple endpoints in order to form a connected network.
+	However, there is no requirement for every device in a physical network to
+	run the protocol. Especially if globally scoped addresses are used, DNCP
+	peers do not need to be on the same or even neighboring physical links.
 	Autonomous discovery features are usually used in local network
 	scenario however - with security enabled - DNCP can also be used
 	over unsecured public networks. Network size is restricted merely by
 	the capabilities of the devices, i.e., each DNCP node needs to be
-	able to store the entirety of the data published by all nodes.</t>
+	able to store the entirety of the data published by all nodes.
+	Each individual node cannot publish more than 64KB of data using DNCP
+	as specified in this document, however protocol extensions could be defined
+	to mitigate this or other protocol limitations if the need arises.</t>
 
         <t>DNCP is most suitable for data that changes only infrequently to
         gain the maximum benefit from using Trickle. As the network of
