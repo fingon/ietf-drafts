@@ -554,7 +554,7 @@ TODO:
               not used at all. Whenever the locally calculated
               network state hash changes, a
               single <xref target="net-state">Network State TLV</xref> is
-              sent instead to every unicast peer. Additionally, recently
+              sent to every unicast peer. Additionally, recently
               changed <xref target="node-state">Node State TLVs</xref> MAY
               be included.</t>
 
@@ -1092,7 +1092,7 @@ TODO:
             <t>Last contact timestamp: a timestamp which indicates the last
             time a consistent <xref target="net-state">Network State
             TLV</xref> was received from the peer over multicast, or anything
-            was received over unicast. Failing to updated it for a certain
+            was received over unicast. Failing to update it for a certain
             amount of time as specified in <xref target="ka-peer-removal" />
             results in the removal of the peer. When adding a new peer, it is
             initialized to the current time.</t>
