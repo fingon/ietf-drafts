@@ -124,7 +124,33 @@ TODO:
 		predefined in this document or specific for a particular usecase</t>
 	</list>
 
-	The topology of the devices is not limited and automatically discovered.
+	However, there are certain cases where the protocol as defined in this
+	document is a less suitable choice. This list provides an overview while
+	the following paragraphs provide more detailed guidance on the individual
+	matters.
+
+	<list style="hanging">
+		<t hangText="- large amounts of data:">nodes are limited to 64KB of
+		published data</t>
+
+		<t hangText="- very dense unicast-only networks:">nodes include
+		information about all immediate neighbors as part of their published
+		data.</t>
+
+		<t hangText="- predominantly minimal data changes:">Node data is
+		always transported as-is, leading to a relatively large transmission
+		overhead for changes affecting only a small part of it.</t>
+
+		<t hangText="- frequently changing data:">DNCP with its use of Trickle
+		is optimized for the steady state and less efficient otherwise.</t>
+
+		<t hangText="- large amounts of very constrained nodes:">DNCP requires
+		each node to store the entirety of the data published by all nodes.</t>
+
+	</list>
+	</t>
+
+	<t>The topology of the devices is not limited and automatically discovered.
 	When relying on link-local communication exclusively, all links having
 	DNCP nodes need to be at least transitively connected by routers running
 	the protocol on multiple endpoints in order to form a connected network.
@@ -136,8 +162,8 @@ TODO:
 	over unsecured public networks. Network size is restricted merely by
 	the capabilities of the devices, i.e., each DNCP node needs to be
 	able to store the entirety of the data published by all nodes.
-	Each individual node cannot publish more than 64KB of data using DNCP
-	as specified in this document, however protocol extensions could be defined
+	The data associated with each individual node identifier is limited to
+	about 64KB in this document, however protocol extensions could be defined
 	to mitigate this or other protocol limitations if the need arises.</t>
 
         <t>DNCP is most suitable for data that changes only infrequently to
