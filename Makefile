@@ -15,7 +15,7 @@ DRAFTS=\
   draft-stenberg-anima-adncp-00.txt \
   draft-stenberg-mif-mpvd-dns-00.txt \
   draft-ietf-homenet-hybrid-proxy-zeroconf-02.txt \
-  draft-ietf-homenet-dncp-11.txt \
+  draft-ietf-homenet-dncp-12.txt \
   draft-ietf-homenet-hncp-09.txt \
 
 ifndef XML_LIBRARY
