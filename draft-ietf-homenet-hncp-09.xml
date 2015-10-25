@@ -1930,7 +1930,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
       <list>
 
-        <t>0-31: Reserved - specified in the DNCP registry</t>
+        <t>0-31: Reserved - specified in the DNCP TLV Types registry</t>
 
         <t>32: HNCP-Version</t>
         <t>33: External-Connection</t>
@@ -1957,8 +1957,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       </t>
 
       <t>HNCP requires allocation of well-known UDP port numbers
-      HNCP-UDP-PORT and HNCP-DTLS-PORT, as well as an IPv6 link-local
-      multicast address All-Homenet-Nodes.</t>
+      HNCP-UDP-PORT (service name: hncp-udp-port, description: HNCP) and
+      HNCP-DTLS-PORT (service name: hncp-dtls-port, description: HNCP over
+      DTLS), as well as an IPv6 link-local multicast address
+      All-Homenet-Nodes.</t>
 
     </section>
 
