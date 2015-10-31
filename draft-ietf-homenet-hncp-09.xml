@@ -442,7 +442,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         to be external, i.e., not within the borders of the HNCP network.
         HNCP traffic MUST neither be sent nor received. Accessing internal
         resources from external interfaces is restricted, i.e., the use of
-        <xref target="RFC6092" /> is RECOMMENDED.
+        <xref target="RFC6092">Recommended Simple Security Capabilities
+        in CPEs</xref> is RECOMMENDED.
         HNCP routers SHOULD announce acquired configuration information
         for use in the network as described in <xref target="ec" />,
         if the interface appears to be connected to an external network.
@@ -651,7 +652,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         represented by one <xref target="ec-tlv">External
         Connection TLV</xref>.</t>
 
-		<t>Announcements of individual external connections may consist
+		<t>Announcements of individual external connections can consist
 		of the following components:
 		<list style="hanging">
 			<t hangText="Delegated Prefixes: ">address space available for
@@ -1183,7 +1184,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       security. The following mechanism manages PSKs using HNCP to enable
       bootstrapping of such third-party protocols.
       The scheme SHOULD be used only in conjunction with secured HNCP
-      unicast transport (=DTLS), as transferring the PSK in plain-text
+      unicast transport (i.e., DTLS), as transferring the PSK in plain-text
       anywhere in the network is a potential risk, especially as the
       originator may not know about security (and use of DNCP security) on
       all links.
@@ -1200,7 +1201,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         all but the one with the greatest node identifier stop advertising it and
         adopt the remaining one.</t>
 
-        <t>The node currently advertising the Managed PSK TLV must generate
+        <t>The node currently advertising the Managed PSK TLV MUST generate
         and advertise a new random one whenever an unreachable node is
         removed from the DNCP topology as described in the Section 4.6 of
         <xref target="I-D.ietf-homenet-dncp" />.</t>
@@ -1386,7 +1387,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 		  The Prefix Policy TLV contains information about the policy or
           applicability of a delegated prefix. This information can be used
           to determine whether prefixes for a certain usecase (e.g., local
-          reachability, internet connectivity) do exist or should be
+          reachability, internet connectivity) do exist or are to be
           acquired and to make decisions about assigning prefixes to
           certain links or to fine-tune border firewalls. See <xref
           target="ec"/> for a more in-depth discussion.
@@ -2056,7 +2057,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       information.  Feedback and contributions are welcome.</t>
     </section>
 
-    <section title="Acknowledgements">
+    <section title="Acknowledgments">
 
       <t>Thanks to Ole Troan, Mark Baugher, Mark Townsley, Juliusz
       Chroboczek and Thomas Clausen for their contributions to the
