@@ -84,12 +84,12 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
   <middle>
     <section title="Introduction">
 
-      <t>HNCP is designed to facilitate sharing of state among home routers
-      to fulfill the needs of the <xref target="RFC7368">IPv6 homenet
-      architecture</xref>, which assumes zero-configuration operation,
-      multiple subnets, multiple home routers and (potentially) multiple
-      upstream service providers providing (potentially) multiple prefixes
-      to the home network.
+      <t>Home Networking Control Protocol (HNCP) is designed to facilitate
+      sharing of state among home routers to fulfill the needs of the <xref
+      target="RFC7368">IPv6 homenet architecture</xref>, which assumes
+      zero-configuration operation, multiple subnets, multiple home routers
+      and (potentially) multiple upstream service providers providing
+      (potentially) multiple prefixes to the home network.
 
       While RFC7368 sets no requirements for IPv4 support, HNCP aims to
       support dual-stack mode of operation, and therefore the functionality
@@ -101,7 +101,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <list style="symbols">
 
         <t><xref target="bd">Autonomic discovery of network borders</xref>
-        based on DNCP topology.</t>
+        based on Distributed Node Consensus Protocol (DNCP) topology.</t>
 
         <t>Automated portioning of prefixes delegated by the service
         providers as well as <xref target="pa">assigned prefixes to both
@@ -1399,15 +1399,25 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
                 <list style="hanging">
                       <t hangText="0      :">Internet connectivity
                       (no Value).</t>
-                      <t hangText="1-128  :">Explicit destination prefix with the
-                          Policy Type being the actual length of the prefix
-                      (Value contains significant bits of the destination prefix
-                      padded with zeroes up to the next byte boundary).</t>
-                      <t hangText="129    :">DNS Zone (Value contains an <xref
-            target="RFC1035">RFC 1035</xref> encoded DNS label sequence).</t>
-                      <t hangText="130    :">Opaque UTF-8 string (e.g., for administrative purposes).</t>
+
+                      <t hangText="1-128 :">Explicit destination prefix
+                      with the Policy Type being the actual length of the
+                      prefix and the Value containing significant bits of the
+                      destination prefix padded with zeroes up to the next
+                      byte boundary.</t>
+
+                      <t hangText="129 :">DNS Domain. The Value contains an
+                      <xref target="RFC1035">RFC 1035</xref> encoded DNS
+                      label sequence. Compression MUST NOT be used. The
+                      label sequence MUST end with an empty label.</t>
+
+                      <t hangText="130    :">Opaque UTF-8 string (e.g., for
+                      administrative purposes).</t>
+
                       <t hangText="131    :">Restrictive Assignment (no Value).</t>
+
                       <t hangText="132-255:">Reserved for future additions.</t>
+
                   </list></t>
 
               <t hangText="Value: ">A variable length identifier
@@ -1582,7 +1592,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 |                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |Reserved |L|B|S|                                               |
-+-+-+-+-+-+-+-+-+  Zone (DNS label sequence - variable length)  |
++-+-+-+-+-+-+-+-+  Zone  (DNS label sequence - variable length) |
 ...
 |                                               | 0-pad if any  |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1607,13 +1617,13 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
                 and ignored when parsing it unless defined in a later specification.</t>
 
             <t hangText="L-bit :"> <xref target="RFC6763">DNS-SD</xref> Legacy-Browse,
-            indicates that this delegated zone should be included in the
+            indicates that this delegated zone SHOULD be included in the
             network's DNS-SD legacy browse list of domains at lb._dns-
             sd._udp.(DOMAIN-NAME).  Local forward zones SHOULD have this
             bit set, reverse zones SHOULD NOT.</t>
 
             <t hangText="B-bit :"> (<xref target="RFC6763">DNS-SD</xref> Browse)
-            indicates that this delegated zone should be included in the
+            indicates that this delegated zone SHOULD be included in the
             network's DNS-SD browse list of domains at b._dns-sd._udp.
             (DOMAIN-NAME).  Local forward zones SHOULD have this bit set,
             reverse zones SHOULD NOT.</t>
@@ -1628,10 +1638,9 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
             manually configured service providers). Zones with this flag
             SHOULD be added to the search domains advertised to clients.</t>
 
-            <t hangText="Zone :">The label sequence of the zone, encoded as
-            the domain names are encoded DNS messages as specified in <xref
-            target="RFC1035"/>. The last label in the zone MUST be
-            empty.</t>
+            <t hangText="Zone :">The label sequence encoded according to
+            <xref target="RFC1035"/>.  Compression MUST NOT be used. The
+            label sequence MUST end with an empty label.</t>
 
           </list>
         </t>
@@ -1659,9 +1668,9 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         configured by an administrator.
 
           <list style="hanging">
-            <t hangText="Domain: ">The label sequence encoded according to <xref
-            target="RFC1035"/>.  Compression MUST NOT be used. The zone
-            MUST end with an empty label.</t>
+            <t hangText="Domain: ">The label sequence encoded according to
+            <xref target="RFC1035"/>.  Compression MUST NOT be used. The
+            label sequence MUST end with an empty label.</t>
           </list>
         </t>
 
