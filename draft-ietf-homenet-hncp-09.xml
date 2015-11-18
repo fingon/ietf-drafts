@@ -95,8 +95,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       support dual-stack mode of operation, and therefore the functionality
       is designed with that in mind.
 
-      The state is shared as TLVs among the routers (and potentially
-      advanced hosts) to enable:
+      The state is shared as TLVs transported in the DNCP node state among the
+      routers (and potentially advanced hosts) to enable:
 
       <list style="symbols">
 
@@ -227,6 +227,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 	<c>(HNCP) router</c>
 	<c>A device implementing this specification, which forwards
 	traffic on behalf of other devices.</c>
+	
+	<c>highest node identifier</c>
+	<c>When comparing the DNCP node identifiers of multiple nodes,
+	the one that has the highest value in a bitwise comparison.</c>
 
 	<c>Border</c>
 	<c>separation point between administrative domains; in this case,
