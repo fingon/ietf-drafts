@@ -408,7 +408,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       present in the same network when transitioning between HNCP versions
       and for troubleshooting purposes it might be beneficial to identify
       the HNCP agent version running. Therefore each node MUST include an
-      <xref target="version">HNCP-Version TLV</xref> in its Node Data and
+      <xref target="version">HNCP-Version TLV</xref> indicating the currently
+      supported version in its Node Data and
       MUST ignore (except for DNCP synchronization purposes) any TLVs with a
       type greater than 32 published by nodes not also publishing an
       HNCP-Version TLV.</t>
@@ -421,8 +422,9 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       These values are used to elect certain servers on a Common Link,
       as described in <xref target="client-config" />. Nodes that are not
       routers MUST announce the value 0 for all capabilities. Any node
-      announcing the value 0 is considered to not advertise the respective
-      capability and thus does not take part in the respective election.</t>
+      announcing the value 0 for a capability is considered to not advertise
+      said capability and thus does not take part in the respective election.
+      </t>
 
     </section>
 
@@ -436,7 +438,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <list style="hanging">
       	<t hangText="Internal category:"> This declares an interfaces
       	to be internal, i.e., within the borders of the HNCP network.
-      	HNCP traffic MUST be sent and received. Routers
+      	The interface MUST operate as a DNCP endpoint. Routers
       	MUST forward traffic with appropriate source addresses between
       	their internal interfaces and allow internal traffic to reach
       	external networks. All nodes MUST implement this category and
@@ -445,7 +447,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
         <t hangText="External category:"> This declares an interface
         to be external, i.e., not within the borders of the HNCP network.
-        HNCP traffic MUST neither be sent nor received. Accessing internal
+        The interface MUST NOT operate as a DNCP endpoint. Accessing internal
         resources from external interfaces is restricted, i.e., the use of
         <xref target="RFC6092">Recommended Simple Security Capabilities
         in CPEs</xref> is RECOMMENDED.
@@ -961,7 +963,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         </section>
 
         <section anchor="ula" title="Local IPv4 and ULA Prefixes">
-          <t>HNCP routers can create a ULA or private IPv4 prefix to enable
+          <t>HNCP routers can create a Unique Local Address (ULA) or private
+          IPv4 prefix to enable
           connectivity between local devices. These prefixes are inserted in
           HNCP as if they were delegated prefixes of a (virtual) <xref target="ec">
           external connection</xref>. The following rules apply:
@@ -1188,7 +1191,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       IGPs and other protocols which lack support for asymmetric
       security. The following mechanism manages PSKs using HNCP to enable
       bootstrapping of such third-party protocols.
-      The scheme SHOULD be used only in conjunction with secured HNCP
+      The scheme SHOULD NOT be used unless in conjunction with secured HNCP
       unicast transport (i.e., DTLS), as transferring the PSK in plain-text
       anywhere in the network is a potential risk, especially as the
       originator may not know about security (and use of DNCP security) on
