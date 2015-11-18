@@ -344,9 +344,9 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         generate and use a new random node identifier which is not used by
         any other node at the time, based on the current DNCP network state.</t>
 
-        <t>HNCP nodes MUST use the leading 64 bits of <xref
-        target="RFC1321">MD5</xref> as DNCP non-cryptographic hash function
-        H(x).</t>
+        <t>HNCP nodes MUST use the leading 64 bits of the <xref
+        target="RFC1321">MD5 message digest</xref> as the DNCP hash function
+        H(x) used in building the DNCP hash tree.</t>
 
         <t>HNCP nodes MUST use DNCP's per-endpoint keep-alive extension on
         all endpoints. The following parameters are suggested:
@@ -391,7 +391,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         purpose.  A node implementing HNCP security MUST support
         the DNCP Pre-Shared Key method, SHOULD support the DNCP Certificate
         Based Trust Consensus and MAY support the PKI-based trust
-        method.</t>
+        method. <xref target="RFC7525" /> provides guidance on how to securely
+        utilize DTLS.</t>
 
         <t>HNCP nodes MUST ignore all Node State TLVs received via
         multicast on a link which has DNCP security enabled in order
@@ -2009,6 +2010,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <?rfc include="reference.RFC.7217.xml"?>
       <?rfc include="reference.RFC.4861.xml"?>
       <?rfc include="reference.RFC.6092.xml"?>
+      <?rfc include="reference.RFC.7525.xml"?>
     </references>
 
     <section title="Changelog [RFC Editor: please remove]">
