@@ -60,7 +60,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
             <email>pierre.pfister@darou.fr</email>
         </address>
     </author>
-    <date month="October" year="2015" />
+    <date month="November" year="2015" />
 
     <area>Internet</area>
     <workgroup>Homenet Working Group</workgroup>
@@ -151,13 +151,14 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         routing protocol.</t>
 
         <t>As HNCP uses DNCP as the actual state synchronization protocol,
-        the applicability statement of DNCP can be used here as well; HNCP
-        should not be used for any data that changes rapidly and
-        constantly, and locators to find such services should be published
-        using it instead. This is why the <xref target="naming-sd">naming
-        and service discovery</xref> TLVs contain only DNS server
-        addresses, and no actual per-name or per-service data of
-        hosts.</t>
+        the applicability statement of DNCP applies here as well; HNCP
+        should not be used for any data that changes rapidly and constantly.
+        If such data needs to be published in an HNCP network, a more
+        applicable protocol should be used for those portions and locators
+        to a server of said protocol can be announced using HNCP instead.
+        An example for this is <xref target="naming-sd">naming and service
+        discovery</xref> for which HNCP only transports DNS server
+        addresses, and no actual per-name or per-service data of hosts.</t>
 
         <t>HNCP TLVs specified within this document, in steady state, stay
         constant, with one exception: as <xref target="dp-tlv">Delegated
@@ -176,6 +177,12 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         discovery or some aspects of naming) might be affected by existing
         DHCP servers not aware of the HNCP-managed network and thus might
         need to be reconfigured to not result in unexpected behavior.</t>
+        
+        <t>While HNCP routers can provide configuration to and receive
+        configuration from non-HNCP routers, they are not able to traverse
+        such devices based solely on the protocol as defined in this document,
+        i.e., HNCP routers that are connected only by different interfaces
+        of a non-HNCP router will not be part of the same HNCP network.</t>
 
         <t>While HNCP is designed to be used by (home) routers, it can also
         be used by advanced hosts that want to do, e.g., their own address
@@ -310,7 +317,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
     </section>
 
     <section anchor="profile" title="DNCP Profile">
-      <t>The DNCP profile of HNCP is defined as follows:
+      <t>The DNCP profile for HNCP is defined as follows:
 
       <list style="symbols">
 
@@ -325,15 +332,13 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         with a payload of at least 4000 bytes.</t>
 
         <t>HNCP operates on multicast-capable interfaces only. HNCP nodes
-        MUST assign a locally unique non-zero 32-bit endpoint identifier to each
-        interface for which HNCP is enabled. The value zero
-        it is not used in DNCP TLVs, but it
-        has a special
-        meaning in HNCP TLVs (see <xref target="ap-tlv" /> and <xref
-        target="node-addr" />).
-
-        Implementations MAY use a value equivalent to the IPv6 link-local
-        scope identifier for the given interface.</t>
+        MUST assign a non-zero 32-bit endpoint identifier to each interface
+        for which HNCP is enabled. The value zero is not used in DNCP TLVs,
+        but has a special meaning in HNCP TLVs (see <xref target="ap-tlv" />
+        and <xref target="node-addr" />). These identifiers MUST be locally
+        unique within the scope of the node and using values equivalent to
+        the IPv6 link-local scope identifiers for the given interfaces are
+        RECOMMENDED.</t>
 
         <t>HNCP uses opaque 32-bit node identifiers
         (DNCP_NODE_IDENTIFIER_LENGTH = 32). A node implementing HNCP SHOULD
@@ -380,7 +385,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
           <t>Imin SHOULD be 200 milliseconds but MUST NOT be lower.
           Note: Earliest transmissions may occur at Imin / 2.</t>
 
-          <t>Imax SHOULD be 7 doublings of Imin (i.e., 25.6 seconds)
+          <t>Imax SHOULD be 7 <xref target="RFC6206">doublings of Imin</xref>
           but MUST NOT be lower.</t>
         </list>
         </t>
@@ -458,9 +463,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
         <t hangText="Leaf category:"> This declares an interface used by
         client devices only. Such an interface uses the Internal category
-        with the exception that HNCP traffic MUST NOT be sent on the
-        interface, and all such traffic received on the interface MUST be
-        ignored. This category SHOULD be supported by HNCP routers.</t>
+        with the exception that it MUST NOT operate as a DNCP endpoint
+        This category SHOULD be supported by HNCP routers.</t>
 
         <t hangText="Guest category:"> This declares an interface used by
         untrusted client devices only. In addition to the restrictions of
@@ -530,7 +534,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
         <t>The following algorithm MUST be implemented by any node
         implementing HNCP. However, if the node does not implement
-        auto-detection, only the first step is required.
+        auto-detection, only the first and last step are required.
         The algorithm works as follows, with evaluation stopping at
         first match:
 
@@ -560,7 +564,9 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         <t>An HNCP router SHOULD allow setting the fixed category for each
       	interface which may be connected to either an internal or external
       	device (e.g., an Ethernet port that can be connected to a modem,
-      	another HNCP router or a client).</t>
+      	another HNCP router or a client). Note that all fixed categories
+      	except internal and external cannot be auto-detected and can only
+      	be selected using manual configuration.</t>
 
 		<t>An HNCP router using auto-detection on an interface MUST run the
 		appropriately configured DHCP clients as long as the interface without
@@ -782,7 +788,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         added, updated or removed, and as Common Links are modified.
         </t>
         <t hangText="ADOPT_MAX_DELAY: ">The default value is 0
-        seconds (i.e., prefix adoption MAY be done instantly).</t>
+        seconds (i.e., prefix adoption is done instantly).</t>
 
         <t hangText="BACKOFF_MAX_DELAY: ">The default value is
         4 seconds.</t>
@@ -1163,9 +1169,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       there was an NS record.</t>
 
       <t>Each HNCP node SHOULD announce a node name for itself to be easily
-      reachable and MAY do so on behalf of other devices. Announcements are
-      made using <xref target="node-name-tlv">Node Name TLVs</xref> and
-      MUST be unique in the whole network. In case of a conflict the
+      reachable and MAY announce names on behalf of other devices. 
+      Announcements are made using <xref target="node-name-tlv">Node Name
+      TLVs</xref> and the announced names MUST be unique in the whole network.
+      In case of a conflict the
       announcement of the node with the highest node identifier takes
       precedence and all other nodes MUST cease to announce the conflicting
       TLV. HNCP routers providing recursive name resolving services as
@@ -1272,27 +1279,28 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
               </t>
               <t hangText="M-capability:">Priority value used for electing the
                   on-link <xref target="RFC6762">MDNS</xref> proxy. It MUST be
-                  set to some value between 1 and 7 included (4 is the default)
-                  if the router is capable of proxying MDNS and 0 otherwise.
+                  set to 0 if the router is not capable of proxying MDNS,
+                  otherwise it SHOULD be set to 4 but MAY be set to any value
+                  from 1 to 7 to indicate a non-default priority.
                   The values 8-15 are reserved for future use.</t>
               <t hangText="P-capability:">Priority value used for electing the
-                  on-link DHCPv6-PD server. It MUST be set to some value between
-                  1 and 7 included (4 is the default) if the router is capable of
-                  <xref target="pd">providing prefixes through DHCPv6-PD</xref>
-                  and 0 otherwise.
-                  The values 8-15 are reserved for future use.</t>
+                  on-link DHCPv6-PD server. It MUST be set to 0 if the router
+                  is not capable of <xref target="pd">providing prefixes
+                  through DHCPv6-PD</xref>, otherwise it SHOULD be set to 4 but
+                  MAY be set to any value from 1 to 7 to indicate a non-default
+                  priority. The values 8-15 are reserved for future use.</t>
               <t hangText="H-capability:">Priority value used for electing the
-                  on-link DHCPv6 server offering non-temporary addresses.  It
-                  MUST be set to some value between 1 and 7 included
-                  (4 is the default) if the router is capable of providing such
-                  addresses and 0 otherwise.
-                  The values 8-15 are reserved for future use.</t>
+                  on-link DHCPv6 server offering non-temporary addresses. It
+                  MUST be set to 0 if the router is not capable of providing
+                  such addresses, otherwise it SHOULD be set to 4 but MAY be
+                  set to any value from 1 to 7 to indicate a non-default
+                  priority. The values 8-15 are reserved for future use.</t>
               <t hangText="L-capability:">Priority value used for electing the
-                  on-link DHCPv4 server. It MUST be set to some value between
-                  1 and 7 included (4 is the default) if the router is
-                  capable of running a legacy DHCPv4 server offering
-                  IPv4 addresses to clients and 0 otherwise.
-                  The values 8-15 are reserved for future use.</t>
+                  on-link DHCPv4 server. It MUST be set to 0 if the router is
+                  not capable of running a legacy DHCPv4 server offering IPv4
+                  addresses to clients, otherwise it SHOULD be set to 4 but
+                  MAY be set to any value from 1 to 7 to indicate a non-default
+                  priority. The values 8-15 are reserved for future use.</t>
               <t hangText="User-Agent:">
                   The user-agent is a human-readable UTF-8 string
                   that describes the name and version of the current HNCP
@@ -1942,13 +1950,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
     <section anchor="iana" title="IANA Considerations">
 
       <t>IANA should set up a registry for the (decimal values within range
-      0-1023) "HNCP TLV Types" under "Distributed Node
+      32-511) "HNCP TLV Types" under "Distributed Node
       Consensus Protocol (DNCP)", with the following initial contents:
 
       <list>
-
-        <t>0-31: Reserved - specified in the DNCP TLV Types registry</t>
-
         <t>32: HNCP-Version</t>
         <t>33: External-Connection</t>
         <t>34: Delegated-Prefix</t>
@@ -1962,13 +1967,11 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         <t>42: Managed-PSK</t>
         <t>43: Prefix-Policy</t>
 
-        <t>44-512: Free - policy of <xref target="RFC5226">'RFC required'</xref> should be used.</t>
+        <t>44-511: Free - policy of <xref target="RFC5226">'RFC required'</xref> should be used.</t>
 
-        <t>512-767: Reserved - specified in the DNCP registry</t>
-
-        <t>768-1023: Reserved - to be used for per-implementation
-        experimentation. How collision is avoided is out of scope of this
-        document.</t>
+        <t>The range reserved by DNCP for Private Use (768-1023) is used by
+        HNCP for per-implementation experimentation.  How collisions are
+        avoided is out of the scope of this document.</t>
 
       </list>
       </t>
@@ -1984,35 +1987,37 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
   </middle>
   <back>
     <references title="Normative references">
-      <?rfc include="reference.I-D.draft-ietf-homenet-dncp-10"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-dncp-12"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-08"?>
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.5226.xml"?>
       <?rfc include="reference.RFC.6347.xml"?>
       <?rfc include="reference.RFC.6603.xml"?>
-      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-08"?>
-    </references>
-
-    <references title="Informative references">
+      <?rfc include="reference.RFC.6206.xml"?>
       <?rfc include="reference.RFC.3004.xml"?>
-      <?rfc include="reference.RFC.3118.xml"?>
       <?rfc include="reference.RFC.2131.xml"?>
       <?rfc include="reference.RFC.3315.xml"?>
       <?rfc include="reference.RFC.3633.xml"?>
-      <?rfc include="reference.RFC.1918.xml"?>
       <?rfc include="reference.RFC.4291.xml"?>
-      <?rfc include="reference.RFC.7368.xml"?>
-      <?rfc include="reference.RFC.1035.xml"?>
-      <?rfc include="reference.RFC.6234.xml"?>
       <?rfc include="reference.RFC.1321.xml"?>
-      <?rfc include="reference.RFC.6762.xml"?>
       <?rfc include="reference.RFC.6763.xml"?>
-      <?rfc include="reference.RFC.6241.xml"?>
       <?rfc include="reference.RFC.2132.xml"?>
       <?rfc include="reference.RFC.4193.xml"?>
-      <?rfc include="reference.RFC.7084.xml"?>
       <?rfc include="reference.RFC.7217.xml"?>
       <?rfc include="reference.RFC.4861.xml"?>
       <?rfc include="reference.RFC.6092.xml"?>
+    </references>
+
+    <references title="Informative references">
+      
+      <?rfc include="reference.RFC.3118.xml"?>
+      <?rfc include="reference.RFC.1918.xml"?>
+      <?rfc include="reference.RFC.7368.xml"?>
+      <?rfc include="reference.RFC.1035.xml"?>
+      <?rfc include="reference.RFC.6234.xml"?>
+      <?rfc include="reference.RFC.6762.xml"?>
+      <?rfc include="reference.RFC.6241.xml"?>
+      <?rfc include="reference.RFC.7084.xml"?>
       <?rfc include="reference.RFC.7525.xml"?>
     </references>
 
