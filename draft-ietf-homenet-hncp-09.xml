@@ -176,6 +176,12 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         discovery or some aspects of naming) might be affected by existing
         DHCP servers not aware of the HNCP-managed network and thus might
         need to be reconfigured to not result in unexpected behavior.</t>
+        
+        <t>While HNCP routers can provide configuration to and receive
+        configuration from non-HNCP routers, they are not able to traverse
+        such devices based solely on the protocol as defined in this document,
+        i.e., HNCP routers that are connected only by different interfaces
+        of a non-HNCP router will not be part of the same HNCP network.</t>
 
         <t>While HNCP is designed to be used by (home) routers, it can also
         be used by advanced hosts that want to do, e.g., their own address
@@ -325,10 +331,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         with a payload of at least 4000 bytes.</t>
 
         <t>HNCP operates on multicast-capable interfaces only. HNCP nodes
-        MUST assign a locally unique non-zero 32-bit endpoint identifier to each
-        interface for which HNCP is enabled. The value zero
-        it is not used in DNCP TLVs, but it
-        has a special
+        MUST assign a non-zero 32-bit endpoint identifier to each interface
+        for which HNCP is enabled. These identifiers MUST be locally unique
+        within the scope of the node. The value zero is not used in DNCP TLVs,
+        but has a special
         meaning in HNCP TLVs (see <xref target="ap-tlv" /> and <xref
         target="node-addr" />).
 
@@ -458,9 +464,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
         <t hangText="Leaf category:"> This declares an interface used by
         client devices only. Such an interface uses the Internal category
-        with the exception that HNCP traffic MUST NOT be sent on the
-        interface, and all such traffic received on the interface MUST be
-        ignored. This category SHOULD be supported by HNCP routers.</t>
+        with the exception that it MUST NOT operate as a DNCP endpoint
+        This category SHOULD be supported by HNCP routers.</t>
 
         <t hangText="Guest category:"> This declares an interface used by
         untrusted client devices only. In addition to the restrictions of
@@ -530,7 +535,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
 
         <t>The following algorithm MUST be implemented by any node
         implementing HNCP. However, if the node does not implement
-        auto-detection, only the first step is required.
+        auto-detection, only the first and last step are required.
         The algorithm works as follows, with evaluation stopping at
         first match:
 
@@ -560,7 +565,9 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         <t>An HNCP router SHOULD allow setting the fixed category for each
       	interface which may be connected to either an internal or external
       	device (e.g., an Ethernet port that can be connected to a modem,
-      	another HNCP router or a client).</t>
+      	another HNCP router or a client). Note that all fixed categories
+      	except internal and external cannot be auto-detected and can only
+      	be selected using manual configuration.</t>
 
 		<t>An HNCP router using auto-detection on an interface MUST run the
 		appropriately configured DHCP clients as long as the interface without
