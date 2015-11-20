@@ -2062,19 +2062,17 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
     </section>
 
     <section title="Draft source [RFC Editor: please remove]">
-      <t>This draft is available at <eref
-      target="https://github.com/fingon/ietf-drafts/">https://github.com/fingon/ietf-drafts/</eref>
+      <t>This draft is available at https://github.com/fingon/ietf-drafts/
       in source format. Issues and pull requests are welcome.</t>
     </section>
 
     <section title="Implementation [RFC Editor: please remove]">
       <t>A GPLv2-licensed implementation of HNCP is currently under
-      development at <eref target="https://github.com/sbyx/hnetd/">
-      https://github.com/sbyx/hnetd/</eref> and binaries are available in
-      the <eref target="http://www.openwrt.org">OpenWrt</eref> package
-      repositories.  See <eref
-      target="http://www.homewrt.org/doku.php?id=run-conf" /> for more
-      information.  Feedback and contributions are welcome.</t>
+      development at https://github.com/sbyx/hnetd/ and binaries are
+      available in the OpenWrt package repositories (
+      http://www.openwrt.org ).  See
+      http://www.homewrt.org/doku.php?id=run-conf for more information.
+      Feedback and contributions are welcome.</t>
     </section>
 
     <section title="Acknowledgments">
