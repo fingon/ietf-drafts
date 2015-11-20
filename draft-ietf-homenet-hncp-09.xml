@@ -1988,35 +1988,36 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
   <back>
     <references title="Normative references">
       <?rfc include="reference.I-D.draft-ietf-homenet-dncp-12"?>
+      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-08"?>
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.5226.xml"?>
       <?rfc include="reference.RFC.6347.xml"?>
       <?rfc include="reference.RFC.6603.xml"?>
       <?rfc include="reference.RFC.6206.xml"?>
-      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-08"?>
-    </references>
-
-    <references title="Informative references">
       <?rfc include="reference.RFC.3004.xml"?>
-      <?rfc include="reference.RFC.3118.xml"?>
       <?rfc include="reference.RFC.2131.xml"?>
       <?rfc include="reference.RFC.3315.xml"?>
       <?rfc include="reference.RFC.3633.xml"?>
-      <?rfc include="reference.RFC.1918.xml"?>
       <?rfc include="reference.RFC.4291.xml"?>
-      <?rfc include="reference.RFC.7368.xml"?>
-      <?rfc include="reference.RFC.1035.xml"?>
-      <?rfc include="reference.RFC.6234.xml"?>
       <?rfc include="reference.RFC.1321.xml"?>
-      <?rfc include="reference.RFC.6762.xml"?>
       <?rfc include="reference.RFC.6763.xml"?>
-      <?rfc include="reference.RFC.6241.xml"?>
       <?rfc include="reference.RFC.2132.xml"?>
       <?rfc include="reference.RFC.4193.xml"?>
-      <?rfc include="reference.RFC.7084.xml"?>
       <?rfc include="reference.RFC.7217.xml"?>
       <?rfc include="reference.RFC.4861.xml"?>
       <?rfc include="reference.RFC.6092.xml"?>
+    </references>
+
+    <references title="Informative references">
+      
+      <?rfc include="reference.RFC.3118.xml"?>
+      <?rfc include="reference.RFC.1918.xml"?>
+      <?rfc include="reference.RFC.7368.xml"?>
+      <?rfc include="reference.RFC.1035.xml"?>
+      <?rfc include="reference.RFC.6234.xml"?>
+      <?rfc include="reference.RFC.6762.xml"?>
+      <?rfc include="reference.RFC.6241.xml"?>
+      <?rfc include="reference.RFC.7084.xml"?>
       <?rfc include="reference.RFC.7525.xml"?>
     </references>
 
