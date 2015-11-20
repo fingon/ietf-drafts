@@ -393,11 +393,11 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         <t>HNCP unicast traffic SHOULD be secured using <xref
         target="RFC6347">DTLS</xref> as described in DNCP if exchanged over
         unsecured links. UDP on port HNCP-DTLS-PORT is used for this
-        purpose.  A node implementing HNCP security MUST support
-        the DNCP Pre-Shared Key method, SHOULD support the DNCP Certificate
-        Based Trust Consensus and MAY support the PKI-based trust
-        method. <xref target="RFC7525" /> provides guidance on how to securely
-        utilize DTLS.</t>
+        purpose.  A node implementing HNCP security MUST support the DNCP
+        Pre-Shared Key method, SHOULD support the PKI-based trust method
+        and MAY support the DNCP Certificate Based Trust Consensus
+        method. <xref target="RFC7525" /> provides guidance on how to
+        securely utilize DTLS.</t>
 
         <t>HNCP nodes MUST ignore all Node State TLVs received via
         multicast on a link which has DNCP security enabled in order
@@ -1915,9 +1915,10 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         ways to secure HNCP against internal threats like manipulation or
         eavesdropping by compromised devices on a link which is enabled for
         HNCP traffic. If left unsecured, attackers may perform arbitrary
-        eavesdropping, spoofing or denial of service attacks on HNCP services
-        such as address assignment or service discovery.</t>
-
+        traffic redirection, eavesdropping, spoofing or denial of service
+        attacks on HNCP services such as address assignment or service
+        discovery, and the protocols secured using HNCP-derived keys such
+        as routing protocols.</t>
 
         <t>Detailed interface categories like "leaf" or "guest" can be used
         to integrate not fully trusted devices to various degrees into the
