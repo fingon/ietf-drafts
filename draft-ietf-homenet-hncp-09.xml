@@ -1217,11 +1217,11 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       </t>
 
       <t>PSKs for individual protocols SHOULD be derived from the random
-      PSK using a suitable one-way hashing algorithm (e.g., by using
-      <xref target="RFC6234">HMAC-SHA256</xref> with a per-protocol HMAC-key)
-      so that disclosure of any derived key does not impact other users of
-      the managed PSK. Furthermore derived PSKs MUST be updated whenever
-      the managed PSK changes.</t>
+      PSK using a suitable one-way hashing algorithm (e.g., by using <xref
+      target="RFC6234">HMAC-SHA256 based HKDF</xref> with the particular
+      protocol name in the info field) so that disclosure of any derived
+      key does not impact other users of the managed PSK. Furthermore
+      derived PSKs MUST be updated whenever the managed PSK changes.</t>
     </section>
 
     <section anchor="tlvs" title="Type-Length-Value Objects">
