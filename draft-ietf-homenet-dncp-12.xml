@@ -1847,11 +1847,11 @@ TODO:
         as specified in <xref target="reception" /> - e.g., for security
         reasons. While the security of the node data published within the
         Node State TLVs is already ensured by the base specification (if
-        secure mode is enabled, Node State TLVs are sent only via unicast
-        as multicast ones are ignored on receipt), if a profile adds TLVs
-        that are sent outside the node data, a profile should indicate
-        whether or not those TLVs should be ignored if they are received
-        via multicast or non-secured unicast.
+        secure unicast transport is enabled, Node State TLVs are sent only
+        via unicast as multicast ones are ignored on receipt), if a profile
+        adds TLVs that are sent outside the node data, a profile should
+        indicate whether or not those TLVs should be ignored if they are
+        received via multicast or non-secured unicast.
 
         A DNCP profile may define the following DNCP TLVs to be safely
         ignored:

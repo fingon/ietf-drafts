@@ -1927,8 +1927,8 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         resources. </t>
 
         <t>On links where this is not practical and lower layers do not
-        provide adequate protection from attackers, DNCP secure mode MUST be
-        used to secure traffic.</t>
+        provide adequate protection from attackers, DTLS-based secure
+        unicast transport MUST be used to secure traffic.</t>
 
       </section>
 
