@@ -4,7 +4,7 @@
 # Author: Markus Stenberg <markus stenberg@iki.fi>
 #
 # Created:       Mon Jun 17 04:40:32 2013 mstenber
-# Last modified: Fri Oct 16 13:48:10 2015 mstenber
+# Last modified: Fri Nov 27 08:53:30 2015 mstenber
 # Edit time:     34 min
 #
 
@@ -16,7 +16,7 @@ DRAFTS=\
   draft-stenberg-mif-mpvd-dns-00.txt \
   draft-ietf-homenet-hybrid-proxy-zeroconf-02.txt \
   draft-ietf-homenet-dncp-12.txt \
-  draft-ietf-homenet-hncp-09.txt \
+  draft-ietf-homenet-hncp-10.txt \
 
 ifndef XML_LIBRARY
 XML_LIBRARY=$(HOME)/share/1/ietf-bib/bibxml:$(HOME)/share/1/ietf-bib/bibxml2:$(HOME)/share/1/ietf-bib/bibxml3:$(HOME)/share/1/ietf-bib/bibxml4:$(HOME)/share/1/ietf-bib/bibxml5
