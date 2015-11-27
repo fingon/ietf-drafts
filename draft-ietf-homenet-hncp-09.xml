@@ -106,7 +106,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
         <t>Automated portioning of prefixes delegated by the service
         providers as well as <xref target="pa">assigned prefixes to both
         HNCP and non-HNCP routers</xref> using <xref
-        target="I-D.ietf-homenet-prefix-assignment" />. Prefixes assigned
+        target="RFC7695" />. Prefixes assigned
         to HNCP routers are used to:
 
         <list style="symbols">
@@ -199,7 +199,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
     <section anchor="terminology" title="Terminology">
 
       <t>The following terms are used as they are defined in <xref
-      target="I-D.ietf-homenet-prefix-assignment" />:
+      target="RFC7695" />:
 
       <list style="symbols">
         <t>Advertised Prefix Priority</t>
@@ -724,7 +724,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
       <section anchor="pa" title="Prefix Assignment">
 
         <t>HNCP uses the <xref
-        target="I-D.ietf-homenet-prefix-assignment">Prefix Assignment
+        target="RFC7695">Prefix Assignment
         Algorithm</xref> in order to assign prefixes to HNCP internal links
         and uses <xref target="terminology">some of the terminology</xref>
         defined there.  HNCP furthermore defines the <xref target="ap-tlv">
@@ -810,7 +810,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
           <section anchor="assign" title="Making New Assignments">
 
             <t>Whenever the prefix assignment algorithm subroutine (Section
-            4.1 of <xref target="I-D.ietf-homenet-prefix-assignment" />) is
+            4.1 of <xref target="RFC7695" />) is
             run on a Common Link and whenever a new prefix may be assigned
             (case 1 of the subroutine: no Best Assignment and no Current
             Assignment), the decision of whether the assignment of a new
@@ -1989,7 +1989,7 @@ split from draft-ietf-homenet-hncp-03-pre - homenet specific ones
   <back>
     <references title="Normative references">
       <?rfc include="reference.I-D.draft-ietf-homenet-dncp-12"?>
-      <?rfc include="reference.I-D.draft-ietf-homenet-prefix-assignment-08"?>
+      <?rfc include="reference.RFC.7695.xml"?>
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.5226.xml"?>
       <?rfc include="reference.RFC.6347.xml"?>
