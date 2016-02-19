@@ -67,6 +67,13 @@ may be made consistent.
 
 - Prefix vs. prefix
 -->
+<!-- MSt: I can't find any inconsistency; different prefix subtypes
+     (e.g. Advertised Prefix) are chosen to be capitalized, while the
+     normal prefix-as-noun is not; however, the prefix-as-noun seems to
+     occur only as TLV field, where it is uppercased due to that. I guess
+     one section header has 'ULA Prefix' which is inconsistent, but is
+     there some other place as well?
+     -->
 
       <t>This document describes the Home Networking Control Protocol
       (HNCP), an extensible configuration protocol, and a set of
@@ -157,6 +164,11 @@ may be made consistent.
         An example for this is <xref target="naming-sd">naming and service
         discovery</xref> for which HNCP only transports DNS server
         addresses and no actual per-name or per-service data of hosts.</t>
+        <!-- MSt: I believe the '.. and locators,' meaning actually changed
+             in the editing. The original idea was to have to use more
+             applicable protocol for those things + publish a locator (=
+             address/port/..) to access the protocol using HNCP. Now the
+             'portions and locators' looks bit weird to me.-->
 
         <t>HNCP TLVs specified within this document, in steady state, stay
         constant, with one exception: as <xref target="dp-tlv">Delegated
@@ -323,6 +335,8 @@ may be made consistent.
         <t>HNCP uses UDP datagrams on port 8231 as a transport
         over link-local scoped IPv6, using unicast and multicast
         (All-Homenet-Nodes is the HNCP group address).
+        <!-- MSt: As port # was expanded above, why was not the multicast
+             group address as well? (FF02:0:0:0:0:0:0:11) -->
         Received datagrams where either or both of the IPv6 source or
         destination addresses are not link-local scoped MUST be
         ignored. Replies to multicast and unicast messages MUST be sent to
@@ -383,11 +397,13 @@ Perhaps:
    to ensure that the timeout (equal to DNCP_KEEPALIVE_INTERVAL *
    DNCP_KEEPALIVE_MULTIPLIER) for entirely lost nodes is low enough.
 -->
-In that case,
-            an implementation might prefer shorter keep-alive intervals on
-            that link as well to ensure that the DNCP_KEEPALIVE_INTERVAL *
-            DNCP_KEEPALIVE_MULTIPLIER timeout after which (entirely) lost
-            nodes time out is low enough.</t>
+<!-- MSt: Not fond of the 'timeout .. for entirely lost', structure,
+     but rewrote the sentence slightly. Acceptable? -->
+
+            In that case, an implementation might prefer shorter keep-alive
+            intervals on that link as well to ensure that the timeout
+            (equal to DNCP_KEEPALIVE_INTERVAL * DNCP_KEEPALIVE_MULTIPLIER)
+            after which entirely lost nodes time out is low enough.</t>
         </list>
         </t>
 
@@ -438,7 +454,8 @@ In that case,
       MUST ignore (except for DNCP synchronization purposes) any TLVs with a
       type greater than 32 published-by nodes that are not also publishing an
       HNCP-Version TLV.</t>
-
+      <!-- MSt: I am not sure what above published by => published-by edit
+           did. It seems to make meaning less clear to me at least. -->
       <t>HNCP routers may also have different capabilities regarding
       interactions with hosts, e.g., for configuration or service discovery.
       These are indicated by M, P, H, and L values. The combined
@@ -782,7 +799,12 @@ In that case,
         implementation-specific Private Links may be defined whenever a
         prefix needs to be assigned for a purpose that does not require a
         consensus with other HNCP nodes.</t>
-
+        <!-- MSt: The 'or' above ( clients _or_ as a mean to advertise)
+             was actually needed; there are two things private links are
+             used:
+             - to represent DHCPv6-PD clients, _or_
+             - as a mean to advertise prefixes ..
+        -->
         <t hangText="Set of Advertised Prefixes: ">The set of prefixes
         included in Assigned Prefix TLVs advertised by other HNCP nodes
         (prefixes advertised by the local node are not in this set).  The
@@ -1299,6 +1321,7 @@ For example:
 ORIGINAL: Type: DHCPV6-DATA (37)
 PERHAPS:  Type: DHCPv6-Data (37)
 -->
+<!-- MSt: Sure, works for me (didn't do the change though). -->
 
         <section anchor="version" title="HNCP-Version TLV">
 
@@ -1688,6 +1711,7 @@ Perhaps:
       network's DNS-SD legacy browse list of domains at
       lb._dns- sd._udp.(DOMAIN-NAME).
 -->
+<!-- MSt: Looks good to me; changed. -->
 
 <!--[rfced] Please clarify how 'b._dns-sd._udp.  (DOMAIN-NAME)' should
  appear in the text (i.e., with a space or no space before
@@ -1707,6 +1731,8 @@ B-bit:  (DNS-SD [RFC6763] Browse) indicates that this delegated zone
       have this bit set, reverse zones SHOULD NOT.
 
 -->
+<!-- MSt: Line wrapping bug that was not caught earlier. It should be
+     _udp.whatever without space. I blame my Emacs and meta+q. -->
 
           <list style="hanging">
             <t hangText="IP Address:"> The IPv6 address of the authoritative
@@ -1718,15 +1744,16 @@ B-bit:  (DNS-SD [RFC6763] Browse) indicates that this delegated zone
             <t hangText="Reserved:">Those bits MUST be set to 0 when creating the TLV
                 and ignored when parsing it unless defined in a later specification.</t>
 
-            <t hangText="L-bit:"> <xref target="RFC6763">DNS-based Service Discovery (DNS-SD)</xref> Legacy-Browse
+            <t hangText="L-bit:"> <xref target="RFC6763">(DNS-based Service Discovery (DNS-SD)</xref> Legacy-Browse)
             indicates that this delegated zone SHOULD be included in the
-            network's DNS-SD legacy browse list of domains at lb._dns&nbhy;sd._udp.
-            (DOMAIN-NAME).  Local forward zones SHOULD have this
+            network's DNS-SD legacy browse list of domains at lb._dns&nbhy;sd._udp.(DOMAIN-NAME).  Local forward zones SHOULD have this
             bit set; reverse zones SHOULD NOT.</t>
+<!-- MSt: Why is ._dns-sd. differently formatted here than below? (&nbhy;
+     <> -) -->
 
             <t hangText="B-bit:"> (<xref target="RFC6763">DNS-SD</xref> Browse)
             indicates that this delegated zone SHOULD be included in the
-            network's DNS-SD browse list of domains at b._dns-sd._udp. (DOMAIN-NAME).
+            network's DNS-SD browse list of domains at b._dns-sd._udp.(DOMAIN-NAME).
             Local forward zones SHOULD have this bit set;
             reverse zones SHOULD NOT.</t>
 
@@ -2087,6 +2114,7 @@ B-bit:  (DNS-SD [RFC6763] Browse) indicates that this delegated zone
   </middle>
   <back>
 <!--[rfced] May we sort the references in alphabetical order?-->
+<!--MSt: Sure, please go ahead. (I thought tools would do this anyway.)-->
 
     <references title="Normative References">
 
@@ -2104,6 +2132,12 @@ If so, please let us know which form is preferred.
   and all other instances should be lowercased.]
 -->
 
+<!--MSt: not sure about the context of 'value'; in general, value should be
+    lowercase unless TLV field (or part of expanded TLV acronym).
+
+    We tried to have 'Node Data TLV', 'node data', and Node Data (field)
+    case in the document; if that is failing somewhere, please fix those. :)
+-->
 
 <!--draft-ietf-homenet-dncp-12; companion document -->
 <reference anchor='RFC7787' target="http://www.rfc-editor.org/info/rfc7787">
