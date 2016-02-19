@@ -59,6 +59,17 @@ under further review the text of the IANA section needs some improvement
 by copying and/or moving normative text regarding use of certain ranges
 of TLV types into section 7 (the TLV definition).
 -->
+
+<!--
+MSt:
+ I thought the assignment categories in IANA registry in and of themselves
+ are well-defined. Can someone expand on this, please? (At least some older
+ RFCs seem to leave use of parts of the registry space entirely to the IANA
+ registry entries.)
+
+ -->
+
+
     <abstract>
 
     <t>This document describes the Distributed Node Consensus Protocol
@@ -898,6 +909,14 @@ of TLV types into section 7 (the TLV definition).
           data is less than current time -- 2^32 + 2^15.</t>
 
         </list>
+        <!-- MSt: I noticed the above - changed to --. I find it problematic.
+             We are trying to express a math expression here:
+
+             origination time < current time - 2^32 + 2^15.
+
+              Is there some better formatting that could be applied to the
+              whole thing?
+          -->
 
         The artificial upper limit for the origination time is used to
         gracefully avoid overflows of the origination time and allow for
@@ -916,6 +935,7 @@ of TLV types into section 7 (the TLV definition).
 
           <t>The origination time (in milliseconds) of R's node data is
           greater than current time -- 2^32 + 2^15.</t>
+          <!-- MSt: Same problem as above also here.-->
 
           <t>R publishes a Peer TLV with:
           <list style="symbols">
@@ -998,8 +1018,9 @@ As they are transmitted ordered (see Node State TLV
 (Section 7.2.3) for details), maintaining the order within the
 data structure here may be reasonable.
 -->
+<!--MSt: I am fine with the proposed wording, so I replaced it. -->
         <t>Node data: the set of TLV tuples published by that particular
-        node. As they are transmitted ordered (see <xref
+        node. As they are transmitted in a particular order (see <xref
         target="node-state">Node State TLV</xref> for details), maintaining
         the order within the data structure here may be reasonable. </t>
 
@@ -1338,7 +1359,7 @@ data structure here may be reasonable.
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Type: REQ-NETWORK-STATE (1)  |          Length: >= 0         |
+|Type: Request network state (1)|          Length: >= 0         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
             </artwork>
           </figure>
@@ -1357,7 +1378,7 @@ data structure here may be reasonable.
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: REQ-NODE-STATE (2)   |          Length: > 0          |
+| Type: Request node state (2)  |          Length: > 0          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        Node Identifier                        |
 |                  (length fixed in DNCP profile)               |
@@ -1396,12 +1417,17 @@ PERHAPS: Type: Req. network state (1)
 ORIGINAL: Type: REQ-NODE-STATE (2)
 PERHAPS: Type:  Req. node state (2)
 -->
+
+<!-- MSt: Changed them to match IANA registry entries; they all fit
+     (although 1 is bit cramped, but I prefer the cramped over
+     abbreviation; if you do not, feel free to use the abbreviation
+     instead. -->
           <figure>
             <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|   Type: NODE-ENDPOINT (3)     |          Length: > 4          |
+|   Type: Node endpoint (3)     |          Length: > 4          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        Node Identifier                        |
 |                  (length fixed in DNCP profile)               |
@@ -1424,7 +1450,7 @@ PERHAPS: Type:  Req. node state (2)
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: NETWORK-STATE (4)    |          Length: > 0          |
+|    Type: Network state (4)    |          Length: > 0          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |     H(sequence number of node 1 .. H(node data of node 1) ..  |
 |    .. sequence number of node N .. H(node data of node N))    |
@@ -1445,7 +1471,7 @@ PERHAPS: Type:  Req. node state (2)
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|      Type: NODE-STATE (5)     |          Length: > 8          |
+|      Type: Node state (5)     |          Length: > 8          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        Node Identifier                        |
 |                  (length fixed in DNCP profile)               |
@@ -1516,7 +1542,7 @@ PERHAPS: Type:  Req. node state (2)
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|       Type: PEER (8)          |          Length: > 8          |
+|       Type: Peer (8)          |          Length: > 8          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                      Peer Node Identifier                     |
 |                  (length fixed in DNCP profile)               |
@@ -1548,7 +1574,7 @@ PERHAPS: Type:  Req. node state (2)
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Type: KEEP-ALIVE-INTERVAL (9) |          Length: >= 8         |
+| Type: Keep-alive interval (9) |          Length: >= 8         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                      Endpoint Identifier                      |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1650,6 +1676,17 @@ Also, should these instances be changed?
   cached verdict -> Cached Trust verdicts
   configured verdict -> Configured Trust verdicts
 -->
+<!-- MSt: Not sure about these; Steven? I changed the lone Cached Trust to
+     be capitalized, but configured trust, cached/configured verdict -
+     shrug.
+
+     I _think_ just doing the proposed changes would not fix configured
+     trust at least, as in 'Announcement of Verdicts' it should really say
+     Configured Trust _OR_ Configured Distrust in that case. I assume the
+     'configured verdict' actually has referred to 'Configured Trust or
+     Configured Distrust [verdict]' (and similarly 'cached verdict' =
+     'Cached Trust or Cached Distrust [verdict]').
+-->
 
         <t>Trust verdicts are statements of DNCP nodes about the
           trustworthiness of X.509 certificates.  There are 5 possible
@@ -1739,7 +1776,7 @@ Also, should these instances be changed?
           has established by itself, and it MUST do so if announcing the
           configured trust verdict leads to a change in the current
           effective trust verdict for the respective certificate.  In
-          absence of configured verdicts, it MUST announce cached trust
+          absence of configured verdicts, it MUST announce Cached Trust
           verdicts it has stored in its trust cache, if one of the
           following conditions applies:
 
@@ -2030,7 +2067,7 @@ Also, should these instances be changed?
   <back>
 
 <!--[rfced] May we put the references in alphabetical order?-->
-
+<!--MSt: Sure, please go ahead. (I thought tools would do this anyway.)-->
     <references title="Normative References">
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6206.xml"?>
