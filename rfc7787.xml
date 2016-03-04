@@ -7,6 +7,7 @@
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
 <?rfc tocindent="yes"?>
+<?rfc sortrefs="yes"?>
 
 <rfc
     ipr='trust200902'
@@ -151,7 +152,7 @@ MSt:
 		information about all immediate neighbors as part of their published
 		data.</t>
 
-		<t hangText="- predominantly minimal data changes:">Node data is
+		<t hangText="- predominantly minimal data changes:">node data is
 		always transported as is, leading to a relatively large transmission
 		overhead for changes affecting only a small part of it.</t>
 
@@ -780,7 +781,7 @@ MSt:
 
               <t>If the TLV contains the Node Data field, it SHOULD also be
               verified by ensuring that the locally calculated hash of the
-              Node Data matches the content of the H(Node Data) field within
+              node data matches the content of the H(Node Data) field within
               the TLV. If they differ, the TLV SHOULD be ignored and not
               processed further.</t>
 
@@ -906,17 +907,10 @@ MSt:
           <t>A Peer TLV or a whole node is added or removed, or</t>
 
           <t>The origination time (in milliseconds) of some node's node
-          data is less than current time -- 2^32 + 2^15.</t>
+          data is less than current time - 2^32 + 2^15.</t>
 
         </list>
-        <!-- MSt: I noticed the above - changed to --. I find it problematic.
-             We are trying to express a math expression here:
-
-             origination time < current time - 2^32 + 2^15.
-
-              Is there some better formatting that could be applied to the
-              whole thing?
-          -->
+   
 
         The artificial upper limit for the origination time is used to
         gracefully avoid overflows of the origination time and allow for
@@ -934,8 +928,7 @@ MSt:
         <list style="symbols">
 
           <t>The origination time (in milliseconds) of R's node data is
-          greater than current time -- 2^32 + 2^15.</t>
-          <!-- MSt: Same problem as above also here.-->
+          greater than current time - 2^32 + 2^15.</t>
 
           <t>R publishes a Peer TLV with:
           <list style="symbols">
@@ -1010,15 +1003,7 @@ MSt:
         <t>Node identifier: the unique identifier of the node. The length,
         how it is produced, and how collisions are handled is up to the
         DNCP profile.</t>
-<!--[rfced] Please clarify 'transmitted ordered' in the following
-sentence (perhaps 'transmitted in a particular order'?)
 
-Original:
-As they are transmitted ordered (see Node State TLV
-(Section 7.2.3) for details), maintaining the order within the
-data structure here may be reasonable.
--->
-<!--MSt: I am fine with the proposed wording, so I replaced it. -->
         <t>Node data: the set of TLV tuples published by that particular
         node. As they are transmitted in a particular order (see <xref
         target="node-state">Node State TLV</xref> for details), maintaining
@@ -1304,9 +1289,9 @@ data structure here may be reasonable.
         <t>a 2-byte Type field</t>
 
         <t>a 2-byte Length field, which contains the length of the Value
-        field in bytes; 0 means no Value</t>
+        field in bytes; 0 means no value</t>
 
-        <t>the Value itself (if any)</t>
+        <t>the value itself (if any)</t>
 
         <t>padding bytes with a value of zero up to the next 4-byte
         boundary if the Length is not divisible by 4</t>
@@ -1398,30 +1383,7 @@ data structure here may be reasonable.
       <section title="Data TLVs" anchor="tlv-data">
         <section anchor="endpoint" title="Node Endpoint TLV">
 
-<!-- [rfced] In the figures, do you want instances of the TLV names
-(which are all caps and hyphenated) to be changed to match the
-IANA-registered descriptions (on http://www.iana.org/assignments/dncp-registry)?
-Note: a similar question is asked for RFC-to-be rfc7788.
 
-For example:
-ORIGINAL: Type: NODE-ENDPOINT (3)
-PERHAPS:  Type: Node endpoint (3)
-
-
-The full name would not fit for some, but could it be
-shortened. For example:
-
-ORIGINAL: Type: REQ-NETWORK-STATE (1)
-PERHAPS: Type: Req. network state (1)
-
-ORIGINAL: Type: REQ-NODE-STATE (2)
-PERHAPS: Type:  Req. node state (2)
--->
-
-<!-- MSt: Changed them to match IANA registry entries; they all fit
-     (although 1 is bit cramped, but I prefer the cramped over
-     abbreviation; if you do not, feel free to use the abbreviation
-     instead. -->
           <figure>
             <artwork>
 0                   1                   2                   3
@@ -1519,7 +1481,7 @@ PERHAPS: Type:  Req. node state (2)
           e.g., efficient state delta processing and no-copy indexing by
           TLV type by the recipient.
 
-          The Node Data content MUST be passed along exactly as it was
+          The node data content MUST be passed along exactly as it was
           received. It SHOULD be also verified on receipt that the locally
           calculated H(Node Data) matches the content of the field within
           the TLV, and if the hash differs, the TLV SHOULD be ignored.</t>
@@ -2069,8 +2031,7 @@ thread on the topic. -->
   </middle>
   <back>
 
-<!--[rfced] May we put the references in alphabetical order?-->
-<!--MSt: Sure, please go ahead. (I thought tools would do this anyway.)-->
+
     <references title="Normative References">
       <?rfc include="reference.RFC.2119.xml"?>
       <?rfc include="reference.RFC.6206.xml"?>

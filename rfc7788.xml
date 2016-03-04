@@ -7,6 +7,7 @@
 <?rfc symrefs="yes"?>
 <?rfc toc="yes"?>
 <?rfc tocindent="yes"?>
+<?rfc sortrefs="yes"?>
 
 <rfc
     ipr='trust200902'
@@ -61,19 +62,6 @@
     <keyword>Homenet</keyword>
     <keyword>DNCP</keyword>
     <abstract>
-<!-- [rfced] Throughout the text, the following term appears to be used
-inconsistently. Please review these occurrences and let us know if/how they
-may be made consistent.
-
-- Prefix vs. prefix
--->
-<!-- MSt: I can't find any inconsistency; different prefix subtypes
-     (e.g. Advertised Prefix) are chosen to be capitalized, while the
-     normal prefix-as-noun is not; however, the prefix-as-noun seems to
-     occur only as TLV field, where it is uppercased due to that. I guess
-     one section header has 'ULA Prefix' which is inconsistent, but is
-     there some other place as well?
-     -->
 
       <t>This document describes the Home Networking Control Protocol
       (HNCP), an extensible configuration protocol, and a set of
@@ -158,9 +146,9 @@ may be made consistent.
         <t>As HNCP uses DNCP as the actual state synchronization protocol,
         the applicability statement of DNCP applies here as well; HNCP
         should not be used for any data that changes rapidly and constantly.
-        If such data needs to be published in an HNCP network, a more
-        applicable protocol should be used for those portions and locators,
-        so a server of said protocol can be announced using HNCP instead.
+        If such data needs to be published in an HNCP network, 1) a more
+        applicable protocol should be used for those portions, and 2) locators
+        to a server of said protocol should be announced using HNCP instead.
         An example for this is <xref target="naming-sd">naming and service
         discovery</xref> for which HNCP only transports DNS server
         addresses and no actual per-name or per-service data of hosts.</t>
@@ -169,6 +157,20 @@ may be made consistent.
              applicable protocol for those things + publish a locator (=
              address/port/..) to access the protocol using HNCP. Now the
              'portions and locators' looks bit weird to me.-->
+
+<!--[rfced] Please let us know if the following update conveys the
+intended meaning of the sentence (is it okay to make these items
+parallel by using ?should? for both?).
+
+Current:
+If such data needs to be published in an HNCP network, a more applicable
+protocol should be used for those portions and locators, so a server
+of said protocol can be announced using HNCP instead. 
+
+Perhaps:
+If such data needs to be published in an HNCP network, 1) a more applicable
+protocol should be used for those portions, and 2) locators to a server
+of said protocol should be announced using HNCP instead. -->
 
         <t>HNCP TLVs specified within this document, in steady state, stay
         constant, with one exception: as <xref target="dp-tlv">Delegated
@@ -245,9 +247,9 @@ may be made consistent.
 	<c>a device implementing this specification, which forwards
 	traffic on behalf of other devices.</c>
 	<c></c><c></c>
-	<c>Highest node identifier</c>
+	<c>Greatest node identifier</c>
 	<c>when comparing the DNCP node identifiers of multiple nodes,
-	the one that has the highest value in a bitwise comparison.</c>
+	the one that has the greatest value in a bitwise comparison.</c>
 
 	<c>Border</c>
 	<c>separation point between administrative domains; in this case,
@@ -334,9 +336,7 @@ may be made consistent.
 
         <t>HNCP uses UDP datagrams on port 8231 as a transport
         over link-local scoped IPv6, using unicast and multicast
-        (All-Homenet-Nodes is the HNCP group address).
-        <!-- MSt: As port # was expanded above, why was not the multicast
-             group address as well? (FF02:0:0:0:0:0:0:11) -->
+        (FF02:0:0:0:0:0:0:11 is the HNCP group address).
         Received datagrams where either or both of the IPv6 source or
         destination addresses are not link-local scoped MUST be
         ignored. Replies to multicast and unicast messages MUST be sent to
@@ -378,28 +378,6 @@ may be made consistent.
             lossless links works fine, as it allows for one lost
             keep-alive. If used on a lossy link, a considerably higher
             multiplier, such as 15, should be used instead.
-
-
-<!-- [rfced] Please clarify this sentence, specifically
-"the DNCP_KEEPALIVE_INTERVAL * DNCP_KEEPALIVE_MULTIPLIER timeout
-after which (entirely) lost nodes time out".
-
-Original:
-   In that case, an implementation
-   might prefer shorter keep-alive intervals on that link as well
-   to ensure that the DNCP_KEEPALIVE_INTERVAL *
-   DNCP_KEEPALIVE_MULTIPLIER timeout after which (entirely) lost
-   nodes time out is low enough.
-
-Perhaps:
-   In that case, an implementation
-   might prefer shorter keep-alive intervals on that link as well
-   to ensure that the timeout (equal to DNCP_KEEPALIVE_INTERVAL *
-   DNCP_KEEPALIVE_MULTIPLIER) for entirely lost nodes is low enough.
--->
-<!-- MSt: Not fond of the 'timeout .. for entirely lost', structure,
-     but rewrote the sentence slightly. Acceptable? -->
-
             In that case, an implementation might prefer shorter keep-alive
             intervals on that link as well to ensure that the timeout
             (equal to DNCP_KEEPALIVE_INTERVAL * DNCP_KEEPALIVE_MULTIPLIER)
@@ -450,12 +428,28 @@ Perhaps:
       and for troubleshooting purposes, it might be beneficial to identify
       the HNCP agent version running. Therefore, each node MUST include an
       <xref target="version">HNCP-Version TLV</xref> indicating the currently
-      supported version in its Node Data and
-      MUST ignore (except for DNCP synchronization purposes) any TLVs with a
-      type greater than 32 published-by nodes that are not also publishing an
+      supported version in its node data and MUST ignore any TLVs that have a 
+      type greater than 32 and that are published by nodes that didn't also publish an
       HNCP-Version TLV.</t>
       <!-- MSt: I am not sure what above published by => published-by edit
            did. It seems to make meaning less clear to me at least. -->
+
+<!--[rfced] Please let us know if the following update conveys the
+intended meaning of the sentence.
+
+Current:
+Therefore, each node MUST include an
+HNCP-Version TLV (Section 10.1) indicating the currently supported
+version in its node data and MUST ignore (except for DNCP
+synchronization purposes) any TLVs with a type greater than 32
+published-by nodes that are not also publishing an HNCP-Version TLV.
+
+Perhaps:
+Therefore, each node MUST include an
+HNCP-Version TLV (Section 10.1) indicating the currently supported
+version in its node data and MUST ignore any TLVs that have a type greater than 32
+and that are published by nodes that didn?t also publish an HNCP-Version TLV.
+-->
       <t>HNCP routers may also have different capabilities regarding
       interactions with hosts, e.g., for configuration or service discovery.
       These are indicated by M, P, H, and L values. The combined
@@ -726,7 +720,7 @@ Perhaps:
         <t>Whenever information about reserved parts (e.g., as specified
         in <xref target="RFC6603" />) is received for a delegated prefix,
         the reserved parts MUST be advertised using <xref target="ap-tlv">
-        Assigned Prefix TLVs</xref> with the highest priority (i.e., 15),
+        Assigned Prefix TLVs</xref> with the greatest priority (i.e., 15),
         as if they were assigned to a Private Link.</t>
 
     	<t>Some connections or delegated prefixes may have a
@@ -794,17 +788,12 @@ Perhaps:
         one.</t>
 
         <t hangText="Set of Private Links: ">This document defines Private
-        Links representing DHCPv6-PD clients as a mean to advertise
+        Links as representing DHCPv6-PD clients or as a mean to advertise
         prefixes included in the DHCPv6 Exclude Prefix option.  Other
         implementation-specific Private Links may be defined whenever a
         prefix needs to be assigned for a purpose that does not require a
         consensus with other HNCP nodes.</t>
-        <!-- MSt: The 'or' above ( clients _or_ as a mean to advertise)
-             was actually needed; there are two things private links are
-             used:
-             - to represent DHCPv6-PD clients, _or_
-             - as a mean to advertise prefixes ..
-        -->
+       
         <t hangText="Set of Advertised Prefixes: ">The set of prefixes
         included in Assigned Prefix TLVs advertised by other HNCP nodes
         (prefixes advertised by the local node are not in this set).  The
@@ -1004,7 +993,7 @@ Perhaps:
               ADDRESS_APPLY_DELAY is 3 seconds.</t>
 
               <t>Whenever the same address is advertised by more than one
-              node, all but the one advertised by the node with the highest
+              node, all but the one advertised by the node with the greatest
               node identifier MUST be removed.</t>
             </list>
           </t>
@@ -1025,7 +1014,7 @@ Perhaps:
             Policy TLV) and has a preferred time greater than 0. However, it
             MUST NOT do so otherwise. In case multiple locally generated
             ULA prefixes are present, only the one published by the node with
-            the highest node identifier is kept among those with a preferred
+            the greatest node identifier is kept among those with a preferred
             time greater than 0 -- if there is any.</t>
 
             <t>An HNCP router MUST create a <xref target="RFC1918">
@@ -1034,7 +1023,7 @@ Perhaps:
             Internet connectivity currently exists. It MAY also enable local IPv4
             connectivity by creating a private IPv4 prefix if no IPv4 prefix exists
             but MUST NOT do so otherwise. In case multiple IPv4 prefixes are
-            announced, only the one published by the node with the highest node
+            announced, only the one published by the node with the greatest node
             identifier is kept among those with a Prefix Policy of type 0 --
             if there is any.
             The router publishing a prefix with Internet connectivity
@@ -1089,7 +1078,7 @@ Perhaps:
         In case of a tie, <xref target="versioning">Capability Values</xref>
         are compared, and the router with
         the greatest value is elected. In case of another tie, the router
-        with the highest node identifier is elected among the routers with
+        with the greatest node identifier is elected among the routers with
         tied Capability Values.
         </t>
 
@@ -1120,7 +1109,7 @@ Perhaps:
         In case of a tie, <xref target="versioning">Capability Values</xref>
         are compared, and the router with
         the greatest value is elected. In case of another tie, the router
-        with the highest node identifier is elected among the routers with
+        with the greatest node identifier is elected among the routers with
         tied Capability Values.
 
         </t>
@@ -1144,7 +1133,7 @@ Perhaps:
         In case of a tie, <xref target="versioning">Capability Values</xref>
         are compared, and the router with
         the greatest value is elected. In case of another tie, the router
-        with the highest node identifier is elected among the routers with
+        with the greatest node identifier is elected among the routers with
         tied Capability Values.
         </t>
 
@@ -1172,7 +1161,7 @@ Perhaps:
         the greatest M-capability. In case of a tie, <xref
         target="versioning">Capability Values</xref> are
         compared, and the router with the greatest value is elected. In case of
-        another tie, the router with the highest node identifier is elected
+        another tie, the router with the greatest node identifier is elected
         among the routers with tied Capability Values.</t>
 
         <t>The elected router MUST provide an mDNS proxy on the given link
@@ -1204,7 +1193,7 @@ Perhaps:
       This announcement is done using <xref target="delegated-zone-tlv">
       Delegated Zone TLVs</xref> and MUST be unique in the whole network.
       In case of a conflict, the announcement of the node with
-      the highest node identifier takes precedence, and all other nodes
+      the greatest node identifier takes precedence, and all other nodes
       MUST cease to announce the conflicting TLV. HNCP routers providing
       recursive name resolving services MUST use the included DNS server
       address within the TLV to resolve names belonging to the zone as if
@@ -1215,7 +1204,7 @@ Perhaps:
       Announcements are made using <xref target="node-name-tlv">Node Name
       TLVs</xref>, and the announced names MUST be unique in the whole network.
       In case of a conflict, the
-      announcement of the node with the highest node identifier takes
+      announcement of the node with the greatest node identifier takes
       precedence, and all other nodes MUST cease to announce the conflicting
       TLV. HNCP routers providing recursive name resolving services as
       described above MUST resolve such announced names to their respective
@@ -1295,33 +1284,15 @@ Perhaps:
 	format</xref> is used, and prefix lengths are encoded as the original
 	IPv4 prefix length increased by 96.</t>
 
-<!-- [rfced] Do you want the section titles to be updated to use the
-IANA-registered TLV names (which include hyphens)? Currently, only
-Section 10.1 uses the actual TLV name.
-
-Original:
-     10.1.  HNCP-Version TLV
-     10.2.  External Connection TLV
-       10.2.1.  Delegated Prefix TLV
-       10.2.2.  DHCPv6 Data TLV
-       10.2.3.  DHCPv4 Data TLV
-     10.3.  Assigned Prefix TLV
-     10.4.  Node Address TLV
-     10.5.  DNS Delegated Zone TLV
-     10.6.  Domain Name TLV
-     10.7.  Node Name TLV
-     10.8.  Managed PSK TLV
-
-Similarly, do you want instances of the TLV names that appear
-in all caps to be changed to match the IANA-registered names
-(on http://www.iana.org/assignments/dncp-registry)?
-Note: a similar question is asked for RFC-to-be rfc7787.
+<!--[rfced] The section titles and figures have been updated to use
+the IANA-registered TLV names (which include hyphens).  Would you
+like occurrences of the TLV names throughout the text to be
+updated as well?
 
 For example:
-ORIGINAL: Type: DHCPV6-DATA (37)
-PERHAPS:  Type: DHCPv6-Data (37)
+Original: An External Connection TLV is a?
+Perhaps: An External-Connection TLV is a...
 -->
-<!-- MSt: Sure, works for me (didn't do the change though). -->
 
         <section anchor="version" title="HNCP-Version TLV">
 
@@ -1330,7 +1301,7 @@ PERHAPS:  Type: DHCPv6-Data (37)
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: HNCP-VERSION (32)    |         Length: >= 5          |
+|    Type: HNCP-Version (32)    |         Length: >= 5          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |           Reserved            |   M   |   P   |   H   |   L   |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1385,13 +1356,13 @@ PERHAPS:  Type: DHCPv6-Data (37)
 
         </section>
 
-        <section title="External Connection TLV" anchor="ec-tlv">
+        <section title="External-Connection TLV" anchor="ec-tlv">
           <figure>
             <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Type: EXTERNAL-CONNECTION (33)|             Length            |
+| Type: External-Connection (33)|             Length            |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                     (Optional nested TLVs)                    |
             </artwork>
@@ -1408,13 +1379,13 @@ PERHAPS:  Type: DHCPv6-Data (37)
           and <xref target="client-config">host configuration</xref>.
           </t>
 
-      <section anchor="dp-tlv" title="Delegated Prefix TLV">
+      <section anchor="dp-tlv" title="Delegated-Prefix TLV">
           <figure>
             <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Type: DELEGATED-PREFIX (34)  |          Length: >= 9         |
+|  Type: Delegated-Prefix (34)  |          Length: >= 9         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                Valid Lifetime Since Origination               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1458,14 +1429,14 @@ PERHAPS:  Type: DHCPv6-Data (37)
             </list>
             </t>
 
-          <section anchor="pp-tlv" title="Prefix Policy TLV">
+          <section anchor="pp-tlv" title="Prefix-Policy TLV">
 
           <figure>
             <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: PREFIX-POLICY (43)   |          Length: >= 1         |
+|    Type: Prefix-Policy (43)   |          Length: >= 1         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |  Policy Type  |                                               |
 +-+-+-+-+-+-+-+-+                    Value                      +
@@ -1488,15 +1459,15 @@ PERHAPS:  Type: DHCPv6-Data (37)
               <t hangText="Policy Type: ">The type of the policy identifier.
                 <list style="hanging" hangIndent="10">
                       <t hangText="0:">Internet connectivity
-                      (no Value).</t>
+                      (no value).</t>
 
                       <t hangText="1-128:">Explicit destination prefix
                       with the Policy Type being the actual length of the
-                      prefix and the Value containing significant bits of the
+                      prefix and the value containing significant bits of the
                       destination prefix padded with zeros up to the next
                       byte boundary.</t>
 
-                      <t hangText="129:">DNS domain. The Value contains a
+                      <t hangText="129:">DNS domain. The value contains a
                       DNS label sequence encoded per <xref target="RFC1035"></xref>.
                       Compression MUST NOT be used. The
                       label sequence MUST end with an empty label.</t>
@@ -1504,7 +1475,7 @@ PERHAPS:  Type: DHCPv6-Data (37)
                       <t hangText="130:">Opaque UTF-8 string (e.g., for
                       administrative purposes).</t>
 
-                      <t hangText="131:">Restrictive assignment (no Value).</t>
+                      <t hangText="131:">Restrictive assignment (no value).</t>
 
                       <t hangText="132-255:">Reserved for future additions.</t>
 
@@ -1517,13 +1488,13 @@ PERHAPS:  Type: DHCPv6-Data (37)
         </section>
         </section>
 
-        <section title="DHCPv6 Data TLV" anchor="dhcpv6-data">
+        <section title="DHCPv6-Data TLV" anchor="dhcpv6-data">
             <figure>
               <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: DHCPV6-DATA (37)     |          Length: > 0          |
+|    Type: DHCPv6-Data (37)     |          Length: > 0          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                      DHCPv6 option stream                     |
               </artwork>
@@ -1545,14 +1516,14 @@ PERHAPS:  Type: DHCPv6-Data (37)
             </list>
           </t>
        </section>
-       <section title="DHCPv4 Data TLV" anchor="dhcpv4-data">
+       <section title="DHCPv4-Data TLV" anchor="dhcpv4-data">
 
             <figure>
               <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: DHCPV4-DATA (38)    |          Length: > 0          |
+|     Type: DHCPv4-Data (38)    |          Length: > 0          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                       DHCPv4 option stream                    |
               </artwork>
@@ -1573,13 +1544,13 @@ PERHAPS:  Type: DHCPv6-Data (37)
 
         </section>
 
-        <section anchor="ap-tlv" title="Assigned Prefix TLV">
+        <section anchor="ap-tlv" title="Assigned-Prefix TLV">
           <figure>
             <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  Type: ASSIGNED-PREFIX (35)   |          Length: >= 6         |
+|  Type: Assigned-Prefix (35)   |          Length: >= 6         |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                      Endpoint Identifier                      |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1632,13 +1603,13 @@ PERHAPS:  Type: DHCPv6-Data (37)
           </t>
         </section>
 
-        <section anchor="node-address" title="Node Address TLV">
+        <section anchor="node-address" title="Node-Address TLV">
          <figure>
               <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: NODE-ADDRESS (36)    |           Length: 20          |
+|    Type: Node-Address (36)    |           Length: 20          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                      Endpoint Identifier                      |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1667,14 +1638,14 @@ PERHAPS:  Type: DHCPv6-Data (37)
             </t>
         </section>
 
-              <section anchor="delegated-zone-tlv" title="DNS Delegated Zone TLV">
+              <section anchor="delegated-zone-tlv" title="DNS-Delegated-Zone TLV">
 
         <figure>
           <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Type: DNS-DELEGATED-ZONE (39) |        Length: >= 17          |
+| Type: DNS-Delegated-Zone (39) |        Length: >= 17          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
 |                           IP Address                          |
@@ -1696,44 +1667,6 @@ PERHAPS:  Type: DHCPv6-Data (37)
         to specifying an NS and A/AAAA record for said zone. Details
         are specified in <xref target="naming-sd" />.
 
-<!--[rfced] Please clarify if 'DNS-SD [RFC6763] Legacy-Browse' should
-be in parenthesis like '(DNS-SD [RFC6763] Browse)' and
-'(fully-qualified DNS-SD [RFC6763] domain)'.
-
-Original:
- L-bit :  DNS-SD [RFC6763] Legacy-Browse, indicates that this
-      delegated zone SHOULD be included in the network's DNS-SD legacy
-      browse list of domains at lb._dns- sd._udp.(DOMAIN-NAME).
-
-Perhaps:
- L-bit :  (DNS-based Service Discovery (DNS-SD) [RFC6763] Legacy-Browse)
-      indicates that this delegated zone SHOULD be included in the
-      network's DNS-SD legacy browse list of domains at
-      lb._dns- sd._udp.(DOMAIN-NAME).
--->
-<!-- MSt: Looks good to me; changed. -->
-
-<!--[rfced] Please clarify how 'b._dns-sd._udp.  (DOMAIN-NAME)' should
- appear in the text (i.e., with a space or no space before
- '(DOMAIN-NAME)').  We note that similar terms do not have a space
- (e.g., 'lb._dns- sd._udp.(DOMAIN-NAME)' and '_dns-sd._udp.(Zone)').
-
-Original:
-B-bit :  (DNS-SD [RFC6763] Browse) indicates that this delegated zone
-      SHOULD be included in the network's DNS-SD browse list of domains
-      at b._dns-sd._udp.  (DOMAIN-NAME).  Local forward zones SHOULD
-      have this bit set, reverse zones SHOULD NOT.
-
-Perhaps:
-B-bit:  (DNS-SD [RFC6763] Browse) indicates that this delegated zone
-      SHOULD be included in the network's DNS-SD browse list of domains
-      at b._dns-sd._udp.(DOMAIN-NAME).  Local forward zones SHOULD
-      have this bit set, reverse zones SHOULD NOT.
-
--->
-<!-- MSt: Line wrapping bug that was not caught earlier. It should be
-     _udp.whatever without space. I blame my Emacs and meta+q. -->
-
           <list style="hanging">
             <t hangText="IP Address:"> The IPv6 address of the authoritative
             DNS server for the zone; IPv4 addresses are represented as
@@ -1748,8 +1681,6 @@ B-bit:  (DNS-SD [RFC6763] Browse) indicates that this delegated zone
             indicates that this delegated zone SHOULD be included in the
             network's DNS-SD legacy browse list of domains at lb._dns&nbhy;sd._udp.(DOMAIN-NAME).  Local forward zones SHOULD have this
             bit set; reverse zones SHOULD NOT.</t>
-<!-- MSt: Why is ._dns-sd. differently formatted here than below? (&nbhy;
-     <> -) -->
 
             <t hangText="B-bit:"> (<xref target="RFC6763">DNS-SD</xref> Browse)
             indicates that this delegated zone SHOULD be included in the
@@ -1776,14 +1707,14 @@ B-bit:  (DNS-SD [RFC6763] Browse) indicates that this delegated zone
       </section>
 
 
-      <section anchor="domain-name-tlv" title="Domain Name TLV">
+      <section anchor="domain-name-tlv" title="Domain-Name TLV">
 
         <figure>
           <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: DOMAIN-NAME (40)     |         Length: > 0           |
+|    Type: Domain-Name (40)     |         Length: > 0           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |        Domain (DNS label sequence - variable length)          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1805,13 +1736,13 @@ B-bit:  (DNS-SD [RFC6763] Browse) indicates that this delegated zone
 
       </section>
 
-      <section anchor="node-name-tlv" title="Node Name TLV">
+      <section anchor="node-name-tlv" title="Node-Name TLV">
         <figure>
           <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     Type: NODE-NAME (41)      |         Length: > 17          |
+|     Type: Node-Name (41)      |         Length: > 17          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
 |                           IP Address                          |
@@ -1841,13 +1772,13 @@ B-bit:  (DNS-SD [RFC6763] Browse) indicates that this delegated zone
         </t>
       </section>
 
-        <section anchor="managed-psk" title="Managed PSK TLV">
+        <section anchor="managed-psk" title="Managed-PSK TLV">
               <figure>
         <artwork>
 0                   1                   2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type: MANAGED-PSK (42)     |          Length: 32           |
+|    Type: Managed-PSK (42)     |          Length: 32           |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
 |                                                               |
@@ -2101,7 +2032,6 @@ B-bit:  (DNS-SD [RFC6763] Browse) indicates that this delegated zone
 
       </list>
       </t>
-<!--Note: deleted 'well-known' per request from IANA/authors-->
 
       <t>IANA has registered the UDP port numbers
       8231 (service name: hncp-udp-port, description: HNCP) and
@@ -2113,31 +2043,8 @@ B-bit:  (DNS-SD [RFC6763] Browse) indicates that this delegated zone
 
   </middle>
   <back>
-<!--[rfced] May we sort the references in alphabetical order?-->
-<!--MSt: Sure, please go ahead. (I thought tools would do this anyway.)-->
 
     <references title="Normative References">
-
-<!-- [rfced] The following question is about both documents:
-RFCs-to-be 7787 and 7788. Your reply will affect both documents,
-so please confer with your coauthors.
-
-We note inconsistencies in the terms below.  Should these be uniform?
-If so, please let us know which form is preferred.
-
-- Value vs. value
-
-- Node Data vs. node data
-  [Note: perhaps 'H(Node Data)' and 'Node Data field' should be capitalized
-  and all other instances should be lowercased.]
--->
-
-<!--MSt: not sure about the context of 'value'; in general, value should be
-    lowercase unless TLV field (or part of expanded TLV acronym).
-
-    We tried to have 'Node Data TLV', 'node data', and Node Data (field)
-    case in the document; if that is failing somewhere, please fix those. :)
--->
 
 <!--draft-ietf-homenet-dncp-12; companion document -->
 <reference anchor='RFC7787' target="http://www.rfc-editor.org/info/rfc7787">
