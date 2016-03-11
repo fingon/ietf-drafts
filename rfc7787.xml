@@ -1707,9 +1707,9 @@ MSt:
 
         <section title="Announcement of Verdicts">
 
-          <t>A node SHOULD always announce any Configured Trust verdicts it
+          <t>A node SHOULD always announce any configured verdicts it
           has established by itself, and it MUST do so if announcing the
-          Configured Trust verdict leads to a change in the current
+          configured verdict leads to a change in the current
           effective trust verdict for the respective certificate.  In
           absence of configured verdicts, it MUST announce Cached Trust
           verdicts it has stored in its trust cache, if one of the
@@ -1800,7 +1800,7 @@ MSt:
             <t>A node implementing certificate-based trust MUST provide
             an interface to retrieve the current set of effective trust
             verdicts, fingerprints, and names of all certificates currently
-            known and set Configured Trust verdicts to be
+            known and set configured verdicts to be
             announced. Alternatively, it MAY provide a companion DNCP node
             or application with these capabilities with which it has a
             pre-established trust relationship.</t>
