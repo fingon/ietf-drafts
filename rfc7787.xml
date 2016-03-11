@@ -1622,33 +1622,6 @@ MSt:
         verdicts announced for said certificate at the time.</t>
 
         <section title="Trust Verdicts">
-<!--[rfced] We notice that some of the trust verdicts are capitalized
-while others are lowercased within the text.  Please review these
-instances and let us know if/how they may be updated for consistency.
-
-For example:
-Examples:
-"Cached Trust" - one instance is lowercase; otherwise capitalized.
-"Configured Trust" - several instances are lowercase.
-("Neutral" consistently capitalized)
-("Cached Distrust" - consistently capitalized.)
-
-Also, should these instances be changed?
-
-  cached verdict -> Cached Trust verdicts
-  configured verdict -> Configured Trust verdicts
--->
-<!-- MSt: Not sure about these; Steven? I changed the lone Cached Trust to
-     be capitalized, but configured trust, cached/configured verdict -
-     shrug.
-
-     I _think_ just doing the proposed changes would not fix configured
-     trust at least, as in 'Announcement of Verdicts' it should really say
-     Configured Trust _OR_ Configured Distrust in that case. I assume the
-     'configured verdict' actually has referred to 'Configured Trust or
-     Configured Distrust [verdict]' (and similarly 'cached verdict' =
-     'Cached Trust or Cached Distrust [verdict]').
--->
 
         <t>Trust verdicts are statements of DNCP nodes about the
           trustworthiness of X.509 certificates.  There are 5 possible
@@ -1734,9 +1707,9 @@ Also, should these instances be changed?
 
         <section title="Announcement of Verdicts">
 
-          <t>A node SHOULD always announce any configured trust verdicts it
+          <t>A node SHOULD always announce any Configured Trust verdicts it
           has established by itself, and it MUST do so if announcing the
-          configured trust verdict leads to a change in the current
+          Configured Trust verdict leads to a change in the current
           effective trust verdict for the respective certificate.  In
           absence of configured verdicts, it MUST announce Cached Trust
           verdicts it has stored in its trust cache, if one of the
@@ -1827,7 +1800,7 @@ Also, should these instances be changed?
             <t>A node implementing certificate-based trust MUST provide
             an interface to retrieve the current set of effective trust
             verdicts, fingerprints, and names of all certificates currently
-            known and set configured trust verdicts to be
+            known and set Configured Trust verdicts to be
             announced. Alternatively, it MAY provide a companion DNCP node
             or application with these capabilities with which it has a
             pre-established trust relationship.</t>

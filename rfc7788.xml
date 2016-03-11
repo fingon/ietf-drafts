@@ -152,29 +152,10 @@
         An example for this is <xref target="naming-sd">naming and service
         discovery</xref> for which HNCP only transports DNS server
         addresses and no actual per-name or per-service data of hosts.</t>
-        <!-- MSt: I believe the '.. and locators,' meaning actually changed
-             in the editing. The original idea was to have to use more
-             applicable protocol for those things + publish a locator (=
-             address/port/..) to access the protocol using HNCP. Now the
-             'portions and locators' looks bit weird to me.-->
-
-<!--[rfced] Please let us know if the following update conveys the
-intended meaning of the sentence (is it okay to make these items
-parallel by using ?should? for both?).
-
-Current:
-If such data needs to be published in an HNCP network, a more applicable
-protocol should be used for those portions and locators, so a server
-of said protocol can be announced using HNCP instead. 
-
-Perhaps:
-If such data needs to be published in an HNCP network, 1) a more applicable
-protocol should be used for those portions, and 2) locators to a server
-of said protocol should be announced using HNCP instead. -->
 
         <t>HNCP TLVs specified within this document, in steady state, stay
-        constant, with one exception: as <xref target="dp-tlv">Delegated
-        Prefix TLVs</xref> do contain lifetimes, they force republishing
+        constant, with one exception: as <xref target="dp-tlv">Delegated-Prefix
+        TLVs</xref> do contain lifetimes, they force republishing
         of that data every time the valid or preferred lifetimes of
         prefixes are updated (significantly). Therefore, it is desirable for
         ISPs to provide large enough valid and preferred lifetimes to avoid
@@ -357,7 +338,7 @@ of said protocol should be announced using HNCP instead. -->
         (DNCP_NODE_IDENTIFIER_LENGTH = 32). A node implementing HNCP SHOULD
         use a random node identifier. If there is a node identifier collision
         (as specified
-        in the Node State TLV handling of Section 4.4 of <xref
+        in the Node-State TLV handling of Section 4.4 of <xref
         target="RFC7787" />), the node MUST immediately
         generate and use a new random node identifier that is not used by
         any other node at the time, based on the current DNCP network state.</t>
@@ -413,7 +394,7 @@ of said protocol should be announced using HNCP instead. -->
         method. <xref target="RFC7525" /> provides guidance on how to
         securely utilize DTLS.</t>
 
-        <t>HNCP nodes MUST ignore all Node State TLVs received via
+        <t>HNCP nodes MUST ignore all Node-State TLVs received via
         multicast on a link that has DNCP security enabled in order
         to prevent spoofing of node state changes.</t>
 
@@ -428,28 +409,11 @@ of said protocol should be announced using HNCP instead. -->
       and for troubleshooting purposes, it might be beneficial to identify
       the HNCP agent version running. Therefore, each node MUST include an
       <xref target="version">HNCP-Version TLV</xref> indicating the currently
-      supported version in its node data and MUST ignore any TLVs that have a 
+      supported version in its node data and MUST ignore (except for DNCP
+      synchronization purposes) any TLVs that have a 
       type greater than 32 and that are published by nodes that didn't also publish an
       HNCP-Version TLV.</t>
-      <!-- MSt: I am not sure what above published by => published-by edit
-           did. It seems to make meaning less clear to me at least. -->
 
-<!--[rfced] Please let us know if the following update conveys the
-intended meaning of the sentence.
-
-Current:
-Therefore, each node MUST include an
-HNCP-Version TLV (Section 10.1) indicating the currently supported
-version in its node data and MUST ignore (except for DNCP
-synchronization purposes) any TLVs with a type greater than 32
-published-by nodes that are not also publishing an HNCP-Version TLV.
-
-Perhaps:
-Therefore, each node MUST include an
-HNCP-Version TLV (Section 10.1) indicating the currently supported
-version in its node data and MUST ignore any TLVs that have a type greater than 32
-and that are published by nodes that didn?t also publish an HNCP-Version TLV.
--->
       <t>HNCP routers may also have different capabilities regarding
       interactions with hosts, e.g., for configuration or service discovery.
       These are indicated by M, P, H, and L values. The combined
@@ -619,8 +583,8 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
       <t>This section specifies how HNCP nodes configure host and node
       addresses. At first, border routers share information obtained from
       service providers or local configuration by publishing one or more
-      <xref target="ec-tlv">External Connection TLVs</xref>. These contain
-      other TLVs such as <xref target="dp-tlv">Delegated Prefix TLVs</xref>
+      <xref target="ec-tlv">External-Connection TLVs</xref>. These contain
+      other TLVs such as <xref target="dp-tlv">Delegated-Prefix TLVs</xref>
       that are then used for prefix assignment. Finally, HNCP nodes obtain
       addresses either <xref target="node-addr">statelessly or using a
       specific stateful mechanism</xref>. Hosts and non-HNCP routers are
@@ -693,26 +657,25 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
         one or more sources, e.g., <xref target="RFC3633">DHCPv6-PD</xref>,
         <xref target="RFC6241">NETCONF</xref>, or static configuration.
         Each individual external connection to be shared in the network is
-        represented by one <xref target="ec-tlv">External
-        Connection TLV</xref>.</t>
+        represented by one <xref target="ec-tlv">External-Connection TLV</xref>.</t>
 
 		<t>Announcements of individual external connections can consist
 		of the following components:
 		<list style="hanging">
 			<t hangText="Delegated Prefixes: ">Address space available for
 			assignment to internal links announced using <xref
-			target="dp-tlv">Delegated Prefix TLVs</xref>. Some address
+			target="dp-tlv">Delegated-Prefix TLVs</xref>. Some address
 			spaces might have special properties that are necessary to
 			understand in order to handle them (e.g., information similar
 			to <xref target="RFC6603" />). This information is encoded
-			using <xref target="dhcpv6-data">DHCPv6 Data TLVs</xref> inside
-			the respective Delegated Prefix TLVs.</t>
+			using <xref target="dhcpv6-data">DHCPv6-Data TLVs</xref> inside
+			the respective Delegated-Prefix TLVs.</t>
 
 			<t hangText="Auxiliary Information: ">Information about services
 			such as DNS or time synchronization regularly used by hosts in
 			addition to addressing and routing information. This information
-			is encoded using <xref target="dhcpv6-data">DHCPv6 Data TLVs
-			</xref> and <xref target="dhcpv4-data">DHCPv4 Data TLVs</xref>.
+			is encoded using <xref target="dhcpv6-data">DHCPv6-Data TLVs
+			</xref> and <xref target="dhcpv4-data">DHCPv4-Data TLVs</xref>.
 			</t>
 		</list>
 		</t>
@@ -720,7 +683,7 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
         <t>Whenever information about reserved parts (e.g., as specified
         in <xref target="RFC6603" />) is received for a delegated prefix,
         the reserved parts MUST be advertised using <xref target="ap-tlv">
-        Assigned Prefix TLVs</xref> with the greatest priority (i.e., 15),
+        Assigned-Prefix TLVs</xref> with the greatest priority (i.e., 15),
         as if they were assigned to a Private Link.</t>
 
     	<t>Some connections or delegated prefixes may have a
@@ -732,19 +695,19 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
     	avoid breaking connectivity for devices who are not aware of their
     	special characteristics or to only selectively allow certain
     	devices to use them. Such prefixes are distinguished using
-    	<xref target="pp-tlv">Prefix Policy TLVs</xref>. Their
+    	<xref target="pp-tlv">Prefix-Policy TLVs</xref>. Their
     	contents MAY be partly opaque to HNCP nodes, and their
     	identification and usage depends on local policy. However, the
     	following general rules MUST be adhered to:
     	<list>
     		<t>Special rules apply when making address assignments for
-    		prefixes with Prefix Policy TLVs with type 131, as
+    		prefixes with Prefix-Policy TLVs with type 131, as
     		described in <xref target="assign"/>.</t>
 
-    		<t>In the presence of any type 1 to 128 Prefix Policy TLV, the
+    		<t>In the presence of any type 1 to 128 Prefix-Policy TLV, the
     		prefix is specialized to reach destinations denoted by any
-    		such Prefix Policy TLV, i.e., in absence of a type 0 Prefix
-    		Policy TLV, it is not usable for general Internet connectivity.
+    		such Prefix-Policy TLV, i.e., in absence of a type 0 Prefix-Policy
+    		TLV, it is not usable for general Internet connectivity.
     		An HNCP router MAY enforce this restriction with appropriate
     		packet filter rules.</t>
     	</list>
@@ -759,7 +722,7 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
         algorithm</xref> in order to assign prefixes to HNCP internal links
         and uses <xref target="terminology">some of the terminology</xref>
         defined there.  HNCP furthermore defines the <xref target="ap-tlv">
-        Assigned Prefix TLV</xref>, which MUST be used to announce Published
+        Assigned-Prefix TLV</xref>, which MUST be used to announce Published
         Assigned Prefixes.</t>
 
     <section title="Prefix Assignment Algorithm Parameters">
@@ -773,10 +736,10 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
         comparison operation is defined as bitwise comparison.</t>
 
         <t hangText="Set of Delegated Prefixes: ">The set of prefixes
-        encoded in Delegated Prefix TLVs that are not strictly included in
-        prefixes encoded in other Delegated Prefix TLVs. Note that
-        Delegated Prefix TLVs included in ignored External Connection TLVs
-        are not considered. It is dynamically updated as Delegated Prefix
+        encoded in Delegated-Prefix TLVs that are not strictly included in
+        prefixes encoded in other Delegated-Prefix TLVs. Note that
+        Delegated-Prefix TLVs included in ignored External-Connection TLVs
+        are not considered. It is dynamically updated as Delegated-Prefix
         TLVs are added or removed.</t>
 
         <t hangText="Set of Shared Links: ">The set of Common Links
@@ -795,7 +758,7 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
         consensus with other HNCP nodes.</t>
        
         <t hangText="Set of Advertised Prefixes: ">The set of prefixes
-        included in Assigned Prefix TLVs advertised by other HNCP nodes
+        included in Assigned-Prefix TLVs advertised by other HNCP nodes
         (prefixes advertised by the local node are not in this set).  The
         associated Advertised Prefix Priority is the priority specified in
         the TLV. The associated Shared Link is determined as follows:
@@ -815,7 +778,7 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
         </list>
 
         Advertised Prefixes as well as their associated priorities and
-        associated Shared Links MUST be updated as Assigned Prefix TLVs are
+        associated Shared Links MUST be updated as Assigned-Prefix TLVs are
         added, updated, or removed, and as Common Links are modified.
         </t>
         <t hangText="ADOPT_MAX_DELAY: ">The default value is 0
@@ -848,12 +811,12 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
             prefix is desired MUST follow these rules in order:
 
             <list style="hanging">
-              <t>If the Delegated Prefix TLV contains a DHCPv6
-              Data TLV, and the meaning of one of the DHCP options is not
+              <t>If the Delegated-Prefix TLV contains a DHCPv6-Data
+              TLV, and the meaning of one of the DHCP options is not
               understood by the HNCP node, the creation of a new prefix
               is not desired. This rule applies to TLVs
-              inside Delegated Prefix TLVs but not to those
-              inside External Connection TLVs.</t>
+              inside Delegated-Prefix TLVs but not to those
+              inside External-Connection TLVs.</t>
 
               <t>If the remaining preferred lifetime of the prefix is 0 and
               there is another delegated prefix of the same IP version used for
@@ -861,9 +824,9 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
               creation of a new prefix is not desired.</t>
 
               <t>If the Delegated Prefix does not
-              include a Prefix Policy TLV indicating restrictive assignment
+              include a Prefix-Policy TLV indicating restrictive assignment
               (type 131) or if local policy exists to identify it based on,
-              e.g., other Prefix Policy TLV values and allows
+              e.g., other Prefix-Policy TLV values and allows
               assignment, the
               creation of a new prefix is desired.</t>
 
@@ -949,7 +912,7 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
           Each HNCP node SHOULD announce an IPv6 address and -- if it supports
           IPv4 -- MUST announce an IPv4 address, whenever matching prefixes
           are assigned to at least one of its Common Links. These addresses are
-          published using Node Address TLVs and used to locally reach HNCP
+          published using Node-Address TLVs and used to locally reach HNCP
           nodes for other services. Nodes SHOULD NOT create and
           announce more than one assignment per IP version to avoid cluttering
           the node data with redundant information unless a special use case
@@ -975,7 +938,7 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
 
           <t>HNCP nodes assign addresses to themselves and then (to ensure
           eventual lack of conflicting assignments) publish the assignments
-          using the <xref target="node-address">Node Address TLV</xref>.</t>
+          using the <xref target="node-address">Node-Address TLV</xref>.</t>
 
           <t>The process of obtaining addresses is specified as follows:
             <list style="symbols">
@@ -1010,8 +973,8 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
             <t>An HNCP router SHOULD create a ULA prefix if there is no other
             IPv6 prefix with a preferred time greater than 0 in the network.
             It MAY also do so if there are other delegated IPv6 prefixes,
-            but none of which is locally generated (i.e., without any Prefix
-            Policy TLV) and has a preferred time greater than 0. However, it
+            but none of which is locally generated (i.e., without any Prefix-Policy
+            TLV) and has a preferred time greater than 0. However, it
             MUST NOT do so otherwise. In case multiple locally generated
             ULA prefixes are present, only the one published by the node with
             the greatest node identifier is kept among those with a preferred
@@ -1179,9 +1142,9 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
 
       <t>Each HNCP router SHOULD provide and advertise a recursive name
       resolving server to clients that honor the
-      announcements made in <xref target="delegated-zone-tlv">Delegated Zone
-      TLVs</xref>, <xref target="domain-name-tlv">Domain Name TLVs</xref>, and
-      <xref target="node-name-tlv">Node Name TLVs</xref>, i.e., delegate
+      announcements made in <xref target="delegated-zone-tlv">Delegated-Zone
+      TLVs</xref>, <xref target="domain-name-tlv">Domain-Name TLVs</xref>, and
+      <xref target="node-name-tlv">Node-Name TLVs</xref>, i.e., delegate
       queries to the designated name servers and hand out appropriate
       A, AAAA, and PTR records according to the mentioned TLVs.</t>
 
@@ -1191,7 +1154,7 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
       DHCPv6 server, mDNS proxy, or for which it provides forward or
       reverse DNS services on behalf of connected devices.
       This announcement is done using <xref target="delegated-zone-tlv">
-      Delegated Zone TLVs</xref> and MUST be unique in the whole network.
+      Delegated-Zone TLVs</xref> and MUST be unique in the whole network.
       In case of a conflict, the announcement of the node with
       the greatest node identifier takes precedence, and all other nodes
       MUST cease to announce the conflicting TLV. HNCP routers providing
@@ -1201,7 +1164,7 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
 
       <t>Each HNCP node SHOULD announce a node name for itself to be easily
       reachable and MAY announce names on behalf of other devices.
-      Announcements are made using <xref target="node-name-tlv">Node Name
+      Announcements are made using <xref target="node-name-tlv">Node-Name
       TLVs</xref>, and the announced names MUST be unique in the whole network.
       In case of a conflict, the
       announcement of the node with the greatest node identifier takes
@@ -1214,7 +1177,7 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
       naming and service discovery with local significance. A network-wide
       zone is appended to all single labels or unqualified zones in order
       to qualify them. ".home" is the default; however, an administrator MAY
-      configure the announcement of a <xref target="domain-name-tlv">Domain Name
+      configure the announcement of a <xref target="domain-name-tlv">Domain-Name
       TLV </xref> for the network to use a different one. In case multiple
       are announced, the domain of the node with the greatest node
       identifier takes precedence.
@@ -1239,7 +1202,7 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
       is managed and used:
 
       <list style="symbols">
-        <t>If no <xref target="managed-psk">Managed PSK TLV</xref> is
+        <t>If no <xref target="managed-psk">Managed-PSK TLV</xref> is
         currently being announced, an HNCP node using this mechanism
         MUST create one after a random delay of 0 to 10 seconds
         with a 32 bytes long random key and add it to its node data.</t>
@@ -1247,7 +1210,7 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
         all but the one with the greatest node identifier stop advertising it and
         adopt the remaining one.</t>
 
-        <t>The node currently advertising the Managed PSK TLV MUST generate
+        <t>The node currently advertising the Managed-PSK TLV MUST generate
         and advertise a new random one whenever an unreachable node is
         removed from the DNCP topology as described in Section 4.6 of
         <xref target="RFC7787" />.</t>
@@ -1284,15 +1247,7 @@ and that are published by nodes that didn?t also publish an HNCP-Version TLV.
 	format</xref> is used, and prefix lengths are encoded as the original
 	IPv4 prefix length increased by 96.</t>
 
-<!--[rfced] The section titles and figures have been updated to use
-the IANA-registered TLV names (which include hyphens).  Would you
-like occurrences of the TLV names throughout the text to be
-updated as well?
 
-For example:
-Original: An External Connection TLV is a?
-Perhaps: An External-Connection TLV is a...
--->
 
         <section anchor="version" title="HNCP-Version TLV">
 
@@ -1368,7 +1323,7 @@ Perhaps: An External-Connection TLV is a...
             </artwork>
           </figure>
 
-          <t>An External Connection TLV is a container TLV used to
+          <t>An External-Connection TLV is a container TLV used to
           gather network configuration information associated with
           a single <xref target="ec">external connection</xref> to
           be shared across the HNCP network. A node MAY publish
@@ -1401,24 +1356,24 @@ Perhaps: An External-Connection TLV is a...
           </figure>
 
           <t>
-          The Delegated Prefix TLV is used by HNCP routers to advertise
+          The Delegated-Prefix TLV is used by HNCP routers to advertise
           prefixes that are allocated to the whole network and can be used
-          for prefix assignment. Delegated Prefix TLVs are only valid
-          inside External Connection TLVs, and their prefixes MUST NOT
+          for prefix assignment. Delegated-Prefix TLVs are only valid
+          inside External-Connection TLVs, and their prefixes MUST NOT
           overlap with those of other such TLVs in the same container.
 
             <list style="hanging">
               <t hangText="Valid Lifetime Since Origination: ">
               The time in seconds the delegated prefix was valid for at the
               origination time of the node data containing this TLV. The
-              value MUST be updated whenever the node republishes its Node
-              State TLV.</t>
+              value MUST be updated whenever the node republishes its Node-State
+              TLV.</t>
 
               <t hangText="Preferred Lifetime Since Origination: ">
               The time in seconds the delegated prefix was preferred for at
               the origination time of the node data containing this
               TLV. The value MUST be updated whenever the node republishes
-              its Node State TLV.</t>
+              its Node-State TLV.</t>
 
               <t hangText="Prefix Length: ">The number of significant bits in
               the prefix.</t>
@@ -1445,14 +1400,14 @@ Perhaps: An External-Connection TLV is a...
           </figure>
 
           <t>
-		  The Prefix Policy TLV contains information about the policy or
+		  The Prefix-Policy TLV contains information about the policy or
           applicability of a delegated prefix. This information can be used
           to determine whether prefixes for a certain use case (e.g., local
           reachability, Internet connectivity) do exist or are to be
           acquired and to make decisions about assigning prefixes to
           certain links or to fine-tune border firewalls. See <xref
           target="ec"/> for a more in-depth discussion.
-          This TLV is only valid inside a Delegated Prefix TLV.
+          This TLV is only valid inside a Delegated-Prefix TLV.
 
 
             <list style="hanging">
@@ -1502,10 +1457,10 @@ Perhaps: An External-Connection TLV is a...
 
              <t>This TLV is used to encode auxiliary IPv6 configuration
           information (e.g., recursive DNS servers) encoded as a stream of
-          DHCPv6 options. It is only valid in an External Connection TLV
-          or a Delegated Prefix TLV encoding an IPv6 prefix and MUST NOT
+          DHCPv6 options. It is only valid in an External-Connection TLV
+          or a Delegated-Prefix TLV encoding an IPv6 prefix and MUST NOT
           occur more than once in any single container. When included in
-          an External Connection TLV, it contains DHCPv6 options relevant
+          an External-Connection TLV, it contains DHCPv6 options relevant
           to the external connection as a whole. When included in a Delegated
           Prefix, it contains options mandatory to handle said prefix.
 
@@ -1531,7 +1486,7 @@ Perhaps: An External-Connection TLV is a...
 
           <t>This TLV is used to encode auxiliary IPv4 configuration
           information (e.g., recursive DNS servers) encoded as a stream of
-          DHCPv4 options. It is only valid in an External Connection TLV and
+          DHCPv4 options. It is only valid in an External-Connection TLV and
           MUST NOT occur more than once in any single container. It contains
           DHCPv4 options relevant to the external connection as a whole.
 
@@ -1859,7 +1814,7 @@ Perhaps: An External-Connection TLV is a...
         	<t>The dropping of packets with a destination address belonging to
         	a delegated prefix mandated in WPD-5 MUST NOT be applied to
         	destinations that are part of any prefix announced using an
-        	Assigned Prefix TLV by any HNCP router in the network.</t>
+        	Assigned-Prefix TLV by any HNCP router in the network.</t>
 
         	<t>"LAN-Side Configuration" (Section 4.3) applies to interfaces
         	not classified as external.</t>
@@ -1876,14 +1831,14 @@ Perhaps: An External-Connection TLV is a...
         	<t>The requirement L-12 to make DHCPv6 options available is
         	adapted, in that Canonical Encoding Rules (CER) SHOULD publish
                 the subset of options using
-        	the DHCPv6 Data TLV in an External Connection TLV. Similarly, it
-        	SHOULD do the same for DHCPv4 options in a DHCPv4 Data TLV.
+        	the DHCPv6-Data TLV in an External-Connection TLV. Similarly, it
+        	SHOULD do the same for DHCPv4 options in a DHCPv4-Data TLV.
         	DHCPv6 options received inside an OPTION_IAPREFIX
-        	<xref target="RFC3633" /> MUST be published using a DHCPv6 Data TLV
-        	inside the respective Delegated Prefix TLV.
+        	<xref target="RFC3633" /> MUST be published using a DHCPv6-Data TLV
+        	inside the respective Delegated-Prefix TLV.
 
         	HNCP routers SHOULD make relevant DHCPv6 and DHCPv4 options available
-        	to clients, i.e., options contained in External Connection TLVs that
+        	to clients, i.e., options contained in External-Connection TLVs that
         	also include delegated prefixes from which a subset is assigned to
         	the respective link.</t>
 
